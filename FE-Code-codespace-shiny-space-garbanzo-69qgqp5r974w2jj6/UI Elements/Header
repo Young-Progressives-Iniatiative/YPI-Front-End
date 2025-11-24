@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Young Progressives Initiative - Unified Home Page</title>
+  
+   <!-- Added Google Font: Atkinson Hyperlegible -->
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+
+
+
+
+   <!-- Firebase SDKs & Notification Logic -->
+   <script type="module">
+       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+       import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+       import { getFirestore, collection, query, onSnapshot, addDoc, updateDoc, doc, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+
+       let app;
+       let db;
+       let auth;
+       let currentUserId = null;
+
+
+       const appId = 'default-app-id';
+       const firebaseConfig = {}; // Replace with your actual Firebase config if needed
+
+
+       function updateHeaderUI(user) {
+           const isLoggedIn = !!user;
+           const elements = {
+               notificationBell: document.getElementById('notificationBell'),
+               profilePic: document.getElementById('profilePic'),
+               exploreYpiBtn: document.getElementById('exploreYpiBtn'),
+               mobileNotificationBell: document.getElementById('mobileNotificationBell'),
+               mobileProfilePic: document.getElementById('mobileProfilePic')
+           };
+          
+           if (elements.notificationBell) elements.notificationBell.style.display = isLoggedIn ? 'flex' : 'none';
+           if (elements.profilePic) elements.profilePic.style.display = isLoggedIn ? 'block' : 'none';
+           if (elements.exploreYpiBtn) elements.exploreYpiBtn.style.display = isLoggedIn ? 'none' : 'inline-block';
+           if (elements.mobileNotificationBell) elements.mobileNotificationBell.style.display = isLoggedIn ? 'flex' : 'none';
+           if (elements.mobileProfilePic) elements.mobileProfilePic.style.display = isLoggedIn ? 'block' : 'none';
+       }
+
+
+       async function initializeFirebase() {
+           try {
+               if (Object.keys(firebaseConfig).length > 0) {
+                   app = initializeApp(firebaseConfig);
+                   db = getFirestore(app);
+                   auth = getAuth(app);
+                   setLogLevel('debug');
+
+
+                   onAuthStateChanged(auth, (user) => {
+                       updateHeaderUI(user);
+                       if (user) {
+                           currentUserId = user.uid;
+                           console.log("Firebase authenticated. User ID:", currentUserId);
+                           setupNotificationListener();
+                       } else {
+                           console.log("User is not logged in.");
+                       }
+                   });
+               } else {
+                    updateHeaderUI(null);
+                    console.warn("Firebase config not found. UI is in logged-out state.");
+               }
+           } catch (error) {
+               updateHeaderUI(null);
+               console.error("Error initializing Firebase:", error);
+           }
+       }
+
+
+       function setupNotificationListener() {
+           if (!db || !currentUserId) return;
+           const notificationsRef = collection(db, `artifacts/${appId}/users/${currentUserId}/notifications`);
+           const q = query(notificationsRef);
+           onSnapshot(q, (snapshot) => {
+               const notifications = [];
+               let unreadCount = 0;
+               snapshot.forEach((doc) => {
+                   const data = doc.data();
+                   notifications.push({ id: doc.id, ...data });
+                   if (!data.read) unreadCount++;
+               });
+               notifications.sort((a, b) => (b.timestamp?.toDate() || 0) - (a.timestamp?.toDate() || 0));
+               if (window.updateNotificationsUI) {
+                   window.updateNotificationsUI(notifications, unreadCount);
+               }
+           }, (error) => console.error("Error getting notifications:", error));
+       }
+
+
+       window.addNewNotification = async (title, message) => {
+           if (!db || !currentUserId) {
+               if (window.showMessage) window.showMessage('Error', 'You must be logged in to receive notifications.');
+               return;
+           }
+           try {
+               await addDoc(collection(db, `artifacts/${appId}/users/${currentUserId}/notifications`), {
+                   title, message, timestamp: serverTimestamp(), read: false
+               });
+           } catch (e) { console.error("Error adding document: ", e); }
+       };
+
+
+       window.markNotificationAsRead = async (notificationId) => {
+           if (!db || !currentUserId || !notificationId) return;
+           const notificationRef = doc(db, `artifacts/${appId}/users/${currentUserId}/notifications`, notificationId);
+           await updateDoc(notificationRef, { read: true });
+       };
+
+
+       window.updateNotificationsUI = (notifications, unreadCount) => {
+           const updateList = (listId, countId) => {
+               const list = document.getElementById(listId);
+               const countEl = document.getElementById(countId);
+               if (!list || !countEl) return;
+
+
+               list.innerHTML = notifications.length === 0
+                   ? '<p class="notification-empty-message">No new notifications.</p>'
+                   : notifications.map(n => {
+                       const time = n.timestamp?.toDate ? new Date(n.timestamp.toDate()).toLocaleString() : 'Just now';
+                       return `<div class="notification-item ${n.read ? 'read' : ''}" data-id="${n.id}" data-title="${n.title}" data-message="${n.message}" data-read="${n.read}">
+                                   <div class="notification-item-title">${n.title}</div>
+                                   <p>${n.message}</p>
+                                   <div class="notification-item-time">${time}</div>
+                               </div>`;
+                   }).join('');
+               countEl.textContent = unreadCount;
+               countEl.style.display = unreadCount > 0 ? 'flex' : 'none';
+           };
+           updateList('notificationList', 'notificationCount');
+           updateList('mobileNotificationList', 'mobileNotificationCount');
+       };
+      
+       window.onload = initializeFirebase;
+   </script>
+
+
+   <style>
+       * { margin: 0; padding: 0; box-sizing: border-box; }
+       body { font-family: 'Arial', sans-serif; background-color: var(--theme-body-bg); color: var(--theme-body-color); line-height: 1.6; overflow-x: hidden; font-size: 16px; }
+       :root {
+           --primary-green: #37af4b; --theme-body-bg: #1c1c1c; --theme-body-color: #fff;
+           --theme-popup-bg: #333; --theme-popup-text: #fff; --theme-input-border: #444;
+       }
+       html[data-theme='light'] {
+           --theme-body-bg: #FEFEFE; --theme-body-color: #1c1c1c;
+           --theme-popup-bg: #fefefe; --theme-popup-text: #1c1c1c; --theme-input-border: #ccc;
+       }
+       .icon-button { background: transparent; border: none; cursor: pointer; padding: 0.5rem; position: relative; line-height: 0; }
+       .notification-bell-icon { width: 1.875rem; height: 1.875rem; stroke: #FEFEFE; stroke-width: 1.5; }
+       .profile-pic { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; cursor: pointer; border: 2px solid var(--primary-green); }
+       .notification-count { position: absolute; top: 0.2rem; right: 0.2rem; background-color: #dc3545; color: #fff; border-radius: 50%; padding: 0.1rem 0.4rem; font-size: 0.75rem; font-weight: bold; display: none; align-items: center; justify-content: center; }
+       .notification-dropdown { position: absolute; top: calc(100% + 1rem); right: 0; background-color: var(--theme-popup-bg); color: var(--theme-popup-text); border-radius: 0.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); width: 20rem; max-height: 25rem; overflow-y: auto; z-index: 1001; visibility: hidden; opacity: 0; transition: opacity 0.3s, visibility 0.3s; border: 1px solid var(--theme-input-border); }
+       .notification-dropdown.active { visibility: visible; opacity: 1; }
+       .notification-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; border-bottom: 1px solid var(--theme-input-border); }
+       .notification-title { font-weight: bold; font-size: 1.1rem; }
+       .notification-close { font-size: 1.5rem; cursor: pointer; background: none; border: none; color: inherit; }
+       .notification-item { padding: 0.75rem 1rem; border-bottom: 1px solid var(--theme-input-border); cursor: pointer; transition: background-color 0.2s; }
+       html[data-theme='light'] .notification-item:hover { background-color: rgba(0, 0, 0, 0.05); }
+       html[data-theme='dark'] .notification-item:hover { background-color: rgba(255, 255, 255, 0.1); }
+       .notification-item-title { font-weight: bold; color: var(--primary-green); }
+       .notification-item.read { opacity: 0.6; }
+       .desktop-wp-header-contents { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 1.25rem; height: 5rem; background: linear-gradient(135deg,rgb(5,114,21) 0%,rgb(55,175,75) 100%);}
+       .desktop-header-right-group { display: flex; justify-content: flex-end; gap: 1rem; align-items: center; }
+       .gear-icon { width: 1.875rem; height: 1.875rem; stroke: #FEFEFE; stroke-width: 1.5; }
+       html[data-theme='light'] .gear-icon { stroke: #1c1c1c; }
+       .mobile-header-controls { display: flex; align-items: center; gap: 0.5rem; }
+       .test-content-container { padding: 7rem 1.5rem 2rem; max-width: 800px; margin: auto; }
+       .test-content-box { background-color: var(--mobile-section-bg, #2a2a2a); padding: 2rem; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+       .test-button { cursor: pointer; padding: 0.75rem 1.5rem; background-color: var(--primary-green); color: white; border: none; border-radius: 5px; font-weight: bold; }
+       .message-box-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 10000; display: flex; justify-content: center; align-items: center; visibility: hidden; opacity: 0; transition: opacity 0.3s; }
+       .message-box { background-color: var(--theme-body-bg); color: var(--theme-body-color); padding: 1.5rem; border-radius: 0.5rem; max-width: 22rem; width: 90%; text-align: center; border: 1px solid var(--theme-input-border); }
+       .message-box h3 { color: var(--primary-green); margin-bottom: 1rem; }
+      
+       /* Updated styles for Explore YPI button */
+       .maxbutton {
+           display: inline-block;
+           text-decoration: none;
+           color: white;
+           background-color: rgba(255, 255, 255, 0.15); /* Translucent background */
+           border: 2px solid white; /* White outline */
+           padding: 8px 15px;
+           border-radius: 5px;
+           font-family: 'Atkinson Hyperlegible', sans-serif; /* New font */
+           font-weight: bold;
+           transition: background-color 0.3s ease;
+       }
+       .maxbutton:hover {
+           background-color: rgba(255, 255, 255, 0.3); /* Hover effect */
+       }
+
+
+       @media (max-width: 768px) { .main-wrapper { display: none; } .mobile-device-frame { display: block; } }
+       @media (min-width: 769px) { .main-wrapper { display: flex; flex-direction: column; min-height: 100vh; } .mobile-device-frame { display: none; } }
+   </style>
+   <script>
+       (function() {
+           const savedTheme = localStorage.getItem('theme') || 'dark';
+           document.documentElement.setAttribute('data-theme', savedTheme);
+       })();
+   </script>
+</head>
+<body>
+
+
+   <!-- ============================================= -->
+   <!-- ============== DESKTOP VERSION ============== -->
+   <!-- ============================================= -->
+   <div class="main-wrapper">
+       <header class="desktop-wp-header-contents">
+           <div class="desktop-header-left-group">
+               <a href="#"><img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Logo" style="width: 7.5rem; height: auto;"></a>
+           </div>
+           <div class="desktop-header-right-group">
+               <div id="notificationBell" class="icon-button" style="display: none;">
+                   <svg class="notification-bell-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4a2 2 0 01-.6-1.4V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                   <span id="notificationCount" class="notification-count">0</span>
+                   <div id="notificationDropdown" class="notification-dropdown">
+                       <div class="notification-header">
+                           <h3 class="notification-title">Notifications</h3>
+                           <button class="notification-close" id="notificationDropdownClose">&times;</button>
+                       </div>
+                       <div id="notificationList"><p class="notification-empty-message">Loading...</p></div>
+                   </div>
+               </div>
+               <img id="profilePic" class="profile-pic" src="https://placehold.co/50x50/37af4b/FFFFFF?text=U" alt="Profile" style="display: none;">
+              
+               <!-- Gear Icon and Explore YPI button are swapped -->
+               <button id="themeButton" class="icon-button" aria-label="Toggle color theme">
+                   <svg class="gear-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                       <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                       <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                   </svg>
+               </button>
+
+
+               <a class="maxbutton" href="javascript:void(0);" id="exploreYpiBtn" onclick="ypiShowLoginPopup();">Explore YPI</a>
+
+
+           </div>
+       </header>
+       <main class="test-content-container">
+           <div class="test-content-box">
+               <h1>Header Functionality Test</h1>
+               <p>Click the "Explore YPI" button to simulate logging in. Use the "Add Notification" button to test the bell while logged in.</p>
+               <button id="addNotificationBtn" class="test-button">Add Test Notification</button>
+           </div>
+       </main>
+   </div>
+
+
+   <!-- ============================================= -->
+   <!-- =============== MOBILE VERSION ============== -->
+   <!-- ============================================= -->
+   <div class="mobile-device-frame" id="mobileDeviceFrame">
+       <header class="site-header" style="background: linear-gradient(135deg,rgb(5,114,21) 0%,rgb(55,175,75) 100%); padding: 0.75rem 1rem;">
+           <a href="#"><img class="site-logo" src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI logo" style="height: 40px; width: auto;"></a>
+           <div class="mobile-header-controls">
+               <div id="mobileNotificationBell" class="icon-button" style="display: none;">
+                   <svg class="notification-bell-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4a2 2 0 01-.6-1.4V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                   <span id="mobileNotificationCount" class="notification-count">0</span>
+                   <div id="mobileNotificationDropdown" class="notification-dropdown">
+                       <div class="notification-header">
+                           <h3 class="notification-title">Notifications</h3>
+                           <button class="notification-close" id="mobileNotificationDropdownClose">&times;</button>
+                       </div>
+                       <div id="mobileNotificationList"><p class="notification-empty-message">Loading...</p></div>
+                   </div>
+               </div>
+               <img id="mobileProfilePic" class="profile-pic" src="https://placehold.co/50x50/37af4b/FFFFFF?text=U" alt="Profile" style="display: none;">
+              
+               <button id="mobileThemeButton" class="icon-button" aria-label="Toggle color theme">
+                   <svg class="gear-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                       <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                       <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                   </svg>
+               </button>
+               <button id="mobileHamburgerTrigger" class="menu-button" aria-label="Open menu">
+                   <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+               </button>
+           </div>
+       </header>
+       <main class="test-content-container" style="padding-top: 2rem;">
+           <div class="test-content-box">
+               <h1>Header Functionality Test</h1>
+               <p>Click the hamburger menu to navigate. If you were logged in, you would see a notification bell and profile icon here.</p>
+               <button id="mobileAddNotificationBtn" class="test-button">Add Test Notification</button>
+           </div>
+       </main>
+   </div>
+  
+   <div class="message-box-overlay" id="messageBoxOverlay"></div>
+
+
+   <script>
+       window.showMessage = (title, message) => {
+           const overlay = document.getElementById('messageBoxOverlay');
+           if (!overlay) return;
+           overlay.innerHTML = `<div class="message-box"><h3>${title}</h3><p>${message}</p><button>OK</button></div>`;
+           overlay.style.visibility = 'visible';
+           overlay.style.opacity = '1';
+           overlay.querySelector('button').onclick = () => {
+               overlay.style.opacity = '0';
+               setTimeout(() => overlay.style.visibility = 'hidden', 300);
+           };
+       }
+
+
+       function ypiShowLoginPopup() {
+           if (typeof firebase !== 'undefined' && firebase.auth) {
+               const { getAuth, signInAnonymously } = firebase.auth;
+               const auth = getAuth();
+               signInAnonymously(auth)
+                   .then(() => {
+                       window.showMessage("Login Simulated", "You are now logged in anonymously. The header has updated.");
+                   })
+                   .catch(error => {
+                       console.error("Anonymous sign-in failed:", error);
+                       window.showMessage("Login Error", "Could not simulate login. See console for details.");
+                   });
+           } else {
+                console.error("Firebase not initialized. Cannot simulate login.");
+                window.showMessage("Configuration Error", "Firebase is not set up, so login cannot be simulated.");
+           }
+       }
+
+
+       document.addEventListener('DOMContentLoaded', function() {
+           // Theme Toggle Logic
+           document.querySelectorAll('.icon-button[aria-label="Toggle color theme"]').forEach(button => {
+               button.addEventListener('click', () => {
+                   const currentTheme = document.documentElement.getAttribute('data-theme');
+                   const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                   document.documentElement.setAttribute('data-theme', newTheme);
+                   localStorage.setItem('theme', newTheme);
+               });
+           });
+
+
+           function setupNotificationDropdown(bellId, dropdownId, closeId) {
+               const bell = document.getElementById(bellId);
+               const dropdown = document.getElementById(dropdownId);
+               const closeBtn = document.getElementById(closeId);
+               if (!bell || !dropdown || !closeBtn) return;
+               bell.addEventListener('click', e => { e.stopPropagation(); dropdown.classList.toggle('active'); });
+               closeBtn.addEventListener('click', () => dropdown.classList.remove('active'));
+           }
+           setupNotificationDropdown('notificationBell', 'notificationDropdown', 'notificationDropdownClose');
+           setupNotificationDropdown('mobileNotificationBell', 'mobileNotificationDropdown', 'mobileNotificationDropdownClose');
+          
+           document.addEventListener('click', e => {
+               document.querySelectorAll('.notification-dropdown.active').forEach(dropdown => {
+                   if (!dropdown.parentElement.contains(e.target)) {
+                       dropdown.classList.remove('active');
+                   }
+               });
+           });
+
+
+           document.body.addEventListener('click', (e) => {
+               const item = e.target.closest('.notification-item');
+               if (!item) return;
+               window.showMessage(item.dataset.title, item.dataset.message);
+               if (item.dataset.read === 'false') {
+                   window.markNotificationAsRead(item.dataset.id);
+               }
+           });
+
+
+           const addNotificationHandler = () => {
+               const titles = ['New Message', 'System Alert', 'Friend Request'];
+               const messages = ['You have a new message from Jane Doe.', 'Server maintenance is scheduled for tonight.', 'John Smith sent you a friend request.'];
+               window.addNewNotification(titles[Math.floor(Math.random() * titles.length)], messages[Math.floor(Math.random() * messages.length)]);
+           };
+           document.getElementById('addNotificationBtn').onclick = addNotificationHandler;
+           document.getElementById('mobileAddNotificationBtn').onclick = addNotificationHandler;
+       });
+   </script>
+</body>
+</html>

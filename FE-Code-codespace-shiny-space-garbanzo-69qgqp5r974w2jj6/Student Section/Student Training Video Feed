@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Volunteer Video Queue</title>
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+   <script src="https://cdn.tailwindcss.com"></script>
+   <style>
+       * {
+           margin: 0;
+           padding: 0;
+           box-sizing: border-box;
+       }
+
+
+       body {
+           font-family: 'Arial', sans-serif;
+           background-color: var(--theme-body-bg);
+           color: var(--theme-body-color);
+           line-height: 1.6;
+           overflow-x: hidden;
+           font-size: 16px;
+       }
+
+
+       body.customizer-is-open, body.tour-is-active {
+           overflow: hidden;
+       }
+
+
+       :root {
+           --primary-green: #37af4b;
+           --dark-background: #1c1c1c;
+           --member-border: #28a745;
+           --light-gray: #bbb;
+           --wp--preset--spacing--20: 5rem;
+           --theme-body-bg: #1c1c1c;
+           --theme-body-color: #fff;
+           --theme-popup-bg: #bbbbbb;
+           --theme-popup-text: #1c1c1c;
+           --theme-input-bg: #333;
+           --theme-input-border: #444;
+           --theme-input-text: #eee;
+           --theme-navbar-bg: #1c1c1c;
+           --theme-navbar-text: #fff;
+           --theme-navbar-dropdown-bg: #f0f0f0;
+           --theme-navbar-dropdown-text: #1c1c1c;
+           --theme-navbar-dropdown-hover-bg: #ddd;
+           --theme-button-bg: #FEFEFE;
+           --theme-button-text: #1c1c1c;
+           --theme-button-border: #1c1c1c;
+           --theme-button-hover-bg: #1c1c1c;
+           --theme-button-hover-text: #FEFEFE;
+           --mobile-section-bg: #2a2a2a;
+           --logo-color: #FEFEFE;
+           --theme-header-bg: linear-gradient(135deg, rgb(5, 114, 21) 0%, rgb(55, 175, 75) 100%);
+       }
+
+
+       html[data-theme='light'] {
+           --theme-body-bg: #FEFEFE;
+           --theme-body-color: #1c1c1c;
+           --theme-popup-bg: #e0e0e0;
+           --theme-popup-text: #1c1c1c;
+           --theme-input-bg: #fff;
+           --theme-input-border: #ccc;
+           --theme-input-text: #1c1c1c;
+           --primary-green: #37af4b;
+           --member-border: #37af4b;
+           --theme-navbar-bg: #FEFEFE;
+           --theme-navbar-text: #1c1c1c;
+           --theme-navbar-dropdown-bg: #1c1c1c;
+           --theme-navbar-dropdown-text: #FEFEFE;
+           --theme-navbar-dropdown-hover-bg: #333;
+           --theme-button-bg: #1c1c1c;
+           --theme-button-text: #FEFEFE;
+           --theme-button-border: #1c1c1c;
+           --theme-button-hover-bg: #FEFEFE;
+           --theme-button-hover-text: #1c1c1c;
+           --mobile-section-bg: #f0f0f0;
+           --logo-color: #1c1c1c;
+       }
+      
+       html[data-theme='light'] .header-container {
+            --theme-header-bg: #FEFEFE;
+       }
+
+
+       html[data-theme='light'] .desktop-wp-footer,
+       html[data-theme='light'] .desktop-wp-footer a {
+           background: #1c1c1c;
+           color: #FEFEFE;
+       }
+
+
+       html[data-theme='light'] .desktop-bottom-content {
+           background: #dddddd;
+       }
+
+
+       html[data-theme='light'] .address p {
+           color: #1c1c1c;
+       }
+
+
+       .main-wrapper {
+           width: 100%;
+           min-height: 100vh;
+           background-color: var(--theme-body-bg);
+           position: relative;
+           display: flex;
+           flex-direction: column;
+           transition: background-color 0.3s, color 0.3s;
+       }
+
+
+       .content-body {
+           flex: 1;
+           padding: 7rem 2rem 2rem 2rem; /* Adjusted padding for fixed header */
+       }
+
+
+       /* Header Styles */
+       .header-container {
+           background: var(--theme-header-bg);
+           height: 5rem;
+           padding: 0 1.25rem;
+           position: fixed;
+           top: 0; left: 0;
+           width: 100%;
+           z-index: 50;
+           display: flex;
+           align-items: center;
+       }
+       .header-contents {
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           width: 100%;
+           height: 100%;
+       }
+       .header-left, .header-right {
+           display: flex;
+           gap: 1.25rem;
+           align-items: center;
+           height: 100%;
+       }
+       .header-logo {
+           height: 70%;
+           width: auto;
+           object-fit: contain;
+       }
+       .icon-button {
+           background: transparent;
+           border: none;
+           cursor: pointer;
+           padding: 0.5rem;
+           position: relative;
+       }
+       .gear-icon, .notification-bell-icon {
+           width: 1.875rem;
+           height: 1.875rem;
+           stroke: #FEFEFE;
+           stroke-width: 1.5;
+       }
+       .profile-pic {
+           width: 45px;
+           height: 45px;
+           border-radius: 50%;
+           object-fit: cover;
+           cursor: pointer;
+           border: 2px solid var(--primary-green);
+       }
+     
+       /* Footer Styles */
+       .footer-container {
+           background: linear-gradient(135deg, rgb(5, 114, 21) 0%, rgb(55, 175, 75) 100%);
+           padding: 1rem 0;
+           color: #FEFEFE;
+       }
+
+
+       .footer-content {
+           max-width: 1200px;
+           margin: auto;
+           padding: 1.25rem;
+           display: flex;
+           justify-content: center;
+           align-items: center;
+           flex-wrap: wrap;
+       }
+       .footer-column {
+           display: flex;
+           flex-direction: column;
+           align-items: center;
+           padding: 0.625rem;
+           text-align: center;
+       }
+       .footer-container .site-logo {
+           width: 10.4125rem;
+           height: auto;
+           object-fit: contain;
+           margin-top: -25px;
+           filter: var(--logo-filter);
+       }
+       .company-heading {
+           font-size: 1.25rem;
+           text-align: center;
+           font-weight: bold;
+           margin: 0;
+       }
+       .address {
+           width: 100%;
+           text-align: center;
+           margin-top: 1rem;
+           padding-bottom: 0.3125rem;
+           font-size: 0.8rem;
+           color: #ccc;
+       }
+      
+       /* Video List Styles - Adapted for new theme */
+       .video-list {
+           max-width: 900px;
+           margin: 0 auto;
+       }
+
+
+       .video-item {
+           background-color: var(--mobile-section-bg);
+           border: 1px solid var(--theme-input-border);
+           display: flex;
+           margin-bottom: 20px;
+           gap: 15px;
+           padding: 15px;
+           border-radius: 8px;
+           box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+       }
+
+
+       .thumbnail {
+           position: relative;
+           flex-shrink: 0;
+       }
+
+
+       .thumbnail img {
+           width: 246px;
+           height: 138px;
+           border-radius: 5px;
+           display: block;
+       }
+      
+       .play-button {
+           position: absolute;
+           top: 50%;
+           left: 50%;
+           transform: translate(-50%, -50%);
+           width: 40px;
+           height: 40px;
+           background-color: rgba(0, 0, 0, 0.7);
+           border-radius: 50%;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           cursor: pointer;
+           opacity: 0;
+           transition: opacity 0.3s;
+       }
+      
+       .thumbnail:hover .play-button {
+           opacity: 1;
+       }
+
+
+       .play-button::before {
+           content: '▶';
+           color: #FFFFFF;
+           font-size: 20px;
+           padding-left: 4px;
+       }
+      
+       .timestamp {
+           position: absolute;
+           bottom: 8px;
+           right: 8px;
+           background-color: rgba(0, 0, 0, 0.75);
+           color: #FFFFFF;
+           padding: 2px 5px;
+           font-size: 12px;
+           border-radius: 3px;
+       }
+
+
+       .video-details {
+           flex: 1;
+           display: flex;
+           flex-direction: column;
+       }
+      
+       .org-info {
+           display: flex;
+           align-items: center;
+           margin-bottom: 5px;
+       }
+
+
+       .org-logo {
+           width: 30px;
+           height: 30px;
+           background-color: var(--member-border);
+           border-radius: 50%;
+           margin-right: 10px;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+       }
+      
+       .org-logo img {
+           width: 20px;
+           height: 20px;
+       }
+      
+       .org-name {
+           font-size: 14px;
+           color: var(--light-gray);
+       }
+
+
+       .video-details h3 {
+           font-size: 18px;
+           font-weight: bold;
+           margin: 5px 0;
+           color: var(--theme-body-color);
+       }
+
+
+       .video-details p {
+           font-size: 14px;
+           margin: 5px 0;
+           color: var(--light-gray);
+       }
+
+
+       .progress-bar-container {
+           display: flex;
+           align-items: center;
+           gap: 10px;
+           margin-top: auto;
+           padding-top: 10px;
+       }
+      
+       .progress-bar {
+           width: 100%;
+           height: 8px;
+           appearance: none;
+           border-radius: 4px;
+           overflow: hidden;
+           background-color: var(--theme-input-border);
+       }
+      
+       .progress-bar::-webkit-progress-bar {
+           background-color: var(--theme-input-border);
+       }
+       .progress-bar::-webkit-progress-value {
+           background-color: var(--primary-green);
+       }
+
+
+       .progress-bar::-moz-progress-bar {
+           background-color: var(--primary-green);
+       }
+      
+       .completion-percentage {
+           font-size: 14px;
+           color: var(--primary-green);
+           font-weight: bold;
+           min-width: 40px;
+           text-align: right;
+       }
+      
+       .due-date {
+           color: var(--theme-body-color);
+           font-weight: bold;
+           font-size: 14px;
+       }
+      
+       .due-date span {
+           color: var(--primary-green);
+       }
+
+
+       /* Responsive design */
+       @media (max-width: 768px) {
+           .video-item {
+               flex-direction: column;
+           }
+           .thumbnail img {
+               width: 100%;
+               height: auto;
+           }
+            .content-body {
+               padding: 6rem 1rem 1rem 1rem;
+           }
+       }
+      
+       /* All other styles from the provided code */
+       .notification-count{position:absolute;top:.2rem;right:.2rem;background-color:#dc3545;color:#fff;border-radius:50%;padding:.1rem .4rem;font-size:.75rem;font-weight:700;display:none;align-items:center;justify-content:center}.notification-dropdown{position:absolute;top:calc(100% + .5rem);right:0;background-color:var(--theme-popup-bg);color:var(--theme-popup-text);border-radius:.5rem;box-shadow:0 4px 12px rgba(0,0,0,.2);width:20rem;max-height:25rem;overflow-y:auto;z-index:1001;visibility:hidden;opacity:0;transition:opacity .3s,visibility .3s}.notification-dropdown.active{visibility:visible;opacity:1}.notification-header{display:flex;justify-content:space-between;align-items:center;padding:.75rem 1rem;border-bottom:1px solid var(--theme-input-border)}.notification-title{font-weight:700;font-size:1.1rem}.notification-close{font-size:1.5rem;cursor:pointer;background:0 0;border:none;color:inherit}.notification-item{padding:.75rem 1rem;border-bottom:1px solid var(--theme-input-border);cursor:pointer;transition:background-color .2s}.notification-item:last-child{border-bottom:none}html[data-theme=light] .notification-item:hover{background-color:rgba(0,0,0,.05)}html[data-theme=dark] .notification-item:hover{background-color:rgba(255,255,255,.1)}.notification-item-title{font-weight:700;color:var(--primary-green)}.notification-item-time{font-size:.75rem;opacity:.7;margin-top:.25rem}.notification-item.read{opacity:.6}.popup-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.2);z-index:9998;visibility:hidden;opacity:0;transition:opacity .3s ease-in-out,visibility .3s ease-in-out;display:flex;justify-content:center;align-items:center}.popup-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.9375rem;cursor:move}.popup-title{margin:0;font-size:1.125rem;font-weight:700}.popup-close-button{font-size:1.5rem;cursor:pointer;padding:0 .3125rem;line-height:1}.maxbutton{display:inline-flex;align-items:center;justify-content:center;width:100%;max-width:10rem;padding:.75rem;border:2px solid var(--theme-button-border);border-radius:.25rem;background-color:var(--theme-button-bg);cursor:pointer;text-align:center;text-decoration:none;font-size:1.125rem;font-weight:700;transition:background-color .3s ease,color .3s ease,border-color .3s ease;margin:.5rem 0}.maxbutton:hover{background-color:var(--theme-button-hover-bg);border-color:var(--theme-button-hover-bg)}.maxbutton:focus{outline:2px solid var(--primary-green);outline-offset:2px}.maxbutton .mb-text{color:var(--theme-button-text);transition:color .3s ease}.maxbutton:hover .mb-text{color:var(--theme-button-hover-text)}.message-box-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.5);z-index:10000;display:flex;justify-content:center;align-items:center;visibility:hidden;opacity:0;transition:opacity .3s ease-in-out,visibility .3s ease-in-out}.message-box{background-color:var(--theme-body-bg);color:var(--theme-body-color);padding:1.5625rem;border-radius:.5rem;box-shadow:0 .3125rem .9375rem rgba(0,0,0,.3);max-width:21.875rem;width:90%;text-align:center;position:relative}.message-box h3{margin-top:0;margin-bottom:.9375rem;color:var(--primary-green)}.message-box p{margin-bottom:1.25rem;font-size:1.1rem}.message-box button{background-color:var(--primary-green);color:#1c1c1c;border:none;padding:.625rem 1.25rem;border-radius:.3125rem;cursor:pointer;font-weight:700;transition:background-color .2s ease}.message-box button:hover{background-color:#2e9b41}.profile-menu-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,.2);z-index:9998;display:flex;justify-content:center;align-items:center;visibility:hidden;opacity:0;transition:opacity .3s ease-in-out,visibility .3s ease-in-out}.profile-menu{background-color:var(--theme-popup-bg);color:var(--theme-popup-text);padding:1.25rem;border-radius:.5rem;box-shadow:0 .25rem .75rem rgba(0,0,0,.2);width:15.625rem;text-align:center;position:absolute}.profile-menu h3{margin-top:0;margin-bottom:.9375rem;color:var(--primary-green)}.profile-menu button{background-color:var(--primary-green);color:#1c1c1c;border:none;padding:.625rem 1.25rem;border-radius:.3125rem;cursor:pointer;font-weight:700;transition:background-color .2s ease;width:100%}.profile-menu button:hover{background-color:#2e9b41}
+       .customizer-panel{background-color:var(--theme-popup-bg);color:var(--theme-popup-text);padding:2rem;border-radius:.75rem;box-shadow:0 4px 12px rgba(0,0,0,.1);max-width:600px;width:90%;text-align:left;border:1px solid var(--theme-input-border);transition:background-color .3s ease,border-color .3s ease,color .3s ease;overflow-y:auto;max-height:90vh;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}.customizer-panel label{display:block;margin-bottom:.5rem;font-weight:700}.customizer-panel input[type=text],.customizer-panel input[type=color],.customizer-panel input[type=checkbox]{width:100%;padding:.75rem;margin-bottom:1rem;border-radius:.5rem;border:1px solid var(--theme-input-border);background-color:var(--theme-input-bg);color:var(--theme-input-text);transition:border-color .3s ease,background-color .3s ease,color .3s ease}.customizer-panel input[type=color]{height:40px;padding:.25rem}.customizer-panel input[type=checkbox]{width:auto}.customizer-panel .color-input-group{display:flex;align-items:center;gap:.5rem;margin-bottom:1rem}.customizer-panel .color-input-group input[type=text]{flex-grow:1;margin-bottom:0}.customizer-panel .button-group{display:flex;flex-direction:column;gap:.5rem;margin-top:1rem}
+   </style>
+</head>
+<body>
+   <div class="main-wrapper">
+       <header class="header-container">
+           <div class="header-contents">
+               <div class="header-left">
+                   <img class="header-logo" src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Logo">
+               </div>
+               <div class="header-right">
+                   <div id="notificationBell" class="icon-button">
+                       <svg class="notification-bell-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                       <span id="notificationCount" class="notification-count">0</span>
+                      
+                       <div id="notificationDropdown" class="notification-dropdown">
+                           <div class="notification-header">
+                               <h3 class="notification-title">Notifications</h3>
+                               <button id="notificationDropdownClose" class="notification-close">&times;</button>
+                           </div>
+                           <div id="notificationList">
+                               <p class="p-4 text-center text-sm opacity-75">Loading...</p>
+                           </div>
+                       </div>
+                   </div>
+                   <button id="themeCustomizerBtn" class="icon-button">
+                       <svg class="gear-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                   </button>
+                   <img id="profilePic" class="profile-pic" src="https://placehold.co/50x50/37af4b/FFFFFF?text=U" alt="Profile">
+               </div>
+           </div>
+       </header>
+
+
+       <main class="content-body">
+           <section class="video-list">
+               <!-- Videos will be dynamically loaded here -->
+                <p class="text-center">Loading video queue...</p>
+           </section>
+       </main>
+      
+       <div id="themeCustomizerOverlay" class="popup-overlay" style="visibility: hidden; opacity: 0;">
+            <div class="customizer-panel">
+                <div class="popup-header">
+                    <h2 class="popup-title">Theme Customizer</h2>
+                    <span id="closeCustomizerBtn" class="popup-close-button">×</span>
+                </div>
+                <div>
+                    <label for="simulatedUserIdInput">User ID</label>
+                    <input type="text" id="simulatedUserIdInput" placeholder="Enter User ID">
+                    <div class="color-input-group">
+                        <label for="bodyBg">Body Background</label>
+                        <input type="text" id="bodyBg">
+                        <input type="color" id="bodyBgPicker">
+                    </div>
+                    <div class="color-input-group">
+                        <label for="bodyText">Body Text</label>
+                        <input type="text" id="bodyText">
+                        <input type="color" id="bodyTextPicker">
+                    </div>
+                    <div class="color-input-group">
+                        <label for="headerBg">Header Background</label>
+                        <input type="text" id="headerBg">
+                        <input type="color" id="headerBgPicker">
+                    </div>
+                    <div class="color-input-group">
+                        <label for="headerText">Header Text</label>
+                        <input type="text" id="headerText">
+                        <input type="color" id="headerTextPicker">
+                    </div>
+                    <div class="color-input-group">
+                        <label for="buttonBg">Button Background</label>
+                        <input type="text" id="buttonBg">
+                        <input type="color" id="buttonBgPicker">
+                    </div>
+                    <div class="color-input-group">
+                        <label for="buttonText">Button Text</label>
+                        <input type="text" id="buttonText">
+                        <input type="color" id="buttonTextPicker">
+                    </div>
+                    <div class="color-input-group">
+                        <label for="footerBg">Footer Background</label>
+                        <input type="text" id="footerBg">
+                        <input type="color" id="footerBgPicker">
+                    </div>
+                    <div class="color-input-group">
+                        <label for="footerText">Footer Text</label>
+                        <input type="text" id="footerText">
+                        <input type="color" id="footerTextPicker">
+                    </div>
+                    <div class="color-input-group">
+                        <label for="cardBg">Card Background</label>
+                        <input type="text" id="cardBg">
+                        <input type="color" id="cardBgPicker">
+                    </div>
+                    <div class="color-input-group">
+                        <label for="cardBorder">Card Border</label>
+                        <input type="text" id="cardBorder">
+                        <input type="color" id="cardBorderPicker">
+                    </div>
+                    <div class="color-input-group">
+                        <label for="logoColor">Logo Color</label>
+                        <input type="text" id="logoColor">
+                        <input type="color" id="logoColorPicker">
+                    </div>
+                    <div class="button-group">
+                        <button id="applyPreviewThemeBtn" class="maxbutton" aria-label="Apply Theme Preview"><span class="mb-text">Apply Preview</span></button>
+                        <button id="saveCustomThemeBtn" class="maxbutton" aria-label="Save Custom Theme"><span class="mb-text">Save Theme</span></button>
+                        <button id="resetCustomThemeBtn" class="maxbutton" aria-label="Reset to Default Theme"><span class="mb-text">Reset to Default</span></button>
+                    </div>
+                </div>
+            </div>
+       </div>
+       <div id="profileMenuOverlay" class="profile-menu-overlay" style="visibility: hidden; opacity: 0;">
+            <div class="profile-menu">
+               <h3 id="profileMenuTitle"></h3>
+               <span id="profileMenuClose" class="popup-close-button">×</span>
+               <button id="signOutButton" style="display: none;">Sign Out</button>
+           </div>
+       </div>
+       <div id="messageBoxOverlay" class="message-box-overlay" style="visibility: hidden; opacity: 0;"></div>
+
+
+       <footer class="footer-container desktop-wp-footer">
+           <div class="footer-content">
+               <div class="footer-column">
+                   <img id="desktopFooterLogo" src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Footer Logo" class="site-logo" onerror="this.src='https://placehold.co/50x50/cccccc/333333?text=YPI';">
+                   <h3 class="company-heading">A Company to Change America One Hour At a Time</h3>
+                   <div class="address">
+                       <p>Young Progressives Initiative L.L.C, Chevy Chase, MD 20815</p>
+                   </div>
+               </div>
+           </div>
+       </footer>
+   </div>
+
+
+   <!-- Firebase SDKs -->
+   <script type="module">
+       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+       import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+       import { getFirestore, collection, query, onSnapshot, addDoc, updateDoc, doc, serverTimestamp, setLogLevel, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+
+       let app;
+       let db;
+       let auth;
+       let currentUserId = null;
+
+
+       const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+       const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+       const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+
+       async function initializeFirebase() {
+           try {
+               if (Object.keys(firebaseConfig).length > 0) {
+                   app = initializeApp(firebaseConfig);
+                   db = getFirestore(app);
+                   auth = getAuth(app);
+                   setLogLevel('debug');
+
+
+                   onAuthStateChanged(auth, async (user) => {
+                       if (user) {
+                           currentUserId = user.uid;
+                           console.log("Firebase authenticated. User ID:", currentUserId);
+                           setupNotificationListener();
+                           setupVideoQueueListener(); // Fetch videos for the user
+                       } else {
+                           try {
+                               if (initialAuthToken) {
+                                   await signInWithCustomToken(auth, initialAuthToken);
+                               } else {
+                                   await signInAnonymously(auth);
+                               }
+                           } catch (error) {
+                               console.error("Firebase authentication failed:", error);
+                               if (window.showMessage) {
+                                   window.showMessage('Authentication Error', 'Failed to authenticate with Firebase.');
+                               }
+                           }
+                       }
+                   });
+               } else {
+                   console.warn("Firebase config not found.");
+                   if (window.showMessage) {
+                       window.showMessage('Configuration Error', 'Firebase configuration is missing.');
+                   }
+               }
+           } catch (error) {
+               console.error("Error initializing Firebase:", error);
+               if (window.showMessage) {
+                   window.showMessage('Initialization Error', 'Failed to initialize Firebase.');
+               }
+           }
+       }
+      
+       window.onload = initializeFirebase;
+
+
+       function setupNotificationListener() {
+           if (!db || !currentUserId) return;
+           const notificationsRef = collection(db, `artifacts/${appId}/users/${currentUserId}/notifications`);
+           const q = query(notificationsRef);
+         
+           onSnapshot(q, (snapshot) => {
+               const notifications = [];
+               let unreadCount = 0;
+               snapshot.forEach((doc) => {
+                   const data = doc.data();
+                   notifications.push({ id: doc.id, ...data });
+                   if (!data.read) unreadCount++;
+               });
+
+
+               notifications.sort((a, b) => (b.timestamp?.toDate() || 0) - (a.timestamp?.toDate() || 0));
+
+
+               if (window.updateNotificationsUI) {
+                   window.updateNotificationsUI(notifications, unreadCount);
+               }
+           }, (error) => {
+               console.error("Error getting notifications:", error);
+           });
+       }
+
+
+       function setupVideoQueueListener() {
+           if (!db || !currentUserId) return;
+
+
+           const videoQueueRef = collection(db, `artifacts/${appId}/users/${currentUserId}/videoQueue`);
+           const q = query(videoQueueRef);
+          
+           onSnapshot(q, (snapshot) => {
+               const videos = [];
+               snapshot.forEach((doc) => {
+                   videos.push({ id: doc.id, ...doc.data() });
+               });
+               videos.sort((a, b) => (a.order || 0) - (b.order || 0));
+              
+               if (window.renderVideoQueue) {
+                   window.renderVideoQueue(videos);
+               }
+           }, (error) => {
+               console.error("Error getting video queue:", error);
+               if (window.renderVideoQueue) {
+                   window.renderVideoQueue([]);
+               }
+           });
+       }
+
+
+       window.addNewNotification = async (title, message) => {
+           if (!db || !currentUserId) {
+               if (window.showMessage) window.showMessage('Error', 'Cannot add notification: User not authenticated.');
+               return;
+           }
+           try {
+               await addDoc(collection(db, `artifacts/${appId}/users/${currentUserId}/notifications`), {
+                   title,
+                   message,
+                   timestamp: serverTimestamp(),
+                   read: false
+               });
+           } catch (e) {
+               console.error("Error adding document: ", e);
+           }
+       };
+
+
+       window.markNotificationAsRead = async (notificationId) => {
+           if (!db || !currentUserId || !notificationId) return;
+           const notificationRef = doc(db, `artifacts/${appId}/users/${currentUserId}/notifications`, notificationId);
+           await updateDoc(notificationRef, { read: true });
+       };
+
+
+       window.updateNotificationsUI = (notifications, unreadCount) => {
+           const list = document.getElementById('notificationList');
+           const countEl = document.getElementById('notificationCount');
+           if (!list || !countEl) return;
+
+
+           if (notifications.length === 0) {
+               list.innerHTML = '<p class="p-4 text-center text-sm text-gray-500 dark:text-gray-400">No new notifications.</p>';
+           } else {
+               list.innerHTML = '';
+               notifications.forEach(n => {
+                   const item = document.createElement('div');
+                   item.className = `notification-item ${n.read ? 'read' : ''}`;
+                   const time = n.timestamp?.toDate ? new Date(n.timestamp.toDate()).toLocaleString() : 'Just now';
+                 
+                   item.innerHTML = `
+                       <div class="notification-item-title">${n.title}</div>
+                       <p>${n.message}</p>
+                       <div class="notification-item-time">${time}</div>
+                   `;
+                   item.onclick = async () => {
+                       if (window.showMessage) window.showMessage(n.title, n.message);
+                       if (!n.read) await window.markNotificationAsRead(n.id);
+                   };
+                   list.appendChild(item);
+               });
+           }
+         
+           countEl.textContent = unreadCount;
+           countEl.style.display = unreadCount > 0 ? 'flex' : 'none';
+       };
+   </script>
+   <script>
+       (function() {
+           try {
+               const savedTheme = localStorage.getItem('theme') || 'dark';
+               document.documentElement.setAttribute('data-theme', savedTheme);
+           } catch (e) {
+               console.error("Could not access localStorage to set theme.", e);
+           }
+       })();
+
+
+       function showMessage(title, message, type = 'info') {
+           try {
+               let messageBoxOverlay = document.getElementById('messageBoxOverlay');
+               if (!messageBoxOverlay) {
+                   messageBoxOverlay = document.createElement('div');
+                   messageBoxOverlay.id = 'messageBoxOverlay';
+                   messageBoxOverlay.className = 'message-box-overlay';
+                   document.body.appendChild(messageBoxOverlay);
+               }
+               messageBoxOverlay.innerHTML = `<div class="message-box"><h3>${title}</h3><p>${message}</p><button id="messageBoxCloseButton">OK</button></div>`;
+               document.getElementById('messageBoxCloseButton').onclick = () => hideMessageBox();
+               messageBoxOverlay.style.visibility = 'visible';
+               messageBoxOverlay.style.opacity = '1';
+               document.body.classList.add('customizer-is-open');
+           } catch (e) {
+               console.error('Error in showMessage:', e);
+           }
+       }
+
+
+       function hideMessageBox() {
+           try {
+               const messageBoxOverlay = document.getElementById('messageBoxOverlay');
+               if (messageBoxOverlay) {
+                   messageBoxOverlay.style.opacity = '0';
+                   setTimeout(() => {
+                       messageBoxOverlay.style.visibility = 'hidden';
+                       document.body.classList.remove('customizer-is-open');
+                   }, 300);
+               }
+           } catch (e) {
+               console.error('Error in hideMessageBox:', e);
+           }
+       }
+      
+       window.showMessage = showMessage;
+
+
+       function renderVideoQueue(videos) {
+           const videoListContainer = document.querySelector('.video-list');
+           if (!videoListContainer) return;
+
+
+           if (!videos || videos.length === 0) {
+               videoListContainer.innerHTML = `<div style="text-align: center; font-family: Arial, sans-serif; font-size: 2.5rem; font-weight: bold; color: white; -webkit-text-stroke: 2px var(--primary-green); padding-top: 10vh;">You are All Caught Up</div>`;
+               return;
+           }
+
+
+           videoListContainer.innerHTML = videos.map(video => {
+               const dueDate = video.dueDate?.toDate ? new Date(video.dueDate.toDate()).toLocaleDateString() : 'N/A';
+               return `
+               <article class="video-item">
+                   <div class="thumbnail">
+                       <img src="${video.thumbnailUrl || 'https://placehold.co/246x138/1A1A1A/FFFFFF?text=Video'}" alt="${video.title || 'Video'} Thumbnail">
+                       <div class="play-button"></div>
+                       <span class="timestamp">${video.duration || '00:00'}</span>
+                   </div>
+                   <div class="video-details">
+                       <div class="org-info">
+                           <div class="org-logo">
+                               <img src="${video.organizationLogoUrl || 'https://placehold.co/20x20/FFFFFF/000000?text=O'}" alt="${video.organizationName || 'Organization'} Logo">
+                           </div>
+                           <p class="org-name">Hosted by: ${video.organizationName || 'Organization'}</p>
+                       </div>
+                       <h3>${video.title || 'Video Title'}</h3>
+                       <p>${video.description || 'Video description.'}</p>
+                       <div class="progress-bar-container">
+                           <progress class="progress-bar" value="${video.progress || 0}" max="100"></progress>
+                           <span class="completion-percentage">${video.progress || 0}%</span>
+                       </div>
+                       <p class="due-date">Due by: <span>${dueDate}</span></p>
+                   </div>
+               </article>
+           `}).join('');
+       }
+       window.renderVideoQueue = renderVideoQueue;
+
+
+       function hexToHSL(hex){if(!hex)return 0;try{hex=hex.replace(/^#/,"");let r=parseInt(hex.substr(0,2),16)/255,g=parseInt(hex.substr(2,2),16)/255,b=parseInt(hex.substr(4,2),16)/255,max=Math.max(r,g,b),min=Math.min(r,g,b),h,s,l=(max+min)/2;if(max===min)h=s=0;else{let d=max-min;s=l>.5?d/(2-max-min):d/(max+min);switch(max){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;case b:h=(r-g)/d+4}h/=6}return h*360}catch(e){console.error("Error in hexToHSL:",e);return 0}}
+      
+       function showProfileMenu(){try{const e=document.getElementById("profileMenuOverlay"),t=document.getElementById("profileMenuTitle"),o=document.getElementById("signOutButton"),n=document.getElementById("profileMenuClose"),i=localStorage.getItem("simulatedUserId");i&&(localStorage.getItem(`isAdmin_${i}`),t.textContent="",o.style.display="block",o.onclick=()=>{try{const e=localStorage.getItem("simulatedUserId");localStorage.removeItem(`firstLogin_${e}`),localStorage.removeItem(`isAdmin_${e}`),localStorage.removeItem(`customTheme_${e}`),localStorage.removeItem(`cardPositions_${e}`),localStorage.setItem("simulatedUserId","Guest"),localStorage.setItem("isAdmin_Guest","false"),showMessage("Signed Out","You have been signed out.","info"),setTimeout(()=>window.location.reload(),1e3)}catch(e){console.error("Error in signOutButton click:",e),showMessage("Error","An error occurred while signing out.")}}),e.style.visibility="visible",e.style.opacity="1",document.body.classList.add("customizer-is-open"),n.onclick=()=>{try{e.style.opacity="0",setTimeout(()=>{e.style.visibility="hidden",document.body.classList.remove("customizer-is-open")},300)}catch(e){console.error("Error in profileMenuClose click:",e)}},e.addEventListener("click",t=>{try{t.target===e&&(e.style.opacity="0",setTimeout(()=>{e.style.visibility="hidden",document.body.classList.remove("customizer-is-open")},300))}catch(e){console.error("Error in profileMenuOverlay click:",e)}})}catch(e){console.error("Error in showProfileMenu:",e),showMessage("Error","An error occurred while showing the profile menu.")}}
+
+
+       document.addEventListener('DOMContentLoaded', function() {
+           try {
+               document.querySelector('.main-wrapper').style.display = 'flex';
+           } catch (e) {
+               console.error('Error during page load:', e);
+               showMessage('Error', 'An error occurred while loading the page. Please try again.');
+           }
+          
+           const notificationBell = document.getElementById('notificationBell');
+           const notificationDropdown = document.getElementById('notificationDropdown');
+           const notificationDropdownClose = document.getElementById('notificationDropdownClose');
+
+
+           notificationBell.addEventListener('click', (e) => {
+               e.stopPropagation();
+               notificationDropdown.classList.toggle('active');
+           });
+           notificationDropdownClose.addEventListener('click', () => notificationDropdown.classList.remove('active'));
+           document.addEventListener('click', (e) => {
+               if (!notificationDropdown.contains(e.target) && !notificationBell.contains(e.target)) {
+                   notificationDropdown.classList.remove('active');
+               }
+           });
+
+
+           try {
+               const desktopThemeCustomizerBtn = document.getElementById('themeCustomizerBtn');
+               const customizerOverlay = document.getElementById('themeCustomizerOverlay');
+               const closeCustomizerBtn = document.getElementById('closeCustomizerBtn');
+               const profilePic = document.getElementById('profilePic');
+
+
+               if (profilePic) profilePic.onclick = showProfileMenu;
+              
+               function openCustomizer() {
+                   try {
+                       customizerOverlay.style.visibility = 'visible';
+                       customizerOverlay.style.opacity = '1';
+                       document.body.classList.add('customizer-is-open');
+                   } catch (e) {
+                       console.error('Error in openCustomizer:', e);
+                       showMessage('Error', 'An error occurred while opening the theme customizer.');
+                   }
+               }
+
+
+               function closeCustomizer() {
+                   try {
+                       customizerOverlay.style.opacity = '0';
+                       setTimeout(() => {
+                           customizerOverlay.style.visibility = 'hidden';
+                           document.body.classList.remove('customizer-is-open');
+                       }, 300);
+                   } catch (e) {
+                       console.error('Error in closeCustomizer:', e);
+                   }
+               }
+
+
+               if (desktopThemeCustomizerBtn) desktopThemeCustomizerBtn.addEventListener('click', openCustomizer);
+               if(closeCustomizerBtn) closeCustomizerBtn.addEventListener('click', closeCustomizer);
+
+
+               if (customizerOverlay) {
+                   customizerOverlay.addEventListener('click', (e) => {
+                       try {
+                           if (e.target === customizerOverlay) {
+                               closeCustomizer();
+                           }
+                       } catch (e) {
+                           console.error('Error in customizerOverlay click:', e);
+                       }
+                   });
+               }
+           } catch (e) {
+               console.error('Error in DOMContentLoaded handler:', e);
+               showMessage('Error', 'An error occurred while initializing the page.');
+           }
+       });
+   </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

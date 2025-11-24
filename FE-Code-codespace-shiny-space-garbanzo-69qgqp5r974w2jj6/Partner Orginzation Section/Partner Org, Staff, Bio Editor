@@ -1,0 +1,1207 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Staff Bio Editor</title>
+ <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+ <script src="https://cdn.tailwindcss.com"></script>
+ <style>
+      * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+      }
+
+
+      body {
+          font-family: 'Inter', sans-serif;
+          background-color: var(--theme-body-bg);
+          color: var(--theme-body-color);
+          line-height: 1.6;
+          overflow-x: hidden;
+          font-size: 16px;
+      }
+
+
+      body.customizer-is-open, body.tour-is-active {
+          overflow: hidden;
+      }
+
+
+      :root {
+          --primary-green: #37af4b;
+          --dark-background: #1c1c1c;
+          --member-border: #28a745;
+          --light-gray: #bbb;
+          --wp--preset--spacing--20: 5rem;
+          --theme-body-bg: #1c1c1c;
+          --theme-body-color: #fff;
+          --theme-popup-bg: #bbbbbb;
+          --theme-popup-text: #1c1c1c;
+          --theme-input-bg: #333;
+          --theme-input-border: #444;
+          --theme-input-text: #eee;
+          --theme-navbar-bg: #1c1c1c;
+          --theme-navbar-text: #fff;
+          --theme-navbar-dropdown-bg: #f0f0f0;
+          --theme-navbar-dropdown-text: #1c1c1c;
+          --theme-navbar-dropdown-hover-bg: #ddd;
+          --theme-button-bg: #FEFEFE;
+          --theme-button-text: #1c1c1c;
+          --theme-button-border: #1c1c1c;
+          --theme-button-hover-bg: #1c1c1c;
+          --theme-button-hover-text: #FEFEFE;
+          --mobile-section-bg: #2a2a2a;
+          --logo-color: #FEFEFE;
+          --theme-header-bg: linear-gradient(135deg, rgb(5, 114, 21) 0%, rgb(55, 175, 75) 100%);
+      }
+
+
+      html[data-theme='light'] {
+          --theme-body-bg: #FEFEFE;
+          --theme-body-color: #1c1c1c;
+          --theme-popup-bg: #e0e0e0;
+          --theme-popup-text: #1c1c1c;
+          --theme-input-bg: #fff;
+          --theme-input-border: #ccc;
+          --theme-input-text: #1c1c1c;
+          --primary-green: #37af4b;
+          --member-border: #37af4b;
+          --theme-navbar-bg: #FEFEFE;
+          --theme-navbar-text: #1c1c1c;
+          --theme-navbar-dropdown-bg: #1c1c1c;
+          --theme-navbar-dropdown-text: #FEFEFE;
+          --theme-navbar-dropdown-hover-bg: #333;
+          --theme-button-bg: #1c1c1c;
+          --theme-button-text: #FEFEFE;
+          --theme-button-border: #1c1c1c;
+          --theme-button-hover-bg: #FEFEFE;
+          --theme-button-hover-text: #1c1c1c;
+          --mobile-section-bg: #f0f0f0;
+          --logo-color: #1c1c1c;
+      }
+    
+      html[data-theme='light'] .header-container {
+          --theme-header-bg: #FEFEFE;
+      }
+
+
+      html[data-theme='light'] .footer-container {
+          background: #1c1c1c;
+          color: #FEFEFE;
+      }
+
+
+      html[data-theme='light'] .footer-container a {
+          color: #FEFEFE;
+      }
+
+
+      html[data-theme='light'] .address {
+          color: #1c1c1c;
+      }
+
+
+      .highlight {
+          color: var(--primary-green);
+      }
+
+
+      .main-wrapper {
+          width: 100%;
+          min-height: 100vh;
+          background-color: var(--theme-body-bg);
+          position: relative;
+          display: flex;
+          flex-direction: column;
+      }
+
+
+      .content-body {
+          flex: 1;
+          padding-top: 5rem;
+      }
+
+
+      .header-container {
+          background: var(--theme-header-bg);
+          height: 5rem;
+          padding: 0 1.25rem;
+          position: fixed;
+          top: 0; left: 0;
+          width: 100%;
+          z-index: 50;
+          display: flex;
+          align-items: center;
+      }
+      .header-contents {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+          height: 100%;
+      }
+      .header-left, .header-right {
+          display: flex;
+          gap: 1.25rem;
+          align-items: center;
+          height: 100%;
+      }
+      .header-logo {
+          height: 70%;
+          width: auto;
+          object-fit: contain;
+      }
+      .icon-button {
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          padding: 0.5rem;
+          position: relative;
+      }
+     .gear-icon, .notification-bell-icon {
+         width: 1.875rem;
+         height: 1.875rem;
+         stroke: #FEFEFE;
+         stroke-width: 1.5;
+         transition: transform 0.5s ease, stroke 0.3s ease;
+     }
+      html[data-theme='light'] .gear-icon,
+      html[data-theme='light'] .notification-bell-icon {
+          stroke: #1c1c1c;
+      }
+      html[data-theme='dark'] .gear-icon,
+      html[data-theme='dark'] .notification-bell-icon {
+          stroke: #FEFEFE;
+      }
+      .profile-pic {
+          width: 45px;
+          height: 45px;
+          border-radius: 50%;
+          object-fit: cover;
+          cursor: pointer;
+          border: 2px solid var(--primary-green);
+      }
+      .notification-count {
+          position: absolute;
+          top: 0.2rem;
+          right: 0.2rem;
+          background-color: #dc3545;
+          color: #fff;
+          border-radius: 50%;
+          padding: 0.1rem 0.4rem;
+          font-size: 0.75rem;
+          font-weight: bold;
+          display: none;
+          align-items: center;
+          justify-content: center;
+      }
+      .notification-dropdown {
+          position: absolute;
+          top: calc(100% + 0.5rem);
+          right: 0;
+          background-color: var(--theme-popup-bg);
+          color: var(--theme-popup-text);
+          border-radius: 0.5rem;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+          width: 20rem;
+          max-height: 25rem;
+          overflow-y: auto;
+          z-index: 1001;
+          visibility: hidden;
+          opacity: 0;
+          transition: opacity 0.3s, visibility 0.3s;
+      }
+      .notification-dropdown.active {
+          visibility: visible;
+          opacity: 1;
+      }
+      .notification-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.75rem 1rem;
+          border-bottom: 1px solid var(--theme-input-border);
+      }
+      .notification-title {
+          font-weight: bold;
+          font-size: 1.1rem;
+      }
+      .notification-close {
+          font-size: 1.5rem;
+          cursor: pointer;
+          background: none;
+          border: none;
+          color: inherit;
+      }
+      .notification-item {
+          padding: 0.75rem 1rem;
+          border-bottom: 1px solid var(--theme-input-border);
+          cursor: pointer;
+          transition: background-color 0.2s;
+      }
+      .notification-item:last-child {
+          border-bottom: none;
+      }
+      html[data-theme='light'] .notification-item:hover { background-color: rgba(0, 0, 0, 0.05); }
+      html[data-theme='dark'] .notification-item:hover { background-color: rgba(255, 255, 255, 0.1); }
+      .notification-item.read {
+          opacity: 0.6;
+      }
+      .popup-overlay {
+          position: fixed;
+          top: 0; left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.2);
+          z-index: 9998;
+          visibility: hidden;
+          opacity: 0;
+          transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+      }
+
+
+      .popup-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 0.9375rem;
+      }
+      .popup-title {
+          margin: 0;
+          font-size: 1.125rem;
+          font-weight: bold;
+      }
+      .popup-close-button {
+          font-size: 1.5rem;
+          cursor: pointer;
+          padding: 0 0.3125rem;
+          line-height: 1;
+      }
+      .message-box-overlay {
+          position: fixed; top: 0; left: 0;
+          width: 100%; height: 100%;
+          background-color: rgba(0, 0, 0, 0.5);
+          z-index: 10000;
+          display: flex; justify-content: center; align-items: center;
+          visibility: hidden; opacity: 0;
+          transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+      }
+      .message-box {
+          background-color: var(--theme-body-bg);
+          color: var(--theme-body-color);
+          padding: 1.5625rem;
+          border-radius: 0.5rem;
+          box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.3);
+          max-width: 21.875rem;
+          width: 90%;
+          text-align: center;
+      }
+      .message-box h3 {
+          margin-top: 0; margin-bottom: 0.9375rem;
+          color: var(--primary-green);
+      }
+      .message-box p {
+          margin-bottom: 1.25rem;
+          font-size: 1.1rem;
+      }
+      .message-box button {
+          background-color: var(--primary-green);
+          color: #1c1c1c; border: none;
+          padding: 0.625rem 1.25rem;
+          border-radius: 0.3125rem; cursor: pointer; font-weight: bold;
+          transition: background-color 0.2s ease;
+      }
+      .message-box button:hover {
+          background-color: #2e9b41;
+      }
+
+
+      .profile-menu {
+          background-color: var(--theme-popup-bg);
+          color: var(--theme-popup-text);
+          padding: 1.25rem;
+          border-radius: 0.5rem;
+          box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.2);
+          width: 15.625rem;
+          text-align: center;
+      }
+      .profile-menu button {
+          background-color: var(--primary-green);
+          color: #1c1c1c; border: none;
+          padding: 0.625rem 1.25rem;
+          border-radius: 0.3125rem; cursor: pointer; font-weight: bold;
+          transition: background-color 0.2s ease;
+          width: 100%;
+      }
+      .profile-menu button:hover {
+          background-color: #2e9b41;
+      }
+      .footer-container {
+          background: linear-gradient(135deg, rgb(5, 114, 21) 0%, rgb(55, 175, 75) 100%);
+          padding: 1rem 0;
+          color: #FEFEFE;
+      }
+
+
+      .footer-content {
+          max-width: 1200px;
+          margin: auto;
+          padding: 1.25rem;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          flex-wrap: wrap;
+      }
+
+
+      .footer-column {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 0.625rem;
+          text-align: center;
+      }
+
+
+      .footer-container .site-logo {
+          width: 10.4125rem;
+          height: auto;
+          object-fit: contain;
+          margin-top: -25px;
+          filter: var(--logo-filter);
+      }
+
+
+      .company-heading {
+          font-size: 1.25rem;
+          text-align: center;
+          font-weight: bold;
+          margin: 0;
+      }
+
+
+      .address {
+          width: 100%;
+          text-align: center;
+          margin-top: 1rem;
+          padding-bottom: 0.3125rem;
+          font-size: 0.8rem;
+          color: #ccc;
+      }
+    
+      /* Form Specific Styles (Merged) */
+      .main-content-wrapper {
+         flex-grow: 1;
+         padding: 1rem;
+         display: flex;
+         justify-content: center;
+         align-items: flex-start;
+     }
+
+
+     .form-container {
+         max-width: 64rem;
+         width: 100%;
+         background-color: var(--mobile-section-bg);
+         color: var(--theme-body-color);
+         padding: 1.5rem;
+         border-radius: 0.75rem;
+         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+         margin-top: 2rem;
+         margin-bottom: 2rem;
+     }
+     html[data-theme='light'] .form-container {
+         background-color: #f5f5f5;
+     }
+
+
+     .form-section {
+         border: 1px solid var(--member-border);
+         border-radius: 0.5rem;
+         padding: 1.5rem;
+         background-color: rgba(0,0,0,0.1);
+         margin-bottom: 2rem;
+     }
+     html[data-theme='light'] .form-section {
+         background-color: #f0f0f0;
+         border-color: #ccc;
+     }
+     html[data-theme='dark'] .form-section {
+         border-color: #38b04c;
+         background-color: rgba(255, 255, 255, 0.02);
+     }
+      .section-title {
+          font-size: 1.5rem;
+          font-weight: 600;
+          margin-bottom: 1rem;
+          color: var(--theme-body-color);
+          text-align: left;
+      }
+
+
+     .input-group {
+         margin-bottom: 1rem;
+     }
+
+
+     .label {
+         display: block;
+         font-size: 1.125rem;
+         font-weight: 500;
+         margin-bottom: 0.5rem;
+         color: var(--primary-green);
+     }
+
+
+     .text-input,
+     .textarea-input {
+         display: block;
+         width: 100%;
+         padding: 0.75rem 1rem;
+         border: 1px solid var(--theme-input-border);
+         border-radius: 0.375rem;
+         box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+         background-color: var(--theme-input-bg);
+         color: var(--theme-input-text);
+         transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+     }
+     .text-input:focus,
+     .textarea-input:focus {
+         outline: none;
+         border-color: #3b82f6;
+         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+     }
+     .textarea-input {
+         resize: vertical;
+     }
+
+
+     .profile-pic-container {
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+         gap: 1rem;
+     }
+     .profile-pic-display {
+         width: 8rem;
+         height: 8rem;
+         border-radius: 9999px;
+         object-fit: cover;
+         border: 4px solid var(--member-border);
+         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+     }
+     .profile-pic-placeholder {
+         width: 8rem;
+         height: 8rem;
+         border-radius: 9999px;
+         background-color: var(--theme-input-border);
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         color: var(--theme-input-text);
+         font-size: 0.875rem;
+     }
+     .file-input {
+         display: block;
+         width: 100%;
+         font-size: 0.875rem;
+         color: var(--theme-body-color);
+         padding-top: 0.5rem;
+     }
+     .file-input::-webkit-file-upload-button {
+         margin-right: 1rem;
+         padding: 0.5rem 1rem;
+         border-radius: 9999px;
+         border: 0;
+         font-size: 0.875rem;
+         font-weight: 600;
+         background-color: var(--primary-green);
+         color: #FEFEFE;
+         cursor: pointer;
+         transition: background-color 0.15s ease-in-out;
+     }
+      html[data-theme='light'] .file-input::-webkit-file-upload-button {
+          color: #1c1c1c;
+      }
+     .file-input::-webkit-file-upload-button:hover {
+         background-color: #2e9b41;
+     }
+
+
+     .personal-pics-grid {
+         display: grid;
+         grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+         gap: 1rem;
+         margin-bottom: 1rem;
+     }
+     @media (min-width: 640px) { .personal-pics-grid { grid-template-columns: repeat(3, 1fr); } }
+     @media (min-width: 768px) { .personal-pics-grid { grid-template-columns: repeat(4, 1fr); } }
+
+
+     .personal-pic-item {
+         position: relative;
+     }
+     .personal-pic-img {
+         width: 100%;
+         height: 6rem;
+         object-fit: cover;
+         border-radius: 0.375rem;
+         box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+         border: 1px solid var(--theme-input-border);
+     }
+     .remove-pic-btn {
+         position: absolute;
+         top: 0.25rem;
+         right: 0.25rem;
+         background-color: #ef4444;
+         color: #fff;
+         border-radius: 9999px;
+         padding: 0.25rem;
+         font-size: 0.75rem;
+         opacity: 0;
+         transition: opacity 0.15s ease-in-out;
+         cursor: pointer;
+         border: none;
+     }
+     .personal-pic-item:hover .remove-pic-btn {
+         opacity: 1;
+     }
+     .add-image-placeholder {
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         width: 100%;
+         height: 6rem;
+         border: 2px dashed var(--theme-input-border);
+         border-radius: 0.375rem;
+         cursor: pointer;
+         transition: border-color 0.15s ease-in-out;
+     }
+     .add-image-placeholder:hover {
+         border-color: #3b82f6;
+     }
+     .add-image-icon {
+         height: 1.5rem;
+         width: 1.5rem;
+         color: var(--light-gray);
+     }
+     .add-image-text {
+         font-size: 0.875rem;
+         color: var(--light-gray);
+     }
+     .upload-errors {
+         margin-top: 0.5rem;
+         color: #dc2626;
+         font-size: 0.875rem;
+     }
+
+
+     .grid-cols-2-md {
+         display: grid;
+         grid-template-columns: 1fr;
+         gap: 1.5rem;
+     }
+     @media (min-width: 768px) { .grid-cols-2-md { grid-template-columns: 1fr 1fr; } }
+
+
+     .warning-box {
+         margin-top: 0.5rem;
+         color: #a16207;
+         background-color: #fffbeb;
+         border: 1px solid #fde68a;
+         border-radius: 0.375rem;
+         padding: 0.75rem;
+         display: flex;
+         align-items: flex-start;
+     }
+     .warning-icon {
+         height: 1.25rem;
+         width: 1.25rem;
+         margin-right: 0.5rem;
+         margin-top: 0.125rem;
+     }
+     .warning-text-bold {
+         font-weight: 500;
+     }
+     .warning-text-small {
+         font-size: 0.875rem;
+     }
+     .override-checkbox-container {
+         display: inline-flex;
+         align-items: center;
+         margin-top: 0.5rem;
+     }
+     .form-checkbox {
+         height: 1rem;
+         width: 1rem;
+         color: #3b82f6;
+         border-radius: 0.125rem;
+     }
+     .override-label {
+         margin-left: 0.5rem;
+         font-size: 0.875rem;
+         color: var(--theme-body-color);
+     }
+
+
+     .experience-checkbox-label {
+         display: inline-flex;
+         align-items: center;
+         padding: 0.75rem;
+         border: 1px solid var(--theme-input-border);
+         border-radius: 0.375rem;
+         box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+         cursor: pointer;
+         transition: background-color 0.15s ease-in-out;
+         background-color: var(--theme-input-bg);
+         color: var(--theme-body-color);
+     }
+     html[data-theme='light'] .experience-checkbox-label { background-color: #fff; }
+     html[data-theme='dark'] .experience-checkbox-label { background-color: rgba(255, 255, 255, 0.05); }
+     .experience-checkbox-label:hover { background-color: #eff6ff; }
+     .experience-checkbox-label input[type="checkbox"] {
+         height: 1.25rem;
+         width: 1.25rem;
+         color: #3b82f6;
+         border-radius: 0.125rem;
+     }
+     .experience-name {
+         margin-left: 0.75rem;
+         font-size: 1rem;
+         color: var(--theme-body-color);
+     }
+
+
+     .unprofessional-warning-box {
+         margin-top: 0.5rem;
+         color: #dc2626;
+         background-color: #fee2e2;
+         border: 1px solid #fca5a5;
+         border-radius: 0.375rem;
+         padding: 0.75rem;
+         display: flex;
+         align-items: flex-start;
+     }
+     .unprofessional-warning-box .warning-icon {
+         color: #dc2626;
+     }
+     .interests-textarea.unprofessional {
+         border-color: #ef4444;
+     }
+     .interests-textarea.unprofessional:focus {
+         border-color: #ef4444;
+         box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.5);
+     }
+
+
+     .skills-tag {
+         display: inline-flex;
+         align-items: center;
+         padding: 0.25rem 0.75rem;
+         border-radius: 9999px;
+         font-size: 0.875rem;
+         font-weight: 500;
+         background-color: var(--primary-green);
+     }
+      html[data-theme='light'] .skills-tag { color: #1c1c1c; }
+      html[data-theme='dark'] .skills-tag { color: #FEFEFE; }
+
+
+     .remove-skill-btn {
+         margin-left: 0.5rem;
+         margin-right: -0.125rem;
+         height: 1rem;
+         width: 1rem;
+         border-radius: 9999px;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         transition: background-color 0.15s ease-in-out;
+         border: none;
+         background: none;
+         cursor: pointer;
+     }
+     html[data-theme='light'] .remove-skill-btn { color: #1c1c1c; }
+     html[data-theme='dark'] .remove-skill-btn { color: #FEFEFE; }
+     .remove-skill-btn:hover { background-color: #bfdbfe; }
+     .remove-skill-icon {
+         height: 0.75rem;
+         width: 0.75rem;
+     }
+
+
+     .save-section {
+         padding-top: 1.5rem;
+         display: flex;
+         justify-content: flex-end;
+         align-items: center;
+         gap: 1rem;
+     }
+     .save-message {
+         font-size: 0.875rem;
+         font-weight: 500;
+     }
+     .save-message.error { color: #dc2626; }
+     .save-message.success { color: #16a34a; }
+     .save-button {
+         padding: 0.75rem 1.5rem;
+         font-weight: 600;
+         border-radius: 0.5rem;
+         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+         transition: background-color 0.15s ease-in-out, opacity 0.15s ease-in-out;
+         border: none;
+         cursor: pointer;
+         background: linear-gradient(135deg,rgb(5,114,21) 0%,rgb(55,175,75) 100%);
+         color: #FEFEFE;
+     }
+     .save-button:hover { opacity: 0.9; }
+     .save-button:focus {
+         outline: none;
+         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5), 0 0 0 6px rgba(255, 255, 255, 0.5);
+     }
+     .save-button:disabled {
+         opacity: 0.5;
+         cursor: not-allowed;
+     }
+     .user-id-display {
+         text-align: center;
+         font-size: 0.75rem;
+         color: var(--light-gray);
+         margin-top: 1rem;
+     }
+     .user-id-display span {
+         font-family: monospace;
+         word-break: break-all;
+     }
+
+
+     .loading-screen {
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         position: fixed;
+         inset: 0;
+         background-color: var(--theme-body-bg);
+         color: var(--theme-body-color);
+         font-size: 1.25rem;
+         font-weight: 600;
+         z-index: 100;
+     }
+ </style>
+</head>
+<body>
+ <div class="main-wrapper">
+     <header class="header-container">
+         <div class="header-contents">
+             <div class="header-left">
+                 <img class="header-logo" src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Logo">
+             </div>
+             <div class="header-right">
+                 <div id="notificationBell" class="icon-button">
+                     <svg class="notification-bell-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                     <span id="notificationCount" class="notification-count">0</span>
+                     <div id="notificationDropdown" class="notification-dropdown">
+                         <div class="notification-header">
+                             <h3 class="notification-title">Notifications</h3>
+                             <button id="notificationDropdownClose" class="notification-close">&times;</button>
+                         </div>
+                         <div id="notificationList">
+                             <p style="padding: 1rem; text-align: center; font-size: 0.875rem; opacity: 0.75;">No new notifications.</p>
+                         </div>
+                     </div>
+                 </div>
+                 <button id="themeToggleButton" class="icon-button" aria-label="Toggle color theme">
+                     <svg class="gear-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                 </button>
+                 <img id="profilePic" class="profile-pic" src="https://placehold.co/50x50/cccccc/FFFFFF?text=U" alt="Profile">
+             </div>
+         </div>
+     </header>
+    
+     <main class="content-body">
+         <div class="loading-screen" id="loadingScreen" style="display:none;">Loading...</div>
+         <div class="main-content-wrapper" id="mainContent">
+             <div class="form-container">
+                 <h1 class="text-3xl font-bold text-center mb-8" style="color: var(--primary-green);">Edit Your Staff Bio</h1>
+                 <form id="bioForm" class="space-y-8">
+                     <div class="form-section">
+                         <h2 class="section-title">Profile Picture</h2>
+                         <div class="profile-pic-container">
+                             <img id="profilePictureDisplay" src="" alt="Profile" class="profile-pic-display" style="display:none;">
+                             <div id="profilePicturePlaceholder" class="profile-pic-placeholder">No Image</div>
+                             <input type="file" id="profilePictureInput" accept="image/*" class="file-input">
+                         </div>
+                     </div>
+                     <div class="form-section">
+                         <h2 class="section-title">Personal Pictures (Max 5)</h2>
+                         <p class="text-sm mb-4" style="color: var(--light-gray);">
+                             Upload a few pictures of yourself. Please ensure they are professional and appropriate.
+                         </p>
+                         <div id="personalPicturesGrid" class="personal-pics-grid"></div>
+                         <div class="add-image-placeholder">
+                             <label for="personalPicturesInput" style="display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100%; cursor:pointer;">
+                                 <svg class="add-image-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                 </svg>
+                                 <span class="add-image-text">Add Image</span>
+                                 <input type="file" id="personalPicturesInput" accept="image/*" multiple style="display:none;">
+                             </label>
+                         </div>
+                         <div id="personalPicUploadErrors" class="upload-errors"></div>
+                     </div>
+                     <div class="form-section grid-cols-2-md">
+                         <div>
+                             <label for="jobTitleInput" class="label">Job Title</label>
+                             <input type="text" id="jobTitleInput" name="jobTitle" class="text-input" placeholder="e.g., Program Manager">
+                         </div>
+                         <div>
+                             <label for="departmentInput" class="label">Department</label>
+                             <input type="text" id="departmentInput" name="department" class="text-input" placeholder="e.g., Operations">
+                         </div>
+                     </div>
+                     <div class="form-section">
+                         <h2 class="section-title">Short Biography</h2>
+                         <p class="text-sm mb-2" style="color: var(--light-gray);">Tell us a bit about your professional background.</p>
+                         <textarea id="bioInput" name="bio" rows="5" class="textarea-input" placeholder="Write a brief biography here..."></textarea>
+                     </div>
+                     <div class="form-section">
+                         <h2 class="section-title">Areas of Expertise</h2>
+                         <p class="text-sm mb-4" style="color: var(--light-gray);">Select your main areas of expertise.</p>
+                         <div id="expertiseCheckboxes" class="grid-cols-2-md"></div>
+                     </div>
+                     <div class="form-section">
+                         <h2 class="section-title">Personal Interests</h2>
+                         <p class="text-sm mb-2" style="color: var(--light-gray);">List your personal interests. Please keep them professional and appropriate.</p>
+                         <textarea id="interestsInput" name="interests" rows="3" class="textarea-input" placeholder="e.g., Reading, hiking, coding, playing guitar..."></textarea>
+                         <div id="interestsUnprofessionalWarning" class="unprofessional-warning-box" style="display:none;">
+                             <svg class="warning-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                             </svg>
+                             <div>
+                                 <p class="warning-text-bold">Unprofessional Content Detected!</p>
+                                 <p class="warning-text-small">Your personal interests contain content that is not allowed. Please revise.</p>
+                             </div>
+                         </div>
+                     </div>
+                     <div class="form-section">
+                         <h2 class="section-title">Professional Skills</h2>
+                         <p class="text-sm mb-2" style="color: var(--light-gray);">Add your key professional skills (press Enter after each skill).</p>
+                         <input type="text" id="skillInput" class="text-input" placeholder="e.g., Project Management, Data Analysis">
+                         <div id="skillsContainer" class="mt-4 flex flex-wrap gap-2"></div>
+                     </div>
+                     <div class="save-section">
+                         <p id="saveMessage" class="save-message"></p>
+                         <button type="submit" id="saveButton" class="save-button">Save Profile</button>
+                     </div>
+                 </form>
+             </div>
+         </div>
+     </main>
+    
+     <footer class="footer-container">
+         <div class="footer-content">
+             <div class="footer-column">
+                 <img id="desktopFooterLogo" src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Footer Logo" class="site-logo" onerror="this.src='https://placehold.co/50x50/cccccc/333333?text=YPI';">
+                 <h3 class="company-heading">A Company to Change America One Hour At a Time</h3>
+                 <div class="address">
+                     <p>Young Progressives Initiative L.L.C, Chevy Chase, MD 20815</p>
+                 </div>
+             </div>
+         </div>
+     </footer>
+ </div>
+ <div id="profileMenuOverlay" class="popup-overlay" style="visibility: hidden; opacity: 0;">
+     <div class="profile-menu">
+         <div class="popup-header">
+             <h3 id="profileMenuTitle" class="popup-title">Profile</h3>
+             <span id="profileMenuClose" class="popup-close-button">×</span>
+         </div>
+         <button id="signOutButton">Sign Out (Placeholder)</button>
+     </div>
+ </div>
+ <div id="messageBoxOverlay" class="message-box-overlay" style="visibility: hidden; opacity: 0;"></div>
+
+
+<script>
+   document.addEventListener('DOMContentLoaded', () => {
+       let profileData = {
+           profilePictureUrl: '', personalPictures: [], jobTitle: '', department: '', bio: '',
+           selectedExpertise: [], interests: '', professionalSkills: [],
+       };
+       let interestsUnprofessional = false;
+       let personalPicUploadErrors = {};
+
+
+       const sampleExpertise = [
+           { id: 'project-management', name: 'Project Management' },
+           { id: 'curriculum-dev', name: 'Curriculum Development' },
+           { id: 'marketing', name: 'Marketing & Outreach' },
+           { id: 'fundraising', name: 'Fundraising & Grant Writing' },
+           { id: 'tech-support', name: 'Technical Support & IT' },
+           { id: 'mentorship', name: 'Student Mentorship' },
+       ];
+       const unprofessionalKeywords = [ 'gambling', 'illegal', 'drugs', 'violence', 'hate speech' ];
+
+
+       const loadingScreen = document.getElementById('loadingScreen');
+       const mainContent = document.getElementById('mainContent');
+       const bioForm = document.getElementById('bioForm');
+       const profilePictureDisplay = document.getElementById('profilePictureDisplay');
+       const profilePicturePlaceholder = document.getElementById('profilePicturePlaceholder');
+       const profilePictureInput = document.getElementById('profilePictureInput');
+       const personalPicturesGrid = document.getElementById('personalPicturesGrid');
+       const personalPicturesInput = document.getElementById('personalPicturesInput');
+       const personalPicUploadErrorsDiv = document.getElementById('personalPicUploadErrors');
+       const jobTitleInput = document.getElementById('jobTitleInput');
+       const departmentInput = document.getElementById('departmentInput');
+       const bioInput = document.getElementById('bioInput');
+       const expertiseCheckboxesDiv = document.getElementById('expertiseCheckboxes');
+       const interestsInput = document.getElementById('interestsInput');
+       const interestsUnprofessionalWarningDiv = document.getElementById('interestsUnprofessionalWarning');
+       const skillInput = document.getElementById('skillInput');
+       const skillsContainer = document.getElementById('skillsContainer');
+       const saveButton = document.getElementById('saveButton');
+       const saveMessageDisplay = document.getElementById('saveMessage');
+       const htmlElement = document.documentElement;
+       const profilePic = document.getElementById('profilePic');
+
+
+       function loadProfileData() {
+           const savedData = localStorage.getItem('staffProfileData');
+           if (savedData) {
+               profileData = JSON.parse(savedData);
+               console.log("Staff profile data loaded:", profileData);
+           }
+           renderProfileData();
+       }
+
+
+       function saveProfileData(e) {
+           e.preventDefault();
+           if (isInterestUnprofessional(profileData.interests)) {
+               return displaySaveMessage('Error: Unprofessional content in interests.', 'error');
+           }
+           saveButton.disabled = true;
+           saveButton.textContent = 'Saving...';
+           try {
+               localStorage.setItem('staffProfileData', JSON.stringify(profileData));
+               displaySaveMessage('Profile saved successfully!', 'success');
+           } catch (error) {
+               console.error("Error saving profile:", error);
+               displaySaveMessage(`Error: ${error.message}`, 'error');
+           } finally {
+               saveButton.disabled = false;
+               saveButton.textContent = 'Save Profile';
+           }
+       }
+
+
+       function renderProfileData() {
+           profilePic.src = profileData.profilePictureUrl || 'https://placehold.co/50x50/cccccc/FFFFFF?text=U';
+           profilePictureDisplay.src = profileData.profilePictureUrl;
+           profilePictureDisplay.style.display = profileData.profilePictureUrl ? 'block' : 'none';
+           profilePicturePlaceholder.style.display = profileData.profilePictureUrl ? 'none' : 'flex';
+          
+           personalPicturesGrid.innerHTML = '';
+           (profileData.personalPictures || []).forEach((picUrl, index) => {
+               const div = document.createElement('div');
+               div.className = 'personal-pic-item';
+               div.innerHTML = `<img src="${picUrl}" class="personal-pic-img"><button type="button" class="remove-pic-btn" data-index="${index}">×</button>`;
+               personalPicturesGrid.appendChild(div);
+           });
+           document.querySelectorAll('.remove-pic-btn').forEach(b => b.onclick = (e) => removePersonalPicture(parseInt(e.currentTarget.dataset.index)));
+
+
+           jobTitleInput.value = profileData.jobTitle || '';
+           departmentInput.value = profileData.department || '';
+           bioInput.value = profileData.bio || '';
+           interestsInput.value = profileData.interests || '';
+           checkAndDisplayInterestsWarning();
+           renderSkills();
+           updateSaveButtonState();
+          
+           expertiseCheckboxesDiv.innerHTML = '';
+           sampleExpertise.forEach(exp => {
+               const label = document.createElement('label');
+               label.className = 'experience-checkbox-label';
+               label.innerHTML = `<input type="checkbox" name="selectedExpertise" value="${exp.id}" class="form-checkbox"><span class="experience-name">${exp.name}</span>`;
+               const checkbox = label.querySelector('input');
+               checkbox.checked = (profileData.selectedExpertise || []).includes(exp.id);
+               checkbox.onchange = handleExpertiseChange;
+               expertiseCheckboxesDiv.appendChild(label);
+           });
+       }
+
+
+       function renderSkills() {
+           skillsContainer.innerHTML = '';
+           (profileData.professionalSkills || []).forEach(skill => {
+               const span = document.createElement('span');
+               span.className = 'skills-tag';
+               span.innerHTML = `${skill}<button type="button" class="remove-skill-btn" data-skill="${skill}">×</button>`;
+               skillsContainer.appendChild(span);
+           });
+           document.querySelectorAll('.remove-skill-btn').forEach(b => b.onclick = (e) => removeProfessionalSkill(e.currentTarget.dataset.skill));
+       }
+
+
+       function displaySaveMessage(message, type) {
+           saveMessageDisplay.textContent = message;
+           saveMessageDisplay.className = `save-message ${type || ''}`;
+           if (message) setTimeout(() => { saveMessageDisplay.textContent = ''; saveMessageDisplay.className = 'save-message'; }, 3000);
+       }
+
+
+       function updateSaveButtonState() { saveButton.disabled = interestsUnprofessional; }
+       function isInterestUnprofessional(text) { return text && unprofessionalKeywords.some(k => text.toLowerCase().includes(k)); }
+      
+       function checkAndDisplayInterestsWarning() {
+           interestsUnprofessional = isInterestUnprofessional(interestsInput.value);
+           interestsUnprofessionalWarningDiv.style.display = interestsUnprofessional ? 'flex' : 'none';
+           interestsInput.classList.toggle('unprofessional', interestsUnprofessional);
+           updateSaveButtonState();
+       }
+
+
+       profilePictureInput.addEventListener('change', (e) => {
+           const file = e.target.files[0];
+           if (file) {
+               const reader = new FileReader();
+               reader.onloadend = () => { profileData.profilePictureUrl = reader.result; renderProfileData(); };
+               reader.readAsDataURL(file);
+           }
+       });
+
+
+       personalPicturesInput.addEventListener('change', (e) => {
+           const files = Array.from(e.target.files);
+           if (!profileData.personalPictures) profileData.personalPictures = [];
+           files.forEach(file => {
+               if (profileData.personalPictures.length < 5) {
+                   const reader = new FileReader();
+                   reader.onloadend = () => { profileData.personalPictures.push(reader.result); renderProfileData(); };
+                   reader.readAsDataURL(file);
+               }
+           });
+       });
+
+
+       function removePersonalPicture(index) {
+           profileData.personalPictures.splice(index, 1);
+           renderProfileData();
+       }
+
+
+       jobTitleInput.addEventListener('input', (e) => { profileData.jobTitle = e.target.value; });
+       departmentInput.addEventListener('input', (e) => { profileData.department = e.target.value; });
+       bioInput.addEventListener('input', (e) => { profileData.bio = e.target.value; });
+
+
+       function handleExpertiseChange(e) {
+           if (!profileData.selectedExpertise) profileData.selectedExpertise = [];
+           const { value, checked } = e.target;
+           if (checked) profileData.selectedExpertise.push(value);
+           else profileData.selectedExpertise = profileData.selectedExpertise.filter(id => id !== value);
+       }
+       interestsInput.addEventListener('input', (e) => { profileData.interests = e.target.value; checkAndDisplayInterestsWarning(); });
+
+
+       skillInput.addEventListener('keydown', (e) => {
+           if (e.key === 'Enter' && e.target.value.trim()) {
+               e.preventDefault();
+               const newSkill = e.target.value.trim();
+               if (!profileData.professionalSkills) profileData.professionalSkills = [];
+               if (!profileData.professionalSkills.includes(newSkill)) {
+                   profileData.professionalSkills.push(newSkill);
+                   renderSkills();
+               }
+               e.target.value = '';
+           }
+       });
+
+
+       function removeProfessionalSkill(skill) {
+           profileData.professionalSkills = profileData.professionalSkills.filter(s => s !== skill);
+           renderSkills();
+       }
+
+
+       bioForm.addEventListener('submit', saveProfileData);
+
+
+       function applyTheme(themeName) {
+           htmlElement.setAttribute('data-theme', themeName);
+           localStorage.setItem('theme', themeName);
+       }
+      
+       const savedTheme = localStorage.getItem('theme') || 'dark';
+       applyTheme(savedTheme);
+       const themeToggleButton = document.getElementById('themeToggleButton');
+       if (themeToggleButton) {
+           themeToggleButton.addEventListener('click', () => {
+               const currentTheme = htmlElement.getAttribute('data-theme');
+               const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+               applyTheme(newTheme);
+           });
+       }
+
+
+       function showMessage(title, message) {
+           const overlay = document.getElementById('messageBoxOverlay');
+           overlay.innerHTML = `<div class="message-box"><h3>${title}</h3><p>${message}</p><button>OK</button></div>`;
+           overlay.style.visibility = 'visible';
+           overlay.style.opacity = '1';
+           overlay.querySelector('button').onclick = () => {
+               overlay.style.opacity = '0';
+               setTimeout(() => overlay.style.visibility = 'hidden', 300);
+           };
+       }
+      
+       const notificationBell = document.getElementById('notificationBell');
+       const notificationDropdown = document.getElementById('notificationDropdown');
+       notificationBell.addEventListener('click', (e) => {
+           e.stopPropagation();
+           notificationDropdown.classList.toggle('active');
+       });
+       document.addEventListener('click', (e) => {
+           if (!notificationDropdown.contains(e.target) && !notificationBell.contains(e.target)) {
+               notificationDropdown.classList.remove('active');
+           }
+       });
+       document.getElementById('notificationDropdownClose').addEventListener('click', () => notificationDropdown.classList.remove('active'));
+
+
+       const profileMenuOverlay = document.getElementById('profileMenuOverlay');
+       profilePic.addEventListener('click', () => {
+           profileMenuOverlay.style.visibility = 'visible';
+           profileMenuOverlay.style.opacity = '1';
+       });
+
+
+       function closeProfileMenu() {
+           profileMenuOverlay.style.opacity = '0';
+           setTimeout(() => profileMenuOverlay.style.visibility = 'hidden', 300);
+       }
+       document.getElementById('profileMenuClose').addEventListener('click', closeProfileMenu);
+       profileMenuOverlay.addEventListener('click', (e) => {
+           if (e.target === profileMenuOverlay) closeProfileMenu();
+       });
+       document.getElementById('signOutButton').addEventListener('click', () => {
+           console.log("Sign out clicked. Implement sign out logic here.");
+           showMessage("Sign Out", "This is a placeholder for the sign out functionality.");
+       });
+
+
+       mainContent.style.display = 'flex';
+       loadingScreen.style.display = 'none';
+       loadProfileData();
+   });
+</script>
+</body>
+</html>

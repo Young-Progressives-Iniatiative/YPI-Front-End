@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Join YPI</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    /* Reset and base styles from home page */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    /* Inherit theme variables for consistency */
+    :root {
+        --primary-green: #37af4b;
+        --dark-background: #1c1c1c;
+        --theme-body-bg: #1c1c1c;
+        --theme-body-color: #fff;
+        --theme-popup-bg: #bbbbbb;
+        --theme-popup-text: #1c1c1c;
+        --theme-input-bg: #333;
+        --theme-input-border: #444;
+        --theme-input-text: #eee;
+        --theme-navbar-bg: #1c1c1c;
+        --theme-navbar-text: #fff;
+        --theme-navbar-dropdown-bg: #f0f0f0;
+        --theme-navbar-dropdown-text: #1c1c1c;
+        --theme-navbar-dropdown-hover-bg: #ddd;
+        --theme-button-bg: #FEFEFE;
+        --theme-button-text: #1c1c1c;
+        --theme-button-border: #1c1c1c;
+        --theme-button-hover-bg: #1c1c1c;
+        --theme-button-hover-text: #FEFEFE;
+    }
+
+    html[data-theme='light'] {
+        --theme-body-bg: #FEFEFE;
+        --theme-body-color: #1c1c1c;
+        --theme-popup-bg: #e0e0e0;
+        --theme-popup-text: #1c1c1c;
+        --theme-input-bg: #fff;
+        --theme-input-border: #ccc;
+        --theme-input-text: #1c1c1c;
+        --primary-green: #37af4b;
+        --theme-navbar-bg: #FEFEFE;
+        --theme-navbar-text: #1c1c1c;
+        --theme-navbar-dropdown-bg: #1c1c1c;
+        --theme-navbar-dropdown-text: #FEFEFE;
+        --theme-navbar-dropdown-hover-bg: #333;
+        --theme-button-bg: #1c1c1c;
+        --theme-button-text: #FEFEFE;
+        --theme-button-border: #1c1c1c;
+        --theme-button-hover-bg: #FEFEFE;
+        --theme-button-hover-text: #1c1c1c;
+    }
+
+    body {
+      background-color: var(--theme-body-bg);
+      color: var(--theme-body-color);
+      font-family: 'Arial', sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    
+    body.sidebar-is-open {
+        overflow: hidden;
+    }
+
+    /* Main container for the registration form */
+    .ypi-registration-container {
+      background-color: #1c1c1c;
+      color: #ffffff;
+      padding: 40px;
+      border-radius: 8px;
+      max-width: 900px;
+      margin: 40px auto;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    }
+
+    html[data-theme='light'] .ypi-registration-container {
+        background-color: #f5f5f5;
+        color: #1c1c1c;
+    }
+
+    /* Header section with title and introduction */
+    .ypi-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .ypi-title {
+      color: #38b04c;
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    .ypi-intro {
+      font-size: 18px;
+      line-height: 1.8;
+      margin-bottom: 30px;
+    }
+
+    /* "Why sign up?" section */
+    .ypi-why-signup {
+      font-style: italic;
+      color: #38b04c;
+      font-size: 22px;
+      margin-bottom: 15px;
+    }
+
+    .ypi-benefits {
+      margin-bottom: 30px;
+      text-align: left;
+    }
+
+    .ypi-benefits ul {
+      list-style-type: disc;
+      padding-left: 20px;
+    }
+
+    .ypi-benefits li {
+      margin-bottom: 12px;
+    }
+
+    /* Call to action text */
+    .ypi-call-to-action {
+      font-weight: bold;
+      color: #38b04c;
+      font-size: 20px;
+      margin-bottom: 30px;
+    }
+    
+    /* General styling for form groups */
+    .ypi-form-group {
+      margin-bottom: 20px;
+    }
+
+    .ypi-form-group label {
+      display: block;
+      margin-bottom: 10px;
+      color: #38b04c;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    /* Styling for input fields, select dropdowns, and text areas */
+    .ypi-form-group input,
+    .ypi-form-group select,
+    .ypi-form-group textarea {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #38b04c;
+      background-color: #2a2a2a;
+      color: #ffffff;
+      border-radius: 4px;
+      font-size: 16px;
+      box-sizing: border-box; /* Ensures padding doesn't affect width */
+    }
+    html[data-theme='light'] .ypi-form-group input,
+    html[data-theme='light'] .ypi-form-group select,
+    html[data-theme='light'] .ypi-form-group textarea {
+        background-color: #fff;
+        color: #1c1c1c;
+        border-color: #ccc;
+    }
+
+
+    .ypi-form-group textarea {
+      height: 120px;
+      resize: vertical; /* Allow vertical resizing */
+    }
+
+    .ypi-form-group select {
+      appearance: none;
+      background-image: url('data:image/svg+xml;utf8,<svg fill="%2338b04c" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 20px;
+    }
+
+    /* Address section styling */
+    .ypi-address-section {
+      margin-bottom: 30px;
+    }
+
+    .ypi-address-section h3 {
+      color: #38b04c;
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 18px;
+    }
+    
+    /* Submit button styling */
+    .ypi-submit-btn {
+      background-color: #38b04c;
+      color: #ffffff;
+      border: none;
+      padding: 16px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      text-transform: uppercase;
+      transition: background-color 0.3s;
+    }
+
+    .ypi-submit-btn:hover {
+      background-color: #2d8c3c;
+    }
+
+    /* --- HEADER AND FOOTER STYLES (FROM HOME PAGE) --- */
+    .main-wrapper, .mobile-device-frame { width: 100%; min-height: 100vh; background-color: var(--theme-body-bg); }
+    .main-wrapper { display: flex; flex-direction: column; }
+    .content-body { flex: 1; }
+    .desktop-wp-header-container { background: linear-gradient(135deg,rgb(5,114,21) 0%,rgb(55,175,75) 100%); padding: 0.875rem 0; width: 100%; }
+    .desktop-wp-header-contents { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto; padding: 0 1.25rem; }
+    .desktop-header-left-group, .desktop-header-right-group { display: flex; align-items: center; gap: 1.25rem; }
+    .desktop-header-logo-img { width: 7.4375rem; height: auto; }
+    .theme-button { background-color: transparent; border: none; cursor: pointer; padding: 0.625rem; }
+    .gear-icon { width: 1.875rem; height: 1.875rem; stroke: #FEFEFE; transition: transform 0.5s ease; }
+    html[data-theme='light'] .gear-icon { stroke: #1c1c1c; }
+    .maxbutton { text-decoration: none; display: inline-block; width: 8.125rem; height: 3.125rem; border: 2px solid var(--theme-button-border); border-radius: 0.25rem; background-color: var(--theme-button-bg); text-align: center; line-height: 3.125rem; }
+    .maxbutton .mb-text { color: var(--theme-button-text); font-size: 1.3125rem; font-weight: bold; }
+    .maxbutton:hover { background-color: var(--theme-button-hover-bg); }
+    .maxbutton:hover .mb-text { color: var(--theme-button-hover-text); }
+    .navbar { background-color: var(--theme-navbar-bg); padding: 0.9375rem 0; text-align: center; display: flex; justify-content: center; width: 100%; }
+    .navbar-menu { display: flex; list-style-type: none; margin: 0; padding: 0; }
+    .navbar-item { position: relative; margin: 0 1.25rem; }
+    .navbar-link { color: var(--theme-navbar-text); text-decoration: none; font-size: 1.125rem; padding: 0.625rem 0.3125rem; display: flex; align-items: center; font-weight: bold; }
+    .dropdown-icon { border: solid var(--theme-navbar-text); border-width: 0 2px 2px 0; display: inline-block; padding: 0.1875rem; margin-left: 0.3125rem; transform: rotate(45deg); transition: transform 0.3s, border-color 0.3s ease; }
+    .navbar-item:hover .dropdown-icon { transform: rotate(-135deg); }
+    .dropdown-menu { visibility: hidden; opacity: 0; transition: opacity 0.3s ease, visibility 0.3s ease; position: absolute; background-color: var(--theme-navbar-dropdown-bg); min-width: 12.5rem; box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1); z-index: 1; top: 100%; left: 0; text-align: left; border-radius: 0.25rem; }
+    .navbar-item:hover .dropdown-menu { visibility: visible; opacity: 1; }
+    .dropdown-item { display: block; padding: 0.75rem 0.9375rem; color: var(--theme-navbar-dropdown-text); text-decoration: none; font-size: 1rem; font-weight: bold; }
+    .dropdown-item:hover { background-color: var(--theme-navbar-dropdown-hover-bg); }
+    .footer-container { background: linear-gradient(135deg, rgb(5, 114, 21) 0%, rgb(55, 175, 75) 100%); padding: 1rem 0; color: #FEFEFE; }
+    html[data-theme='light'] .footer-container { background: #1c1c1c; }
+    .footer-content { max-width: 1200px; margin: auto; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+    .footer-column { display: flex; flex-direction: column; align-items: center; flex: 1; padding: 0.625rem; }
+    .footer-column.center-column { text-align: center; }
+    .footer-column.right-column { align-items: flex-start; }
+    .footer-container .site-logo { width: 10.4125rem; height: auto; margin-bottom: -2rem; }
+    .company-heading { font-size: 1.25rem; font-weight: bold; margin: 0; }
+    .instagram-link { display: inline-flex; align-items: center; text-decoration: none; color: white; margin-top: 0.625rem; }
+    .instagram-link img { width: 2.5625rem; height: auto; margin-right: 0.625rem; }
+    .instagram-link span { font-size: 135%; }
+    .address { width: 100%; text-align: center; margin-top: 1rem; font-size: 0.8rem; color: #ccc; }
+    html[data-theme='light'] .address p { color: #ccc; }
+    .spacer-column { flex-basis: 6.25rem; flex-grow: 0; }
+    .sidebar { position: fixed; top: 0; left: 0; height: 100vh; width: 280px; background-color: var(--dark-background); z-index: 1000; transform: translateX(-100%); transition: transform 0.3s ease-in-out; padding: 1.25rem; }
+    html[data-theme='light'] .sidebar { background-color: var(--theme-body-bg); }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar .close-btn { background: none; border: none; color: var(--theme-body-color); font-size: 2.5rem; position: absolute; top: 10px; right: 20px; cursor: pointer; }
+    .sidebar nav ul { list-style: none; padding: 0; margin: 50px 0 0 0; }
+    .sidebar nav ul li a { color: var(--theme-body-color); text-decoration: none; font-size: 1.2rem; display: block; padding: 0.5rem 0; }
+    .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); z-index: 999; opacity: 0; visibility: hidden; transition: opacity 0.3s ease-in-out; }
+    .sidebar-overlay.active { opacity: 1; visibility: visible; }
+    .mobile-header-container { background: linear-gradient(135deg, rgb(5, 114, 21) 0%, rgb(55, 175, 75) 100%); padding: 0.9375rem 1.25rem; width: 100%; box-shadow: 0 2px 0.625rem rgba(0,0,0,0.3); }
+    header.site-header { display: flex; justify-content: space-between; align-items: center; }
+    .site-header .site-logo { width: 6.9375rem; height: auto; }
+    .mobile-header-controls { display: flex; align-items: center; gap: 1rem; }
+    .menu-button { background: none; border: none; padding: 0; cursor: pointer; }
+    .menu-icon { height: 1.75rem; width: 1.75rem; color: #FEFEFE; }
+    .mobile-footer-container { background: linear-gradient(135deg, rgb(5, 114, 21) 0%, rgb(55, 175, 75) 100%); padding: 2rem; color: #FEFEFE; text-align: center; }
+    html[data-theme='light'] .mobile-footer-container { background: #1c1c1c; }
+
+
+    /* =============================================== */
+    /* ==   MOBILE RESPONSIVE STYLES                == */
+    /* =============================================== */
+    @media (max-width: 768px) {
+      .main-wrapper { display: none; }
+      .mobile-device-frame { display: block; }
+      .ypi-registration-container {
+        padding: 20px;
+        margin: 20px auto;
+      }
+      .ypi-title { font-size: 26px; }
+      .ypi-intro { font-size: 16px; }
+      .ypi-why-signup { font-size: 20px; }
+      .ypi-call-to-action { font-size: 18px; }
+      .footer-content { flex-direction: column; }
+      .footer-column.right-column { align-items: center; }
+    }
+    
+    @media (min-width: 769px) {
+        .main-wrapper { display: flex; }
+        .mobile-device-frame { display: none; }
+    }
+  </style>
+  <script>
+    (function() {
+        try {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        } catch (e) {
+            console.error("Could not access localStorage to set theme.", e);
+        }
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- Main Wrapper for Desktop View -->
+  <div class="main-wrapper">
+    <div class="content-body">
+      <!-- Desktop Header -->
+      <div class="desktop-wp-header-container">
+        <header class="desktop-wp-header-contents">
+            <div class="desktop-header-left-group">
+                <a href="https://weareypi.com/"><img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Desktop Logo" class="desktop-header-logo-img"></a>
+            </div>
+            <div class="desktop-header-right-group">
+                <button class="theme-button" id="themeButton" aria-label="Toggle color theme">
+                    <svg class="gear-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l-.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l.06.06a1.65 1.65 0 0 0 .33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                </button>
+                <a href="https://www.instagram.com/_youngprogressivesinitiative_?igsh=NmQ0b2h2ZDM2eDJw&utm_source=qr"><img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/instagram-white-icon.svg" alt="Instagram" style="width:2.0625rem;height:2.0625rem"></a>
+                <a class="maxbutton" href="javascript:void(0);" onclick="ypiShowLoginPopup();"><span class='mb-text'>Explore YPI</span></a>
+            </div>
+        </header>
+      </div>
+      <!-- Desktop Navigation -->
+      <nav class="navbar">
+        <ul class="navbar-menu">
+            <li class="navbar-item"><a href="#" class="navbar-link">About Us<i class="dropdown-icon"></i></a><div class="dropdown-menu"><a href="https://weareypi.com/mission-statement/" class="dropdown-item">Our Mission</a><a href="https://weareypi.com/meet-ypi/" class="dropdown-item">Meet the YPI Team</a></div></li>
+            <li class="navbar-item"><a href="#" class="navbar-link">Get Involved<i class="dropdown-icon"></i></a><div class="dropdown-menu"><a href="https://weareypi.com/donation-page/" class="dropdown-item">Donate</a><a href="https://weareypi.com/info-guide/" class="dropdown-item">Information Guide for Parents</a></div></li>
+            <li class="navbar-item"><a href="https://weareypi.com/be-the-first/" class="navbar-link">Need Volunteers?</a></li>
+        </ul>
+      </nav>
+
+      <!-- Registration Form Content -->
+      <div class="ypi-registration-container">
+        <div class="ypi-header">
+          <h1 class="ypi-title">Join the Young Progressives Initiative (YPI) – Be a Leader of Tomorrow!</h1>
+          <div class="ypi-intro">
+            <p>Are you passionate about making a difference in your community? Do you want to create positive change, learn leadership skills, and build a better future? By joining YPI, you'll connect with like-minded students, gain real-world experience in social justice and advocacy, and have the chance to work on meaningful projects that can shape our world.</p>
+            <p>Fill out the interest form today to stay in the loop for exclusive volunteer opportunities. Together, we can make a real impact!</p>
+          </div>
+          <div class="ypi-benefits">
+            <h2 class="ypi-why-signup">Why sign up?</h2>
+            <ul>
+              <li>Access to relevant career experience younger than ever before</li>
+              <li>Build a network of changemakers and peers</li>
+              <li>Earn SSL hours</li>
+              <li>Access to experiences that actually help your college application</li>
+              <li>Learn skills to help yourself find your career path and dreams and aspirations</li>
+            </ul>
+          </div>
+          <p class="ypi-call-to-action">Don't wait—be part of the next generation of progressive leaders!</p>
+        </div>
+        <form id="ypi-registration-form-desktop" method="post">
+            <!-- Form fields are duplicated for mobile and desktop to handle separate form submission logic if needed -->
+            <div class="ypi-form-group"><label for="ypi-firstname-desktop">First Name *</label><input type="text" id="ypi-firstname-desktop" name="firstname" required></div>
+            <div class="ypi-form-group"><label for="ypi-lastname-desktop">Last Name *</label><input type="text" id="ypi-lastname-desktop" name="lastname" required></div>
+            <div class="ypi-form-group"><label for="ypi-email-desktop">Email Address *</label><input type="email" id="ypi-email-desktop" name="email" required></div>
+            <div class="ypi-form-group"><label for="ypi-phone-desktop">Phone Number</label><input type="tel" id="ypi-phone-desktop" name="phone"></div>
+            <div class="ypi-address-section"><h3>Address Information</h3><div class="ypi-form-group"><label for="ypi-street-desktop">Street Address *</label><input type="text" id="ypi-street-desktop" name="street" required></div><div class="ypi-form-group"><label for="ypi-street2-desktop">Apartment/Suite/Unit (Optional)</label><input type="text" id="ypi-street2-desktop" name="street2"></div><div class="ypi-form-group"><label for="ypi-city-desktop">City *</label><input type="text" id="ypi-city-desktop" name="city" required></div><div class="ypi-form-group"><label for="ypi-state-desktop">State/Province *</label><input type="text" id="ypi-state-desktop" name="state" required></div><div class="ypi-form-group"><label for="ypi-zipcode-desktop">Zip/Postal Code *</label><input type="text" id="ypi-zipcode-desktop" name="zipcode" required></div></div>
+            <div class="ypi-form-group"><label for="ypi-school-desktop">School/University</label><input type="text" id="ypi-school-desktop" name="school"></div>
+            <div class="ypi-form-group"><label for="ypi-grade-desktop">Grade/Year *</label><select id="ypi-grade-desktop" name="grade" required><option value="">Select your grade/year</option><option value="9">9th Grade</option><option value="10">10th Grade</option><option value="11">11th Grade</option><option value="12">12th Grade</option><option value="freshman">College Freshman</option><option value="sophomore">College Sophomore</option><option value="junior">College Junior</option><option value="senior">College Senior</option><option value="graduate">Graduate Student</option><option value="other">Other</option></select></div>
+            <div class="ypi-form-group"><label for="ypi-interests-desktop">What social justice or political issues are you most passionate about? *</label><textarea id="ypi-interests-desktop" name="interests" required></textarea></div>
+            <div class="ypi-form-group"><label for="ypi-about-yourself-desktop">Tell Us More About Yourself *</label><textarea id="ypi-about-yourself-desktop" name="about_yourself" placeholder="Please provide details that might typically be included in a cover letter..." required></textarea></div>
+            <div class="ypi-form-group"><label for="ypi-time-commitment-desktop">What does your time commitment hopes look like with YPI? *</label><textarea id="ypi-time-commitment-desktop" name="time_commitment" required></textarea></div>
+            <div class="ypi-form-group"><label for="ypi-gpa-desktop">What is your current unweighted GPA?</label><input type="text" id="ypi-gpa-desktop" name="gpa"></div>
+            <div class="ypi-form-group"><label for="ypi-emergency-name-desktop">Emergency Contact Name *</label><input type="text" id="ypi-emergency-name-desktop" name="emergency_name" required></div>
+            <div class="ypi-form-group"><label for="ypi-emergency-relation-desktop">Relation to Emergency Contact *</label><input type="text" id="ypi-emergency-relation-desktop" name="emergency_relation" required></div>
+            <div class="ypi-form-group"><label for="ypi-emergency-phone-desktop">Emergency Contact Phone Number *</label><input type="tel" id="ypi-emergency-phone-desktop" name="emergency_phone" required></div>
+            <div class="ypi-form-group"><button type="submit" class="ypi-submit-btn">Submit Registration</button></div>
+        </form>
+      </div>
+
+      <!-- Desktop Footer -->
+      <footer class="footer-container">
+        <div class="footer-content">
+            <div class="footer-column center-column">
+                <img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon.png" alt="YPI Site Icon" class="site-logo">
+                <h2 class="company-heading">A Company to Change America One Hour At a Time</h2>
+            </div>
+            <div class="spacer-column"></div>
+            <div class="footer-column right-column">
+                <a class="instagram-link" href="https://www.instagram.com/_youngprogressivesinitiative_?igsh=NmQ0b2h2ZDM2eDJw&utm_source=qr">
+                    <img src="https://logos-world.net/wp-content/uploads/2020/04/Instagram-Emblem.png" alt="Instagram">
+                    <span>Instagram</span>
+                </a>
+            </div>
+        </div>
+        <div class="address"><p>Young Progressives Initiative L.L.C , Chevy Chase, MD 20815</p></div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Mobile Version -->
+  <div class="mobile-device-frame">
+    <div class="sidebar" id="mobileSidebar">
+        <button class="close-btn" id="sidebarCloseBtn">&times;</button>
+        <nav>
+            <ul>
+                <li><a href="https://weareypi.com/mission-statement/">Our Mission</a></li>
+                <li><a href="https://weareypi.com/meet-ypi-roster/">Meet the YPI Team</a></li>
+                <li><a href="https://weareypi.com/donate/">Donate</a></li>
+                <li><a href="https://weareypi.com/info-guide/#">Information Guide</a></li>
+                <li><a href="https://weareypi.com/need-volunteers/">Need Volunteers?</a></li>
+            </ul>
+        </nav>
+    </div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
+    <div class="mobile-header-container">
+        <header class="site-header">
+            <a href="https://weareypi.com/"><img class="site-logo" src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI logo"></a>
+            <div class="mobile-header-controls">
+                <button class="theme-button mobile-theme-button" id="mobileThemeButton"><svg class="gear-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l-.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l.06.06a1.65 1.65 0 0 0 .33-1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
+                <button id="mobileHamburgerTrigger" class="menu-button"><svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button>
+            </div>
+        </header>
+    </div>
+    
+    <div class="ypi-registration-container">
+      <div class="ypi-header">
+        <h1 class="ypi-title">Join YPI</h1>
+        <div class="ypi-intro">
+          <p>Fill out the interest form today to stay in the loop for exclusive volunteer opportunities.</p>
+        </div>
+        <div class="ypi-benefits">
+          <h2 class="ypi-why-signup">Why sign up?</h2>
+          <ul>
+            <li>Access to relevant career experience</li>
+            <li>Build a network of changemakers</li>
+            <li>Earn SSL hours</li>
+            <li>Boost your college application</li>
+            <li>Discover your career path</li>
+          </ul>
+        </div>
+        <p class="ypi-call-to-action">Be part of the next generation of leaders!</p>
+      </div>
+      <form id="ypi-registration-form-mobile" method="post">
+        <div class="ypi-form-group"><label for="ypi-firstname-mobile">First Name *</label><input type="text" id="ypi-firstname-mobile" name="firstname" required></div>
+        <div class="ypi-form-group"><label for="ypi-lastname-mobile">Last Name *</label><input type="text" id="ypi-lastname-mobile" name="lastname" required></div>
+        <div class="ypi-form-group"><label for="ypi-email-mobile">Email Address *</label><input type="email" id="ypi-email-mobile" name="email" required></div>
+        <div class="ypi-form-group"><label for="ypi-phone-mobile">Phone Number</label><input type="tel" id="ypi-phone-mobile" name="phone"></div>
+        <div class="ypi-address-section"><h3>Address Information</h3><div class="ypi-form-group"><label for="ypi-street-mobile">Street Address *</label><input type="text" id="ypi-street-mobile" name="street" required></div><div class="ypi-form-group"><label for="ypi-street2-mobile">Apartment/Suite/Unit (Optional)</label><input type="text" id="ypi-street2-mobile" name="street2"></div><div class="ypi-form-group"><label for="ypi-city-mobile">City *</label><input type="text" id="ypi-city-mobile" name="city" required></div><div class="ypi-form-group"><label for="ypi-state-mobile">State/Province *</label><input type="text" id="ypi-state-mobile" name="state" required></div><div class="ypi-form-group"><label for="ypi-zipcode-mobile">Zip/Postal Code *</label><input type="text" id="ypi-zipcode-mobile" name="zipcode" required></div></div>
+        <div class="ypi-form-group"><label for="ypi-school-mobile">School/University</label><input type="text" id="ypi-school-mobile" name="school"></div>
+        <div class="ypi-form-group"><label for="ypi-grade-mobile">Grade/Year *</label><select id="ypi-grade-mobile" name="grade" required><option value="">Select your grade/year</option><option value="9">9th Grade</option><option value="10">10th Grade</option><option value="11">11th Grade</option><option value="12">12th Grade</option><option value="freshman">College Freshman</option><option value="sophomore">College Sophomore</option><option value="junior">College Junior</option><option value="senior">College Senior</option><option value="graduate">Graduate Student</option><option value="other">Other</option></select></div>
+        <div class="ypi-form-group"><label for="ypi-interests-mobile">What social justice or political issues are you most passionate about? *</label><textarea id="ypi-interests-mobile" name="interests" required></textarea></div>
+        <div class="ypi-form-group"><label for="ypi-about-yourself-mobile">Tell Us More About Yourself *</label><textarea id="ypi-about-yourself-mobile" name="about_yourself" placeholder="Please provide details that might typically be included in a cover letter..." required></textarea></div>
+        <div class="ypi-form-group"><label for="ypi-time-commitment-mobile">What does your time commitment hopes look like with YPI? *</label><textarea id="ypi-time-commitment-mobile" name="time_commitment" required></textarea></div>
+        <div class="ypi-form-group"><label for="ypi-gpa-mobile">What is your current unweighted GPA?</label><input type="text" id="ypi-gpa-mobile" name="gpa"></div>
+        <div class="ypi-form-group"><label for="ypi-emergency-name-mobile">Emergency Contact Name *</label><input type="text" id="ypi-emergency-name-mobile" name="emergency_name" required></div>
+        <div class="ypi-form-group"><label for="ypi-emergency-relation-mobile">Relation to Emergency Contact *</label><input type="text" id="ypi-emergency-relation-mobile" name="emergency_relation" required></div>
+        <div class="ypi-form-group"><label for="ypi-emergency-phone-mobile">Emergency Contact Phone Number *</label><input type="tel" id="ypi-emergency-phone-mobile" name="emergency_phone" required></div>
+        <div class="ypi-form-group"><button type="submit" class="ypi-submit-btn">Submit Registration</button></div>
+      </form>
+    </div>
+
+    <footer class="mobile-footer-container">
+        <div class="footer-content">
+            <div class="footer-column"><img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Logo" style="width: 6.9375rem; height: auto;"><h2 class="company-heading">A Company to Change America One Hour At a Time</h2></div>
+            <div class="footer-column"><a class="instagram-link" href="https://www.instagram.com/_youngprogressivesinitiative_?igsh=NmQ0b2h2ZDM2eDJw&utm_source=qr"><img src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/instagram-white-icon.svg" alt="Instagram"><span>Instagram</span></a></div>
+        </div>
+    </footer>
+  </div>
+
+  <script>
+    // Combined script for all page functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // --- THEME TOGGLE SCRIPT ---
+        function initializeThemeToggle() {
+            const themeButtons = document.querySelectorAll('.theme-button');
+            const htmlElement = document.documentElement;
+            themeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const newTheme = htmlElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+                    htmlElement.setAttribute('data-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                });
+            });
+        }
+
+        // --- MOBILE SIDEBAR LOGIC ---
+        function initializeSidebar() {
+            const hamburgerTrigger = document.getElementById('mobileHamburgerTrigger');
+            const sidebar = document.getElementById('mobileSidebar');
+            const closeBtn = document.getElementById('sidebarCloseBtn');
+            const overlay = document.getElementById('sidebarOverlay');
+            const body = document.body;
+
+            if (!hamburgerTrigger || !sidebar || !closeBtn || !overlay) return;
+
+            const openSidebar = () => {
+                sidebar.classList.add('open');
+                overlay.classList.add('active');
+                body.classList.add('sidebar-is-open');
+            };
+
+            const closeSidebar = () => {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+                body.classList.remove('sidebar-is-open');
+            };
+
+            hamburgerTrigger.addEventListener('click', openSidebar);
+            closeBtn.addEventListener('click', closeSidebar);
+            overlay.addEventListener('click', closeSidebar);
+        }
+
+        // This script handles the form submission using jQuery and AJAX.
+        function setupFormSubmission(formId) {
+            jQuery(formId).on('submit', function(e) {
+                e.preventDefault();
+                var formData = jQuery(this).serialize();
+
+                // NOTE: 'ajaxurl' is a global variable in WordPress that points to admin-ajax.php.
+                // This will work correctly when the code is on a WordPress page.
+                // For local testing, you might need to replace 'ajaxurl' with a direct path.
+                jQuery.ajax({
+                    type: 'POST',
+                    url: typeof ajaxurl !== 'undefined' ? ajaxurl : '/wp-admin/admin-ajax.php', 
+                    data: {
+                        action: 'ypi_register_member', // This action must be handled in your functions.php
+                        formData: formData
+                    },
+                    success: function(response) {
+                        // A more robust check for success from WordPress
+                        if(response && response.success) {
+                            alert('Thank you for registering with YPI! We will be in touch soon.');
+                            jQuery(formId)[0].reset();
+                        } else {
+                            // Provide more specific feedback if available
+                            const errorMessage = response.data ? response.data.message : 'Please try again.';
+                            alert('There was an error processing your registration. ' + errorMessage);
+                        }
+                    },
+                    error: function() {
+                        alert('There was an error connecting to the server. Please check your internet connection and try again later.');
+                    }
+                });
+            });
+        }
+
+        // Initialize all functionalities
+        initializeThemeToggle();
+        initializeSidebar();
+        setupFormSubmission('#ypi-registration-form-desktop');
+        setupFormSubmission('#ypi-registration-form-mobile');
+    });
+
+    // Dummy function for login popup link in header
+    function ypiShowLoginPopup() {
+        alert('Login popup would be displayed here.');
+    }
+  </script>
+</body>
+</html>

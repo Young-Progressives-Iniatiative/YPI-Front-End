@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Creator Monetization Hub</title>
+   <script src="https://cdn.tailwindcss.com"></script>
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+   <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+   <!-- Leaflet.js for the map -->
+   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+   <style>
+       body {
+           font-family: 'Atkinson Hyperlegible', sans-serif;
+           background-color: #1c1c1c;
+           color: #f0f0f0;
+       }
+       /* Custom scrollbar for dark mode */
+       ::-webkit-scrollbar { width: 8px; height: 8px; }
+       ::-webkit-scrollbar-track { background: #2a2a2a; border-radius: 10px; }
+       ::-webkit-scrollbar-thumb { background: #37af4b; border-radius: 10px; }
+       ::-webkit-scrollbar-thumb:hover { background: #2d8c3c; }
+      
+       /* Style for the map container */
+       #supporterMap {
+           height: 400px;
+           border-radius: 0.75rem; /* rounded-xl */
+           border: 1px solid #4a5568; /* border-gray-600 */
+       }
+       /* Custom map marker styles */
+       .supporter-marker {
+           background-color: rgba(55, 175, 75, 0.8);
+           border: 2px solid #f0f0f0;
+           border-radius: 50%;
+           width: 1rem;
+           height: 1rem;
+           box-shadow: 0 0 10px rgba(55, 175, 75, 0.9);
+       }
+       .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+           background: #252525;
+           color: #f0f0f0;
+           border: 1px solid #37af4b;
+       }
+   </style>
+</head>
+<body class="antialiased">
+
+
+   <!-- Header -->
+   <header class="bg-gradient-to-r from-green-800 to-green-600 sticky top-0 z-50 shadow-lg">
+       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+           <div class="flex items-center justify-between h-16">
+               <div class="flex-shrink-0">
+                  <img class="h-8 w-auto" src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Logo" onerror="this.onerror=null;this.src='https://placehold.co/119x32/1c1c1c/fefefe?text=YPI';">
+               </div>
+               <div class="flex items-center space-x-4">
+                   <img src="https://placehold.co/40x40/1c1c1c/ffffff?text=C" alt="Profile Picture" class="h-10 w-10 rounded-full border-2 border-green-300 cursor-pointer">
+               </div>
+           </div>
+       </div>
+   </header>
+
+
+   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+       <div class="bg-[#252525] border border-green-700/50 rounded-2xl p-6 sm:p-8">
+           <!-- Tab Navigation -->
+           <div class="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8">
+               <button id="dealsTab" class="tab-button px-4 py-2 text-sm sm:text-base font-semibold rounded-full shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500/50">
+                   <span class="material-icons-outlined text-base sm:text-xl">workspaces</span> Brand Deal Hub
+               </button>
+               <button id="productsTab" class="tab-button px-4 py-2 text-sm sm:text-base font-semibold rounded-full shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500/50">
+                   <span class="material-icons-outlined text-base sm:text-xl">inventory_2</span> My Products & Emails
+               </button>
+               <button id="fundingTab" class="tab-button px-4 py-2 text-sm sm:text-base font-semibold rounded-full shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500/50">
+                   <span class="material-icons-outlined text-base sm:text-xl">volunteer_activism</span> Subscriptions & Funding
+               </button>
+               <button id="preferencesTab" class="tab-button px-4 py-2 text-sm sm:text-base font-semibold rounded-full shadow-md transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500/50">
+                   <span class="material-icons-outlined text-base sm:text-xl">tune</span> Deal Preferences
+               </button>
+           </div>
+
+
+           <!-- Brand Deal Hub Section -->
+           <div id="dealsSection" class="hidden">
+               <h2 class="text-3xl sm:text-4xl font-bold text-white mb-6 text-center tracking-tight">Brand Deal Hub</h2>
+               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                   <div class="bg-neutral-800 rounded-xl p-6 shadow-lg border border-neutral-700 hover:border-green-500 transition-all duration-300">
+                       <div class="flex justify-between items-start mb-4">
+                           <div><h3 class="text-xl font-semibold text-white">UGC Video Campaign</h3><p class="text-green-400 text-sm">TechFlow Inc.</p></div>
+                           <span class="bg-neutral-500 text-white text-xs font-bold px-3 py-1 rounded-full">Negotiating</span>
+                       </div>
+                       <div class="space-y-3 text-sm mb-4"><p class="text-neutral-300"><span class="font-semibold">Value:</span> $1,500</p><p class="text-neutral-300"><span class="font-semibold">Key Clause:</span> 30-day content approval window.</p><p class="text-neutral-300"><span class="font-semibold">Deliverables:</span> 2 TikToks, 1 Instagram Reel</p></div>
+                       <div class="flex flex-wrap gap-2"><button class="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm rounded-lg">View Details</button><button class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white text-sm rounded-lg">Contact Brand</button></div>
+                   </div>
+                   <div class="bg-neutral-800 rounded-xl p-6 shadow-lg border border-neutral-700 hover:border-green-500 transition-all duration-300">
+                       <div class="flex justify-between items-start mb-4">
+                           <div><h3 class="text-xl font-semibold text-white">Podcast Sponsorship</h3><p class="text-green-400 text-sm">SoundWave Audio</p></div>
+                           <span class="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">Active</span>
+                       </div>
+                       <div class="space-y-3 text-sm mb-4"><p class="text-neutral-300"><span class="font-semibold">Value:</span> $3,200</p><p class="text-neutral-300"><span class="font-semibold">Key Clause:</span> Exclusivity for audio streaming.</p><p class="text-neutral-300"><span class="font-semibold">Deliverables:</span> 60s mid-roll ad read</p></div>
+                       <div class="flex flex-wrap gap-2"><button class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white text-sm rounded-lg">Manage</button></div>
+                   </div>
+                   <div class="bg-neutral-800 rounded-xl p-6 shadow-lg border border-neutral-700 hover:border-neutral-500 transition-all duration-300 opacity-70">
+                       <div class="flex justify-between items-start mb-4">
+                           <div><h3 class="text-xl font-semibold text-white">Product Photoshoot</h3><p class="text-green-400 text-sm">Artisan Coffee Co.</p></div>
+                           <span class="bg-gray-500 text-white text-xs font-bold px-3 py-1 rounded-full">Completed</span>
+                       </div>
+                       <div class="space-y-3 text-sm mb-4"><p class="text-neutral-300"><span class="font-semibold">Value:</span> $2,000</p><p class="text-neutral-300"><span class="font-semibold">Key Clause:</span> In-perpetuity usage rights.</p><p class="text-neutral-300"><span class="font-semibold">Status:</span> Payment Received</p></div>
+                       <div class="flex flex-wrap gap-2"><button class="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm rounded-lg">View Report</button></div>
+                   </div>
+               </div>
+           </div>
+
+
+           <!-- My Products & Emails Section -->
+           <div id="productsSection" class="hidden">
+               <h2 class="text-3xl sm:text-4xl font-bold text-white mb-2 text-center tracking-tight">My Products & Emails</h2>
+               <p class="text-neutral-400 text-lg mb-8 text-center">Manage your digital products and draft outreach emails.</p>
+               <div class="bg-neutral-800 rounded-xl p-6 shadow-lg border border-neutral-700 mb-8">
+                   <h3 class="text-2xl font-bold text-white mb-4">AI Email Drafter</h3>
+                   <form class="space-y-4">
+                       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                           <input type="email" placeholder="Recipient's Email" class="bg-neutral-900 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition">
+                           <select class="bg-neutral-900 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition"><option>Email Goal: General Inquiry</option><option>Email Goal: Pitch Collaboration</option><option>Email Goal: Follow Up</option><option>Email Goal: Promote Product</option></select>
+                       </div>
+                       <textarea rows="8" placeholder="Generated email will appear here..." class="bg-neutral-900 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition"></textarea>
+                       <div class="flex justify-end"><button type="button" class="bg-green-600 text-white font-bold py-2 px-6 rounded-full hover:bg-green-500 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-500/50">Draft Email</button></div>
+                   </form>
+               </div>
+               <h3 class="text-2xl font-bold text-white mb-4 mt-8">My Digital Products</h3>
+               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                   <div class="bg-neutral-800 rounded-xl p-6 shadow-lg border border-neutral-700">
+                       <h4 class="text-xl font-semibold text-white">"Neon Dreams" Preset Pack</h4><p class="text-green-400 text-sm mb-2">Digital Art Assets</p>
+                       <p class="text-2xl font-bold text-white mb-4">$25.00</p><p class="text-neutral-400 text-sm mb-4">Total Sales: <span class="font-bold text-white">142</span></p>
+                       <div class="flex flex-wrap gap-2"><button class="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm rounded-lg">Edit</button><button class="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm rounded-lg">Get Link</button></div>
+                   </div>
+               </div>
+           </div>
+
+
+           <!-- Subscriptions & Funding Section -->
+           <div id="fundingSection" class="hidden">
+               <h2 class="text-3xl sm:text-4xl font-bold text-white mb-6 text-center tracking-tight">Funding & Supporters</h2>
+               <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                   <div class="lg:col-span-1 space-y-4">
+                       <h3 class="text-2xl font-bold text-white">Connect Your Platforms</h3>
+                       <div class="bg-neutral-800 rounded-xl p-4 flex items-center justify-between border border-neutral-700"><div class="flex items-center gap-4"><img src="https://upload.wikimedia.org/wikipedia/commons/9/94/Patreon_logo.svg" alt="Patreon Logo" class="h-8 w-8 object-contain"><p class="font-semibold text-white">Patreon</p></div><button class="connect-btn px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm rounded-lg" data-platform="Patreon">Connect</button></div>
+                       <div class="bg-neutral-800 rounded-xl p-4 flex items-center justify-between border border-neutral-700"><div class="flex items-center gap-4"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6 Kickstarter_logo.svg/2560px-Kickstarter_logo.svg.png" alt="Kickstarter Logo" class="h-5 object-contain"></div><button class="connect-btn px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm rounded-lg" data-platform="Kickstarter">Connect</button></div>
+                       <div class="bg-neutral-800 rounded-xl p-4 flex items-center justify-between border border-neutral-700"><div class="flex items-center gap-4"><img src="https://upload.wikimedia.org/wikipedia/commons/2/27/GoFundMe_logo.svg" alt="GoFundMe Logo" class="h-5 object-contain"></div><button class="connect-btn px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm rounded-lg" data-platform="GoFundMe">Connect</button></div>
+                       <div class="bg-neutral-800 rounded-xl p-4 flex items-center justify-between border border-neutral-700"><div class="flex items-center gap-4"><img src="https://www.svgrepo.com/show/330802/kofi.svg" alt="Ko-fi Logo" class="h-8 w-8 object-contain"><p class="font-semibold text-white">Ko-fi</p></div><button class="connect-btn px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white text-sm rounded-lg" data-platform="Ko-fi">Connect</button></div>
+                   </div>
+                   <div class="lg:col-span-2 space-y-6">
+                       <h3 class="text-2xl font-bold text-white">Global Supporter Snapshot</h3>
+                       <div id="supporterMap"></div>
+                       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                           <div class="bg-neutral-800 p-4 rounded-lg border border-neutral-700"><p class="text-sm text-neutral-400">Total Supporters</p><p id="totalSupporters" class="text-2xl font-bold text-white">1,204</p></div>
+                           <div class="bg-neutral-800 p-4 rounded-lg border border-neutral-700"><p class="text-sm text-neutral-400">Total Pledged</p><p id="totalPledged" class="text-2xl font-bold text-white">$15,830</p></div>
+                           <div class="bg-neutral-800 p-4 rounded-lg border border-neutral-700"><p class="text-sm text-neutral-400">Top Location</p><p id="topLocation" class="text-2xl font-bold text-white">London, UK</p></div>
+                       </div>
+                   </div>
+               </div>
+           </div>
+
+
+           <!-- Deal Preferences Section -->
+           <div id="preferencesSection" class="hidden">
+               <h2 class="text-3xl sm:text-4xl font-bold text-white mb-2 text-center tracking-tight">Deal Preferences</h2>
+               <p class="text-neutral-400 text-lg mb-6 text-center">Set your pre-negotiation terms to streamline new deals.</p>
+               <form class="space-y-6 bg-neutral-800 p-8 rounded-xl border border-neutral-700">
+                   <div><label for="minRate" class="block text-neutral-300 text-sm font-bold mb-2">Minimum Project Rate ($)</label><input type="number" id="minRate" placeholder="e.g., 500" class="bg-neutral-900 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition"></div>
+                   <div><label for="paymentMethods" class="block text-neutral-300 text-sm font-bold mb-2">Preferred Payment Methods</label><input type="text" id="paymentMethods" placeholder="e.g., Stripe, PayPal, Bank Transfer" class="bg-neutral-900 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition"></div>
+                   <div><label for="usageRights" class="block text-neutral-300 text-sm font-bold mb-2">Standard Content Usage Rights</label><select id="usageRights" class="bg-neutral-900 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition"><option>12 Months In-Perpetuity</option><option>6 Months</option><option>Usage by Campaign</option><option>Custom (to be negotiated)</option></select></div>
+                   <div><label for="exclusivity" class="block text-neutral-300 text-sm font-bold mb-2">Exclusivity Preference</label><select id="exclusivity" class="bg-neutral-900 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition"><option>Open to category exclusivity</option><option>No exclusivity preferred</option><option>Exclusivity requires premium rate</option></select></div>
+                   <div class="pt-4"><button type="submit" class="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-full hover:bg-green-500 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-500/50">Save Preferences</button></div>
+               </form>
+           </div>
+       </div>
+   </main>
+
+
+   <script>
+       document.addEventListener('DOMContentLoaded', () => {
+           const sections = {
+               deals: document.getElementById('dealsSection'),
+               products: document.getElementById('productsSection'),
+               funding: document.getElementById('fundingSection'),
+               preferences: document.getElementById('preferencesSection')
+           };
+           const tabs = {
+               deals: document.getElementById('dealsTab'),
+               products: document.getElementById('productsTab'),
+               funding: document.getElementById('fundingTab'),
+               preferences: document.getElementById('preferencesTab')
+           };
+
+
+           let supporterMap;
+           let mapInitialized = false;
+
+
+           function showSection(sectionId) {
+               Object.values(sections).forEach(section => section.classList.add('hidden'));
+               Object.values(tabs).forEach(tab => {
+                   tab.classList.remove('bg-green-600', 'text-white');
+                   tab.classList.add('bg-neutral-800', 'text-neutral-300', 'hover:bg-neutral-700');
+               });
+
+
+               if (sections[sectionId]) sections[sectionId].classList.remove('hidden');
+               if (tabs[sectionId]) {
+                   tabs[sectionId].classList.remove('bg-neutral-800', 'text-neutral-300', 'hover:bg-neutral-700');
+                   tabs[sectionId].classList.add('bg-green-600', 'text-white');
+               }
+             
+               if (sectionId === 'funding' && !mapInitialized) {
+                   initializeFundingDashboard();
+                   mapInitialized = true;
+               }
+           }
+         
+           function initializeFundingDashboard() {
+               supporterMap = L.map('supporterMap', { scrollWheelZoom: false }).setView([51.505, -0.09], 2);
+               L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                   subdomains: 'abcd', maxZoom: 20
+               }).addTo(supporterMap);
+
+
+               const supporters = [
+                   { lat: 51.5072, lng: -0.1276, city: 'London', country: 'UK', pledge: 20 }, { lat: 40.7128, lng: -74.0060, city: 'New York', country: 'USA', pledge: 50 }, { lat: 34.0522, lng: -118.2437, city: 'Los Angeles', country: 'USA', pledge: 10 }, { lat: 48.8566, lng: 2.3522, city: 'Paris', country: 'France', pledge: 15 }, { lat: 35.6895, lng: 139.6917, city: 'Tokyo', country: 'Japan', pledge: 25 }, { lat: -33.8688, lng: 151.2093, city: 'Sydney', country: 'Australia', pledge: 5 },
+               ];
+               addSupportersToMap(supporters);
+           }
+
+
+           function addSupportersToMap(supporters) {
+               supporters.forEach(supporter => {
+                   const marker = L.marker([supporter.lat, supporter.lng], {
+                       icon: L.divIcon({ className: 'supporter-marker', iconSize: [16, 16] })
+                   }).addTo(supporterMap);
+                   marker.bindPopup(`<b>${supporter.city}, ${supporter.country}</b><br>Pledged $${supporter.pledge}`);
+               });
+           }
+
+
+           document.querySelectorAll('.connect-btn').forEach(button => {
+               button.addEventListener('click', (e) => {
+                   const btn = e.target;
+                   if (btn.textContent === 'Connect') {
+                       btn.textContent = 'Connecting...';
+                       btn.disabled = true;
+                       setTimeout(() => {
+                           btn.textContent = 'Connected';
+                           btn.classList.remove('bg-neutral-700', 'hover:bg-neutral-600');
+                           btn.classList.add('bg-green-600');
+                           const newSupporters = [
+                               { lat: 49.2827, lng: -123.1207, city: 'Vancouver', country: 'Canada', pledge: 10 },
+                               { lat: 52.5200, lng: 13.4050, city: 'Berlin', country: 'Germany', pledge: 30 }
+                           ];
+                           addSupportersToMap(newSupporters);
+                       }, 1500);
+                   }
+               });
+           });
+
+
+           Object.keys(tabs).forEach(tabKey => {
+               tabs[tabKey].addEventListener('click', () => showSection(tabKey));
+           });
+
+
+           showSection('deals');
+       });
+   </script>
+</body>
+</html>

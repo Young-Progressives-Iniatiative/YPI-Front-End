@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Creator Performance Dashboard</title>
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+   <script src="https://cdn.tailwindcss.com"></script>
+   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+
+   <script type="module">
+       // Firebase imports
+       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+       import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+       import { getFirestore, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+
+       // --- GLOBAL STATE & CONFIGURATION ---
+       let db = null;
+       let auth = null;
+       let currentUserId = null;
+
+
+       // --- MOCK DATA FOR A CONTENT CREATOR ---
+       const contentPieces = [
+           {
+               id: 1, title: "Quantum Computing Explained", type: "Video", platform: "YouTube", thumbnail: "https://placehold.co/120x90/E44D67/ffffff?text=Video",
+               metrics: { views: 25500, likes: 1200, comments: 250, shares: 90 },
+               algoScore: { seo: 92, watchTime: 78, ctr: 85 },
+               benchmark: { views: 18000, engagementRate: 4.5 },
+               projections: { '10k': 45000, '50k': 150000, '100k': 320000 },
+               date: "2025-07-15"
+           },
+           {
+               id: 2, title: "The Future of AI in Art", type: "Blog Post", platform: "Medium", thumbnail: "https://placehold.co/120x90/42A5F5/ffffff?text=Blog",
+               metrics: { views: 15000, likes: 800, comments: 150, shares: 120 },
+               algoScore: { seo: 95, watchTime: 88, ctr: 70 },
+               benchmark: { views: 12000, engagementRate: 5.0 },
+               projections: { '10k': 25000, '50k': 90000, '100k': 210000 },
+               date: "2025-07-10"
+           },
+           {
+               id: 3, title: "Lo-fi Beats for Deep Focus", type: "Song", platform: "Spotify", thumbnail: "https://placehold.co/120x90/66BB6A/ffffff?text=Song",
+               metrics: { views: 180000, likes: 9500, comments: 0, shares: 1500 },
+               algoScore: { seo: 75, watchTime: 92, ctr: 80 },
+               benchmark: { views: 200000, engagementRate: 6.2 },
+               projections: { '10k': 300000, '50k': 950000, '100k': 2200000 },
+               date: "2025-07-05"
+           },
+           {
+               id: 4, title: "My First Short Film", type: "Short Film", platform: "Vimeo", thumbnail: "https://placehold.co/120x90/FFA726/ffffff?text=Film",
+               metrics: { views: 8200, likes: 600, comments: 80, shares: 50 },
+               algoScore: { seo: 80, watchTime: 95, ctr: 65 },
+               benchmark: { views: 10000, engagementRate: 7.1 },
+               projections: { '10k': 15000, '50k': 60000, '100k': 140000 },
+               date: "2025-06-28"
+           },
+           {
+               id: 5, title: "Podcast Ep. 12: Tech Ethics", type: "Podcast", platform: "Apple Podcasts", thumbnail: "https://placehold.co/120x90/9E9E9E/ffffff?text=Podcast",
+               metrics: { views: 22000, likes: 450, comments: 0, shares: 300 },
+               algoScore: { seo: 88, watchTime: 85, ctr: 75 },
+               benchmark: { views: 20000, engagementRate: 2.5 },
+               projections: { '10k': 35000, '50k': 120000, '100k': 280000 },
+               date: "2025-06-20"
+           }
+       ];
+
+
+       // --- RENDER FUNCTIONS ---
+
+
+       /** Renders the main content hub list */
+       function renderContentHub() {
+           const container = document.getElementById('contentHubContainer');
+           if (!container) return;
+           container.innerHTML = contentPieces.map(content => `
+               <div class="flex items-center p-3 bg-[var(--chart-bg-subtle)] rounded-lg shadow-sm hover:bg-[rgba(255,255,255,0.1)] transition-colors duration-200">
+                   <img src="${content.thumbnail}" alt="${content.title}" class="w-20 h-16 object-cover rounded-md mr-4 flex-shrink-0" onerror="this.onerror=null;this.src='https://placehold.co/120x90/cccccc/ffffff?text=Error';">
+                   <div class="flex-grow min-w-0">
+                       <p class="font-semibold text-white truncate">${content.title}</p>
+                       <p class="text-sm text-[var(--text-medium)]">${content.type} on ${content.platform}</p>
+                   </div>
+                   <div class="text-right ml-4 flex-shrink-0">
+                       <p class="text-lg font-bold text-white">${(content.metrics.views / 1000).toFixed(1)}k</p>
+                       <p class="text-xs text-[var(--text-medium)]">Views/Listens</p>
+                   </div>
+               </div>
+           `).join('');
+       }
+
+
+       /** Initializes all charts on the dashboard */
+       function initializeDashboardCharts() {
+           renderPerformanceChart();
+           renderContentMixChart();
+           renderAlgorithmHealthChart();
+           renderPeerBenchmarkChart();
+       }
+
+
+       /** Renders the overall performance line chart */
+       function renderPerformanceChart() {
+           const ctx = document.getElementById('performanceChart')?.getContext('2d');
+           if (!ctx) return;
+           const labels = contentPieces.map(c => c.date).reverse();
+           const viewsData = contentPieces.map(c => c.metrics.views).reverse();
+           const engagementData = contentPieces.map(c => c.metrics.likes + c.metrics.comments).reverse();
+
+
+           // Destroy existing chart instance if it exists
+           if (window.performanceChart instanceof Chart) {
+               window.performanceChart.destroy();
+           }
+
+
+           window.performanceChart = new Chart(ctx, {
+               type: 'line',
+               data: {
+                   labels,
+                   datasets: [
+                       { label: 'Views/Listens', data: viewsData, borderColor: 'var(--accent-blue)', tension: 0.3, fill: false },
+                       { label: 'Engagement (Likes+Comments)', data: engagementData, borderColor: 'var(--accent-green)', tension: 0.3, fill: false }
+                   ]
+               },
+               options: {
+                   responsive: true, maintainAspectRatio: false,
+                   plugins: { legend: { labels: { color: 'var(--text-medium)' } } },
+                   scales: {
+                       y: { ticks: { color: 'var(--text-medium)' }, grid: { color: 'var(--border-color)' } },
+                       x: { ticks: { color: 'var(--text-medium)' }, grid: { color: 'transparent' } }
+                   }
+               }
+           });
+       }
+
+
+       /** Renders the content mix doughnut chart */
+       function renderContentMixChart() {
+           const ctx = document.getElementById('contentMixChart')?.getContext('2d');
+           if (!ctx) return;
+
+
+           const typeCounts = contentPieces.reduce((acc, curr) => {
+               acc[curr.type] = (acc[curr.type] || 0) + 1;
+               return acc;
+           }, {});
+
+
+           // Destroy existing chart instance if it exists
+           if (window.contentMixChart instanceof Chart) {
+               window.contentMixChart.destroy();
+           }
+
+
+           window.contentMixChart = new Chart(ctx, {
+               type: 'doughnut',
+               data: {
+                   labels: Object.keys(typeCounts),
+                   datasets: [{
+                       data: Object.values(typeCounts),
+                       backgroundColor: ['#E44D67', '#42A5F5', '#66BB6A', '#FFA726', '#9E9E9E'],
+                       borderColor: 'var(--card-bg)',
+                       borderWidth: 4
+                   }]
+               },
+               options: {
+                   responsive: true, maintainAspectRatio: false,
+                   plugins: { legend: { position: 'bottom', labels: { color: 'var(--text-medium)', padding: 15 } } }
+               }
+           });
+       }
+
+
+       /** Renders the algorithm health radar chart */
+       function renderAlgorithmHealthChart() {
+           const container = document.getElementById('algorithmHealthCard');
+           if (!container) return;
+          
+           container.innerHTML = `
+               <h3>Algorithm Health</h3>
+               <div class="h-64"><canvas id="algorithmHealthChartCanvas"></canvas></div>`;
+          
+           const chartCanvas = document.getElementById('algorithmHealthChartCanvas');
+           if(!chartCanvas) return;
+
+
+           const avgScores = contentPieces.reduce((acc, curr) => {
+               acc.seo += curr.algoScore.seo;
+               acc.watchTime += curr.algoScore.watchTime;
+               acc.ctr += curr.algoScore.ctr;
+               return acc;
+           }, { seo: 0, watchTime: 0, ctr: 0 });
+
+
+           const count = contentPieces.length || 1;
+           Object.keys(avgScores).forEach(key => avgScores[key] /= count);
+          
+           // Destroy existing chart instance if it exists
+           if (window.algorithmHealthChart instanceof Chart) {
+               window.algorithmHealthChart.destroy();
+           }
+
+
+           window.algorithmHealthChart = new Chart(chartCanvas.getContext('2d'), {
+               type: 'radar',
+               data: {
+                   labels: ['SEO / Discoverability', 'Audience Retention', 'Click-Through Rate'],
+                   datasets: [{
+                       label: 'Average Score',
+                       data: Object.values(avgScores),
+                       backgroundColor: 'rgba(66, 165, 245, 0.2)',
+                       borderColor: 'var(--accent-blue)',
+                       pointBackgroundColor: 'var(--accent-blue)'
+                   }]
+               },
+               options: {
+                   responsive: true, maintainAspectRatio: false,
+                   scales: { r: { angleLines: { color: 'var(--border-color)' }, grid: { color: 'var(--border-color)' }, pointLabels: { color: 'var(--text-medium)' }, suggestedMin: 0, suggestedMax: 100, ticks: { backdropColor: 'var(--card-bg)', color: 'var(--text-light)' } } },
+                   plugins: { legend: { display: false } }
+               }
+           });
+       }
+
+
+       /** Renders the peer benchmark comparison card */
+       function renderPeerBenchmarkChart() {
+           const container = document.getElementById('peerBenchmarkCard');
+           if (!container) return;
+          
+           const count = contentPieces.length || 1;
+           const avgMyViews = contentPieces.reduce((sum, c) => sum + c.metrics.views, 0) / count;
+           const avgPeerViews = contentPieces.reduce((sum, c) => sum + c.benchmark.views, 0) / count;
+
+
+           container.innerHTML = `
+               <h3>Peer Benchmark (Avg. Views)</h3>
+               <div class="space-y-4">
+                   <div>
+                       <div class="flex justify-between text-sm mb-1">
+                           <span class="font-semibold text-white">Your Average</span>
+                           <span class="text-[var(--text-medium)]">${avgMyViews.toLocaleString()}</span>
+                       </div>
+                       <div class="w-full bg-[var(--chart-bg-subtle)] rounded-full h-4">
+                           <div class="bg-[var(--accent-green)] h-4 rounded-full" style="width: ${Math.min(100, (avgMyViews / avgPeerViews) * 50)}%"></div>
+                       </div>
+                   </div>
+                   <div>
+                       <div class="flex justify-between text-sm mb-1">
+                           <span class="font-semibold text-white">Peer Average</span>
+                           <span class="text-[var(--text-medium)]">${avgPeerViews.toLocaleString()}</span>
+                       </div>
+                       <div class="w-full bg-[var(--chart-bg-subtle)] rounded-full h-4">
+                           <div class="bg-[var(--accent-orange)] h-4 rounded-full" style="width: 50%"></div>
+                       </div>
+                   </div>
+               </div>`;
+       }
+      
+       /** Renders the growth projection calculator */
+       function renderGrowthProjections() {
+           const container = document.getElementById('growthProjectionsCard');
+           if (!container) return;
+          
+           container.innerHTML = `
+               <h3>Growth Projections</h3>
+               <div class="space-y-4">
+                   <div class="form-group">
+                       <label for="content-select" class="block text-sm font-medium text-[var(--text-medium)] mb-1">Select Content:</label>
+                       <select id="content-select" class="w-full p-2 rounded-md border-gray-700 bg-gray-800 text-white">
+                           ${contentPieces.map(c => `<option value="${c.id}">${c.title}</option>`).join('')}
+                       </select>
+                   </div>
+                   <div id="projection-results" class="space-y-2 pt-2"></div>
+               </div>`;
+              
+           const select = document.getElementById('content-select');
+           select.addEventListener('change', updateProjectionResults);
+           updateProjectionResults(); // Initial call
+       }
+
+
+       function updateProjectionResults() {
+           const select = document.getElementById('content-select');
+           const resultsContainer = document.getElementById('projection-results');
+           if (!select || !resultsContainer) return;
+          
+           const selectedContent = contentPieces.find(c => c.id == select.value);
+           if (!selectedContent) return;
+
+
+           resultsContainer.innerHTML = `
+               <div class="flex justify-between items-center bg-[var(--chart-bg-subtle)] p-2 rounded-md">
+                   <span class="text-[var(--text-medium)]">At 10k Followers:</span>
+                   <span class="font-bold text-white text-lg">${selectedContent.projections['10k'].toLocaleString()} views</span>
+               </div>
+               <div class="flex justify-between items-center bg-[var(--chart-bg-subtle)] p-2 rounded-md">
+                   <span class="text-[var(--text-medium)]">At 50k Followers:</span>
+                   <span class="font-bold text-white text-lg">${selectedContent.projections['50k'].toLocaleString()} views</span>
+               </div>
+               <div class="flex justify-between items-center bg-[var(--chart-bg-subtle)] p-2 rounded-md">
+                   <span class="text-[var(--text-medium)]">At 100k Followers:</span>
+                   <span class="font-bold text-white text-lg">${selectedContent.projections['100k'].toLocaleString()} views</span>
+               </div>
+           `;
+       }
+
+
+       // --- CORE & UTILITY FUNCTIONS ---
+
+
+       /** Re-renders all components */
+       function refreshAllComponents() {
+           renderContentHub();
+           initializeDashboardCharts();
+           renderGrowthProjections();
+       }
+      
+       /** Initializes the drag-and-drop functionality */
+       function initializeSortable() {
+           const dashboardGrid = document.getElementById('dashboardGrid');
+           if (dashboardGrid) {
+               new Sortable(dashboardGrid, {
+                   animation: 150,
+                   ghostClass: 'sortable-ghost',
+                   handle: '.card-handle' // Use a handle to drag
+               });
+           }
+       }
+
+
+       // --- DOMContentLoaded: MAIN ENTRY POINT ---
+       document.addEventListener('DOMContentLoaded', async () => {
+           // Firebase Initialization
+           try {
+               const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+               const app = initializeApp(firebaseConfig);
+               db = getFirestore(app);
+               auth = getAuth(app);
+               setLogLevel('debug'); // Optional: for detailed logs
+
+
+               // Authenticate the user
+               if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                   await signInWithCustomToken(auth, __initial_auth_token);
+               } else {
+                   await signInAnonymously(auth);
+               }
+           } catch (e) {
+               console.error("Firebase initialization failed:", e);
+               const userIdDisplay = document.getElementById('currentUserIdDisplay');
+               if (userIdDisplay) {
+                   userIdDisplay.textContent = 'Error: Could not connect to backend.';
+               }
+           }
+
+
+           onAuthStateChanged(auth, (user) => {
+               const userIdDisplay = document.getElementById('currentUserIdDisplay');
+               if (user) {
+                   currentUserId = user.uid;
+                   userIdDisplay.textContent = `User ID: ${currentUserId}`;
+               } else {
+                   currentUserId = 'fallback-local-user';
+                   userIdDisplay.textContent = 'User ID: Not Authenticated';
+               }
+           });
+
+
+           // Initial UI Render
+           refreshAllComponents();
+           initializeSortable();
+       });
+   </script>
+   <style>
+       :root {
+           --bg-primary: #1c1c1c;
+           --card-bg: #2a2a2a;
+           --text-light: #F0F0F0;
+           --text-medium: #BBB;
+           --accent-blue: #42A5F5;
+           --accent-green: #66BB6A;
+           --accent-orange: #FFA726;
+           --accent-red: #E44D67;
+           --border-color: rgba(255, 255, 255, 0.1);
+           --chart-bg-subtle: rgba(255, 255, 255, 0.05);
+       }
+       body {
+           font-family: 'Inter', sans-serif;
+           background-color: var(--bg-primary);
+           color: var(--text-light);
+       }
+       .card {
+           background-color: var(--card-bg);
+           border-radius: 12px;
+           padding: 25px;
+           box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+           display: flex;
+           flex-direction: column;
+           transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+           border: 1px solid transparent;
+       }
+       .card-handle {
+           cursor: grab;
+       }
+       .card-handle:active {
+           cursor: grabbing;
+       }
+       .card h3 {
+           margin-top: 0;
+           margin-bottom: 20px;
+           font-size: 1.1rem;
+           font-weight: 600;
+           color: var(--text-light);
+       }
+       .sortable-ghost {
+           opacity: 0.4;
+           background-color: var(--chart-bg-subtle);
+           border: 2px dashed var(--accent-blue);
+       }
+       .form-group label { color: var(--text-medium); }
+       .form-group select {
+           background-color: var(--bg-primary);
+           border: 1px solid var(--border-color);
+           color: var(--text-light);
+       }
+       /* Custom scrollbar for content hub */
+       #contentHubContainer::-webkit-scrollbar {
+           width: 8px;
+       }
+       #contentHubContainer::-webkit-scrollbar-track {
+           background: var(--chart-bg-subtle);
+           border-radius: 10px;
+       }
+       #contentHubContainer::-webkit-scrollbar-thumb {
+           background: var(--accent-blue);
+           border-radius: 10px;
+       }
+       #contentHubContainer::-webkit-scrollbar-thumb:hover {
+           background: #348ee0;
+       }
+   </style>
+</head>
+<body class="p-4 sm:p-6">
+   <div class="dashboard-container max-w-7xl mx-auto">
+       <header class="mb-6">
+           <h1 class="text-2xl sm:text-3xl font-bold text-white">Creator Dashboard</h1>
+           <p class="text-md text-[var(--text-medium)]">Your content performance at a glance.</p>
+       </header>
+
+
+       <main id="dashboardGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          
+           <div class="card md:col-span-2 lg:col-span-4 card-handle" id="contentHubCard">
+               <h3>Content Hub</h3>
+               <div id="contentHubContainer" class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                   <!-- Content is rendered here by JS -->
+               </div>
+           </div>
+
+
+           <div class="card lg:col-span-2 card-handle" id="performanceOverviewCard">
+               <h3>Performance Overview</h3>
+               <div class="h-64"><canvas id="performanceChart"></canvas></div>
+           </div>
+
+
+           <div class="card card-handle" id="contentMixCard">
+               <h3>Content Mix</h3>
+               <div class="h-64"><canvas id="contentMixChart"></canvas></div>
+           </div>
+
+
+           <div class="card card-handle" id="algorithmHealthCard">
+               <!-- Content is rendered here by JS -->
+           </div>
+
+
+           <div class="card card-handle" id="peerBenchmarkCard">
+               <!-- Content is rendered here by JS -->
+           </div>
+
+
+           <div class="card lg:col-span-2 card-handle" id="growthProjectionsCard">
+               <!-- Content is rendered here by JS -->
+           </div>
+
+
+       </main>
+
+
+       <footer class="mt-8 py-4 border-t border-[var(--border-color)] flex flex-wrap justify-between items-center gap-4">
+           <div id="currentUserIdDisplay" class="text-xs text-[var(--text-medium)] font-mono">Authenticating...</div>
+       </footer>
+   </div>
+</body>
+</html>

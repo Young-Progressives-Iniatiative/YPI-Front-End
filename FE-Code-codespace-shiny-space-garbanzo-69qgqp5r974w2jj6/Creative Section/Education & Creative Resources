@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creator Coaching & Mentorship</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+      /* General Body & Base */
+      :root {
+          --bg-dark: #111111;
+          --bg-medium: #1c1c1c;
+          --bg-light: #2a2a2a;
+          --bg-input: #333333;
+          --text-white: #ffffff;
+          --text-light: #e0e0e0;
+          --text-medium: #bbbbbb;
+          --text-dark: #888888;
+          --text-black: #000000;
+          --green-bright: #22c55e;
+          --green-medium: #16a34a;
+          --green-dark: #059669;
+          --green-darker: #047857;
+          --green-darkest: #064e3b;
+          --green-text: #4ade80;
+      }
+      body {
+          font-family: 'Inter', sans-serif;
+          background-color: var(--bg-dark);
+          color: var(--text-light);
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          padding: 1rem;
+      }
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar { width: 8px; height: 8px; }
+      ::-webkit-scrollbar-track { background: var(--bg-medium); border-radius: 10px; }
+      ::-webkit-scrollbar-thumb { background: var(--green-darker); border-radius: 10px; }
+      ::-webkit-scrollbar-thumb:hover { background: var(--green-dark); }
+      input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.8); }
+
+
+      /* Main Container */
+      .container {
+          max-width: 80rem;
+          margin: 0 auto;
+          width: 100%;
+          background-color: var(--bg-medium);
+          border-radius: 0.75rem;
+          box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+          padding: 1rem;
+          margin-bottom: 2rem;
+      }
+
+
+      /* Tabs */
+      .tabs-container {
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          margin-bottom: 1.5rem;
+      }
+      .tab-button {
+          flex: 1;
+          padding: 0.75rem 1.5rem;
+          font-weight: 600;
+          border-radius: 0.5rem;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+          transition: all 300ms ease-in-out;
+          border: none;
+          cursor: pointer;
+      }
+      .tab-button:hover { transform: scale(1.05); }
+      .tab-button:focus { outline: none; box-shadow: 0 0 0 2px var(--green-bright); }
+
+
+      /* Section Styles */
+      .section-title { font-size: 1.875rem; font-weight: 700; color: var(--text-white); margin-bottom: 1.5rem; }
+      .section-subtitle { font-size: 1.125rem; color: var(--text-medium); margin-bottom: 2rem; }
+      .subsection-title { font-size: 1.5rem; font-weight: 700; color: var(--text-white); margin-bottom: 1rem; margin-top: 2rem; }
+
+
+      /* Filters */
+      .filters { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+      .filters input[type="text"], .filters select {
+          padding: 0.75rem; border-radius: 0.5rem; background-color: var(--bg-light);
+          color: var(--text-white); border: none; }
+      .filters input[type="text"] { flex: 1; min-width: 200px; }
+      .filters input[type="text"]::placeholder { color: var(--green-text); }
+      .filters input[type="text"]:focus, .filters select:focus { outline: none; box-shadow: 0 0 0 2px var(--green-bright); }
+
+
+      /* Card Grid & Cards */
+      .card-grid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 3rem; }
+      .card {
+          background-color: var(--bg-light); border-radius: 0.75rem; padding: 1.5rem;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+          border: 1px solid var(--green-darkest); transition: all 300ms ease-in-out;
+          display: flex; flex-direction: column;
+      }
+      .card:hover { border-color: var(--green-bright); }
+      .card-header { display: flex; align-items: center; margin-bottom: 1rem; }
+      .card-avatar { width: 4rem; height: 4rem; border-radius: 9999px; margin-right: 1rem; border: 2px solid var(--green-bright); }
+      .card-title { font-size: 1.25rem; font-weight: 600; color: var(--text-white); }
+      .card-subtitle { color: var(--green-text); font-size: 0.875rem; }
+      .card-body { color: var(--text-medium); font-size: 0.875rem; margin-bottom: 1rem; flex-grow: 1; }
+      .card-body.italic { font-style: italic; }
+      .card-footer { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+      .card-footer-info { display: flex; align-items: center; font-size: 0.875rem; color: var(--text-dark); margin-bottom: 1rem; }
+      .card-footer-info svg { width: 1rem; height: 1rem; margin-right: 0.5rem; color: currentColor; }
+      .card-footer-info span { font-weight: 700; color: var(--text-white); margin-left: 0.25rem; }
+
+
+      /* Buttons */
+      .btn { padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 600; border-radius: 0.375rem; transition: all 300ms ease-in-out; cursor: pointer; border: none; text-align: center; }
+      .btn-full { width: 100%; }
+      .btn-flex-1 { flex: 1; }
+      .btn-green { background-color: var(--green-medium); color: var(--text-black); }
+      .btn-green:hover { background-color: var(--green-bright); }
+      .btn-dark-green { background-color: var(--green-darker); color: var(--text-white); }
+      .btn-dark-green:hover { background-color: var(--green-dark); }
+      .btn-outline { background-color: transparent; border: 1px solid var(--green-bright); color: var(--text-light); }
+      .btn-outline:hover { background-color: var(--green-bright); color: var(--text-black); }
+      .btn-large { padding: 0.75rem 2rem; border-radius: 0.5rem; }
+
+
+      /* CTA Section */
+      .cta-section {
+          background-color: var(--bg-light); border-radius: 0.75rem; padding: 2rem;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+          border: 1px solid var(--green-bright); margin: 3rem 0; text-align: center;
+      }
+      .cta-section h3 { font-size: 1.5rem; font-weight: 700; color: var(--text-white); margin-bottom: 1rem; }
+      .cta-section p { color: var(--text-medium); max-width: 42rem; margin: 0 auto 1.5rem auto; }
+
+
+      /* Form */
+      .form-container { background-color: var(--bg-light); padding: 1.5rem; border-radius: 0.75rem; border: 1px solid var(--green-darkest); margin-bottom: 3rem; }
+      .form-container h3 { font-size: 1.5rem; font-weight: 700; color: var(--text-white); margin-bottom: 1.5rem; }
+      .form-group { margin-bottom: 1.5rem; }
+      .form-label { display: block; color: var(--text-light); font-size: 0.875rem; font-weight: 700; margin-bottom: 0.5rem; }
+      .form-input, .form-textarea, .form-select { width: 100%; padding: 0.75rem; border-radius: 0.5rem; background-color: var(--bg-input); color: var(--text-white); border: none; }
+      .form-input::placeholder, .form-textarea::placeholder { color: var(--green-text); }
+      .form-input:focus, .form-textarea:focus, .form-select:focus { outline: none; box-shadow: 0 0 0 2px var(--green-bright); }
+      .form-file-input { width: 100%; font-size: 0.875rem; color: var(--text-medium); }
+      .form-file-input::file-selector-button { margin-right: 1rem; padding: 0.5rem 1rem; border-radius: 9999px; border: 0; font-size: 0.875rem; font-weight: 600; background-color: var(--green-medium); color: var(--text-black); cursor: pointer; }
+      .form-file-input::file-selector-button:hover { background-color: var(--green-bright); }
+
+
+      /* Utility */
+      .hidden { display: none; }
+
+
+      /* Responsive */
+      @media (min-width: 640px) {
+          body, .container { padding: 1.5rem; }
+          .tabs-container { flex-direction: row; }
+          .section-title { font-size: 2.25rem; }
+      }
+      @media (min-width: 768px) {
+          body, .container { padding: 2rem; }
+          .card-grid, .coaching-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+      @media (min-width: 1024px) {
+          .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      }
+  </style>
+</head>
+<body>
+
+
+  <div class="container">
+      <div class="tabs-container">
+          <button id="findMentorTab" class="tab-button">Find a Mentor</button>
+          <button id="peerFeedbackTab" class="tab-button">Peer Feedback</button>
+      </div>
+
+
+      <div id="findMentorSection">
+          <h2 class="section-title">Find a Mentor</h2>
+          <p class="section-subtitle">Connect with experienced creators for one-on-one guidance.</p>
+
+
+          <div class="filters">
+              <input type="text" placeholder="Search mentors or topics...">
+              <select>
+                  <option>Filter by Niche</option>
+                  <option>Film Production</option>
+                  <option>Novel Writing</option>
+                  <option>Music Composition</option>
+                  <option>Digital Art</option>
+              </select>
+              <select>
+                  <option>Sort by</option>
+                  <option>Availability</option>
+                  <option>Top Rated</option>
+                  <option>Newest</option>
+              </select>
+          </div>
+
+
+          <h3 class="subsection-title">Recommended Mentors</h3>
+          <p class="section-subtitle" style="margin-top: -1rem; margin-bottom: 1.5rem; font-size: 0.875rem;">These mentors are recommended for you based on an algorithm that matches your interests and project goals.</p>
+          <div class="card-grid">
+              <div class="card">
+                  <div class="card-header">
+                      <div>
+                          <h3 class="card-title">Elena Rodriguez</h3>
+                          <p class="card-subtitle">Novelist & Writing Coach</p>
+                      </div>
+                  </div>
+                  <p class="card-body">Specializes in character development, plot structuring, and preparing manuscripts for publication.</p>
+                  <div class="card-footer">
+                      <button class="btn btn-full btn-outline">View Profile</button>
+                  </div>
+              </div>
+              <div class="card">
+                  <div class="card-header">
+                      <div>
+                          <h3 class="card-title">Ben Carter</h3>
+                          <p class="card-subtitle">Indie Filmmaker</p>
+                      </div>
+                  </div>
+                  <p class="card-body">Expert in low-budget cinematography, scriptwriting for short films, and navigating film festivals.</p>
+                  <div class="card-footer">
+                      <button class="btn btn-full btn-outline">View Profile</button>
+                  </div>
+              </div>
+          </div>
+
+
+          <div class="cta-section">
+              <h3>Ready to Connect with a Recommended Mentor?</h3>
+              <p>A YPI staff member can help connect you with the right recommended mentor for your project. Click the button below to schedule a brief consultation.</p>
+              <button class="btn btn-green btn-large">Request to Meet with a YPI Staffer</button>
+          </div>
+
+
+          <h3 class="subsection-title">YPI Staff Mentors</h3>
+          <div class="card-grid" style="grid-template-columns: 1fr;"> <!-- Inline style to override grid for single item -->
+              <div class="card">
+                  <div class="card-header">
+                      <div>
+                          <h3 class="card-title">YPI Staff Mentor</h3>
+                          <p class="card-subtitle">Creative Project Specialist</p>
+                      </div>
+                  </div>
+                  <p class="card-body">Provides guidance on project management, creative strategy, and grant writing to bring your ideas to life.</p>
+                  <div class="card-footer">
+                      <button class="btn btn-flex-1 btn-outline">View Profile</button>
+                      <button class="btn btn-flex-1 btn-green">Book Session</button>
+                  </div>
+              </div>
+          </div>
+
+
+          <h3 class="subsection-title">Niche-Specific Coaching Programs</h3>
+          <p class="section-subtitle" style="margin-bottom: 1.5rem;">Targeted programs to help you master a specific creative skill.</p>
+          <div class="card-grid coaching-grid">
+              <div class="card">
+                  <h3 class="card-title" style="margin-bottom: 0.5rem;">Producing a Short Film</h3>
+                  <p class="card-body" style="margin-bottom: 1rem;">A 4-week program covering pre-production, shooting, and post-production essentials.</p>
+                  <div class="card-footer" style="justify-content: flex-end;">
+                      <button class="btn btn-dark-green">Learn More</button>
+                  </div>
+              </div>
+              <div class="card">
+                  <h3 class="card-title" style="margin-bottom: 0.5rem;">Writing Your First Novel</h3>
+                  <p class="card-body" style="margin-bottom: 1rem;">A guided journey from initial concept to a polished first draft with weekly mentor check-ins.</p>
+                  <div class="card-footer" style="justify-content: flex-end;">
+                      <button class="btn btn-dark-green">Learn More</button>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+
+      <div id="peerFeedbackSection" class="hidden">
+          <h2 class="section-title">Peer Feedback Circle</h2>
+          <p class="section-subtitle">Share your work and get constructive critiques from the community.</p>
+
+
+          <div class="form-container">
+              <h3>Submit Your Work for Feedback</h3>
+              <form>
+                  <div class="form-group">
+                      <label for="projectTitle" class="form-label">Project Title</label>
+                      <input type="text" id="projectTitle" placeholder="e.g., First Draft of Chapter 1..." class="form-input">
+                  </div>
+                  <div class="form-group">
+                      <label for="projectType" class="form-label">Project Type</label>
+                      <select id="projectType" class="form-select">
+                          <option>Manuscript</option>
+                          <option>Short Film Script</option>
+                          <option>Song Demo</option>
+                          <option>Illustration</option>
+                          <option>UI/UX Design</option>
+                      </select>
+                  </div>
+                  <div class="form-group">
+                      <label for="feedbackRequest" class="form-label">Specific Feedback Request</label>
+                      <textarea id="feedbackRequest" rows="4" placeholder="e.g., 'Looking for feedback on the pacing...'" class="form-textarea"></textarea>
+                  </div>
+                  <div class="form-group">
+                       <label for="fileUpload" class="form-label">Upload File</label>
+                       <input type="file" id="fileUpload" class="form-file-input">
+                  </div>
+                  <div style="padding-top: 1rem;">
+                      <button type="submit" class="btn btn-full btn-green btn-large" style="font-size: 1rem;">Submit for Feedback</button>
+                  </div>
+              </form>
+          </div>
+
+
+          <h3 class="subsection-title">Projects Awaiting Feedback</h3>
+          <div class="card-grid">
+               <div class="card">
+                  <h4 class="card-title">Sci-Fi Short Story Intro</h4>
+                  <p class="card-subtitle" style="margin-bottom: 0.5rem;">By Alex Johnson</p>
+                  <p class="card-body italic">"Is the world-building clear enough in these first two pages? Any suggestions on improving the hook?"</p>
+                  <div class="card-footer-info">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 5.523-4.477 10-10 10S1 17.523 1 12 5.477 2 11 2s10 4.477 10 10z"></path></svg>
+                      Feedback Received: <span>2</span>
+                  </div>
+                  <button class="btn btn-full btn-green">Give Feedback</button>
+              </div>
+               <div class="card">
+                  <h4 class="card-title">Logo Design for a Cafe</h4>
+                  <p class="card-subtitle" style="margin-bottom: 0.5rem;">By Maria Garcia</p>
+                  <p class="card-body italic">"Choosing between three color palettes. Which one best conveys a 'cozy and modern' vibe?"</p>
+                  <div class="card-footer-info">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 5.523-4.477 10-10 10S1 17.523 1 12 5.477 2 11 2s10 4.477 10 10z"></path></svg>
+                      Feedback Received: <span>5</span>
+                  </div>
+                  <button class="btn btn-full btn-green">Give Feedback</button>
+              </div>
+          </div>
+      </div>
+  </div>
+
+
+  <script>
+      const findMentorTab = document.getElementById('findMentorTab');
+      const peerFeedbackTab = document.getElementById('peerFeedbackTab');
+      const findMentorSection = document.getElementById('findMentorSection');
+      const peerFeedbackSection = document.getElementById('peerFeedbackSection');
+
+
+      function showSection(sectionId) {
+          findMentorSection.classList.add('hidden');
+          peerFeedbackSection.classList.add('hidden');
+
+
+          findMentorTab.style.backgroundColor = 'var(--green-darkest)';
+          findMentorTab.style.color = 'var(--text-white)';
+          peerFeedbackTab.style.backgroundColor = 'var(--green-darkest)';
+          peerFeedbackTab.style.color = 'var(--text-white)';
+
+
+          if (sectionId === 'findMentorSection') {
+              findMentorSection.classList.remove('hidden');
+              findMentorTab.style.backgroundColor = 'var(--green-medium)';
+              findMentorTab.style.color = 'var(--text-black)';
+          } else if (sectionId === 'peerFeedbackSection') {
+              peerFeedbackSection.classList.remove('hidden');
+              peerFeedbackTab.style.backgroundColor = 'var(--green-medium)';
+              peerFeedbackTab.style.color = 'var(--text-black)';
+          }
+      }
+
+
+      findMentorTab.addEventListener('click', () => showSection('findMentorSection'));
+      peerFeedbackTab.addEventListener('click', () => showSection('peerFeedbackSection'));
+     
+      document.addEventListener('DOMContentLoaded', () => {
+          showSection('findMentorSection');
+      });
+  </script>
+</body>
+</html>

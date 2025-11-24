@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Feedback & Quality Assurance - YPI</title>
+   <!-- Tailwind CSS for styling -->
+   <script src="https://cdn.tailwindcss.com"></script>
+   <!-- Google Fonts -->
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+   <!-- Font Awesome for icons -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <style>
+       /* Define CSS Variables for easy theme management */
+       :root {
+           --primary-green: #37af4b;
+           --dark-background: #1c1c1c;
+           --card-background: #2a2a2a;
+           --input-background: #333;
+           --border-color: #444;
+           --text-light: #e0e0e0;
+           --text-medium: #bbb;
+       }
+     
+       html[data-theme='light'] {
+           --primary-green: #37af4b;
+           --dark-background: #f4f4f5;
+           --card-background: #ffffff;
+           --input-background: #f9fafb;
+           --border-color: #d1d5db;
+           --text-light: #1f2937;
+           --text-medium: #6b7280;
+       }
+     
+       body {
+           /* Changed font to Atkinson Hyperlegible */
+           font-family: 'Atkinson Hyperlegible', sans-serif;
+           background-color: var(--dark-background);
+           color: var(--text-light);
+           transition: background-color 0.3s, color 0.3s;
+       }
+
+
+       /* Custom styles for UI elements */
+       .card {
+           background-color: var(--card-background);
+           border: 1px solid var(--border-color);
+           transition: background-color 0.3s, border-color 0.3s;
+       }
+     
+       .input-field {
+           background-color: var(--input-background);
+           border: 1px solid var(--border-color);
+           color: var(--text-light);
+           transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+       }
+
+
+       .input-field:focus {
+           outline: none;
+           border-color: var(--primary-green);
+           box-shadow: 0 0 0 3px rgba(55, 175, 75, 0.3);
+       }
+
+
+       .btn-primary {
+           background-color: var(--primary-green);
+           transition: background-color 0.3s;
+       }
+       .btn-primary:hover {
+           background-color: #2e9b41;
+       }
+
+
+       .checklist-item input:checked + label .checkbox-icon {
+           background-color: var(--primary-green);
+           border-color: var(--primary-green);
+       }
+
+
+       .checklist-item input:checked + label .checkbox-icon .fa-check {
+           opacity: 1;
+       }
+
+
+       .header, .footer {
+           background: linear-gradient(135deg, rgb(5, 114, 21) 0%, rgb(55, 175, 75) 100%);
+       }
+   </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+
+   <!-- Header -->
+   <header class="header text-white shadow-md">
+       <div class="container mx-auto flex justify-between items-center p-4">
+           <div class="flex items-center">
+               <img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Logo" class="h-10 mr-4" onerror="this.onerror=null;this.src='https://placehold.co/40x40/37af4b/ffffff?text=YPI';">
+               <h1 class="text-xl font-bold">Creator Hub</h1>
+           </div>
+           <nav class="hidden md:flex items-center space-x-6">
+               <a href="#" class="hover:text-gray-300">Dashboard</a>
+               <a href="#" class="font-bold">Feedback</a>
+               <a href="#" class="hover:text-gray-300">Resources</a>
+               <button id="theme-toggle" class="focus:outline-none">
+                   <i class="fas fa-sun"></i>
+               </button>
+           </nav>
+           <button class="md:hidden text-2xl" id="mobile-menu-button">
+               <i class="fas fa-bars"></i>
+           </button>
+       </div>
+   </header>
+
+
+   <!-- Main Content -->
+   <main class="flex-grow container mx-auto p-4 md:p-8">
+       <div class="max-w-4xl mx-auto">
+           <h2 class="text-3xl font-bold text-center mb-2" style="color: var(--primary-green);">Feedback & Quality Assurance</h2>
+           <p class="text-center text-lg mb-10" style="color: var(--text-medium);">Refine your work with peer feedback and ensure it meets our quality standards before release.</p>
+
+
+           <!-- Peer Review System -->
+           <section id="peer-review" class="card rounded-lg p-6 mb-8 shadow-lg">
+               <h3 class="text-2xl font-semibold mb-4 flex items-center"><i class="fas fa-users fa-fw mr-3 text-green-500"></i>Peer Review System</h3>
+             
+               <!-- Submit for Review Form -->
+               <div class="mb-6 border-b pb-6" style="border-color: var(--border-color);">
+                   <h4 class="text-lg font-medium mb-3">Submit Your Work for Feedback</h4>
+                   <form id="review-submission-form" class="space-y-4">
+                       <div>
+                           <label for="submission-title" class="block text-sm font-medium mb-1" style="color: var(--text-medium);">Title of Work</label>
+                           <input type="text" id="submission-title" name="submission-title" class="input-field w-full p-2 rounded-md" placeholder="e.g., 'Community Outreach Video Script'" required>
+                       </div>
+                       <div>
+                           <label for="submission-link" class="block text-sm font-medium mb-1" style="color: var(--text-medium);">Link to Work (Google Doc, Figma, etc.)</label>
+                           <input type="url" id="submission-link" name="submission-link" class="input-field w-full p-2 rounded-md" placeholder="https://docs.google.com/..." required>
+                       </div>
+                       <div>
+                           <label for="submission-notes" class="block text-sm font-medium mb-1" style="color: var(--text-medium);">Specific Feedback Request</label>
+                           <textarea id="submission-notes" name="submission-notes" rows="3" class="input-field w-full p-2 rounded-md" placeholder="e.g., 'Looking for feedback on the tone and clarity of the introduction.'"></textarea>
+                       </div>
+                       <button type="submit" class="btn-primary text-white font-bold py-2 px-4 rounded-md w-full sm:w-auto">Submit for Review</button>
+                   </form>
+               </div>
+
+
+               <!-- Pending Reviews List -->
+               <div>
+                   <h4 class="text-lg font-medium mb-3">Creations Awaiting Your Feedback</h4>
+                   <div id="pending-reviews-list" class="space-y-4">
+                       <!-- Sample Item -->
+                       <div class="card p-4 rounded-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                           <div>
+                               <p class="font-semibold">'New Partner Onboarding Deck'</p>
+                               <p class="text-sm" style="color: var(--text-medium);">Submitted by Jane Doe</p>
+                           </div>
+                           <a href="#" class="btn-primary text-white text-sm font-bold py-2 px-3 rounded-md whitespace-nowrap">Provide Feedback</a>
+                       </div>
+                       <!-- More items will be added here by JavaScript -->
+                   </div>
+               </div>
+           </section>
+
+
+           <!-- Quality Checklists -->
+           <section id="quality-checklists" class="card rounded-lg p-6 shadow-lg">
+               <h3 class="text-2xl font-semibold mb-4 flex items-center"><i class="fas fa-check-double fa-fw mr-3 text-green-500"></i>Quality Checklists</h3>
+               <p class="mb-6 text-sm" style="color: var(--text-medium);">Use these pre-release guides to ensure your content meets professional standards.</p>
+             
+               <div id="checklists-container" class="space-y-6">
+                   <!-- Video Content Checklist -->
+                   <div>
+                       <h4 class="text-lg font-medium mb-3">Video Content</h4>
+                       <ul class="space-y-2">
+                           <li class="checklist-item">
+                               <input type="checkbox" id="video-check-1" class="hidden">
+                               <label for="video-check-1" class="flex items-center cursor-pointer">
+                                   <span class="checkbox-icon w-5 h-5 mr-3 border-2 rounded flex items-center justify-center" style="border-color: var(--border-color);"><i class="fas fa-check text-white text-xs opacity-0"></i></span>
+                                   Resolution is at least 1080p.
+                               </label>
+                           </li>
+                            <li class="checklist-item">
+                               <input type="checkbox" id="video-check-2" class="hidden">
+                               <label for="video-check-2" class="flex items-center cursor-pointer">
+                                   <span class="checkbox-icon w-5 h-5 mr-3 border-2 rounded flex items-center justify-center" style="border-color: var(--border-color);"><i class="fas fa-check text-white text-xs opacity-0"></i></span>
+                                   Audio is clear and free of background noise.
+                               </label>
+                           </li>
+                            <li class="checklist-item">
+                               <input type="checkbox" id="video-check-3" class="hidden">
+                               <label for="video-check-3" class="flex items-center cursor-pointer">
+                                   <span class="checkbox-icon w-5 h-5 mr-3 border-2 rounded flex items-center justify-center" style="border-color: var(--border-color);"><i class="fas fa-check text-white text-xs opacity-0"></i></span>
+                                   YPI branding (logo, colors) is correctly used.
+                               </label>
+                           </li>
+                       </ul>
+                   </div>
+                   <!-- Written Content Checklist -->
+                   <div>
+                       <h4 class="text-lg font-medium mb-3">Written Content (Blog Posts, Scripts)</h4>
+                       <ul class="space-y-2">
+                           <li class="checklist-item">
+                               <input type="checkbox" id="text-check-1" class="hidden">
+                               <label for="text-check-1" class="flex items-center cursor-pointer">
+                                   <span class="checkbox-icon w-5 h-5 mr-3 border-2 rounded flex items-center justify-center" style="border-color: var(--border-color);"><i class="fas fa-check text-white text-xs opacity-0"></i></span>
+                                   Proofread for spelling and grammar errors.
+                               </label>
+                           </li>
+                            <li class="checklist-item">
+                               <input type="checkbox" id="text-check-2" class="hidden">
+                               <label for="text-check-2" class="flex items-center cursor-pointer">
+                                   <span class="checkbox-icon w-5 h-5 mr-3 border-2 rounded flex items-center justify-center" style="border-color: var(--border-color);"><i class="fas fa-check text-white text-xs opacity-0"></i></span>
+                                   Tone is consistent with YPI's voice.
+                               </label>
+                           </li>
+                       </ul>
+                   </div>
+               </div>
+           </section>
+       </div>
+   </main>
+
+
+   <!-- Footer -->
+   <footer class="footer text-white mt-12">
+       <div class="container mx-auto p-8 text-center">
+           <img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon.png" alt="YPI Site Icon" class="h-16 mx-auto mb-4" onerror="this.onerror=null;this.src='https://placehold.co/64x64/37af4b/ffffff?text=YPI';">
+           <h2 class="text-lg font-bold">A Company to Change America One Hour At a Time</h2>
+           <p class="text-sm mt-4 text-gray-300">Young Progressives Initiative L.L.C , Chevy Chase, MD 20815</p>
+       </div>
+   </footer>
+
+
+   <!-- JavaScript for interactivity -->
+   <script>
+       document.addEventListener('DOMContentLoaded', function() {
+           // Theme Toggler
+           const themeToggle = document.getElementById('theme-toggle');
+           const html = document.documentElement;
+
+
+           themeToggle.addEventListener('click', () => {
+               if (html.getAttribute('data-theme') === 'dark') {
+                   html.setAttribute('data-theme', 'light');
+                   themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+               } else {
+                   html.setAttribute('data-theme', 'dark');
+                   themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+               }
+           });
+
+
+           // Set initial theme icon
+           if (html.getAttribute('data-theme') === 'dark') {
+               themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+           } else {
+               themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+           }
+         
+           // Mobile Menu (Placeholder)
+           const mobileMenuButton = document.getElementById('mobile-menu-button');
+           mobileMenuButton.addEventListener('click', () => {
+               // Using a custom modal instead of alert
+               const mobileMenuModal = document.createElement('div');
+               mobileMenuModal.className = 'fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50';
+               mobileMenuModal.innerHTML = `
+                   <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl text-center">
+                       <p class="text-gray-800 dark:text-gray-200">Mobile menu would open here.</p>
+                       <button class="mt-4 px-4 py-2 bg-green-500 text-white rounded-md" onclick="this.parentElement.parentElement.remove()">Close</button>
+                   </div>
+               `;
+               document.body.appendChild(mobileMenuModal);
+           });
+
+
+           // Form Submission Handler
+           const reviewForm = document.getElementById('review-submission-form');
+           reviewForm.addEventListener('submit', function(event) {
+               event.preventDefault();
+                // Using a custom modal instead of alert
+               const submissionModal = document.createElement('div');
+               submissionModal.className = 'fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50';
+               submissionModal.innerHTML = `
+                   <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl text-center">
+                       <p class="text-gray-800 dark:text-gray-200">Your work has been submitted for review!</p>
+                       <button class="mt-4 px-4 py-2 bg-green-500 text-white rounded-md" onclick="this.parentElement.parentElement.remove()">OK</button>
+                   </div>
+               `;
+               document.body.appendChild(submissionModal);
+               reviewForm.reset();
+           });
+       });
+   </script>
+</body>
+</html>

@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Young Progressives Initiative - Unified Home Page</title>
+    
+    <!-- Added Google Font: Atkinson Hyperlegible --><link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Importing Tailwind CSS for styling --><script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Firebase SDKs & Notification Logic --><script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, query, onSnapshot, addDoc, updateDoc, doc, serverTimestamp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        window.fbSignInAnonymously = signInAnonymously;
+
+        let app;
+        let db;
+        let auth;
+        let currentUserId = null;
+        let unsubscribeNotifications = null;
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {}; 
+
+        function updateHeaderUI(user) {
+            const isLoggedIn = !!user;
+            const elements = {
+                notificationBell: document.getElementById('notificationBell'),
+                profilePic: document.getElementById('profilePic'),
+                exploreYpiBtn: document.getElementById('exploreYpiBtn'),
+            };
+            
+            if (elements.notificationBell) elements.notificationBell.style.display = isLoggedIn ? 'flex' : 'none';
+            if (elements.profilePic) elements.profilePic.style.display = isLoggedIn ? 'block' : 'none';
+            if (elements.exploreYpiBtn) elements.exploreYpiBtn.style.display = isLoggedIn ? 'none' : 'inline-block';
+        }
+
+        async function initializeFirebase() {
+            try {
+                updateHeaderUI(null);
+
+                if (Object.keys(firebaseConfig).length > 0) {
+                    app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+                    window.auth = auth;
+                    setLogLevel('debug');
+                    
+                    onAuthStateChanged(auth, (user) => {
+                        updateHeaderUI(user);
+                        if (user) {
+                            currentUserId = user.uid;
+                            console.log("Firebase authenticated. User ID:", currentUserId);
+                            setupNotificationListener();
+                        } else {
+                            console.log("User is not logged in.");
+                            currentUserId = null;
+                            if (unsubscribeNotifications) {
+                                unsubscribeNotifications();
+                                unsubscribeNotifications = null;
+                            }
+                        }
+                    });
+
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token).catch(err => {
+                            console.error("Initial custom token sign-in failed:", err);
+                             updateHeaderUI(null);
+                        });
+                    } else {
+                        updateHeaderUI(null);
+                    }
+                } else {
+                    updateHeaderUI(null);
+                    console.warn("Firebase config not found.");
+                }
+            } catch (error) {
+                updateHeaderUI(null);
+                console.error("Error initializing Firebase:", error);
+            }
+        }
+        
+        window.initializeFirebase = initializeFirebase;
+
+        function setupNotificationListener() {
+            if (unsubscribeNotifications) unsubscribeNotifications();
+            if (!db || !currentUserId) return;
+            const notificationsRef = collection(db, `artifacts/${appId}/users/${currentUserId}/notifications`);
+            const q = query(notificationsRef);
+            
+            unsubscribeNotifications = onSnapshot(q, (snapshot) => {
+                const notifications = [];
+                let unreadCount = 0;
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    notifications.push({ id: doc.id, ...data });
+                    if (!data.read) unreadCount++;
+                });
+                notifications.sort((a, b) => (b.timestamp?.toDate() || 0) - (a.timestamp?.toDate() || 0));
+                if (window.updateNotificationsUI) {
+                    window.updateNotificationsUI(notifications, unreadCount);
+                }
+            }, (error) => console.error("Error getting notifications:", error));
+        }
+
+        window.markNotificationAsRead = async (notificationId) => {
+            if (!db || !currentUserId || !notificationId) return;
+            const notificationRef = doc(db, `artifacts/${appId}/users/${currentUserId}/notifications`, notificationId);
+            await updateDoc(notificationRef, { read: true });
+        };
+
+        window.updateNotificationsUI = (notifications, unreadCount) => {
+            const list = document.getElementById('notificationList');
+            const countEl = document.getElementById('notificationCount');
+            if (!list || !countEl) return;
+
+            list.innerHTML = notifications.length === 0 
+                ? '<p class="notification-empty-message">No new notifications.</p>' 
+                : notifications.map(n => {
+                    const time = n.timestamp?.toDate ? new Date(n.timestamp.toDate()).toLocaleString() : 'Just now';
+                    return `<div class="notification-item ${n.read ? 'read' : ''}" data-id="${n.id}" data-title="${n.title}" data-message="${n.message}" data-read="${n.read}">
+                                <div class="notification-item-title">${n.title}</div>
+                                <p>${n.message}</p>
+                                <div class="notification-item-time">${time}</div>
+                            </div>`;
+                }).join('');
+            countEl.textContent = unreadCount;
+            countEl.style.display = unreadCount > 0 ? 'flex' : 'none';
+        };
+    </script>
+    <style>
+        /* --- GLOBAL & THEME STYLES --- */
+        :root {
+            /* Shared */
+            --primary-green: #148324;
+            
+            /* Dark Theme (Default for both views) */
+            --theme-body-bg: #121212;
+            --theme-body-color: #ffffff;
+            --card-background: #1e1e1e;
+            --text-secondary: #b3b3b3;
+            --border-color: #2d2d2d;
+            
+            /* Desktop Specific Dark */
+            --theme-popup-bg: #333;
+            --theme-popup-text: #fff;
+            --theme-navbar-bg: #1c1c1c;
+            --theme-navbar-text: #fff;
+            --theme-navbar-dropdown-bg: #f0f0f0;
+            --theme-navbar-dropdown-text: #1c1c1c;
+            --theme-navbar-dropdown-hover-bg: #ddd;
+        }
+
+        html[data-theme='light'] {
+            /* Light Theme */
+            --theme-body-bg: #f5f5f5;
+            --theme-body-color: #121212;
+            --card-background: #ffffff;
+            --text-secondary: #555555;
+            --border-color: #e0e0e0;
+
+            /* Desktop Specific Light */
+            --theme-popup-bg: #fefefe;
+            --theme-popup-text: #1c1c1c;
+            --theme-navbar-bg: #FEFEFE;
+            --theme-navbar-text: #1c1c1c;
+            --theme-navbar-dropdown-bg: #1c1c1c;
+            --theme-navbar-dropdown-text: #FEFEFE;
+            --theme-navbar-dropdown-hover-bg: #333;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Atkinson Hyperlegible', 'Arial', sans-serif;
+            background-color: var(--theme-body-bg);
+            color: var(--theme-body-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            font-size: 16px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        body.sidebar-is-open { overflow: hidden; }
+        .highlight { color: var(--primary-green); }
+
+        /* --- DESKTOP STYLES --- */
+        .main-wrapper { width: 100%; min-height: 100vh; background-color: var(--theme-body-bg); position: relative; display: flex; flex-direction: column; }
+        .content-body { flex: 1; }
+        .desktop-wp-header-container { background: linear-gradient(135deg,rgb(5,114,21) 0%,rgb(55,175,75) 100%); width: 100%; }
+        .desktop-wp-header-contents { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 0 1.25rem; }
+        .desktop-header-left-group { display: flex; align-items: center; gap: 1.25rem; }
+        .desktop-header-right-group { position: relative; display: flex; justify-content: flex-end; gap: 1rem; align-items: center; }
+        .desktop-header-logo-img { width: 7.4375rem; height: auto; display: block; }
+        .theme-button { background: transparent; border: none; padding: 0; transition: transform 0.3s ease; }
+        .gear-icon { width: 1.875rem; height: 1.875rem; fill: none; stroke: #FEFEFE; stroke-width: 2; transition: transform 0.4s ease-out; }
+        .theme-button:hover .gear-icon { transform: rotate(60deg); }
+
+        .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.2); z-index: 9998; visibility: hidden; opacity: 0; transition: opacity 0.3s, visibility 0.3s; }
+        .popup { position: absolute; background-color: var(--theme-popup-bg); color: var(--theme-popup-text); padding: 1.25rem; border-radius: 0.5rem; box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.2); width: 15.625rem; visibility: hidden; opacity: 0; z-index: 9999; transition: opacity 0.3s, visibility 0.3s; }
+        .popup-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.9375rem; }
+        .popup-title { font-size: 1.125rem; font-weight: bold; }
+        .popup-close-button { font-size: 1.5rem; cursor: pointer; line-height: 1; }
+        
+        .navbar { background-color: var(--theme-navbar-bg); padding: 0.9375rem 0; text-align: center; display: flex; justify-content: center; width: 100%; transition: background-color 0.3s ease; }
+        .navbar-menu { display: flex; list-style-type: none; }
+        .navbar-item { position: relative; margin: 0 1.25rem; }
+        .navbar-link { color: var(--theme-navbar-text); text-decoration: none; font-size: 1.125rem; padding: 0.625rem 0.3125rem; display: flex; align-items: center; font-weight: bold; transition: color 0.3s ease; }
+        .dropdown-icon { border: solid var(--theme-navbar-text); border-width: 0 2px 2px 0; display: inline-block; padding: 0.1875rem; margin-left: 0.3125rem; transform: rotate(45deg); transition: transform 0.3s, border-color 0.3s ease; }
+        .navbar-item:hover .dropdown-icon { transform: rotate(-135deg); }
+        .navbar-item:hover .dropdown-menu { visibility: visible; opacity: 1; }
+        .dropdown-menu { display: block; visibility: hidden; opacity: 0; transition: opacity 0.3s, visibility 0.3s; position: absolute; background-color: var(--theme-navbar-dropdown-bg); min-width: 12.5rem; box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1); z-index: 1; top: 100%; left: 0; text-align: left; border-radius: 0.25rem; }
+        .dropdown-item { display: block; padding: 0.75rem 0.9375rem; color: var(--theme-navbar-dropdown-text); text-decoration: none; font-size: 1rem; font-weight: bold; }
+        .dropdown-item:hover { background-color: var(--theme-navbar-dropdown-hover-bg); }
+        
+        .slideshow-wrapper { padding: 1.25rem; background-color: #1c1c1c; }
+        .slideshow-container { border: 5px solid #1c1c1c; border-radius: 1.5625rem; overflow: hidden; position: relative; aspect-ratio: 16 / 8; max-width: 75rem; margin: 0 auto; }
+        .slideshow-container .slide { display: none; width: 100%; height: 100%; object-fit: cover; object-position: bottom; animation: fadeIn 0.6s; cursor: pointer; }
+        @keyframes fadeIn { from { opacity: 0.4; } to { opacity: 1; } }
+        .slideshow-container .arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 15; cursor: pointer; background-color: rgba(255,255,255,0.7); border: none; border-radius: 50%; width: 2.75rem; height: 2.75rem; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s ease; }
+        .slideshow-container .arrow:hover { background-color: #fff; }
+        .slideshow-container .arrow-prev { left: 1rem; }
+        .slideshow-container .arrow-next { right: 1rem; }
+        .slideshow-container .dots-container { position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 0.5rem; }
+        .slideshow-container .dot { cursor: pointer; height: 0.75rem; width: 0.75rem; background-color: rgba(255,255,255,0.5); border-radius: 50%; transition: background-color 0.3s ease; }
+        .slideshow-container .dot.active, .slideshow-container .dot:hover { background-color: #fff; }
+        
+        #desktop-slideshow-text-container { padding: 1.25rem; text-align: center; color: var(--theme-body-color); max-width: 75rem; margin: 0 auto; }
+        .desktop-slideshow-text { display: none; }
+        .desktop-slideshow-text.active { display: block; }
+        .desktop-main-title { font-size: clamp(1.2rem, 3vw, 2.2rem); font-weight: bold; margin-bottom: 0.625rem; }
+        .desktop-subtitle { font-size: clamp(0.9rem, 2vw, 1.1rem); line-height: 1.4; max-width: 56.25rem; margin: 0 auto; }
+        
+        .desktop-bottom-content { background: #1a1a1a; padding: 1.25rem; color: var(--theme-body-color); }
+        html[data-theme='light'] .desktop-bottom-content { background: #dddddd; }
+        .desktop-content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; max-width: 87.5rem; margin: 0 auto; }
+        .spotlight-section, .volunteers-section, .news-section { border: 5px solid var(--primary-green); border-radius: 0.9375rem; padding: 1.25rem; display: flex; flex-direction: column; background-color: rgba(255,255,255,0.02); }
+        html[data-theme='light'] .spotlight-section, html[data-theme='light'] .volunteers-section, html[data-theme='light'] .news-section { background: transparent; }
+        
+        .icon-button { background: transparent; border: none; cursor: pointer; padding: 0.5rem; position: relative; line-height: 0; }
+        .notification-bell-icon { width: 1.875rem; height: 1.875rem; stroke: #FEFEFE; stroke-width: 1.5; }
+        html[data-theme='light'] .notification-bell-icon { stroke: #1c1c1c; }
+        .profile-pic { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; cursor: pointer; border: 2px solid var(--primary-green); }
+        .notification-count { position: absolute; top: 0.2rem; right: 0.2rem; background-color: #dc3545; color: #fff; border-radius: 50%; padding: 0.1rem 0.4rem; font-size: 0.75rem; font-weight: bold; display: none; align-items: center; justify-content: center; }
+        .notification-dropdown { position: absolute; top: calc(100% + 1rem); right: 0; background-color: var(--theme-popup-bg); color: var(--theme-popup-text); border-radius: 0.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.2); width: 20rem; max-height: 25rem; overflow-y: auto; z-index: 1001; visibility: hidden; opacity: 0; transition: opacity 0.3s, visibility 0.3s; }
+        .notification-dropdown.active { visibility: visible; opacity: 1; }
+        .notification-header { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); }
+        .notification-title { font-weight: bold; font-size: 1.1rem; }
+        .notification-close { font-size: 1.5rem; cursor: pointer; background: none; border: none; color: inherit; }
+        .notification-item { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: background-color 0.2s; }
+        html[data-theme='dark'] .notification-item:hover { background-color: rgba(255,255,255,0.1); }
+        html[data-theme='light'] .notification-item:hover { background-color: rgba(0,0,0,0.05); }
+        .notification-item-title { font-weight: bold; color: var(--primary-green); }
+        .notification-item.read { opacity: 0.6; }
+        .notification-empty-message { padding: 1rem; text-align: center; color: #888; }
+        .notification-item-time { font-size: 0.75rem; color: #aaa; text-align: right; margin-top: 0.25rem; }
+        
+        .maxbutton { display: inline-block; text-decoration: none; color: white !important; background-color: rgba(255,255,255,0.15); border: 2px solid white; padding: 8px 15px; border-radius: 5px; font-weight: bold; transition: background-color 0.3s ease; }
+        .maxbutton:hover { background-color: rgba(255,255,255,0.3); }
+
+        /* --- DESKTOP DYNAMIC CONTENT --- */
+        .news-item, .volunteer-card {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .news-item:hover, .volunteer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        .news-image img, .volunteer-image img {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+        }
+        .news-title, .volunteer-name {
+            padding: 1rem;
+            font-weight: bold;
+            text-align: center;
+        }
+        .news-title a, .volunteer-name a {
+            text-decoration: none;
+            color: inherit;
+        }
+        .news-title a:hover, .volunteer-name a:hover {
+            color: var(--primary-green);
+        }
+
+        /* --- MOBILE STYLES (NEW) --- */
+        .mobile-device-frame { padding-top: 60px; }
+        .header-container { position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; background: linear-gradient(135deg, rgb(5, 114, 21) 0%, rgb(55, 175, 75) 100%); padding: 0 1rem; height: 60px; display: flex; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        header.site-header { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+        .site-header .site-logo { height: 35px; width: auto; }
+        .menu-button { background: none; border: none; cursor: pointer; padding: 0.5rem; }
+        .menu-icon { height: 1.75rem; width: 1.75rem; color: #FEFEFE; }
+        .content-wrapper { padding: 1.5rem 1rem; }
+        .mobile-slideshow { width: 100%; aspect-ratio: 16 / 10; position: relative; margin-bottom: 2.5rem; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .mobile-slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 1s ease-in-out; }
+        .mobile-slide.active { opacity: 1; }
+        .mobile-images-container { width: 100%; height: 100%; background-size: cover; background-position: center; }
+        .mobile-text-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); color: #fff; padding: 2rem 1.5rem 1.5rem; text-align: left; }
+        .mobile-main-title { font-size: clamp(1.4rem, 5vw, 2rem); font-weight: bold; margin-bottom: 0.5rem; }
+        .mobile-subtitle { font-size: clamp(0.9rem, 3.5vw, 1.1rem); }
+        .dynamic-text { display: inline-block; transition: opacity 0.3s, transform 0.3s; transform: translateY(0); }
+        .dynamic-text.fade-out { opacity: 0; transform: translateY(10px); }
+        .section-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--primary-green); display: inline-block; }
+        .loading-placeholder { color: var(--text-secondary); text-align: center; padding: 2rem; }
+        .volunteer-spotlight-section { background-color: var(--card-background); border-radius: 12px; padding: 1.5rem; text-align: center; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 2.5rem; }
+        .spotlight-photo { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid var(--primary-green); margin: 0 auto 1rem; }
+        .spotlight-name { font-size: 1.5rem; font-weight: bold; color: var(--theme-body-color); }
+        .ypi-news-section .news-grid { display: grid; gap: 1.5rem; }
+        .news-card { background-color: var(--card-background); border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-decoration: none; color: var(--theme-body-color); transition: transform 0.2s, box-shadow 0.2s; }
+        .news-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+        .news-card-image { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+        .news-card-content { padding: 1rem; }
+        .news-card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; line-height: 1.3; }
+        .news-card-excerpt { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; }
+        .sidebar { position: fixed; top: 0; left: 0; height: 100%; width: 280px; background-color: var(--theme-body-bg); z-index: 1002; transform: translateX(-100%); transition: transform 0.3s; padding: 1.5rem; }
+        .sidebar.open { transform: translateX(0); }
+        .sidebar .close-btn { background: none; border: none; color: var(--theme-body-color); font-size: 2.5rem; position: absolute; top: 10px; right: 20px; cursor: pointer; }
+        .sidebar nav { margin-top: 50px; }
+        .sidebar nav ul { list-style: none; }
+        .sidebar nav ul li a, .mobile-theme-button { color: var(--theme-body-color); text-decoration: none; font-size: 1.2rem; display: block; padding: 0.75rem 0.5rem; border-radius: 8px; transition: background-color 0.2s; }
+        html[data-theme='dark'] .sidebar nav ul li a:hover, html[data-theme='dark'] .mobile-theme-button:hover { background-color: rgba(255,255,255,0.1); }
+        html[data-theme='light'] .sidebar nav ul li a:hover, html[data-theme='light'] .mobile-theme-button:hover { background-color: rgba(0,0,0,0.05); }
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 1001; opacity: 0; visibility: hidden; transition: opacity 0.3s; }
+        .sidebar-overlay.active { opacity: 1; visibility: visible; }
+        .mobile-theme-button { background: transparent; border: none; cursor: pointer; width: 100%; text-align: left; }
+        .site-footer { background: linear-gradient(135deg, #148324, #2ca33b); color: #fff; padding: 2.5rem 1rem 1.5rem; text-align: center; }
+        .footer-logo { height: 6rem; width: auto; margin: 0 auto 0.5rem; }
+        .footer-tagline { font-size: 1.125rem; font-weight: 700; max-width: 280px; margin: 0 auto 1.5rem; }
+        .footer-legal { font-size: 0.875rem; color: rgba(255,255,255,0.8); }
+
+        /* --- VIEW SWITCHER --- */
+        @media (max-width: 768px) {
+            .main-wrapper { display: none; }
+            .mobile-device-frame { display: block; }
+        }
+        @media (min-width: 769px) {
+            .main-wrapper { display: flex; }
+            .mobile-device-frame { display: none; }
+        }
+    </style>
+    <script>
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('theme') || 'dark';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } catch (e) { console.error("Could not access localStorage.", e); }
+        })();
+    </script>
+</head>
+<body>
+
+    <!-- =============================================================== -->
+    <!--                               DESKTOP VIEW (.main-wrapper)      -->
+    <!-- =============================================================== -->
+    <div class="main-wrapper">
+        <div class="content-body">
+            <div class="wp-block-group alignfull has-background desktop-wp-header-container">
+                <div style="height:0.875rem" aria-hidden="true" class="wp-block-spacer"></div>
+                 <header class="wp-block-group alignwide has-background desktop-wp-header-contents">
+                     <div class="desktop-header-left-group">
+                         <a href="https://weareypi.com/"><img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Logo" class="desktop-header-logo-img"></a>
+                     </div>
+                     <div class="desktop-header-right-group">
+                         <button class="theme-button" id="themeButton" aria-label="Toggle color theme">
+                               <svg class="gear-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                         </button>
+                         <div id="notificationBell" class="icon-button" style="display: none;">
+                               <svg class="notification-bell-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4a2 2 0 01-.6-1.4V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                               <span id="notificationCount" class="notification-count">0</span>
+                               <div id="notificationDropdown" class="notification-dropdown">
+                                   <div class="notification-header">
+                                       <h3 class="notification-title">Notifications</h3>
+                                       <button class="notification-close" id="notificationDropdownClose">&times;</button>
+                                   </div>
+                                   <div id="notificationList"><p class="notification-empty-message">Loading...</p></div>
+                               </div>
+                         </div>
+                         <img id="profilePic" class="profile-pic" src="https://placehold.co/50x50/37af4b/FFFFFF?text=U" alt="Profile" style="display: none;">
+                         <a class="maxbutton" href="javascript:void(0);" id="exploreYpiBtn" onclick="ypiShowLoginPopup();" style="display: inline-block;">Explore YPI</a>
+                     </div>
+                 </header>
+                <div style="height:0.875rem" aria-hidden="true" class="wp-block-spacer"></div>
+            </div>
+            
+            <nav class="navbar">
+                <ul class="navbar-menu">
+                    <li class="navbar-item"><a href="#" class="navbar-link">About Us<i class="dropdown-icon"></i></a><div class="dropdown-menu"><a href="https://weareypi.com/mission-statement/" class="dropdown-item">Our Mission</a><a href="https://weareypi.com/meet-ypi-roster/" class="dropdown-item">Meet the YPI Team</a></div></li>
+                    <li class="navbar-item"><a href="#" class="navbar-link">Get Involved<i class="dropdown-icon"></i></a><div class="dropdown-menu"><a href="https://weareypi.com/donate/" class="dropdown-item">Donate</a><a href="https://weareypi.com/info-guide/" class="dropdown-item">Information Guide for Parents</a></div></li>
+                    <li class="navbar-item"><a href="https://weareypi.com/need_volunteers/" class="navbar-link">Need Volunteers?</a></li>
+                </ul>
+            </nav>
+            
+            <div class="slideshow-wrapper">
+                <div class="slideshow-container">
+                    <img loading="lazy" class="slide" src="https://weareypi.com/wp-content/uploads/2025/10/Will_Trade_Racits_for_Refugees.png" alt="YPI Image Placeholder" onclick="window.location.href='https://weareypi.com/credits/'">
+                    <img loading="lazy" class="slide" src="https://weareypi.com/wp-content/uploads/2025/10/No__on_XD_Planet.png" alt="Building Communities Through Action" onclick="window.location.href='https://weareypi.com/credits/'" style="transform: translateY(-8px);">
+                    <img loading="lazy" class="slide" src="https://weareypi.com/wp-content/uploads/2025/07/WeAreChange-on-Weathered-Wall.png" alt="We Are Change" onclick="window.location.href='https://weareypi.com/credits/'" style="object-fit: contain;">
+                    <button class="arrow arrow-prev" id="prevBtn" aria-label="Previous slide"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+                    <button class="arrow arrow-next" id="nextBtn" aria-label="Next slide"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+                    <div class="dots-container" id="dotsContainer"></div>
+                </div>
+                <div id="desktop-slideshow-text-container">
+                    <div class="desktop-slideshow-text active"><h1 class="desktop-main-title">A Company to <span class="highlight">Change</span> America One Hour at a Time</h1><p class="desktop-subtitle">Empowering our youth to do more than just <span class="highlight">vote</span> and helping to spread the progressive message</p></div>
+                    <div class="desktop-slideshow-text"><h1 class="desktop-main-title">Building <span class="highlight">Communities</span> Through Action</h1><p class="desktop-subtitle">Connecting passionate individuals with meaningful opportunities to create lasting <span class="highlight">impact</span></p></div>
+                    <div class="desktop-slideshow-text"><h1 class="desktop-main-title">We Are <span class="highlight">Change</span></h1><p class="desktop-subtitle">Join the movement to shape tomorrow through grassroots organizing and <span class="highlight">community engagement</span></p></div>
+                </div>
+            </div>
+            <div class="desktop-bottom-content">
+                <div class="desktop-content-grid">
+                     <div class="spotlight-section" style="grid-column: span 2;">
+                         <h2 class="text-3xl font-bold text-center mb-6">Featured Article</h2>
+                         <div class="flex flex-col md:flex-row gap-8 items-center">
+                             <div class="md:w-1/2 spotlight-image-container">
+                                 <img src="https://placehold.co/600x400/1e1e1e/ffffff?text=Loading..." alt="Featured Article Image" class="rounded-lg w-full h-auto object-cover aspect-[4/3]">
+                             </div>
+                             <div class="md:w-1/2">
+                                 <h3 class="text-2xl font-bold mb-2 spotlight-title"><a href="#" class="hover:underline">Loading article...</a></h3>
+                             </div>
+                     </div>
+                     </div>
+                    <div class="volunteers-section">
+                         <h2 class="text-3xl font-bold text-center mb-6">Recent Volunteers of the Month</h2>
+                         <div class="volunteers-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                             <p class="loading-placeholder col-span-full text-center">Loading Volunteers...</p>
+                         </div>
+                    </div>
+                    <div class="news-section">
+                        <h2 class="text-3xl font-bold text-center mb-6">In Other YPI News</h2>
+                        <div class="news-grid grid grid-cols-1 md:grid-cols-2 gap-4">
+                           <p class="loading-placeholder col-span-full text-center">Loading News...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="bg-gradient-to-r from-[#148324] to-[#2ca33b] text-white"><div class="max-w-7xl mx-auto px-6 pt-3 pb-12 lg:px-8"><div class="flex justify-center"><div class="flex flex-col items-center text-center"><img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon.png" alt="YPI Logo" class="h-48 w-auto"><p class="-mt-10 text-xl max-w-xs font-bold tracking-tight">A Company to Change America One Hour At a Time</p>
+                <nav class="mt-8 flex flex-wrap justify-center items-center gap-4" aria-label="Footer">
+                    <a href="https://www.instagram.com/weareypi?igsh=NmQ0b2h2ZDM2eDJw&utm_source=qr" class="bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><title>Instagram</title><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44 1.441-.645 1.441-1.44-.645-1.44-1.441-1.44z"/></svg>
+                    </a>
+                    <a href="#" class="bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="h-5 w-5" viewBox="0 0 16 16"><title>Reddit</title><path d="M6.167 8a.83.83 0 0 0-.83.83c0 .459.372.84.83.831a.831.831 0 0 0 0-1.661m1.843 3.647c.315 0 1.403-.038 1.976-.611a.23.23 0 0 0 0-.306.213.213 0 0 0-.306 0c-.353.363-1.126.487-1.67.487-.545 0-1.308-.124-1.671-.487a.213.213 0 0 0-.306 0 .213.213 0 0 0 0 .306c.564.563 1.652.61 1.977.61zm.992-2.807c0 .458.373.83.831.83s.83-.381.83-.83a.831.831 0 0 0-1.66 0z"/><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.828-1.165c-.315 0-.602.124-.812.325-.801-.573-1.9-.945-3.121-.993l.534-2.501 1.738.372a.83.83 0 1 0 .83-.869.83.83 0 0 0-.744.468l-1.938-.41a.2.2 0 0 0-.153.028.2.2 0 0 0-.086.134l-.592 2.788c-1.24.038-2.358.41-3.17.992-.21-.2-.496-.324-.81-.324a1.163 1.163 0 0 0-.478 2.224q-.03.17-.029.353c0 1.795 2.091 3.256 4.669 3.256s4.668-1.451 4.668-3.256c0-.114-.01-.238-.029-.353.401-.181.688-.592.688-1.069 0-.65-.525-1.165-1.165-1.165"/></svg>
+                    </a>
+                    <a href="https://www.tiktok.com/@official.ypi?_t=ZP-90XyGBaaFo6&_r=1" class="bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="h-5 w-5" viewBox="0 0 16 16"><title>TikTok</title><path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3z"/></svg>
+                    </a>
+                    <a href="https://www.linkedin.com/company/103394900" class="bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="h-5 w-5" viewBox="0 0 16 16"><title>LinkedIn</title><path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z"/></svg>
+                    </a>
+                    <a href="https://www.youtube.com/@YoungProgressivesInitiative" class="bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="h-5 w-5" viewBox="0 0 16 16"><title>YouTube</title><path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.01 2.01 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31 31 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.01 2.01 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A100 100 0 0 1 7.858 2zM6.4 5.209v4.818l4.157-2.408z"/></svg>
+                    </a>
+                    <a href="#" class="bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="h-5 w-5" viewBox="0 0 16 16"><title>Facebook</title><path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951"/></svg>
+                    </a>
+                    <a href="#" class="bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="h-5 w-5" viewBox="0 0 16 16"><title>Bluesky</title><path d="M3.468 1.948C5.303 3.325 7.276 6.118 8 7.616c.725-1.498 2.698-4.29 4.532-5.668C13.855.955 16 .186 16 2.632c0 .489-.28 4.105-.444 4.692-.572 2.04-2.653 2.561-4.504 2.246 3.236.551 4.06 2.375 2.281 4.2-3.376 3.464-4.852-.87-5.23-1.98-.07-.204-.103-.3-.103-.218 0-.081-.033.014-.102.218-.379 1.11-1.855 5.444-5.231 1.98-1.778-1.825-.955-3.65 2.28-4.2-1.85.315-3.932-.205-4.503-2.246C.28 6.737 0 3.12 0 2.632 0 .186 2.145.955 3.468 1.948"/></svg>
+                    </a>
+                </nav>
+            <div class="mt-8 text-sm text-cyan-100"><p>Young Progressives Initiative L.L.C</p><p class="mt-1">Chevy Chase, MD 20815</p></div></div></div></div></footer>
+        </div>
+    </div>
+    
+    <!-- Popups for Desktop View -->
+    <div id="popupOverlay" class="popup-overlay"><div id="themePopup" class="popup"><div class="popup-header"><h2 class="popup-title">Theme Settings</h2><span class="popup-close-button" id="popupCloseButton">&times;</span></div><div class="theme-options"><label for="theme-selector">Choose a theme:</label><select id="theme-selector"><option value="dark">Dark</option><option value="light">Light</option></select></div></div></div>
+    <div id="messagePopup" class="popup-overlay" style="display: none;"><div class="popup" style="width: 25rem; text-align: center;"><div class="popup-header" style="cursor: default;"><h2 id="messagePopupTitle" class="popup-title">Message</h2></div><p id="messagePopupText" style="margin-bottom: 1.5rem;"></p><button id="messagePopupClose" class="maxbutton" style="border-color: var(--theme-popup-text); color: var(--theme-popup-text) !important;">Close</button></div></div>
+    <div id="loginPopup" class="popup-overlay" style="display: none;"><div class="popup" style="width: 25rem; text-align: center;"><div class="popup-header" style="cursor: default;"><h2 class="popup-title">Welcome to YPI</h2><span class="popup-close-button" id="loginPopupClose">&times;</span></div><p style="margin-bottom: 1.5rem;">To access the full experience, please sign in.</p><button id="signInButton" class="maxbutton" style="border-color: var(--theme-popup-text); color: var(--theme-popup-text) !important;">Sign In Anonymously</button></div></div>
+
+    <!-- =============================================================== -->
+    <!--                   MOBILE VIEW (.mobile-device-frame)            -->
+    <!-- =============================================================== -->
+    <div class="mobile-device-frame">
+        <div class="header-container">
+            <header class="site-header">
+                <a href="https://weareypi.com/"><img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Logo" class="site-logo" onerror="this.onerror=null;this.src='https://placehold.co/111x35/ffffff/37af4b?text=YPI';"></a>
+                <button class="menu-button" id="menuButton" aria-label="Open menu"><svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg></button>
+            </header>
+        </div>
+        <div class="content-wrapper">
+            <main class="mobile-slideshow">
+                <div class="mobile-slide active" onclick="window.location.href='https://weareypi.com/credits/'" style="cursor: pointer;">
+                    <div class="mobile-images-container" style="background-image: url('https://weareypi.com/wp-content/uploads/2025/10/Will_Trade_Racits_for_Refugees.png');"></div>
+                    <div class="mobile-text-overlay">
+                        <h1 class="mobile-main-title">A Company to <span id="dynamic-verb" class="dynamic-text">Change</span> America</h1>
+                        <p class="mobile-subtitle">Empowering youth to do more than just <span id="dynamic-action" class="dynamic-text">vote.</span></p>
+                    </div>
+                </div>
+                <div class="mobile-slide" onclick="window.location.href='https://weareypi.com/credits/'" style="cursor: pointer;">
+                    <div class="mobile-images-container" style="background-image: url('https://weareypi.com/wp-content/uploads/2025/07/WeAreChange-on-Weathered-Wall.png');"></div>
+                    <div class="mobile-text-overlay">
+                        <h1 class="mobile-main-title">We Are <span id="dynamic-noun" class="dynamic-text">Change</span></h1>
+                        <p class="mobile-subtitle">Join the movement to shape tomorrow.</p>
+                    </div>
+                </div>
+            </main>
+            <section class="volunteer-spotlight-section"><h2 class="section-title">Volunteer of the Month</h2><div id="volunteer-card"><p class="loading-placeholder">Loading Spotlight...</p></div></section>
+            <section class="ypi-news-section"><h2 class="section-title">Recent YPI News</h2><div class="news-grid" id="news-grid"><p class="loading-placeholder">Loading News...</p></div></section>
+        </div>
+        <footer class="site-footer"><img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon.png" alt="YPI Logo" class="footer-logo"><p class="footer-tagline">A Company to Change America One Hour At a Time</p>
+            <nav class="flex justify-center gap-4 mb-8" aria-label="Footer">
+                <a href="https://www.instagram.com/weareypi?igsh=NmQ0b2h2ZDM2eDJw&utm_source=qr" class="flex items-center justify-center w-10 h-10 bg-white text-[#148324] rounded-full transition-colors hover:bg-gray-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" class="w-5 h-5"><title>Instagram</title><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44 1.441-.645 1.441-1.44-.645-1.44-1.441-1.44z"></path></svg></a>
+                <a href="#" class="flex items-center justify-center w-10 h-10 bg-white text-[#148324] rounded-full transition-colors hover:bg-gray-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" class="w-5 h-5"><title>Reddit</title><path d="M6.167 8a.83.83 0 0 0-.83.83c0 .459.372.84.83.831a.831.831 0 0 0 0-1.661m1.843 3.647c.315 0 1.403-.038 1.976-.611a.23.23 0 0 0 0-.306.213.213 0 0 0-.306 0c-.353.363-1.126.487-1.67.487-.545 0-1.308-.124-1.671-.487a.213.213 0 0 0-.306 0 .213.213 0 0 0 0 .306c.564.563 1.652.61 1.977.61zm.992-2.807c0 .458.373.83.831.83s.83-.381.83-.83a.831.831 0 0 0-1.66 0z"></path><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.828-1.165c-.315 0-.602.124-.812.325-.801-.573-1.9-.945-3.121-.993l.534-2.501 1.738.372a.83.83 0 1 0 .83-.869.83.83 0 0 0-.744.468l-1.938-.41a.2.2 0 0 0-.153.028.2.2 0 0 0-.086.134l-.592 2.788c-1.24.038-2.358.41-3.17.992-.21-.2-.496-.324-.81-.324a1.163 1.163 0 0 0-.478 2.224q-.03.17-.029.353c0 1.795 2.091 3.256 4.669 3.256s4.668-1.451 4.668-3.256c0-.114-.01-.238-.029-.353.401-.181.688-.592.688-1.069 0-.65-.525-1.165-1.165-1.165"></path></svg></a>
+                <a href="https://www.tiktok.com/@official.ypi?_t=ZP-90XyGBaaFo6&_r=1" class="flex items-center justify-center w-10 h-10 bg-white text-[#148324] rounded-full transition-colors hover:bg-gray-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" class="w-5 h-5"><title>TikTok</title><path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3z"></path></svg></a>
+                <a href="https://www.linkedin.com/company/103394900" class="flex items-center justify-center w-10 h-10 bg-white text-[#148324] rounded-full transition-colors hover:bg-gray-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" class="w-5 h-5"><title>LinkedIn</title><path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z"></path></svg></a>
+                <a href="https://www.youtube.com/@YoungProgressivesInitiative" class="flex items-center justify-center w-10 h-10 bg-white text-[#148324] rounded-full transition-colors hover:bg-gray-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" class="w-5 h-5"><title>YouTube</title><path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.01 2.01 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31 31 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.01 2.01 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A100 100 0 0 1 7.858 2zM6.4 5.209v4.818l4.157-2.408z"></path></svg></a>
+                <a href="#" class="flex items-center justify-center w-10 h-10 bg-white text-[#148324] rounded-full transition-colors hover:bg-gray-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" class="w-5 h-5"><title>Facebook</title><path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951"></path></svg></a>
+                <a href="#" class="flex items-center justify-center w-10 h-10 bg-white text-[#148324] rounded-full transition-colors hover:bg-gray-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" class="w-5 h-5"><title>Bluesky</title><path d="M3.468 1.948C5.303 3.325 7.276 6.118 8 7.616c.725-1.498 2.698-4.29 4.532-5.668C13.855.955 16 .186 16 2.632c0 .489-.28 4.105-.444 4.692-.572 2.04-2.653 2.561-4.504 2.246 3.236.551 4.06 2.375 2.281 4.2-3.376 3.464-4.852-.87-5.23-1.98-.07-.204-.103-.3-.103-.218 0-.081-.033.014-.102.218-.379 1.11-1.855 5.444-5.231 1.98-1.778-1.825-.955-3.65 2.28-4.2-1.85.315-3.932-.205-4.503-2.246C.28 6.737 0 3.12 0 2.632 0 .186 2.145.955 3.468 1.948"></path></svg></a>
+            </nav>
+            <div class="footer-legal"><p>Young Progressives Initiative L.L.C</p><p>Chevy Chase, MD 20815</p></div>
+        </footer>
+    </div>
+    <div class="sidebar" id="sidebar"><button class="close-btn" id="closeSidebarBtn" aria-label="Close menu">&times;</button><nav><ul><li><a href="https://weareypi.com/mission-statement/">Our Mission</a></li><li><a href="https://weareypi.com/meet-ypi-roster/">Meet the Team</a></li><li><a href="https://weareypi.com/donate/">Donate</a></li><li><a href="https://weareypi.com/need-volunteers/">Need Volunteers?</a></li><li><button id="mobileThemeButton" class="mobile-theme-button">Toggle Theme</button></li></ul></nav></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- =============================================================== -->
+    <!--                         COMBINED SCRIPT                         -->
+    <!-- =============================================================== -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // --- Initialize Firebase ---
+        if (window.initializeFirebase) window.initializeFirebase();
+
+        // --- DESKTOP THEME POPUP ---
+        const themeButton = document.getElementById('themeButton');
+        const popupOverlay = document.getElementById('popupOverlay');
+        const themePopup = document.getElementById('themePopup');
+        const popupCloseButton = document.getElementById('popupCloseButton');
+        const themeSelector = document.getElementById('theme-selector');
+
+        if(themeButton) themeButton.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+            themeSelector.value = currentTheme;
+            popupOverlay.style.visibility = 'visible';
+            popupOverlay.style.opacity = '1';
+        });
+        if(popupCloseButton) popupCloseButton.addEventListener('click', () => {
+            popupOverlay.style.visibility = 'hidden';
+            popupOverlay.style.opacity = '0';
+        });
+        if(popupOverlay) popupOverlay.addEventListener('click', e => { if (e.target === popupOverlay) { popupOverlay.style.visibility = 'hidden'; popupOverlay.style.opacity = '0'; }});
+        if(themeSelector) themeSelector.addEventListener('change', function() { setTheme(this.value); });
+        
+        // --- MOBILE THEME BUTTON & SHARED SETTER ---
+        const mobileThemeButton = document.getElementById('mobileThemeButton');
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            try { localStorage.setItem('theme', theme); }
+            catch (e) { console.error("Could not save theme", e); }
+        }
+        if(mobileThemeButton) mobileThemeButton.addEventListener('click', () => {
+            const newTheme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+            if(window.closeSidebar) window.closeSidebar();
+        });
+
+        // --- POPUPS (MESSAGE & LOGIN) ---
+        const messagePopup = document.getElementById('messagePopup');
+        window.showMessage = (title, text) => {
+            if(!messagePopup) return;
+            messagePopup.querySelector('#messagePopupTitle').textContent = title;
+            messagePopup.querySelector('#messagePopupText').textContent = text;
+            messagePopup.style.display = 'flex';
+        };
+        if(messagePopup) {
+            messagePopup.querySelector('#messagePopupClose').addEventListener('click', () => messagePopup.style.display = 'none');
+            messagePopup.addEventListener('click', e => { if (e.target === messagePopup) messagePopup.style.display = 'none'; });
+        }
+        
+        const loginPopup = document.getElementById('loginPopup');
+        window.ypiShowLoginPopup = () => { if(loginPopup) loginPopup.style.display = 'flex'; };
+        const closeLoginPopup = () => { if(loginPopup) loginPopup.style.display = 'none'; };
+        if(loginPopup) {
+            loginPopup.querySelector('#loginPopupClose').addEventListener('click', closeLoginPopup);
+            loginPopup.addEventListener('click', e => { if (e.target === loginPopup) closeLoginPopup(); });
+            loginPopup.querySelector('#signInButton').addEventListener('click', () => {
+                if (window.auth && window.fbSignInAnonymously) {
+                    window.fbSignInAnonymously(window.auth)
+                        .then(() => { closeLoginPopup(); showMessage('Success', 'You are now logged in!'); })
+                        .catch((error) => { showMessage('Error', 'Could not sign in. Please try again.'); });
+                } else { showMessage('Error', 'Authentication service is not ready.'); }
+            });
+        }
+
+        // --- DESKTOP NOTIFICATION DROPDOWN ---
+        const bell = document.getElementById('notificationBell');
+        const dropdown = document.getElementById('notificationDropdown');
+        if(bell && dropdown) {
+            bell.addEventListener('click', e => { e.stopPropagation(); dropdown.classList.toggle('active'); });
+            dropdown.querySelector('#notificationDropdownClose').addEventListener('click', e => { e.stopPropagation(); dropdown.classList.remove('active'); });
+            dropdown.querySelector('#notificationList').addEventListener('click', e => {
+                const item = e.target.closest('.notification-item');
+                if (item && !item.classList.contains('read')) {
+                    if(window.markNotificationAsRead) window.markNotificationAsRead(item.dataset.id);
+                }
+            });
+            document.addEventListener('click', e => {
+                if (dropdown.classList.contains('active') && !dropdown.contains(e.target) && !e.target.closest('.icon-button')) {
+                    dropdown.classList.remove('active');
+                }
+            });
+        }
+
+        // --- DESKTOP SLIDESHOW ---
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.main-wrapper .slideshow-container .slide');
+        const dotsContainer = document.getElementById('dotsContainer');
+        const slideTexts = document.querySelectorAll('.desktop-slideshow-text');
+        if (slides.length > 0) {
+            let slideInterval = setInterval(() => plusSlides(1), 5000);
+            function resetInterval() { clearInterval(slideInterval); slideInterval = setInterval(() => plusSlides(1), 5000); }
+            function showSlides(n) {
+                slideIndex = (n + slides.length) % slides.length;
+                slides.forEach(s => s.style.display = "none");
+                slideTexts.forEach(t => t.classList.remove('active'));
+                dots.forEach(d => d.classList.remove("active"));
+                slides[slideIndex].style.display = "block";
+                slideTexts[slideIndex].classList.add('active');
+                dots[slideIndex].classList.add("active");
+            }
+            function plusSlides(n) { showSlides(slideIndex += n); }
+            slides.forEach((_, i) => { const dot = document.createElement('span'); dot.classList.add('dot'); dot.addEventListener('click', () => { showSlides(slideIndex = i); resetInterval(); }); dotsContainer.appendChild(dot); });
+            const dots = dotsContainer.querySelectorAll(".dot");
+            document.getElementById('prevBtn').addEventListener('click', () => { plusSlides(-1); resetInterval(); });
+            document.getElementById('nextBtn').addEventListener('click', () => { plusSlides(1); resetInterval(); });
+            showSlides(slideIndex);
+        }
+
+        // --- MOBILE SLIDESHOW ---
+        let mobileSlideIndex = 0;
+        const mobileSlides = document.querySelectorAll('.mobile-slide');
+        function showMobileSlides() {
+            if (mobileSlides.length === 0) return;
+            mobileSlides.forEach((slide, index) => slide.classList.toggle('active', index === mobileSlideIndex));
+            mobileSlideIndex = (mobileSlideIndex + 1) % mobileSlides.length;
+        }
+        setInterval(showMobileSlides, 5000);
+
+        // --- MOBILE SIDEBAR ---
+        const menuButton = document.getElementById('menuButton');
+        const sidebar = document.getElementById('sidebar');
+        const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        window.closeSidebar = () => {
+            if(!sidebar || !sidebarOverlay) return;
+            sidebar.classList.remove('open');
+            sidebarOverlay.classList.remove('active');
+            document.body.classList.remove('sidebar-is-open');
+        }
+        if(menuButton) menuButton.addEventListener('click', () => {
+            sidebar.classList.add('open');
+            sidebarOverlay.classList.add('active');
+            document.body.classList.add('sidebar-is-open');
+        });
+        if(closeSidebarBtn) closeSidebarBtn.addEventListener('click', window.closeSidebar);
+        if(sidebarOverlay) sidebarOverlay.addEventListener('click', window.closeSidebar);
+        
+        // --- MOBILE DYNAMIC TEXT ---
+        const dynamicVerb = document.getElementById('dynamic-verb'), dynamicAction = document.getElementById('dynamic-action'), dynamicNoun = document.getElementById('dynamic-noun');
+        if (dynamicVerb && dynamicAction && dynamicNoun) {
+            const verbs = ["Change", "Impact"], actions = ["vote.", "create community engagement."], nouns = ["Change", "Impact", "Community Engagement"];
+            let vIdx = 0, aIdx = 0, nIdx = 0;
+            setInterval(() => {
+                [dynamicVerb, dynamicAction, dynamicNoun].forEach(el => el.classList.add('fade-out'));
+                setTimeout(() => {
+                    dynamicVerb.textContent = verbs[vIdx = (vIdx + 1) % verbs.length];
+                    dynamicAction.textContent = actions[aIdx = (aIdx + 1) % actions.length];
+                    dynamicNoun.textContent = nouns[nIdx = (nIdx + 1) % nouns.length];
+                    [dynamicVerb, dynamicAction, dynamicNoun].forEach(el => el.classList.remove('fade-out'));
+                }, 300);
+            }, 3500);
+        }
+
+        // --- DYNAMIC CONTENT LOADING (COMBINED) ---
+        async function loadDynamicContent() {
+            const postsApiUrl = 'https://weareypi.com/wp-json/wp/v2/posts?_embed&per_page=9';
+            const volunteersApiUrl = 'https://weareypi.com/wp-json/wp/v2/posts?_embed&categories=15&per_page=10';
+            try {
+                const [postsResponse, volunteersResponse] = await Promise.all([fetch(postsApiUrl), fetch(volunteersApiUrl)]);
+                const posts = postsResponse.ok ? await postsResponse.json() : [];
+                const volunteers = volunteersResponse.ok ? await volunteersResponse.json() : [];
+
+                // Desktop Population
+                if(document.querySelector('.main-wrapper')) {
+                    const dtSpotlightTitle = document.querySelector('.main-wrapper .spotlight-title a'), dtSpotlightImage = document.querySelector('.main-wrapper .spotlight-image-container img'), dtVolunteersGrid = document.querySelector('.main-wrapper .volunteers-grid'), dtNewsGrid = document.querySelector('.main-wrapper .news-grid');
+                    if (posts.length > 0) { const a = posts[0], i = a._embedded?.['wp:featuredmedia']?.[0]?.source_url; if(dtSpotlightTitle){ dtSpotlightTitle.innerHTML = a.title.rendered; dtSpotlightTitle.href = a.link; } if(dtSpotlightImage){ dtSpotlightImage.src = i || 'https://placehold.co/600x400/1e1e1e/ffffff?text=Image'; dtSpotlightImage.alt = a.title.rendered; } }
+                    if (dtNewsGrid) { const n = posts.slice(1, 5); dtNewsGrid.innerHTML = n.length > 0 ? n.map(p => `<div class="news-item" onclick="location.href='${p.link}'"><div class="news-image"><img src="${p._embedded?.['wp:featuredmedia']?.[0]?.media_details?.sizes?.medium?.source_url || 'https://placehold.co/300x169/1e1e1e/ffffff?text=Image'}" alt="${p.title.rendered}"></div><div class="news-title"><a href="${p.link}">${p.title.rendered}</a></div></div>`).join('') : '<p class="loading-placeholder col-span-full text-center">No news found.</p>'; }
+                    if (dtVolunteersGrid) { dtVolunteersGrid.innerHTML = volunteers.length > 0 ? volunteers.slice(0, 3).map(v => `<div class="volunteer-card" onclick="location.href='${v.link}'"><div class="volunteer-image"><img src="${v._embedded?.['wp:featuredmedia']?.[0]?.media_details?.sizes?.medium?.source_url || 'https://placehold.co/300x169/1e1e1e/ffffff?text=Image'}" alt="${v.title.rendered}"></div><div class="volunteer-name"><a href="${v.link}">${v.title.rendered}</a></div></div>`).join('') : '<p class="loading-placeholder col-span-full text-center">No volunteers found.</p>'; }
+                }
+
+                // Mobile Population
+                if(document.querySelector('.mobile-device-frame')) {
+                    const mobVolContainer = document.getElementById('volunteer-card'), mobNewsGrid = document.getElementById('news-grid');
+                    if (mobVolContainer && volunteers.length > 0) { const v = volunteers[0]; mobVolContainer.innerHTML = `<img src="${v._embedded?.['wp:featuredmedia']?.[0]?.source_url || 'https://placehold.co/100x100/1e1e1e/ffffff?text=?'}" alt="Volunteer" class="spotlight-photo"><h3 class="spotlight-name">${v.title.rendered}</h3>`; } else if (mobVolContainer) { mobVolContainer.innerHTML = `<p class="loading-placeholder">No volunteer found.</p>`; }
+                    if (mobNewsGrid && posts.length > 0) { mobNewsGrid.innerHTML = posts.slice(0, 3).map(p => `<a href="${p.link}" target="_blank" class="news-card"><img src="${p._embedded?.['wp:featuredmedia']?.[0]?.source_url || 'https://placehold.co/400x225/1e1e1e/ffffff?text=Image'}" alt="" class="news-card-image"><div class="news-card-content"><h3 class="news-card-title">${p.title.rendered}</h3><p class="news-card-excerpt">${p.excerpt.rendered.replace(/<[^>]*>?/gm, '').substring(0, 100)}...</p></div></a>`).join(''); } else if (mobNewsGrid) { mobNewsGrid.innerHTML = `<p class="loading-placeholder">No news found.</p>`; }
+                }
+            } catch (error) { console.error("Error loading dynamic content:", error); }
+        }
+        loadDynamicContent();
+    });
+    </script>
+</body>
+</html>

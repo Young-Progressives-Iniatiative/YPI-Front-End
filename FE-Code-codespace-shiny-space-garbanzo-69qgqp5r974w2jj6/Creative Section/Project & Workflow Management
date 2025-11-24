@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Creative Project Dashboard</title>
+   <!-- Tailwind CSS CDN -->
+   <script src="https://cdn.tailwindcss.com"></script>
+   <!-- Google Fonts: Inter -->
+   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+   <!-- Font Awesome for Icons -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <style>
+       body {
+           font-family: 'Inter', sans-serif;
+           background-color: #1c1c1c; /* Main background color */
+           color: #e5e7eb; /* Lighter text */
+       }
+       /* Custom scrollbar for a modern look */
+       ::-webkit-scrollbar { width: 8px; height: 8px; }
+       ::-webkit-scrollbar-track { background: #2a2a2a; border-radius: 10px; }
+       ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
+       ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+       /* Style for hidden sections */
+       .hidden { display: none; }
+       /* Animation for modals */
+       .modal-enter { animation: fadeIn 0.3s ease-out forwards; }
+       .modal-leave { animation: fadeOut 0.3s ease-in forwards; }
+       @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+       @keyframes fadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.95); } }
+       /* Custom date picker icon color */
+       input[type="date"]::-webkit-calendar-picker-indicator {
+           filter: invert(1);
+       }
+   </style>
+</head>
+<body class="min-h-screen flex flex-col p-4 sm:p-6 md:p-8">
+
+
+   <div class="max-w-7xl mx-auto w-full bg-[#2a2a2a] rounded-xl shadow-2xl p-4 sm:p-6 md:p-8 mb-8">
+       <!-- Header & Navigation -->
+       <div class="flex flex-col sm:flex-row justify-between items-center mb-8">
+           <h1 class="text-3xl font-bold text-white mb-4 sm:mb-0">Creative Dashboard</h1>
+           <div class="flex gap-2">
+               <button id="myProjectsTab" class="px-5 py-2 bg-[#37af4b] hover:bg-[#2e9b41] text-white font-semibold rounded-lg shadow-md transition-all duration-300 transform hover:scale-105">
+                   My Projects
+               </button>
+               <button id="createProjectTab" class="px-5 py-2 bg-gray-700 hover:bg-gray-600 text-white font-semibold rounded-lg shadow-md transition-all duration-300 transform hover:scale-105">
+                   + Create Project
+               </button>
+           </div>
+       </div>
+
+
+       <!-- My Projects Section -->
+       <div id="myProjectsSection">
+           <h2 class="text-2xl font-bold text-white mb-6">Active Projects</h2>
+           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+               <!-- Sample Project Card 1 -->
+               <div class="bg-[#333333] rounded-xl p-6 shadow-lg border border-gray-700 hover:border-[#37af4b] transition-all duration-300 flex flex-col justify-between">
+                   <div>
+                       <h3 class="text-xl font-semibold text-white">Brand Identity Overhaul</h3>
+                       <p class="text-[#37af4b] text-sm mb-4 font-semibold">Status: In Progress</p>
+                       <!-- Timeline -->
+                       <div class="mb-4">
+                           <label class="text-xs text-gray-400">Timeline: June 1, 2025 - Aug 30, 2025</label>
+                           <div class="w-full bg-gray-700 rounded-full h-2.5 mt-1">
+                               <div class="bg-[#37af4b] h-2.5 rounded-full" style="width: 45%"></div>
+                           </div>
+                       </div>
+                       <!-- Milestones -->
+                       <div class="mb-4">
+                           <p class="text-sm text-gray-300 font-medium">Next Milestone:</p>
+                           <p class="text-sm text-gray-400">Final Logo Concepts Due</p>
+                       </div>
+                       <!-- Collaborators -->
+                       <div class="mb-4">
+                           <p class="text-sm text-gray-300 font-medium mb-2">Team:</p>
+                           <div class="flex items-center space-x-2">
+                               <img src="https://placehold.co/32x32/7c3aed/ffffff?text=AD" class="w-8 h-8 rounded-full border-2 border-gray-600" alt="collaborator">
+                               <img src="https://placehold.co/32x32/d946ef/ffffff?text=JS" class="w-8 h-8 rounded-full border-2 border-gray-600" alt="collaborator">
+                               <span class="text-sm text-gray-400">+2 more</span>
+                           </div>
+                       </div>
+                   </div>
+                   <div class="flex flex-wrap gap-2 mt-4">
+                       <button class="flex-1 px-4 py-2 bg-[#37af4b] hover:bg-[#2e9b41] text-white text-sm rounded-md transition-all duration-300">View Dashboard</button>
+                       <button class="px-4 py-2 bg-gray-600 hover:bg-gray-500 text-white text-sm rounded-md transition-all duration-300" onclick="openModal('teamModal')"><i class="fas fa-users"></i></button>
+                   </div>
+               </div>
+               <!-- Add more project cards as needed -->
+           </div>
+       </div>
+
+
+       <!-- Create New Project Section -->
+       <div id="createProjectSection" class="hidden">
+           <h2 class="text-3xl font-bold text-white mb-6">Create a New Project</h2>
+           <form class="space-y-6">
+               <!-- Project Details -->
+               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <div>
+                       <label for="projectName" class="block text-gray-300 text-sm font-bold mb-2">Project Name</label>
+                       <input type="text" id="projectName" placeholder="e.g., Q3 Marketing Campaign" class="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-[#37af4b]">
+                   </div>
+                   <div>
+                       <label class="block text-gray-300 text-sm font-bold mb-2">Project Timeline</label>
+                       <div class="flex items-center gap-2">
+                           <input type="date" id="startDate" class="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-[#37af4b]">
+                           <span class="text-gray-400">to</span>
+                           <input type="date" id="endDate" class="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-[#37af4b]">
+                       </div>
+                   </div>
+               </div>
+               <div>
+                   <label for="projectBrief" class="block text-gray-300 text-sm font-bold mb-2">Project Brief</label>
+                   <textarea id="projectBrief" rows="4" placeholder="Describe the project goals, deliverables, and key objectives..." class="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-[#37af4b]"></textarea>
+               </div>
+
+
+               <!-- Task List -->
+               <div>
+                   <label class="block text-gray-300 text-sm font-bold mb-2">Task List</label>
+                   <div id="taskListContainer" class="space-y-2">
+                       <div class="flex gap-2">
+                           <input type="text" placeholder="Add a task..." class="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-[#37af4b]">
+                           <button type="button" class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">&times;</button>
+                       </div>
+                   </div>
+                   <button type="button" id="addTaskBtn" class="mt-2 px-4 py-2 bg-[#37af4b] hover:bg-[#2e9b41] text-white text-sm rounded-lg">+ Add Task</button>
+               </div>
+              
+               <!-- File Upload & IP -->
+                <div>
+                   <label class="block text-gray-300 text-sm font-bold mb-2">Initial Files & IP</label>
+                   <div class="p-4 border-2 border-dashed border-gray-600 rounded-lg">
+                       <p class="text-sm text-gray-400 mb-2">Cloud Storage: Upload work-in-progress and assets.</p>
+                       <input type="file" multiple class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gray-200 file:text-[#37af4b] hover:file:bg-gray-300"/>
+                       <div class="mt-4 flex items-center">
+                          <input type="checkbox" id="ipProtect" class="h-4 w-4 text-[#37af4b] focus:ring-[#2e9b41] border-gray-600 rounded">
+                          <label for="ipProtect" class="ml-2 block text-gray-300">Enable enhanced IP protection for this project.</label>
+                       </div>
+                   </div>
+               </div>
+
+
+
+
+               <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                   <button type="button" class="flex-1 px-6 py-3 bg-gray-600 hover:bg-gray-500 text-white font-semibold rounded-lg">Save Draft</button>
+                   <button type="submit" class="flex-1 px-6 py-3 bg-[#37af4b] hover:bg-[#2e9b41] text-white font-semibold rounded-lg">Create & Publish Project</button>
+               </div>
+           </form>
+       </div>
+   </div>
+  
+   <!-- Modals -->
+   <!-- Team Management Modal -->
+   <div id="teamModal" class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 hidden modal-enter">
+       <div class="bg-[#333333] rounded-lg shadow-xl p-8 w-full max-w-2xl">
+           <h3 class="text-2xl font-bold text-white mb-6">Manage Collaborators</h3>
+           <!-- Invite Form -->
+           <div class="flex gap-2 mb-6">
+               <input type="email" placeholder="invite.user@example.com" class="flex-1 p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-[#37af4b]">
+               <select class="p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-[#37af4b]">
+                   <option>Editor</option>
+                   <option>Viewer</option>
+                   <option>Admin</option>
+               </select>
+               <button class="px-5 py-2 bg-[#37af4b] hover:bg-[#2e9b41] text-white font-semibold rounded-lg">Invite</button>
+           </div>
+           <!-- Current Collaborators -->
+           <div class="space-y-4">
+                <div class="flex items-center justify-between bg-gray-700 p-3 rounded-lg">
+                   <div class="flex items-center gap-3">
+                       <img src="https://placehold.co/40x40/7c3aed/ffffff?text=AD" class="w-10 h-10 rounded-full" alt="collaborator">
+                       <div>
+                           <p class="font-semibold text-white">Alex Doe</p>
+                           <p class="text-sm text-gray-400">alex.doe@example.com</p>
+                       </div>
+                   </div>
+                   <div class="text-sm text-[#37af4b] font-bold">Admin</div>
+               </div>
+                <div class="flex items-center justify-between bg-gray-700 p-3 rounded-lg">
+                   <div class="flex items-center gap-3">
+                       <img src="https://placehold.co/40x40/d946ef/ffffff?text=JS" class="w-10 h-10 rounded-full" alt="collaborator">
+                       <div>
+                           <p class="font-semibold text-white">Jane Smith</p>
+                           <p class="text-sm text-gray-400">jane.smith@example.com</p>
+                       </div>
+                   </div>
+                    <div class="text-sm text-gray-400 font-medium">Editor</div>
+               </div>
+           </div>
+           <button class="mt-6 w-full py-2 bg-gray-600 hover:bg-gray-500 rounded-lg" onclick="closeModal('teamModal')">Close</button>
+       </div>
+   </div>
+
+
+   <script>
+       // --- DOM Elements ---
+       const myProjectsSection = document.getElementById('myProjectsSection');
+       const createProjectSection = document.getElementById('createProjectSection');
+       const myProjectsTab = document.getElementById('myProjectsTab');
+       const createProjectTab = document.getElementById('createProjectTab');
+       const addTaskBtn = document.getElementById('addTaskBtn');
+       const taskListContainer = document.getElementById('taskListContainer');
+
+
+       // --- Tab Switching Logic ---
+       function showSection(sectionId) {
+           // Hide all sections
+           myProjectsSection.classList.add('hidden');
+           createProjectSection.classList.add('hidden');
+
+
+           // Deactivate all tabs
+           myProjectsTab.classList.replace('bg-[#37af4b]', 'bg-gray-700');
+           myProjectsTab.classList.replace('hover:bg-[#2e9b41]', 'hover:bg-gray-600');
+           createProjectTab.classList.replace('bg-[#37af4b]', 'bg-gray-700');
+           createProjectTab.classList.replace('hover:bg-[#2e9b41]', 'hover:bg-gray-600');
+
+
+           // Show selected section and activate tab
+           if (sectionId === 'myProjectsSection') {
+               myProjectsSection.classList.remove('hidden');
+               myProjectsTab.classList.replace('bg-gray-700', 'bg-[#37af4b]');
+               myProjectsTab.classList.replace('hover:bg-gray-600', 'hover:bg-[#2e9b41]');
+           } else if (sectionId === 'createProjectSection') {
+               createProjectSection.classList.remove('hidden');
+               createProjectTab.classList.replace('bg-gray-700', 'bg-[#37af4b]');
+               createProjectTab.classList.replace('hover:bg-gray-600', 'hover:bg-[#2e9b41]');
+           }
+       }
+
+
+       myProjectsTab.addEventListener('click', () => showSection('myProjectsSection'));
+       createProjectTab.addEventListener('click', () => showSection('createProjectSection'));
+
+
+       // --- Modal Logic ---
+       function openModal(modalId) {
+           const modal = document.getElementById(modalId);
+           if(modal) {
+               modal.classList.remove('hidden');
+               modal.classList.remove('modal-leave');
+               modal.classList.add('modal-enter');
+           }
+       }
+
+
+       function closeModal(modalId) {
+           const modal = document.getElementById(modalId);
+           if(modal) {
+               modal.classList.add('modal-leave');
+               modal.addEventListener('animationend', () => {
+                   modal.classList.add('hidden');
+               }, { once: true });
+           }
+       }
+
+
+       // --- Dynamic Task List Logic ---
+       addTaskBtn.addEventListener('click', () => {
+           const taskDiv = document.createElement('div');
+           taskDiv.className = 'flex gap-2 animate-pulse'; // Added a subtle animation on add
+           taskDiv.innerHTML = `
+               <input type="text" placeholder="Add a task..." class="w-full p-3 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-[#37af4b]">
+               <button type="button" class="remove-task-btn px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg">&times;</button>
+           `;
+           taskListContainer.appendChild(taskDiv);
+           // Remove the animation class after it plays
+           setTimeout(() => taskDiv.classList.remove('animate-pulse'), 500);
+       });
+
+
+       taskListContainer.addEventListener('click', function(e) {
+           if (e.target.classList.contains('remove-task-btn')) {
+               e.target.parentElement.remove();
+           }
+       });
+
+
+       // --- Initial State ---
+       document.addEventListener('DOMContentLoaded', () => {
+           showSection('myProjectsSection');
+       });
+   </script>
+</body>
+</html>

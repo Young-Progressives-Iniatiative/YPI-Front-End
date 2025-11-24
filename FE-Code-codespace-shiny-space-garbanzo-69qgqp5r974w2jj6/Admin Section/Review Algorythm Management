@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Algorithm Review Management - YPI</title>
+   <!-- Tailwind CSS CDN -->
+   <script src="https://cdn.tailwindcss.com"></script>
+   <!-- Google Fonts -->
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+  
+   <style>
+       body {
+           font-family: 'Atkinson Hyperlegible', sans-serif;
+           background-color: #1c1c1c;
+           color: #f0f0f0;
+       }
+       ::-webkit-scrollbar { width: 8px; }
+       ::-webkit-scrollbar-track { background: #2a2a2a; }
+       ::-webkit-scrollbar-thumb { background: #37af4b; border-radius: 10px; }
+       ::-webkit-scrollbar-thumb:hover { background: #2d8c3c; }
+      
+       .popup-overlay {
+           background-color: rgba(0,0,0,0.7);
+           backdrop-filter: blur(5px);
+       }
+      
+       #popup-panel {
+           transition: opacity 300ms ease-out, transform 300ms ease-out;
+           opacity: 0;
+           transform: scale(0.95);
+       }
+
+
+       /* Hide admin controls by default */
+       .admin-controls {
+           display: none;
+       }
+       /* Show admin controls when admin-mode is active */
+       body.admin-mode .admin-controls {
+           display: flex;
+       }
+   </style>
+</head>
+<body class="antialiased">
+
+
+   <!-- Header -->
+   <header class="bg-gradient-to-r from-green-800 to-green-600 sticky top-0 z-50 shadow-lg">
+       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+           <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                   <img class="h-8 w-auto" src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Logo" onerror="this.onerror=null;this.src='https://placehold.co/119x32/1c1c1c/fefefe?text=YPI';">
+                   <h1 class="text-xl font-bold text-white hidden sm:block">Algorithm Management</h1>
+               </div>
+               <div class="flex items-center space-x-4">
+                   <img src="https://placehold.co/40x40/1c1c1c/ffffff?text=U" alt="Profile Picture" class="h-10 w-10 rounded-full border-2 border-green-300 cursor-pointer">
+               </div>
+           </div>
+       </div>
+   </header>
+
+
+   <!-- Main Content: Reviews -->
+   <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+       <div class="bg-[#252525] border border-green-700/50 rounded-2xl p-8">
+           <div class="text-center mb-8">
+               <h1 class="text-4xl font-bold text-white tracking-tight">Manage Algorithm Reviews</h1>
+               <p class="mt-3 text-lg text-neutral-400">Approve, demote, or delete algorithm reviews from the system.</p>
+           </div>
+          
+           <div id="reviews-container">
+               <!-- Approved Reviews Section -->
+               <section id="approved-reviews-section" class="mb-10">
+                   <h2 id="high-rated-reviews-title" class="text-2xl font-bold text-green-400 border-b border-neutral-700 pb-2 mb-4">Approved Reviews</h2>
+                   <div id="high-rated-reviews" class="space-y-4"></div>
+               </section>
+
+
+               <!-- Pending Reviews Section -->
+               <section id="pending-reviews-section">
+                    <h2 id="low-rated-reviews-title" class="text-2xl font-bold text-neutral-400 border-b border-neutral-700 pb-2 mb-4">Pending Reviews</h2>
+                   <div id="low-rated-reviews" class="space-y-4"></div>
+               </section>
+           </div>
+       </div>
+   </main>
+   <!-- Footer -->
+   <footer class="bg-neutral-800 text-center py-4 mt-8">
+       <p class="text-neutral-400 text-sm">Young Progressives Initiative L.L.C , Chevy Chase, MD 20815</p>
+       <a href="#" id="admin-link" class="text-neutral-500 hover:text-green-500 text-xs mt-1 inline-block transition">Admin Access</a>
+   </footer>
+
+
+   <!-- Popup Modal -->
+   <div id="messageBoxOverlay" class="popup-overlay fixed inset-0 z-50 flex items-center justify-center p-4 hidden" aria-labelledby="popup-title" role="dialog" aria-modal="true">
+       <div class="bg-neutral-800 border border-green-600 rounded-2xl shadow-xl w-full max-w-md p-6 text-center" id="popup-panel">
+           <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-200" id="popup-icon-container">
+               {/* Icon will be inserted here */}
+           </div>
+           <h3 class="mt-4 text-xl font-bold text-white" id="popup-title"></h3>
+           <p class="mt-2 text-base text-neutral-400" id="popup-message"></p>
+           <button id="messageBoxCloseButton" class="mt-6 bg-green-600 text-white font-bold py-2 px-8 rounded-full hover:bg-green-500 transition focus:outline-none focus:ring-4 focus:ring-green-500/50">OK</button>
+       </div>
+   </div>
+
+
+
+
+   <script>
+       document.addEventListener('DOMContentLoaded', () => {
+           const domCache = {
+               highRatedReviewsContainer: document.getElementById('high-rated-reviews'),
+               lowRatedReviewsContainer: document.getElementById('low-rated-reviews'),
+               highRatedTitle: document.getElementById('high-rated-reviews-title'),
+               lowRatedTitle: document.getElementById('low-rated-reviews-title'),
+               adminLink: document.getElementById('admin-link'),
+               body: document.body
+           };
+
+
+           let reviews = [];
+
+
+           function showMessage(title, message, type = 'info') {
+               const messageBoxOverlay = document.getElementById('messageBoxOverlay');
+               const popupTitle = document.getElementById('popup-title');
+               const popupMessage = document.getElementById('popup-message');
+               const iconContainer = document.getElementById('popup-icon-container');
+
+
+               popupTitle.textContent = title;
+               popupMessage.textContent = message;
+
+
+               if (type === 'success') {
+                   iconContainer.innerHTML = `<svg class="h-6 w-6 text-green-700" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>`;
+                   iconContainer.className = "mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-200";
+               } else { // info or error
+                   iconContainer.innerHTML = `<svg class="h-6 w-6 text-neutral-700" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                   iconContainer.className = "mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-neutral-200";
+               }
+
+
+               messageBoxOverlay.classList.remove('hidden');
+               setTimeout(() => {
+                   document.getElementById('popup-panel').classList.add('opacity-100', 'scale-100');
+               }, 10);
+
+
+               document.getElementById('messageBoxCloseButton').onclick = hideMessageBox;
+               messageBoxOverlay.onclick = (e) => { if (e.target === messageBoxOverlay) hideMessageBox(); };
+           }
+
+
+           function hideMessageBox() {
+               const messageBoxOverlay = document.getElementById('messageBoxOverlay');
+               const popupPanel = document.getElementById('popup-panel');
+               popupPanel.classList.remove('opacity-100', 'scale-100');
+               popupPanel.classList.add('opacity-0', 'scale-95');
+               setTimeout(() => messageBoxOverlay.classList.add('hidden'), 300);
+           }
+
+
+           function saveReviews() {
+               try {
+                   localStorage.setItem('algorithm-reviews', JSON.stringify(reviews));
+               } catch(e) { console.error("Could not save reviews to localStorage", e); }
+           }
+
+
+           function renderReviews() {
+               const isAdmin = domCache.body.classList.contains('admin-mode');
+              
+               const approvedReviews = reviews.filter(r => r.status === 'approved').sort((a, b) => b.rating - a.rating);
+               const pendingReviews = reviews.filter(r => r.status === 'pending').sort((a, b) => b.rating - a.rating);
+
+
+               domCache.highRatedReviewsContainer.innerHTML = '';
+               domCache.lowRatedReviewsContainer.innerHTML = '';
+
+
+               domCache.highRatedTitle.style.display = approvedReviews.length > 0 ? 'block' : 'none';
+               domCache.lowRatedTitle.style.display = pendingReviews.length > 0 ? 'block' : 'none';
+
+
+               approvedReviews.forEach(review => {
+                   domCache.highRatedReviewsContainer.appendChild(createReviewElement(review, isAdmin));
+               });
+
+
+               pendingReviews.forEach(review => {
+                   domCache.lowRatedReviewsContainer.appendChild(createReviewElement(review, isAdmin));
+               });
+              
+               addAdminEventListeners();
+           }
+
+
+           function createReviewElement(review, isAdmin) {
+               const card = document.createElement('div');
+               card.className = 'bg-neutral-800 p-4 rounded-lg border border-neutral-700 space-y-3';
+               card.dataset.id = review.id;
+
+
+               let starsHTML = '';
+               for (let i = 1; i <= 5; i++) {
+                   const starClass = i <= review.rating ? 'text-yellow-400' : 'text-neutral-600';
+                   starsHTML += `<i class="fas fa-star ${starClass}"></i>`;
+               }
+
+
+               const adminControlsHTML = `
+                   <div class="admin-controls flex items-center gap-2 pt-3 border-t border-neutral-700">
+                       <button class="text-xs bg-green-600 hover:bg-green-500 text-white font-semibold py-1 px-3 rounded-full transition" data-action="approve" data-id="${review.id}">Approve</button>
+                       <button class="text-xs bg-neutral-600 hover:bg-neutral-500 text-white font-semibold py-1 px-3 rounded-full transition" data-action="demote" data-id="${review.id}">Demote</button>
+                       <button class="text-xs bg-neutral-700 hover:bg-neutral-600 text-white font-semibold py-1 px-3 rounded-full transition" data-action="delete" data-id="${review.id}">Delete</button>
+                   </div>
+               `;
+
+
+               card.innerHTML = `
+                   <div class="flex justify-between items-start">
+                       <p class="font-bold text-white">${review.name}</p>
+                       <div class="flex items-center space-x-1">${starsHTML}</div>
+                   </div>
+                   <p class="text-neutral-400 text-sm">${review.text}</p>
+                   ${isAdmin ? adminControlsHTML : ''}
+               `;
+               return card;
+           }
+
+
+           function addAdminEventListeners() {
+               document.querySelectorAll('.admin-controls button').forEach(button => {
+                   button.addEventListener('click', (e) => {
+                       const reviewId = parseInt(e.target.dataset.id, 10);
+                       const action = e.target.dataset.action;
+                       const reviewIndex = reviews.findIndex(r => r.id === reviewId);
+
+
+                       if (reviewIndex === -1) return;
+
+
+                       if (action === 'approve') {
+                           reviews[reviewIndex].status = 'approved';
+                       } else if (action === 'demote') {
+                           reviews[reviewIndex].status = 'pending';
+                       } else if (action === 'delete') {
+                           reviews.splice(reviewIndex, 1);
+                       }
+                      
+                       saveReviews();
+                       renderReviews();
+                   });
+               });
+           }
+
+
+           function initializeAdminMode() {
+               domCache.adminLink.addEventListener('click', (e) => {
+                   e.preventDefault();
+                   const password = prompt("Enter admin password:");
+                   if (password === "YPI_ADMIN_2025") {
+                       domCache.body.classList.add('admin-mode');
+                       showMessage('Success', 'Admin mode activated.', 'success');
+                       renderReviews();
+                   } else if (password) {
+                       showMessage('Error', 'Incorrect password.', 'error');
+                   }
+               });
+           }
+
+
+           // --- Main Execution Block ---
+           try {
+               const savedReviews = localStorage.getItem('algorithm-reviews');
+               if (savedReviews && JSON.parse(savedReviews).length > 0) {
+                   reviews = JSON.parse(savedReviews);
+               } else {
+                   reviews = [
+                       { id: 1, name: 'Algorithm A', rating: 5, text: 'Excellent performance on image recognition tasks, high accuracy and speed.', status: 'approved' },
+                       { id: 2, name: 'Algorithm B', rating: 4, text: 'Good for data analysis, but occasionally slow with large datasets. Needs optimization.', status: 'pending' },
+                       { id: 3, name: 'Algorithm C', rating: 3.5, text: 'Shows promise in natural language processing, but has a tendency to misinterpret complex queries.', status: 'pending' },
+                       { id: 4, name: 'Algorithm D', rating: 5, text: 'Consistently delivers accurate predictions for financial modeling. Very reliable.', status: 'approved' },
+                       { id: 5, name: 'Algorithm E', rating: 2, text: 'Struggles with outlier detection in real-time streams, leading to false positives. Requires significant refinement.', status: 'pending' }
+                   ];
+                   saveReviews();
+               }
+           } catch(e) {
+               console.error("Could not load reviews from localStorage", e);
+               reviews = [];
+           }
+          
+           renderReviews();
+           initializeAdminMode();
+       });
+   </script>
+</body>
+</html>

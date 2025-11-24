@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Young Progressives Initiative - Navbar</title>
+   <style>
+       /* Reset and base styles */
+       * {
+           margin: 0;
+           padding: 0;
+           box-sizing: border-box;
+       }
+
+
+       body {
+           font-family: Arial, sans-serif;
+           background-color: #1c1c1c;
+           color: #fff;
+       }
+
+
+       /* Navbar styles extracted from provided CSS */
+       :root {
+           --primary-green: #37af4b;
+           --theme-navbar-bg: #1c1c1c;
+           --theme-navbar-text: #fff;
+           --theme-navbar-dropdown-bg: #f0f0f0;
+           --theme-navbar-dropdown-text: #1c1c1c;
+           --theme-navbar-dropdown-hover-bg: #ddd;
+       }
+
+
+       .navbar {
+           background-color: var(--theme-navbar-bg);
+           padding: 15px 0;
+           text-align: center;
+           display: flex;
+           justify-content: center;
+           width: 100%;
+       }
+
+
+       .navbar-menu {
+           display: flex;
+           list-style-type: none;
+           margin: 0;
+           padding: 0;
+       }
+
+
+       .navbar-item {
+           position: relative;
+           margin: 0 20px;
+       }
+
+
+       .navbar-link {
+           color: var(--theme-navbar-text);
+           text-decoration: none;
+           font-size: 18px;
+           padding: 10px 5px;
+           display: flex;
+           align-items: center;
+           font-weight: bold;
+       }
+
+
+       .navbar-link:hover {
+           color: var(--primary-green);
+       }
+
+
+       .dropdown-icon {
+           border: solid var(--theme-navbar-text);
+           border-width: 0 2px 2px 0;
+           display: inline-block;
+           padding: 3px;
+           margin-left: 5px;
+           transform: rotate(45deg);
+           transition: transform 0.3s;
+       }
+
+
+       .navbar-item:hover .dropdown-icon {
+           transform: rotate(-135deg);
+       }
+
+
+       .navbar-item:hover .dropdown-menu {
+           visibility: visible;
+           opacity: 1;
+       }
+
+
+       .dropdown-menu {
+           display: block;
+           visibility: hidden;
+           opacity: 0;
+           transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+           position: absolute;
+           background-color: var(--theme-navbar-dropdown-bg);
+           min-width: 200px;
+           box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+           z-index: 1;
+           top: 100%;
+           left: 0;
+           text-align: left;
+           border-radius: 4px;
+       }
+
+
+       .dropdown-item {
+           display: block;
+           padding: 12px 15px;
+           color: var(--theme-navbar-dropdown-text);
+           text-decoration: none;
+           font-size: 16px;
+           font-weight: bold;
+       }
+
+
+       .dropdown-item:hover {
+           background-color: var(--theme-navbar-dropdown-hover-bg);
+       }
+   </style>
+</head>
+<body>
+   <nav class="navbar">
+       <ul class="navbar-menu">
+           <li class="navbar-item">
+               <span class="navbar-link" style="cursor: default;">About Us <span class="dropdown-icon"></span></span>
+               <div class="dropdown-menu">
+                   <a href="https://weareypi.com/mission-statement/" class="dropdown-item">Our Mission</a>
+                   <a href="https://weareypi.com/meet-ypi-roster/" class="dropdown-item">Meet the YPI Team</a>
+               </div>
+           </li>
+           <li class="navbar-item">
+               <span class="navbar-link" style="cursor: default;">Get Involved <span class="dropdown-icon"></span></span>
+               <div class="dropdown-menu">
+                   <a href="https://weareypi.com/donate/" class="dropdown-item">Donate</a>
+                   <a href="https://weareypi.com/info-guide/" class="dropdown-item">Information Guide for Parents</a>
+               </div>
+           </li>
+           <li class="navbar-item">
+               <a href="https://weareypi.com/need-volunteers/" class="navbar-link">Need Volunteers</a>
+           </li>
+       </ul>
+   </nav>
+</body>
+</html>
+
+
+
+
+

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Partner Role Management</title>
+   <!-- Tailwind CSS CDN -->
+   <script src="https://cdn.tailwindcss.com"></script>
+   <!-- Google Fonts -->
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+  
+   <style>
+       body {
+           font-family: 'Atkinson Hyperlegible', sans-serif;
+           background-color: #1c1c1c;
+           color: #f0f0f0;
+       }
+       ::-webkit-scrollbar { width: 8px; height: 8px; }
+       ::-webkit-scrollbar-track { background: #2a2a2a; border-radius: 10px; }
+       ::-webkit-scrollbar-thumb { background: #37af4b; border-radius: 10px; }
+       ::-webkit-scrollbar-thumb:hover { background: #2d8c3c; }
+       input[type="date"]::-webkit-calendar-picker-indicator {
+           filter: invert(1);
+           cursor: pointer;
+       }
+       /* Style for the custom checkbox */
+       .form-checkbox:checked {
+           background-color: #37af4b;
+           border-color: #37af4b;
+       }
+   </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+
+   <!-- Header -->
+   <header class="bg-gradient-to-r from-green-800 to-green-600 sticky top-0 z-50 shadow-lg">
+       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+           <div class="flex items-center justify-between h-16">
+               <div class="flex items-center space-x-3">
+                   <img class="h-8 w-auto" src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Logo" onerror="this.onerror=null;this.src='https://placehold.co/119x32/1c1c1c/fefefe?text=YPI';">
+                   <h1 class="text-xl font-bold text-white hidden sm:block">Role Management</h1>
+               </div>
+               <div class="flex items-center space-x-4">
+                   <img src="https://placehold.co/40x40/1c1c1c/ffffff?text=U" alt="Profile Picture" class="h-10 w-10 rounded-full border-2 border-green-300 cursor-pointer">
+               </div>
+           </div>
+       </div>
+   </header>
+  
+   <main class="flex-grow max-w-7xl mx-auto w-full p-4 sm:p-6 lg:p-8">
+       <div class="bg-[#252525] border border-green-700/50 rounded-2xl p-6 sm:p-8">
+           <!-- Navigation Tabs -->
+           <div class="flex flex-col sm:flex-row justify-center gap-4 mb-8">
+               <button id="myRolesTab" class="flex-1 px-6 py-3 font-bold rounded-full transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-500/50">
+                   Your Active Roles
+               </button>
+               <button id="createRoleTab" class="flex-1 px-6 py-3 font-bold rounded-full transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-500/50">
+                   Create New Role
+               </button>
+           </div>
+
+
+           <!-- Your Active Roles Section -->
+           <div id="myRolesSection">
+               <h2 class="text-3xl sm:text-4xl font-bold text-white mb-6 tracking-tight">Your Active Roles</h2>
+
+
+               <!-- Filter and Sort Options -->
+               <div class="flex flex-wrap items-center gap-4 mb-8">
+                   <input type="text" placeholder="Search roles..." class="flex-grow min-w-[200px] bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition">
+                   <select class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block p-2.5 transition">
+                       <option>Filter by Status</option>
+                       <option>Actively Recruiting</option>
+                       <option>Paused</option>
+                       <option>Filled</option>
+                   </select>
+               </div>
+
+
+               <!-- Roles List -->
+               <div class="space-y-8">
+                   <div>
+                       <h3 class="text-2xl font-bold text-white mb-4">Promoted Roles</h3>
+                       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                           <!-- Promoted Role Card -->
+                           <div class="bg-neutral-800 rounded-xl p-6 shadow-lg border border-neutral-700 hover:border-green-600 transition relative">
+                               <span class="absolute top-4 right-4 bg-green-700 text-white text-xs font-bold px-3 py-1 rounded-full">Promoted</span>
+                               <h4 class="text-xl font-semibold text-white">Outreach Coordinator</h4>
+                               <p class="text-green-400 text-sm mb-3">Community Action Group - Washington, D.C.</p>
+                               <div class="flex items-center text-green-400 text-sm mb-4">
+                                   <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                   Actively Recruiting
+                               </div>
+                               <p class="text-neutral-400 text-sm mb-5">Applications: <span class="font-bold text-white">25</span> (8 New)</p>
+                               <div class="flex flex-wrap gap-2">
+                                   <button class="px-4 py-2 bg-neutral-700 hover:bg-green-600 text-white text-sm rounded-full transition">View Details</button>
+                                   <button class="px-4 py-2 bg-neutral-700 hover:bg-green-600 text-white text-sm rounded-full transition">Edit</button>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+
+
+                   <div>
+                       <h3 class="text-2xl font-bold text-white mb-4">All Roles You've Posted</h3>
+                       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                           <!-- Standard Role Card -->
+                           <div class="bg-neutral-800 rounded-xl p-6 shadow-lg border border-neutral-700 hover:border-green-600 transition">
+                               <h4 class="text-xl font-semibold text-white">Canvasser</h4>
+                               <p class="text-green-400 text-sm mb-3">Non-Profit X - Bethesda, MD</p>
+                               <div class="flex items-center text-green-400 text-sm mb-4">
+                                    <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                   Actively Recruiting
+                               </div>
+                               <p class="text-neutral-400 text-sm mb-5">Applications: <span class="font-bold text-white">12</span> (3 New)</p>
+                               <div class="flex flex-wrap gap-2">
+                                    <button class="px-4 py-2 bg-neutral-700 hover:bg-green-600 text-white text-sm rounded-full transition">View Details</button>
+                                    <button class="px-4 py-2 bg-neutral-700 hover:bg-green-600 text-white text-sm rounded-full transition">Edit</button>
+                               </div>
+                           </div>
+                           <!-- Filled Role Card -->
+                           <div class="bg-neutral-800 rounded-xl p-6 shadow-lg border border-neutral-700 hover:border-green-600 transition opacity-70">
+                               <h4 class="text-xl font-semibold text-white">Volunteer Coordinator</h4>
+                               <p class="text-green-400 text-sm mb-3">Local Food Bank - Silver Spring, MD</p>
+                               <div class="flex items-center text-neutral-400 text-sm mb-4">
+                                   <svg class="w-4 h-4 mr-1.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zM8.707 13.293a1 1 0 01-1.414 0l-2-2a1 1 0 111.414-1.414L8 11.586l4.293-4.293a1 1 0 111.414 1.414l-5 5z"></path></svg>
+                                   Filled
+                               </div>
+                               <p class="text-neutral-400 text-sm mb-5">Applications: <span class="font-bold text-white">30</span></p>
+                               <div class="flex flex-wrap gap-2">
+                                   <button class="px-4 py-2 bg-neutral-700 hover:bg-green-600 text-white text-sm rounded-full transition">View Details</button>
+                                   <button class="px-4 py-2 bg-neutral-700 hover:bg-green-600 text-white text-sm rounded-full transition">Reactivate</button>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+           </div>
+
+
+           <!-- Create New Role Section -->
+           <div id="createRoleSection" class="hidden">
+               <h2 class="text-3xl sm:text-4xl font-bold text-white mb-6 tracking-tight">Create New Role</h2>
+               <form class="space-y-6">
+                   <div>
+                       <label for="roleTitle" class="block mb-2 text-sm font-medium text-neutral-300">Role Title</label>
+                       <input type="text" id="roleTitle" placeholder="e.g., Canvasser, Program Manager" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition">
+                   </div>
+                    <div>
+                       <label for="department" class="block mb-2 text-sm font-medium text-neutral-300">Department/Team</label>
+                       <input type="text" id="department" placeholder="e.g., Community Engagement, Operations" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition">
+                   </div>
+                   <div>
+                       <label for="location" class="block mb-2 text-sm font-medium text-neutral-300">Location</label>
+                       <input type="text" id="location" placeholder="e.g., Bethesda, MD, Remote" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition">
+                   </div>
+                   <div>
+                       <label for="roleType" class="block mb-2 text-sm font-medium text-neutral-300">Role Type</label>
+                       <select id="roleType" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition">
+                           <option>Volunteer</option>
+                           <option>Full-time</option>
+                           <option>Part-time</option>
+                           <option>Internship</option>
+                           <option>Contract</option>
+                       </select>
+                   </div>
+                   <div>
+                       <label for="description" class="block mb-2 text-sm font-medium text-neutral-300">Description</label>
+                       <textarea id="description" rows="6" placeholder="Detailed role responsibilities, qualifications, and benefits..." class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition"></textarea>
+                   </div>
+                   <div class="flex items-center">
+                       <input type="checkbox" id="promoteRole" class="form-checkbox h-5 w-5 rounded bg-neutral-700 border-neutral-600 text-green-600 focus:ring-green-500/50">
+                       <label for="promoteRole" class="ml-3 text-neutral-300">Promote this role for increased visibility</label>
+                   </div>
+                   <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                       <button type="button" class="flex-1 px-6 py-3 bg-neutral-700 hover:bg-neutral-600 text-white font-bold rounded-full transition-transform transform hover:scale-105">Save Draft</button>
+                       <button type="submit" class="flex-1 px-6 py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-full transition-transform transform hover:scale-105">Publish Role</button>
+                   </div>
+               </form>
+           </div>
+       </div>
+   </main>
+
+
+   <script>
+       document.addEventListener('DOMContentLoaded', () => {
+           const myRolesSection = document.getElementById('myRolesSection');
+           const createRoleSection = document.getElementById('createRoleSection');
+           const myRolesTab = document.getElementById('myRolesTab');
+           const createRoleTab = document.getElementById('createRoleTab');
+
+
+           function showSection(sectionId) {
+               myRolesSection.style.display = 'none';
+               createRoleSection.style.display = 'none';
+               myRolesTab.classList.remove('bg-green-600', 'text-white');
+               myRolesTab.classList.add('bg-neutral-700', 'text-neutral-300');
+               createRoleTab.classList.remove('bg-green-600', 'text-white');
+               createRoleTab.classList.add('bg-neutral-700', 'text-neutral-300');
+
+
+               if (sectionId === 'myRolesSection') {
+                   myRolesSection.style.display = 'block';
+                   myRolesTab.classList.add('bg-green-600', 'text-white');
+                   myRolesTab.classList.remove('bg-neutral-700', 'text-neutral-300');
+               } else if (sectionId === 'createRoleSection') {
+                   createRoleSection.style.display = 'block';
+                   createRoleTab.classList.add('bg-green-600', 'text-white');
+                   createRoleTab.classList.remove('bg-neutral-700', 'text-neutral-300');
+               }
+           }
+
+
+           myRolesTab.addEventListener('click', () => showSection('myRolesSection'));
+           createRoleTab.addEventListener('click', () => showSection('createRoleSection'));
+
+
+           // Show 'Your Active Roles' section by default
+           showSection('myRolesSection');
+       });
+   </script>
+</body>
+</html>
+
+
+
+Role Management Dashboard: Backend Requirements
+This document outlines the backend requirements for the "Partner Role Management" dashboard. The page serves as a complete interface for authenticated partners to create, view, and manage their volunteer opportunities/roles.
+1. Data Model
+This page will utilize the same database tables previously defined for managing opportunities and applications:
+Opportunities Table: This is the primary table for this page. It stores all the details for each role. A crucial addition to this table is a created_by_user_id column to link each opportunity to the partner who created it.
+Applications Table: This join table links Users to Opportunities. It will be used to calculate the applicant count for each role card.
+Profiles Table: The main user table.
+
+2. Role Management API (CRUD)
+This dashboard is a user-facing interface for the admin-level CRUD (Create, Read, Update, Delete) functionality for opportunities. All endpoints must be protected and require an authenticated user's JWT.
+A. Fetch My Roles: GET /api/opportunities/my-roles
+Functionality: This is the primary endpoint for the "Your Active Roles" tab. It fetches all roles created by the currently logged-in user.
+Logic:
+Verify the user's JWT and extract their userId.
+Query the Opportunities table for all records where created_by_user_id matches the user's ID.
+For each opportunity returned, perform a secondary query on the Applications table to get the total number of applicants (applications_count).
+Return an array of opportunity objects.
+Data Fields (per opportunity): Each object should include id, title, organization_name, location, status ('Actively Recruiting', 'Paused', 'Filled'), is_promoted (boolean), and the calculated applications_count.
+B. Create a New Role: POST /api/opportunities
+Functionality: This endpoint handles the submission from the "Create New Role" form.
+Data: Accepts a JSON payload with all the form fields: roleTitle, department, location, roleType, description, and a boolean for promoteRole.
+Logic:
+Verify the user's JWT to get their userId.
+Validate and sanitize all incoming data server-side.
+Create a new record in the Opportunities table, associating it with the created_by_user_id. The initial status could be 'Actively Recruiting' or 'Draft' depending on whether the "Save Draft" or "Publish Role" button was clicked.
+Return a success response with the data for the newly created role.
+C. Update an Existing Role: PUT /api/opportunities/{opportunityId}
+Functionality: This endpoint is called when a user edits an existing role.
+Security: The backend must verify that the logged-in user is the owner of the opportunity they are trying to edit (i.e., created_by_user_id matches their userId).
+Logic: Accepts a JSON payload with the fields to be updated. It will validate the data and update the corresponding record in the Opportunities table.
+D. Delete a Role: DELETE /api/opportunities/{opportunityId}
+Functionality: Allows a user to delete a role they created.
+Security: The backend must verify that the logged-in user is the owner of the opportunity before allowing deletion.
+Logic: Deletes the specified record from the Opportunities table.
+
+3. Out of Scope for Backend
+UI Tabs & Filtering: The tab switching ("Your Active Roles" vs. "Create New Role") and client-side filtering/searching are handled entirely by the frontend JavaScript.
+Core Authentication: This page relies on the site-wide login system but does not introduce new authentication requirements.

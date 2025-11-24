@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Submit a Partner Report - Young Progressives Initiative</title>
+   <!-- Tailwind CSS CDN -->
+   <script src="https://cdn.tailwindcss.com"></script>
+   <!-- Google Fonts -->
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+  
+   <style>
+       body {
+           font-family: 'Atkinson Hyperlegible', sans-serif;
+           background-color: #1c1c1c;
+           color: #f0f0f0;
+       }
+       ::-webkit-scrollbar { width: 8px; }
+       ::-webkit-scrollbar-track { background: #2a2a2a; }
+       ::-webkit-scrollbar-thumb { background: #37af4b; border-radius: 10px; }
+       ::-webkit-scrollbar-thumb:hover { background: #2d8c3c; }
+      
+       /* Style for date picker icon in dark mode */
+       input[type="date"]::-webkit-calendar-picker-indicator {
+           filter: invert(1);
+           cursor: pointer;
+       }
+      
+       .popup-overlay {
+           background-color: rgba(0,0,0,0.7);
+           backdrop-filter: blur(5px);
+       }
+      
+       #popup-panel {
+           transition: opacity 300ms ease-out, transform 300ms ease-out;
+           opacity: 0;
+           transform: scale(0.95);
+       }
+   </style>
+</head>
+<body class="antialiased">
+
+
+   <!-- Header -->
+   <header class="bg-gradient-to-r from-green-800 to-green-600 sticky top-0 z-50 shadow-lg">
+       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+           <div class="flex items-center justify-between h-16">
+               <div class="flex-shrink-0">
+                   <img class="h-8 w-auto" src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Logo" onerror="this.onerror=null;this.src='https://placehold.co/119x32/1c1c1c/fefefe?text=YPI';">
+               </div>
+               <div class="flex items-center space-x-4">
+                   <img src="https://placehold.co/40x40/1c1c1c/ffffff?text=U" alt="Profile Picture" class="h-10 w-10 rounded-full border-2 border-green-300 cursor-pointer">
+               </div>
+           </div>
+       </div>
+   </header>
+
+
+   <!-- Main Content: Report Form -->
+   <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+       <div class="bg-[#252525] border border-green-700/50 rounded-2xl p-8">
+           <div class="text-center mb-8">
+               <h1 class="text-4xl font-bold text-white tracking-tight">Partner Organization Report</h1>
+               <p class="mt-3 text-lg text-neutral-400">Please use this form to report any incidents or concerns you may have.</p>
+           </div>
+          
+           <form id="reportForm" class="space-y-6">
+               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <div>
+                       <label for="reportType" class="block mb-2 text-sm font-medium text-neutral-300">I am reporting...</label>
+                       <select id="reportType" name="reportType" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required>
+                           <option value="" disabled selected>-- Please select an option --</option>
+                           <option value="student">A Student Volunteer</option>
+                           <option value="staff" id="staffReportOption" style="display: none;">A YPI Staff Member</option>
+                       </select>
+                   </div>
+                    <div>
+                       <label for="reportedEntity" class="block mb-2 text-sm font-medium text-neutral-300">Name of Person Being Reported</label>
+                       <input type="text" id="reportedEntity" name="reportedEntity" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required>
+                   </div>
+               </div>
+              
+               <div>
+                   <label for="incidentDate" class="block mb-2 text-sm font-medium text-neutral-300">Date of Incident</label>
+                   <input type="date" id="incidentDate" name="incidentDate" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required>
+               </div>
+
+
+               <div>
+                   <label for="incidentDescription" class="block mb-2 text-sm font-medium text-neutral-300">Detailed Description of Incident</label>
+                   <textarea id="incidentDescription" name="incidentDescription" rows="6" placeholder="Please provide as much detail as possible, including what happened, where it happened, and any actions taken." class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required></textarea>
+               </div>
+              
+               <div class="border-t border-neutral-700 pt-6 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                       <div>
+                           <label for="reporterName" class="block mb-2 text-sm font-medium text-neutral-300">Your Name (Contact Person)</label>
+                           <input type="text" id="reporterName" name="reporterName" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required>
+                       </div>
+                       <div>
+                           <label for="organizationName" class="block mb-2 text-sm font-medium text-neutral-300">Your Organization's Name</label>
+                           <input type="text" id="organizationName" name="organizationName" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required>
+                       </div>
+                   </div>
+                   <div>
+                       <label for="reporterEmail" class="block mb-2 text-sm font-medium text-neutral-300">Your Email (For follow-up)</label>
+                       <input type="email" id="reporterEmail" name="reporterEmail" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required>
+                   </div>
+               </div>
+              
+               <div class="pt-4">
+                   <button type="submit" class="bg-green-600 text-white font-bold py-3 px-6 rounded-full w-full hover:bg-green-500 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-500/50">Submit Confidential Report</button>
+               </div>
+           </form>
+       </div>
+   </main>
+   <!-- Success Popup -->
+   <div id="messageBoxOverlay" class="popup-overlay fixed inset-0 z-50 flex items-center justify-center p-4 hidden" aria-labelledby="popup-title" role="dialog" aria-modal="true">
+       <div class="bg-neutral-800 border border-green-600 rounded-2xl shadow-xl w-full max-w-md p-6 text-center" id="popup-panel">
+           <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-200">
+               <svg class="h-6 w-6 text-green-700" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+           </div>
+           <h3 class="mt-4 text-xl font-bold text-white" id="popup-title">Report Submitted!</h3>
+           <p class="mt-2 text-base text-neutral-400" id="popup-message">Thank you for your submission. We will contact you if more information is needed.</p>
+           <button id="messageBoxCloseButton" class="mt-6 bg-green-600 text-white font-bold py-2 px-8 rounded-full hover:bg-green-500 transition focus:outline-none focus:ring-4 focus:ring-green-500/50">OK</button>
+       </div>
+   </div>
+
+
+   <script>
+       document.addEventListener('DOMContentLoaded', function() {
+           // --- ADMIN FUNCTIONALITY ---
+           // To enable the 'YPI Staff' option, an admin can visit with "?admin=true"
+           try {
+               const urlParams = new URLSearchParams(window.location.search);
+               if (urlParams.get('admin') === 'true') {
+                   const staffOption = document.getElementById('staffReportOption');
+                   if (staffOption) staffOption.style.display = 'block';
+               }
+           } catch(e) { console.error("Could not parse URL params for admin mode.", e); }
+
+
+           // --- MESSAGE BOX FUNCTIONS ---
+           const messageBoxOverlay = document.getElementById('messageBoxOverlay');
+           const popupPanel = document.getElementById('popup-panel');
+           const closeButton = document.getElementById('messageBoxCloseButton');
+
+
+           function showMessage(title, message) {
+               document.getElementById('popup-title').textContent = title;
+               document.getElementById('popup-message').textContent = message;
+               messageBoxOverlay.classList.remove('hidden');
+               setTimeout(() => {
+                   popupPanel.classList.add('opacity-100', 'scale-100');
+                   popupPanel.classList.remove('opacity-0', 'scale-95');
+               }, 10);
+           }
+
+
+           function hideMessageBox() {
+               popupPanel.classList.add('opacity-0', 'scale-95');
+               popupPanel.classList.remove('opacity-100', 'scale-100');
+               setTimeout(() => messageBoxOverlay.classList.add('hidden'), 300);
+           }
+
+
+           closeButton.addEventListener('click', hideMessageBox);
+           messageBoxOverlay.addEventListener('click', (e) => {
+               if (e.target === messageBoxOverlay) hideMessageBox();
+           });
+
+
+           // --- FORM SUBMISSION LOGIC ---
+           const reportForm = document.getElementById('reportForm');
+           if (reportForm) {
+               reportForm.addEventListener('submit', function(e) {
+                   e.preventDefault();
+                   // In a real application, you would send this data to a secure server.
+                   console.log('Form submitted!');
+                   showMessage('Report Submitted', 'Thank you for your submission. Your report has been sent to our team for review. We will contact you if more information is needed.');
+                   reportForm.reset();
+               });
+           }
+       });
+   </script>
+</body>
+</html>

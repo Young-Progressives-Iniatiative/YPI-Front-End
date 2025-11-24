@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log My Volunteer Hours - YPI</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+      body {
+          font-family: 'Atkinson Hyperlegible', sans-serif;
+          /* Main page background */
+          background-color: #1c1c1c;
+          color: #f0f0f0;
+      }
+      /* Custom scrollbar for better aesthetics in dark mode */
+      ::-webkit-scrollbar {
+          width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+          background: #2a2a2a;
+      }
+      ::-webkit-scrollbar-thumb {
+          background: #37af4b;
+          border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+          background: #2d8c3c;
+      }
+      .popup-overlay {
+          background-color: rgba(0,0,0,0.7);
+          backdrop-filter: blur(5px);
+      }
+       /* Style for date picker icon */
+      input[type="date"]::-webkit-calendar-picker-indicator {
+           filter: invert(1);
+           cursor: pointer;
+      }
+  </style>
+</head>
+<body class="antialiased">
+
+
+  <!-- Header -->
+  <header class="bg-gradient-to-r from-green-800 to-green-600 sticky top-0 z-50 shadow-lg">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center justify-between h-16">
+              <div class="flex-shrink-0">
+                  <img class="h-8 w-auto" src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Logo" onerror="this.onerror=null;this.src='https://placehold.co/119x32/1c1c1c/fefefe?text=YPI';">
+              </div>
+              <div class="flex items-center space-x-4">
+                  <button id="themeCustomizerBtn" class="text-white hover:text-neutral-200" aria-label="Customize Theme">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                  </button>
+                  <img src="https://placehold.co/40x40/1c1c1c/ffffff?text=U" alt="Profile Picture" class="profile-pic h-10 w-10 rounded-full border-2 border-green-300 cursor-pointer">
+              </div>
+          </div>
+      </div>
+  </header>
+
+
+  <!-- Main Content: Volunteer Form -->
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+       <div class="bg-[#252525] border border-green-700/50 rounded-2xl p-8">
+           <div class="text-center mb-8">
+               <h1 class="text-4xl font-bold text-white tracking-tight">Log My Volunteer Hours</h1>
+               <p class="mt-3 text-lg text-neutral-400">Thank you for your contribution. Please fill out the form below.</p>
+           </div>
+          
+           <form id="volunteerForm" class="space-y-6">
+               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <div>
+                       <label for="firstName" class="block mb-2 text-sm font-medium text-neutral-300">First Name</label>
+                       <input type="text" id="firstName" name="firstName" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required>
+                   </div>
+                   <div>
+                       <label for="lastName" class="block mb-2 text-sm font-medium text-neutral-300">Last Name</label>
+                       <input type="text" id="lastName" name="lastName" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required>
+                   </div>
+               </div>
+                <div>
+                   <label for="email" class="block mb-2 text-sm font-medium text-neutral-300">Your Email</label>
+                   <input type="email" id="email" name="email" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required>
+               </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <div>
+                       <label for="volunteerDate" class="block mb-2 text-sm font-medium text-neutral-300">Date of Volunteering</label>
+                       <input type="date" id="volunteerDate" name="volunteerDate" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required>
+                   </div>
+                   <div>
+                       <label for="hours" class="block mb-2 text-sm font-medium text-neutral-300">Number of Hours</label>
+                       <input type="number" id="hours" name="hours" min="0.5" step="0.5" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required>
+                   </div>
+               </div>
+                <div>
+                   <label for="organization" class="block mb-2 text-sm font-medium text-neutral-300">Organization / Event Name</label>
+                   <input type="text" id="organization" name="organization" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required>
+               </div>
+               <div>
+                   <label for="description" class="block mb-2 text-sm font-medium text-neutral-300">Description of Work</label>
+                   <textarea id="description" name="description" rows="4" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required></textarea>
+               </div>
+               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <div>
+                       <label for="supervisorName" class="block mb-2 text-sm font-medium text-neutral-300">Supervisor Name</label>
+                       <input type="text" id="supervisorName" name="supervisorName" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required>
+                   </div>
+                   <div>
+                       <label for="supervisorEmail" class="block mb-2 text-sm font-medium text-neutral-300">Supervisor Email</label>
+                       <input type="email" id="supervisorEmail" name="supervisorEmail" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required>
+                   </div>
+               </div>
+               <div class="pt-4">
+                    <button type="submit" class="bg-green-600 text-white font-bold py-3 px-6 rounded-full w-full hover:bg-green-500 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-500/50">Submit Hours</button>
+               </div>
+           </form>
+       </div>
+  </main>
+ 
+  <!-- Success Popup -->
+  <div id="successPopup" class="popup-overlay fixed inset-0 z-50 flex items-center justify-center p-4 hidden" aria-labelledby="popup-title" role="dialog" aria-modal="true">
+       <div class="bg-neutral-800 border border-green-600 rounded-2xl shadow-xl w-full max-w-md p-6 text-center transform transition-all" id="popup-panel">
+           <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-200">
+               <svg class="h-6 w-6 text-green-700" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+           </div>
+           <h3 class="mt-4 text-xl font-bold text-white" id="popup-title">Hours Submitted!</h3>
+           <p class="mt-2 text-base text-neutral-400">Thank you for your dedication. Your hours have been logged for review.</p>
+           <button id="closePopupBtn" class="mt-6 bg-green-600 text-white font-bold py-2 px-8 rounded-full hover:bg-green-500 transition focus:outline-none focus:ring-4 focus:ring-green-500/50">OK</button>
+       </div>
+  </div>
+
+
+  <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          const volunteerForm = document.getElementById('volunteerForm');
+          const successPopup = document.getElementById('successPopup');
+          const popupPanel = document.getElementById('popup-panel');
+          const closePopupBtn = document.getElementById('closePopupBtn');
+
+
+          function showPopup() {
+               successPopup.classList.remove('hidden');
+               // For animation
+               setTimeout(() => {
+                   popupPanel.classList.add('opacity-100', 'scale-100');
+                   popupPanel.classList.remove('opacity-0', 'scale-95');
+               }, 10);
+          }
+
+
+          function hidePopup() {
+               popupPanel.classList.add('opacity-0', 'scale-95');
+               popupPanel.classList.remove('opacity-100', 'scale-100');
+               setTimeout(() => {
+                   successPopup.classList.add('hidden');
+               }, 300); // Match transition duration
+          }
+         
+          if (volunteerForm) {
+              volunteerForm.addEventListener('submit', function(e) {
+                  e.preventDefault(); // Prevent actual form submission for this demo
+                 
+                  // In a real application, you would send the data to a server here.
+                  console.log('Form submitted!');
+
+
+                  showPopup();
+                 
+                  // Optionally, reset the form after showing the message
+                  volunteerForm.reset();
+              });
+          }
+
+
+           if(closePopupBtn) {
+               closePopupBtn.addEventListener('click', hidePopup);
+           }
+            if(successPopup) {
+               successPopup.addEventListener('click', (e) => {
+                   if (e.target === successPopup) {
+                       hidePopup();
+                   }
+               });
+           }
+      });
+  </script>
+</body>
+</html>

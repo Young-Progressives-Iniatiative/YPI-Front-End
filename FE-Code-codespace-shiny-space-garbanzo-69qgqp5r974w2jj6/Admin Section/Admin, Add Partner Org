@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Add Partner Organization</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+        :root, html[data-theme='dark'] {
+            --bg-primary: #18181b; /* Zinc 900 */
+            --bg-secondary: #27272a; /* Zinc 800 */
+            --text-primary: #f4f4f5; /* Zinc 100 */
+            --text-secondary: #a1a1aa; /* Zinc 400 */
+            --accent-primary: #22c55e; /* Green 500 */
+            --accent-primary-hover: #16a34a; /* Green 600 */
+            --border-primary: #3f3f46; /* Zinc 700 */
+            --border-focus: #22c55e; /* Green 500 */
+        }
+
+
+        html[data-theme='light'] {
+            --bg-primary: #f4f4f5; /* Zinc 100 */
+            --bg-secondary: #ffffff; /* White */
+            --text-primary: #18181b; /* Zinc 900 */
+            --text-secondary: #52525b; /* Zinc 600 */
+            --accent-primary: #16a34a; /* Green 600 */
+            --accent-primary-hover: #15803d; /* Green 700 */
+            --border-primary: #d4d4d8; /* Zinc 300 */
+            --border-focus: #16a34a; /* Green 600 */
+        }
+
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+
+        .form-input {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-primary);
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 2px var(--border-focus);
+        }
+    
+        .message-box-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+
+        .message-box {
+            background-color: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            max-width: 25rem;
+            width: 90%;
+            text-align: center;
+            border: 1px solid var(--border-primary);
+        }
+
+
+        .message-box h3 {
+            color: var(--accent-primary);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 0.75rem;
+        }
+
+
+        .message-box p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+
+        .message-box button {
+            background-color: var(--accent-primary);
+            color: #ffffff;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+
+        .message-box button:hover {
+            background-color: var(--accent-primary-hover);
+        }
+
+
+  </style>
+  <script>
+        // Set theme from localStorage before page load to prevent flash
+        (function() {
+            try {
+                const savedTheme = localStorage.getItem('theme') || 'dark';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } catch (e) {
+                console.error("Could not set theme from localStorage.", e);
+            }
+        })();
+  </script>
+</head>
+<body class="antialiased">
+
+
+  <div class="relative min-h-screen">
+        <!-- Theme Switcher -->
+        <div class="absolute top-4 right-4 z-10">
+            <button id="themeButton" class="h-12 w-12 rounded-full flex items-center justify-center bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200 border border-[var(--border-primary)] shadow-md" aria-label="Toggle color theme">
+                <i class="fas fa-sun text-xl"></i>
+            </button>
+        </div>
+
+
+        <div class="max-w-3xl mx-auto px-4 pt-20 pb-12 sm:px-6 lg:px-8">
+          
+            <!-- Page Header -->
+            <header class="text-center mb-10">
+                <h1 class="text-4xl font-bold tracking-tight text-[var(--text-primary)] sm:text-5xl">Add Partner Organization</h1>
+                <p class="mt-4 text-lg text-[var(--text-secondary)]">Enter the details for the new partner organization below.</p>
+            </header>
+
+
+            <!-- Partner Organization Form -->
+            <main>
+                <form id="partnerForm" class="space-y-6">
+                    <div class="p-8 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-2xl shadow-lg">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-6">
+                          
+                            <div class="sm:col-span-2">
+                                <label for="orgName" class="block text-sm font-medium text-[var(--text-secondary)]">Organization Name</label>
+                                <input type="text" id="orgName" name="orgName" class="form-input mt-1 block w-full rounded-md" required>
+                            </div>
+
+
+                            <div>
+                                <label for="contactName" class="block text-sm font-medium text-[var(--text-secondary)]">Contact Person Name</label>
+                                <input type="text" id="contactName" name="contactName" class="form-input mt-1 block w-full rounded-md" required>
+                            </div>
+
+
+                            <div>
+                                <label for="contactEmail" class="block text-sm font-medium text-[var(--text-secondary)]">Contact Email</label>
+                                <input type="email" id="contactEmail" name="contactEmail" class="form-input mt-1 block w-full rounded-md" required>
+                            </div>
+                           
+                            <div>
+                                <label for="contactPhone" class="block text-sm font-medium text-[var(--text-secondary)]">Contact Phone</label>
+                                <input type="tel" id="contactPhone" name="contactPhone" class="form-input mt-1 block w-full rounded-md" required>
+                            </div>
+
+
+                            <div>
+                                <label for="website" class="block text-sm font-medium text-[var(--text-secondary)]">Website URL</label>
+                                <input type="url" id="website" name="website" class="form-input mt-1 block w-full rounded-md" required>
+                            </div>
+                           
+                            <div>
+                               <label for="serviceTier" class="block text-sm font-medium text-[var(--text-secondary)]">Service Tier</label>
+                               <select id="serviceTier" name="serviceTier" class="form-input mt-1 block w-full rounded-md" required>
+                                   <option value="" disabled selected>Select a tier</option>
+                                   <option value="bronze">Bronze</option>
+                                   <option value="silver">Silver</option>
+                                   <option value="gold">Gold</option>
+                                   <option value="platinum">Platinum</option>
+                               </select>
+                            </div>
+
+
+                            <div class="sm:col-span-2">
+                                <label class="block text-sm font-medium text-[var(--text-secondary)]">Brand Colors</label>
+                                <div class="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                                    <!-- Primary Color -->
+                                    <div class="flex items-center space-x-3">
+                                        <label for="primaryColor" class="w-20 shrink-0 text-sm text-[var(--text-primary)]">Primary</label>
+                                        <input type="color" id="primaryColorPicker" class="h-10 w-10 rounded-md border-none cursor-pointer p-0 bg-transparent" value="#22c55e">
+                                        <input type="text" id="primaryColor" name="primaryColor" class="form-input block w-full rounded-md" value="#22c55e" required>
+                                    </div>
+                                    <!-- Secondary Color -->
+                                    <div class="flex items-center space-x-3">
+                                        <label for="secondaryColor" class="w-20 shrink-0 text-sm text-[var(--text-primary)]">Secondary</label>
+                                        <input type="color" id="secondaryColorPicker" class="h-10 w-10 rounded-md border-none cursor-pointer p-0 bg-transparent" value="#a1a1aa">
+                                        <input type="text" id="secondaryColor" name="secondaryColor" class="form-input block w-full rounded-md" value="#a1a1aa" required>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="sm:col-span-2">
+                                <label for="description" class="block text-sm font-medium text-[var(--text-secondary)]">Bio</label>
+                                <textarea id="description" name="description" rows="4" class="form-input mt-1 block w-full rounded-md" required></textarea>
+                            </div>
+
+
+                        </div>
+                    </div>
+                  
+                    <div class="flex justify-center pt-4">
+                        <button type="submit" class="inline-flex items-center justify-center px-8 py-3 w-full sm:w-auto bg-[var(--accent-primary)] hover:bg-[var(--accent-primary-hover)] text-white font-semibold rounded-lg transition-colors duration-300 shadow-md">
+                            Add Organization
+                        </button>
+                    </div>
+                </form>
+            </main>
+        </div>
+  </div>
+
+
+  <!-- Message Box Overlay -->
+  <div class="message-box-overlay" id="messageBoxOverlay"></div>
+
+
+  <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          
+            // --- THEME TOGGLE SCRIPT ---
+            function initializeThemeToggle() {
+                const themeButton = document.getElementById('themeButton');
+                if (!themeButton) return;
+              
+                const themeIcon = themeButton.querySelector('i');
+                const htmlElement = document.documentElement;
+
+
+                const applyTheme = (theme) => {
+                    htmlElement.setAttribute('data-theme', theme);
+                    localStorage.setItem('theme', theme);
+                    if (theme === 'light') {
+                        themeIcon.classList.remove('fa-sun');
+                        themeIcon.classList.add('fa-moon');
+                    } else {
+                        themeIcon.classList.remove('fa-moon');
+                        themeIcon.classList.add('fa-sun');
+                    }
+                };
+
+
+                // Set initial icon on load
+                applyTheme(localStorage.getItem('theme') || 'dark');
+
+
+                themeButton.addEventListener('click', () => {
+                    const newTheme = htmlElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+                    applyTheme(newTheme);
+                });
+            }
+
+
+            // --- MESSAGE BOX FUNCTIONS ---
+            function showMessage(title, message) {
+                const messageBoxOverlay = document.getElementById('messageBoxOverlay');
+                messageBoxOverlay.innerHTML = `<div class="message-box"><h3>${title}</h3><p>${message}</p><button id="messageBoxCloseButton">OK</button></div>`;
+                document.getElementById('messageBoxCloseButton').addEventListener('click', hideMessageBox);
+                messageBoxOverlay.style.visibility = 'visible';
+                messageBoxOverlay.style.opacity = '1';
+            }
+
+
+            function hideMessageBox() {
+                const messageBoxOverlay = document.getElementById('messageBoxOverlay');
+                if (messageBoxOverlay) {
+                    messageBoxOverlay.style.opacity = '0';
+                    setTimeout(() => {
+                        messageBoxOverlay.style.visibility = 'hidden';
+                    }, 300);
+                }
+            }
+          
+            // --- FORM SUBMISSION LOGIC ---
+            function initializeForm() {
+                const partnerForm = document.getElementById('partnerForm');
+                if (partnerForm) {
+                    partnerForm.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        // In a real application, you would send this data to a server/database.
+                        showMessage('Organization Added', 'The new partner organization has been successfully added to the database.');
+                        partnerForm.reset();
+                    });
+                }
+            }
+
+
+           // --- BRAND COLOR PICKER SYNC ---
+           function initializeColorPickers() {
+               const syncColorInputs = (pickerId, textId) => {
+                   const picker = document.getElementById(pickerId);
+                   const textInput = document.getElementById(textId);
+                   if (!picker || !textInput) return;
+
+
+                   picker.addEventListener('input', (e) => {
+                       textInput.value = e.target.value;
+                   });
+                   textInput.addEventListener('input', (e) => {
+                       // Basic validation for hex color format
+                       if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                          picker.value = e.target.value;
+                       }
+                   });
+               };
+              
+               syncColorInputs('primaryColorPicker', 'primaryColor');
+               syncColorInputs('secondaryColorPicker', 'secondaryColor');
+           }
+
+
+
+
+            // --- INITIALIZE SCRIPTS ---
+            initializeThemeToggle();
+            initializeForm();
+            initializeColorPickers();
+        });
+  </script>
+</body>
+</html>

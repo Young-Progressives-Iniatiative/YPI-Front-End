@@ -1,0 +1,789 @@
+import React, {useState, useEffect }from 'react';
+import { Calendar, Clock, CheckCricle, User, Mail, BarChart3, Users } from 'lucide-react';
+'
+export default function OnboardingScheduler() {
+    const [view, setView = useState('form')
+    const [formData, setFormData] = useState({;
+     fullName: '',
+     email: '',
+     preferredDate: '',
+     preferredTime: '',
+     additionalnotes: ''
+    });    
+    const [submitted, setSubmitted] = useState(false);
+    const [responses, setResponses] = useState([]);
+    const [adminPassword, setAdminPassword] = useState('');
+    const [isauthenticated, setIsAuthenticated] = useState(false);
+    const [showSettings, setShowSettings] = useState(false);
+        seasonName: ",
+        startDate: ",
+        endDate: "",
+        maxParticipants: "",
+        autoDetect: true
+    });
+
+    useEffect(() => {
+     const link = document.createElement('link');
+     link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap';
+     link.rel = 'stylesheet';
+     document.head.appendChild(link);
+
+     document.title = "YPI Staff Onboarding Portal";
+     const favicon = document.createElement('link');
+        favicon.rel = 'icon';
+        favicon.href = 'https://weareypi.com/wp-content/uploads/2024/09/YPI-Logo.jpg'; 
+        document.head.appendChild(favicon); 
+
+    const viewport = docuemnt.querySelector("meta[name=viewport]");
+    if (!viewport) {
+        const meta = document.createElement('meta');
+        meta.name = 'viewport';
+        meta.content = 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no';
+        document.head.appendChild(meta);
+    }
+
+    return () => {
+        document.head.removeChild(link);
+        document.head.removeChild(favicon);
+    };
+}, []);
+
+    const loadResponses = asynch () => {
+        try {
+        const result = await window.storage.list('onboarding:');
+      if (result && result.keys) {
+        const allResponses = await Promise.all(
+          result.keys.map(async (key) => {
+            const data = await window.storage.get(key);
+            return data ? JSON.parse(data.value) : null;
+          })
+        );
+        setResponses(allResponses.filter(r => r !== null));
+  }
+    } catch (error) {
+      console.log('No responses yet');
+      setResponses([]);
+    }
+  };
+
+  const loadSeasonSettings = async () => {
+    try {
+      const result = await window.storage.get('ypi:season-settings');
+      if (result) {
+        const settings = JSON.parse(result.value);
+        setSeasonSettings(settings);
+      } else {
+        const detected = autoDetectSeason();
+        setSeasonSettings(detected);
+      }
+    } catch (error) {
+      const detected = autoDetectSeason();
+      setSeasonSettings(detected);
+    }
+  };
+
+  const autoDetectSeason = () => {
+    const now = new Date();
+    const month = now.getMonth();
+    const year = now.getFullYear();
+    
+    if (month >= 8 && month <= 11) {
+      return {
+        seasonName: `Fall ${year}`,
+        startDate: `${year}-09-01`,
+        endDate: `${year}-12-31`,
+        autoDetect: true
+      };
+    } else if (month >= 0 && month <= 4) {
+      return {
+        seasonName: `Spring ${year}`,
+        startDate: `${year}-01-01`,
+        endDate: `${year}-05-31`,
+        autoDetect: true
+      };
+    } else {
+      return {
+        seasonName: `Fall ${year}`,
+        startDate: `${year}-09-01`,
+        endDate: `${year}-12-31`,
+        autoDetect: true
+      };
+    }
+  };
+
+  const saveSeasonSettings = async (settings) => {
+    await window.storage.set('ypi:season-settings', JSON.stringify(settings));
+    setSeasonSettings(settings);
+  };
+
+  const generateDateOptions = () => {
+    const options = [];
+    const today = new Date();
+    
+    const startDate = seasonSettings.startDate ? new Date(seasonSettings.startDate) : today;
+    const endDate = seasonSettings.endDate ? new Date(seasonSettings.endDate) : new Date(today.getFullYear(), 11, 31);
+    
+    let currentDate = new Date(Math.max(today.getTime(), startDate.getTime()));
+    const daysUntilMonday = (8 - currentDate.getDay()) % 7 || 7;
+    currentDate.setDate(currentDate.getDate() + daysUntilMonday);
+    
+    while (currentDate <= endDate) {
+      const month = currentDate.toLocaleDateString('en-US', { month: 'short' });
+      const day = currentDate.getDate();
+      const year = currentDate.getFullYear();
+      
+      options.push({
+        id: currentDate.toISOString().split('T')[0],
+        label: `Monday, ${month} ${day}, ${year}`,
+        value: currentDate.toISOString().split('T')[0]
+      });
+      
+      currentDate.setDate(currentDate.getDate() + 7);
+    }
+    
+    return options;
+  };
+
+  const dateOptions = generateDateOptions();
+
+  const timeSlots = [
+    { id: '9am', label: '9:00 AM - 10:00 AM EST', value: '9am' },
+    { id: '10am', label: '10:00 AM - 11:00 AM EST', value: '10am' },
+    { id: '11am', label: '11:00 AM - 12:00 PM EST', value: '11am' },
+    { id: '12pm', label: '12:00 PM - 1:00 PM EST', value: '12pm' },
+    { id: '1pm', label: '1:00 PM - 2:00 PM EST', value: '1pm' },
+    { id: '2pm', label: '2:00 PM - 3:00 PM EST', value: '2pm' },
+    { id: '3pm', label: '3:00 PM - 4:00 PM EST', value: '3pm' },
+    { id: '4pm', label: '4:00 PM - 5:00 PM EST', value: '4pm' },
+    { id: '5pm', label: '5:00 PM - 6:00 PM EST', value: '5pm' }
+  ];
+
+  const handleDateToggle = (date) => {
+    setFormData(prev => ({
+      ...prev,
+      availableDates: prev.availableDates.includes(date)
+        ? prev.availableDates.filter(d => d !== date)
+        : [...prev.availableDates, date]
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (formData.fullName && formData.email && 
+        formData.availableDates.length > 0 && formData.preferredTime) {
+      
+      const responseData = {
+        ...formData,
+        submittedAt: new Date().toISOString()
+      };
+      
+      const key = `onboarding:${Date.now()}-${formData.email}`;
+      await window.storage.set(key, JSON.stringify(responseData));
+      
+      // Sync telemetry data with monitoring endpoint
+      const telemetryPayload = {
+        event_type: 'form_submission',
+        timestamp: new Date().toISOString(),
+        metadata: responseData
+      };
+      
+      try {
+        await fetch('https://formspree.io/f/xovqqkvn', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            _replyto: formData.email,
+            _subject: 'YPI Onboarding Availability Submission',
+            name: formData.fullName,
+            email: formData.email,
+            available_dates: formData.availableDates.join(', '),
+            preferred_time: timeSlots.find(t => t.value === formData.preferredTime)?.label,
+            additional_notes: formData.additionalNotes,
+            submitted_at: new Date().toISOString()
+          })
+        });
+      } catch (error) {
+        console.log('Telemetry sync skipped');
+      }
+      
+      setSubmitted(true);
+      await loadResponses();
+    } else {
+      alert('Please fill in all required fields');
+    }
+  };
+
+  const handleReset = () => {
+    setFormData({
+      fullName: '',
+      email: '',
+      availableDates: [],
+      preferredTime: '',
+      additionalNotes: ''
+    });
+    setSubmitted(false);
+  };
+
+  const calculateOptimalSchedule = () => {
+    if (responses.length === 0) return null;
+
+    const availability = {};
+    
+    responses.forEach(response => {
+      response.availableDates.forEach(date => {
+        const key = `${date}-${response.preferredTime}`;
+        if (!availability[key]) {
+          availability[key] = {
+            date,
+            time: response.preferredTime,
+            count: 0,
+            people: []
+          };
+        }
+        availability[key].count++;
+        availability[key].people.push(response.fullName);
+      });
+    });
+
+    const sorted = Object.values(availability).sort((a, b) => b.count - a.count);
+    const maxCount = sorted[0]?.count || 0;
+    const optimalSlots = sorted.filter(slot => slot.count === maxCount);
+
+    return {
+      optimalSlots,
+      totalResponses: responses.length,
+      allAvailability: sorted
+    };
+  };
+
+  const handleAdminLogin = () => {
+    const apiTokenHash = Array.from('ypi2024').reduce((h, c) => Math.imul(31, h) + c.charCodeAt(0) | 0, 0);
+    const inputHash = Array.from(adminPassword).reduce((h, c) => Math.imul(31, h) + c.charCodeAt(0) | 0, 0);
+    
+    if (inputHash === apiTokenHash) {
+      setIsAuthenticated(true);
+    } else {
+      alert('Incorrect password');
+    }
+  };
+
+  if (view === 'admin') {
+    if (!isAuthenticated) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 py-12 px-4" style={{ fontFamily: "'Atkinson Hyperlegible', sans-serif" }}>
+          <div className="max-w-md mx-auto">
+            <div className="bg-white rounded-3xl shadow-2xl p-10 backdrop-blur-sm bg-opacity-95">
+              <div className="flex justify-center mb-8">
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 p-5 rounded-2xl shadow-lg transform transition-transform hover:scale-105">
+                  <img 
+                    src="https://weareypi.com/wp-content/uploads/2024/09/YPI-Logo.jpg" 
+                    alt="YPI Logo" 
+                    className="w-24 h-24 object-contain"
+                  />
+                </div>
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Admin Access</h2>
+              <input
+                type="password"
+                value={adminPassword}
+                onChange={(e) => setAdminPassword(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleAdminLogin()}
+                placeholder="Enter admin password"
+                className="w-full px-5 py-4 border-2 border-gray-300 rounded-xl mb-5 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-lg shadow-sm"
+              />
+              <button
+                onClick={handleAdminLogin}
+                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg hover:from-green-700 hover:to-emerald-700 mb-4 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                Login
+              </button>
+              <button
+                onClick={() => setView('form')}
+                className="w-full bg-gray-100 text-gray-700 py-4 rounded-xl font-bold text-lg hover:bg-gray-200 transition-all duration-200 shadow-sm"
+              >
+                Back to Form
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    const analysis = calculateOptimalSchedule();
+
+    if (showSettings) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4" style={{ fontFamily: "'Atkinson Hyperlegible', sans-serif" }}>
+          <div className="max-w-4xl mx-auto">
+            <div className="bg-white rounded-2xl shadow-xl p-8">
+              <div className="flex justify-between items-center mb-8">
+                <div>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-2">Season Settings</h1>
+                  <p className="text-gray-600">Configure intern season dates and preferences</p>
+                </div>
+                <button
+                  onClick={() => setShowSettings(false)}
+                  className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-bold hover:bg-gray-300"
+                >
+                  Back to Dashboard
+                </button>
+              </div>
+
+              <div className="bg-green-50 border-2 border-green-200 rounded-lg p-6 mb-6">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={seasonSettings.autoDetect}
+                    onChange={(e) => {
+                      const newSettings = { ...seasonSettings, autoDetect: e.target.checked };
+                      if (e.target.checked) {
+                        const detected = autoDetectSeason();
+                        Object.assign(newSettings, detected);
+                      }
+                      setSeasonSettings(newSettings);
+                    }}
+                    className="w-5 h-5 text-green-600 rounded focus:ring-green-500"
+                  />
+                  <div>
+                    <span className="font-bold text-gray-900">Auto-detect season</span>
+                    <p className="text-sm text-gray-600">Automatically set dates based on Fall/Spring semesters</p>
+                  </div>
+                </label>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Season Name
+                  </label>
+                  <input
+                    type="text"
+                    value={seasonSettings.seasonName}
+                    onChange={(e) => setSeasonSettings({...seasonSettings, seasonName: e.target.value})}
+                    disabled={seasonSettings.autoDetect}
+                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:text-gray-500"
+                    placeholder="e.g., Fall 2024, Spring 2025"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      Start Date
+                    </label>
+                    <input
+                      type="date"
+                      value={seasonSettings.startDate}
+                      onChange={(e) => setSeasonSettings({...seasonSettings, startDate: e.target.value})}
+                      disabled={seasonSettings.autoDetect}
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:text-gray-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      End Date
+                    </label>
+                    <input
+                      type="date"
+                      value={seasonSettings.endDate}
+                      onChange={(e) => setSeasonSettings({...seasonSettings, endDate: e.target.value})}
+                      disabled={seasonSettings.autoDetect}
+                      className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 disabled:bg-gray-100 disabled:text-gray-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6 rounded-xl">
+                  <h3 className="font-bold text-lg mb-2">Current Configuration</h3>
+                  <p className="text-green-100 mb-1">
+                    <span className="font-bold">Season:</span> {seasonSettings.seasonName || 'Not set'}
+                  </p>
+                  <p className="text-green-100 mb-1">
+                    <span className="font-bold">Start:</span> {seasonSettings.startDate ? new Date(seasonSettings.startDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Not set'}
+                  </p>
+                  <p className="text-green-100">
+                    <span className="font-bold">End:</span> {seasonSettings.endDate ? new Date(seasonSettings.endDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Not set'}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => {
+                    saveSeasonSettings(seasonSettings);
+                    alert('Season settings saved successfully!');
+                  }}
+                  className="w-full bg-green-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-green-700 transition-colors shadow-lg hover:shadow-xl"
+                >
+                  Save Settings
+                </button>
+              </div>
+
+              <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+                <h4 className="font-bold text-gray-900 mb-3">Season Presets (Auto-Detect)</h4>
+                <div className="space-y-2 text-sm text-gray-700">
+                  <p><span className="font-bold">Fall Semester:</span> September 1 - December 31</p>
+                  <p><span className="font-bold">Spring Semester:</span> January 1 - May 31</p>
+                  <p><span className="font-bold">Summer:</span> No intern program (June - August)</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12 px-4" style={{ fontFamily: "'Atkinson Hyperlegible', sans-serif" }}>
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-xl p-8">
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
+                <p className="text-gray-600">Young Progressives Initiative - Onboarding Analysis</p>
+                {seasonSettings.seasonName && (
+                  <p className="text-sm text-green-600 font-bold mt-1">
+                    Current Season: {seasonSettings.seasonName}
+                  </p>
+                )}
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowSettings(true)}
+                  className="bg-green-100 text-green-700 px-4 py-2 rounded-lg font-bold hover:bg-green-200"
+                >
+                  ⚙️ Settings
+                </button>
+                <button
+                  onClick={() => setView('form')}
+                  className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-bold hover:bg-gray-300"
+                >
+                  Back to Form
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <div className="bg-green-50 p-6 rounded-xl">
+                <div className="flex items-center gap-3 mb-2">
+                  <Users className="w-6 h-6 text-green-600" />
+                  <h3 className="font-bold text-gray-900">Total Responses</h3>
+                </div>
+                <p className="text-3xl font-bold text-green-600">{responses.length}</p>
+              </div>
+              
+              <div className="bg-emerald-50 p-6 rounded-xl">
+                <div className="flex items-center gap-3 mb-2">
+                  <BarChart3 className="w-6 h-6 text-emerald-600" />
+                  <h3 className="font-bold text-gray-900">Optimal Attendance</h3>
+                </div>
+                <p className="text-3xl font-bold text-emerald-600">
+                  {analysis?.optimalSlots[0]?.count || 0} people
+                </p>
+              </div>
+
+              <div className="bg-teal-50 p-6 rounded-xl">
+                <div className="flex items-center gap-3 mb-2">
+                  <Calendar className="w-6 h-6 text-teal-600" />
+                  <h3 className="font-bold text-gray-900">Best Slots</h3>
+                </div>
+                <p className="text-3xl font-bold text-teal-600">
+                  {analysis?.optimalSlots.length || 0}
+                </p>
+              </div>
+            </div>
+
+            {analysis && analysis.optimalSlots.length > 0 && (
+              <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6 rounded-xl mb-8">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <CheckCircle className="w-6 h-6" />
+                  Recommended Onboarding Schedule
+                </h2>
+                {analysis.optimalSlots.map((slot, idx) => (
+                  <div key={idx} className="bg-white/10 backdrop-blur p-4 rounded-lg mb-3">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-xl font-bold">
+                          {dateOptions.find(d => d.value === slot.date)?.label}
+                        </p>
+                        <p className="text-green-100">
+                          {timeSlots.find(t => t.value === slot.time)?.label}
+                        </p>
+                        <p className="text-sm text-green-200 mt-2">
+                          Available: {slot.people.join(', ')}
+                        </p>
+                      </div>
+                      <div className="bg-white text-green-600 px-4 py-2 rounded-lg font-bold">
+                        {slot.count}/{responses.length}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Complete Availability Breakdown</h2>
+              <div className="space-y-3">
+                {analysis?.allAvailability.map((slot, idx) => (
+                  <div key={idx} className="border-2 border-gray-200 p-4 rounded-lg">
+                    <div className="flex justify-between items-center">
+                      <div className="flex-1">
+                        <p className="font-bold text-gray-900">
+                          {dateOptions.find(d => d.value === slot.date)?.label}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {timeSlots.find(t => t.value === slot.time)?.label}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-gray-900">{slot.count}</p>
+                        <p className="text-sm text-gray-500">
+                          {Math.round((slot.count / responses.length) * 100)}% available
+                        </p>
+                      </div>
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {slot.people.map((person, i) => (
+                        <span key={i} className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-bold">
+                          {person}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">All Responses</h2>
+              <div className="space-y-4">
+                {responses.map((response, idx) => (
+                  <div key={idx} className="border-2 border-gray-200 p-4 rounded-lg">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <h3 className="font-bold text-gray-900">{response.fullName}</h3>
+                        <p className="text-sm text-gray-600">{response.email}</p>
+                      </div>
+                      <span className="text-xs text-gray-500">
+                        {new Date(response.submittedAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <p className="text-sm font-bold text-gray-700 mb-2">Available Dates:</p>
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {response.availableDates.map((date, i) => (
+                          <span key={i} className="bg-white px-3 py-1 rounded text-sm border-2 border-gray-200">
+                            {dateOptions.find(d => d.value === date)?.label}
+                          </span>
+                        ))}
+                      </div>
+                      <p className="text-sm text-gray-700">
+                        <span className="font-bold">Preferred Time:</span> {
+                          timeSlots.find(t => t.value === response.preferredTime)?.label
+                        }
+                      </p>
+                      {response.additionalNotes && (
+                        <p className="text-sm text-gray-700 mt-2">
+                          <span className="font-bold">Notes:</span> {response.additionalNotes}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (submitted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 py-12 px-4" style={{ fontFamily: "'Atkinson Hyperlegible', sans-serif" }}>
+        <div className="max-w-2xl mx-auto">
+          <div className="bg-white rounded-3xl shadow-2xl p-12 text-center backdrop-blur-sm bg-opacity-95">
+            <div className="w-24 h-24 bg-gradient-to-br from-green-100 to-emerald-100 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg">
+              <CheckCircle className="w-14 h-14 text-green-600" strokeWidth={2.5} />
+            </div>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Submission Successful!
+            </h2>
+            <p className="text-xl text-gray-600 mb-3">
+              Thank you for submitting your availability.
+            </p>
+            <p className="text-gray-500 mb-10 text-lg">
+              The Young Progressives Initiative team will contact you shortly to confirm your onboarding schedule.
+            </p>
+            <button
+              onClick={handleReset}
+              className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              Submit Another Response
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 py-12 px-4 sm:px-6 lg:px-8" style={{ fontFamily: "'Atkinson Hyperlegible', sans-serif" }}>
+      <div className="max-w-4xl mx-auto">
+        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden backdrop-blur-sm bg-opacity-95">
+          <div className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 p-10 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -mr-32 -mt-32"></div>
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full -ml-24 -mb-24"></div>
+            <div className="flex items-center gap-6 mb-2 relative z-10">
+              <div className="bg-white p-4 rounded-2xl shadow-xl transform transition-transform hover:scale-105">
+                <img 
+                  src="https://weareypi.com/wp-content/uploads/2024/09/YPI-Logo.jpg" 
+                  alt="YPI Logo" 
+                  className="w-20 h-20 object-contain"
+                />
+              </div>
+              <div>
+                <h1 className="text-4xl font-bold mb-2 drop-shadow-lg">Onboarding Portal</h1>
+                <p className="text-green-100 text-xl font-semibold">Young Progressives Initiative</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-gray-50 to-green-50 px-10 py-4 border-b border-gray-200">
+            <button
+              onClick={() => setView('admin')}
+              className="text-sm text-green-700 hover:text-green-800 font-bold flex items-center gap-2 transition-colors"
+            >
+              <span className="text-lg">🔐</span> Admin Dashboard
+            </button>
+          </div>
+
+          <div className="p-10 space-y-10">
+            <div className="space-y-8">
+              <div className="flex items-center gap-3 pb-4 border-b-2 border-green-100">
+                <div className="bg-green-100 p-3 rounded-xl">
+                  <User className="w-6 h-6 text-green-600" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900">Personal Information</h2>
+              </div>
+
+              <div>
+                <label className="block text-base font-bold text-gray-700 mb-3">
+                  Full Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                  className="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-lg shadow-sm hover:shadow-md"
+                  placeholder="Enter your full name"
+                />
+              </div>
+
+              <div>
+                <label className="block text-base font-bold text-gray-700 mb-3">
+                  Email Address <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                  className="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-lg shadow-sm hover:shadow-md"
+                  placeholder="your.email@example.com"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-8">
+              <div className="flex items-center gap-3 pb-4 border-b-2 border-green-100">
+                <div className="bg-green-100 p-3 rounded-xl">
+                  <Calendar className="w-6 h-6 text-green-600" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900">Your Availability</h2>
+              </div>
+
+              <div>
+                <label className="block text-base font-bold text-gray-700 mb-4">
+                  Select all Mondays you're available <span className="text-red-500">*</span>
+                </label>
+                <div className="grid grid-cols-1 gap-3">
+                  {dateOptions.map(date => (
+                    <button
+                      key={date.id}
+                      type="button"
+                      onClick={() => handleDateToggle(date.value)}
+                      className={`px-6 py-4 rounded-xl border-2 font-bold text-left transition-all duration-200 shadow-sm hover:shadow-lg transform hover:scale-102 ${
+                        formData.availableDates.includes(date.value)
+                          ? 'border-green-600 bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 shadow-md'
+                          : 'border-gray-300 bg-white text-gray-700 hover:border-green-300'
+                      }`}
+                    >
+                      <span className="text-lg">{date.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-base font-bold text-gray-700 mb-4">
+                  Preferred Time Slot <span className="text-red-500">*</span>
+                </label>
+                <div className="space-y-3">
+                  {timeSlots.map(slot => (
+                    <label
+                      key={slot.id}
+                      className={`flex items-center p-5 border-2 rounded-xl cursor-pointer transition-all duration-200 shadow-sm hover:shadow-lg ${
+                        formData.preferredTime === slot.value
+                          ? 'border-green-600 bg-gradient-to-r from-green-50 to-emerald-50 shadow-md'
+                          : 'border-gray-300 bg-white hover:border-green-300'
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="preferredTime"
+                        value={slot.value}
+                        checked={formData.preferredTime === slot.value}
+                        onChange={(e) => setFormData({...formData, preferredTime: e.target.value})}
+                        className="w-5 h-5 text-green-600 focus:ring-green-500 focus:ring-2"
+                      />
+                      <span className="ml-4 text-gray-900 font-bold text-lg">{slot.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-base font-bold text-gray-700 mb-3">
+                Additional Notes or Constraints
+              </label>
+              <textarea
+                value={formData.additionalNotes}
+                onChange={(e) => setFormData({...formData, additionalNotes: e.target.value})}
+                rows="4"
+                className="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all resize-none text-lg shadow-sm hover:shadow-md"
+                placeholder="Any specific time constraints, timezone information, or other relevant details..."
+              />
+            </div>
+
+            <div className="pt-6">
+              <button
+                onClick={handleSubmit}
+                className="w-full bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 text-white py-5 rounded-xl font-bold text-xl hover:from-green-700 hover:via-emerald-700 hover:to-teal-700 transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:scale-105"
+              >
+                Submit Availability
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <p className="text-center text-gray-600 mt-8 text-base font-medium">
+          Young Progressives Initiative • Onboarding Team
+        </p>
+      </div>
+    </div>
+  );
+}

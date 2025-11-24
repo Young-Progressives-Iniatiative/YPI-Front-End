@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BREAKING: Reem Idress hired by YPI - Young Progressives Initiative</title>
+<!-- We will use Tailwind CSS for simplified styling and responsiveness -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Using Inter font from Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- Phosphor Icons -->
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<!-- Added Google Font: Atkinson Hyperlegible (from new header) -->
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* This style block contains ALL the CSS from your provided "Unified Home Page"
+PLUS necessary styles for the new header structure.
+*/
+
+/* --- GLOBAL & COMMON STLES (from Mobile Home Page, merged) --- */
+:root {
+--primary-green: #37af4b;
+--dark-background: #1c1c1c;
+--member-border: #28a745;
+--light-gray: #bbb;
+--wp--preset--spacing--20: 5rem; /* 80px */
+
+/* New CSS Variables for Theme - NOW DEFAULTS TO DARK THEME */
+--theme-body-bg: #1c1c1c;
+--theme-body-color: #f0f0f0;
+--theme-card-bg: #2b2b2b;
+--theme-card-border: #444;
+/* --theme-header-bg: rgba(28, 28, 28, 0.85); /* Overridden by new header */
+/* --theme-header-border: #333; /* Overridden by new header */
+--theme-footer-bg: #1c1c1c; /* Kept for fallback, but new footer uses gradient */
+--theme-footer-border: #333; /* Kept for fallback */
+--theme-button-bg: var(--primary-green);
+--theme-button-text: #ffffff;
+--theme-button-hover-bg: #2e8c3d;
+--theme-input-bg: #333;
+--theme-input-border: #555;
+--theme-input-text: #f0f0f0;
+--theme-modal-bg: #2b2b2b;
+--theme-modal-backdrop: rgba(0, 0, 0, 0.7);
+--theme-slideshow-bg: #252525;
+--theme-sidebar-bg: #222;
+--theme-sidebar-link: #f0f0f0;
+--theme-sidebar-link-hover: var(--primary-green);
+--theme-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+--theme-heading-color: #ffffff;
+--theme-link-color: var(--primary-green);
+--theme-link-hover-color: #45d15b;
+
+/* Navbar variables needed from header file */
+--theme-navbar-bg: #1c1c1c;
+--theme-navbar-text: #fff;
+--theme-navbar-dropdown-bg: #f0f0f0;
+--theme-navbar-dropdown-text: #1c1c1c;
+--theme-navbar-dropdown-hover-bg: #ddd;
+}
+
+/* Light Theme */
+html[data-theme='light'] {
+--theme-body-bg: #f4f4f4;
+--theme-body-color: #333;
+--theme-card-bg: #ffffff;
+--theme-card-border: #ddd;
+/* --theme-header-bg: rgba(255, 255, 255, 0.85); /* Overridden by new header */
+/* --theme-header-border: #e0e0e0; /* Overridden by new header */
+--theme-footer-bg: #ffffff; /* Kept for fallback */
+--theme-footer-border: #e0e0e0; /* Kept for fallback */
+--theme-button-bg: var(--primary-green);
+--theme-button-text: #ffffff;
+--theme-button-hover-bg: #2e8c3d;
+--theme-input-bg: #f0f0f0;
+--theme-input-border: #ccc;
+--theme-input-text: #333;
+--theme-modal-bg: #ffffff;
+--theme-modal-backdrop: rgba(0, 0, 0, 0.5);
+--theme-slideshow-bg: #f9f9f9;
+--theme-sidebar-bg: #f8f8f8;
+--theme-sidebar-link: #333;
+--theme-sidebar-link-hover: var(--primary-green);
+--theme-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+--theme-heading-color: #222;
+--theme-link-color: #28a745;
+--theme-link-hover-color: #218838;
+
+/* Navbar variables needed from header file */
+--theme-navbar-bg: #FEFEFE;
+--theme-navbar-text: #1c1c1c;
+--theme-navbar-dropdown-bg: #1c1c1c;
+--theme-navbar-dropdown-text: #FEFEFE;
+--theme-navbar-dropdown-hover-bg: #333;
+}
+
+/* Reset and base styles */
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+
+body {
+/* Use Atkinson font from new header if available, fallback */
+font-family: 'Atkinson Hyperlegible', 'Inter', 'Arial', sans-serif;
+background-color: var(--theme-body-bg);
+color: var(--theme-body-color);
+line-height: 1.6;
+overflow-x: hidden; /* Prevent horizontal scroll */
+font-size: 16px;
+transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Prevent body scroll when sidebar is open */
+body.sidebar-is-open {
+overflow: hidden;
+}
+
+/* --- END GLOBAL --- */
+
+
+/* --- NEW HEADER STYLES (Merged from Header file) --- */
+/* Wrapper */
+.unified-header-wrapper {
+position: sticky; /* Keep header sticky */
+top: 0;
+z-index: 1000;
+width: 100%;
+}
+
+/* Desktop Top Bar */
+.desktop-wp-header-container {
+background: linear-gradient(135deg, rgb(5, 114, 21) 0%, rgb(55, 175, 75) 100%);
+width: 100%;
+}
+.desktop-wp-header-contents {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 0.5rem 1.25rem; /* Reduced padding slightly */
+max-width: 1300px; /* Matched max-width from original */
+margin: 0 auto;
+}
+.desktop-header-left-group {
+display: flex;
+align-items: center;
+}
+.desktop-header-right-group {
+position: relative;
+display: flex;
+align-items: center;
+gap: 1rem; /* Reduced gap slightly */
+}
+.desktop-header-logo-img {
+width: auto; /* Use auto width, rely on height */
+height: 40px; /* Match original logo height */
+}
+/* Theme Button (Using original label/input structure) */
+.theme-toggle-switch { /* Style for label container */
+position: relative;
+display: inline-block;
+width: 50px;
+height: 28px;
+}
+.theme-toggle-switch input { /* Hide checkbox */
+opacity: 0;
+width: 0;
+height: 0;
+}
+.theme-slider { /* Slider background */
+position: absolute;
+cursor: pointer;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background-color: #555;
+transition: .4s;
+border-radius: 34px;
+}
+.theme-slider:before { /* Slider nub */
+position: absolute;
+content: "";
+height: 20px;
+width: 20px;
+left: 4px;
+bottom: 4px;
+background-color: white;
+transition: .4s;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+/* Slider icons (Sun/Moon) */
+.theme-slider-icon {
+position: absolute;
+top: 50%;
+transform: translateY(-50%);
+font-size: 14px;
+color: #f0f0f0;
+transition: opacity 0.3s ease;
+}
+.theme-slider-icon.ph-sun { right: 6px; opacity: 1; }
+.theme-slider-icon.ph-moon { left: 6px; opacity: 0; color: #333; }
+/* Checked state styles */
+input:checked + .theme-slider { background-color: var(--primary-green); }
+input:checked + .theme-slider:before { transform: translateX(22px); }
+input:checked + .theme-slider .ph-sun { opacity: 0; }
+input:checked + .theme-slider .ph-moon { opacity: 1; }
+
+/* Icons & Profile Pic */
+.icon-link {
+color: #FEFEFE; /* New header uses white icons */
+font-size: 1.5rem;
+text-decoration: none;
+position: relative;
+display: flex; /* Make it flex for alignment */
+align-items: center; /* Center icon vertically */
+}
+.notification-dot {
+height: 8px;
+width: 8px;
+background-color: #e63946;
+border-radius: 50%;
+position: absolute;
+top: 2px;
+right: 2px;
+border: 1px solid rgba(5, 114, 21, 0.8); /* Border based on header bg */
+}
+/* This rule is now controlled by JS */
+/* #notification-bell, #profile-pic-link,
+#mobile-notification-bell, #mobile-profile-pic-link {
+display: none;
+} */
+.profile-pic {
+width: 32px; /* Match original size */
+height: 32px; /* Match original size */
+border-radius: 50%;
+object-fit: cover;
+cursor: pointer;
+border: 2px solid var(--primary-green); /* Use theme variable */
+}
+/* Original Explore/Donate button styles */
+.action-button {
+background-color: var(--theme-button-bg);
+color: var(--theme-button-text);
+padding: 0.5rem 1rem;
+border: none;
+border-radius: 8px;
+text-decoration: none;
+font-weight: 600;
+font-size: 0.9rem;
+cursor: pointer;
+transition: background-color 0.3s ease;
+display: inline-block; /* Ensure it behaves correctly */
+}
+.action-button:hover {
+background-color: var(--theme-button-hover-bg);
+}
+/* Explore button specific style from original */
+/* This rule is now controlled by JS */
+/* #explore-ypi-btn {
+display: none;
+} */
+
+/* Desktop Navigation Bar */
+.navbar {
+background-color: var(--theme-navbar-bg);
+padding: 0.75rem 0; /* Slightly reduced padding */
+display: flex;
+justify-content: center;
+width: 100%;
+border-bottom: 1px solid var(--theme-input-border); /* Use theme border */
+transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+.navbar-menu {
+display: flex;
+list-style-type: none;
+margin: 0;
+padding: 0;
+}
+.navbar-item {
+position: relative;
+margin: 0 1.25rem;
+}
+.navbar-link {
+color: var(--theme-navbar-text);
+text-decoration: none;
+font-size: 1rem; /* Adjusted size */
+padding: 0.5rem 0.25rem; /* Adjusted padding */
+display: flex;
+align-items: center;
+font-weight: 500; /* Adjusted weight */
+transition: color 0.2s ease;
+}
+.navbar-link:hover, .navbar-link.active {
+color: var(--theme-link-color); /* Use theme link hover color */
+}
+.dropdown-icon {
+border: solid var(--theme-navbar-text);
+border-width: 0 2px 2px 0;
+display: inline-block;
+padding: 3px;
+margin-left: 5px;
+transform: rotate(45deg);
+transition: transform 0.3s ease, border-color 0.3s ease;
+}
+.navbar-item:hover .dropdown-icon {
+transform: rotate(-135deg);
+}
+.dropdown-menu {
+display: none; /* Use display none initially */
+position: absolute;
+background-color: var(--theme-navbar-dropdown-bg);
+min-width: 12.5rem;
+box-shadow: 0rem 0.5rem 1rem 0rem rgba(0,0,0,0.1);
+z-index: 100;
+top: 100%;
+left: 0;
+border-radius: 8px; /* Added border radius */
+padding-top: 0.5rem; /* Added padding */
+padding-bottom: 0.5rem; /* Added padding */
+opacity: 0; /* Start hidden for transition */
+visibility: hidden;
+transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+}
+.navbar-item:hover .dropdown-menu {
+display: block; /* Show on hover */
+opacity: 1;
+visibility: visible;
+}
+.dropdown-item {
+display: block;
+padding: 0.6rem 1rem; /* Adjusted padding */
+color: var(--theme-navbar-dropdown-text);
+text-decoration: none;
+font-size: 0.95rem; /* Adjusted size */
+font-weight: 500; /* Adjusted weight */
+transition: background-color 0.2s ease;
+}
+.dropdown-item:hover {
+background-color: var(--theme-navbar-dropdown-hover-bg);
+}
+
+/* Mobile Header */
+.mobile-header-view { display: none; } /* Hide by default */
+.header-container { /* Style for the mobile header bar */
+background: linear-gradient(135deg, rgb(5, 114, 21) 0%, rgb(55, 175, 75) 100%);
+padding: 0.75rem 1rem; /* Adjusted padding */
+width: 100%;
+box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+header.site-header-mobile {
+display: flex;
+justify-content: space-between;
+align-items: center;
+min-height: auto; /* Remove min-height */
+width: 100%;
+}
+.site-header-mobile .site-logo {
+width: auto; /* Let height control size */
+height: 35px; /* Adjust height as needed */
+}
+.mobile-header-controls {
+display: flex;
+align-items: center;
+gap: 0.75rem; /* Adjust gap */
+}
+/* Mobile Hamburger Button */
+#open-sidebar-btn { /* Use the ID expected by the JS */
+background: none;
+border: none;
+padding: 0;
+cursor: pointer;
+line-height: 0;
+color: #FEFEFE; /* Icon color */
+}
+#open-sidebar-btn i { /* Styling the icon itself */
+font-size: 1.75rem; /* Phosphor icon size */
+}
+
+/* --- END NEW HEADER --- */
+
+
+/* --- MOBILE SIDEBAR --- */
+/* (Keeping original sidebar styles) */
+#mobile-sidebar {
+position: fixed;
+top: 0;
+left: -100%; /* Start off-screen */
+width: 100%;
+height: 100vh;
+background-color: var(--theme-sidebar-bg);
+z-index: 1001;
+transition: left 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+display: flex;
+flex-direction: column;
+padding: 1.5rem;
+overflow-y: auto;
+}
+#mobile-sidebar.open { left: 0; box-shadow: 10px 0 20px rgba(0,0,0,0.2); }
+.sidebar-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.5rem; border-bottom: 1px solid var(--theme-input-border); }
+#close-sidebar-btn { background: none; border: none; color: var(--theme-body-color); font-size: 1.75rem; cursor: pointer; }
+.sidebar-search { margin-top: 1.5rem; position: relative; }
+.sidebar-search input { width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border-radius: 8px; background-color: var(--theme-input-bg); border: 1px solid var(--theme-input-border); color: var(--theme-input-text);
+font-size: 1rem; }
+.sidebar-search .ph-magnifying-glass { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); font-size: 1.2rem; color: var(--light-gray); }
+.sidebar-nav { margin-top: 1.5rem; flex-grow: 1; }
+.sidebar-nav ul { list-style: none; }
+.sidebar-nav li { margin-bottom: 0.5rem; }
+.sidebar-nav a { display: block; text-decoration: none; color: var(--theme-sidebar-link); font-size: 1.25rem; font-weight: 500; padding: 0.75rem 0.5rem; border-radius: 8px;
+transition: color 0.2s ease, background-color 0.2s ease; }
+.sidebar-nav a:hover, .sidebar-nav a.active { color: var(--theme-sidebar-link-hover); background-color: var(--theme-input-bg); }
+.sidebar-footer { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--theme-input-border); }
+.sidebar-footer .action-button { width: 100%; text-align: center; padding: 0.85rem; font-size: 1rem; margin-top: 1rem; /* Added margin for donate */ }
+.theme-switcher { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 0.5rem; background-color: var(--theme-input-bg); border-radius: 8px; }
+.theme-switcher span { font-size: 1rem; font-weight: 500; color: var(--theme-sidebar-link); }
+/* --- END SIDEBAR --- */
+
+
+/* --- ARTICLE CONTENT STYLES --- */
+/* (Keeping original article styles) */
+.article-wrapper { max-width: 1100px; margin: 2rem auto; padding: 0 2.5%; }
+.article-content-container { background-color: var(--theme-card-bg); border: 1px solid var(--theme-card-border); border-radius: 12px; box-shadow: var(--theme-shadow); overflow: hidden;
+transition: background-color 0.3s ease, border-color 0.3s ease; }
+
+.article-header { padding: 2rem 2.5rem 1.5rem; }
+.article-category { font-size: 0.9rem; font-weight: 600; color: var(--primary-green); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
+.article-header h1 { font-size: 2.5rem; font-weight: 800; color: var(--theme-heading-color); line-height: 1.2; margin-bottom: 1rem; }
+.article-meta { font-size: 0.9rem; color: var(--light-gray); display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; align-items: center; }
+.article-meta span { display: flex; align-items: center; gap: 6px; }
+.article-meta i { font-size: 1.1rem; }
+.article-featured-image { width: 100%; height: auto; /* max-height: 500px; */ /* object-fit: cover; */ background-color: #ffffff; /* Always white background for image */ }
+.article-body { padding: 2rem 2.5rem; font-size: 1.1rem; line-height: 1.7; }
+.article-body p { margin-bottom: 1.5rem; }
+.article-body h2, .article-body h3, .article-body h4 { color: var(--theme-heading-color); font-weight: 700; margin-top: 2.5rem; margin-bottom: 1rem; line-height: 1.3; }
+.article-body h2 { font-size: 1.8rem; border-bottom: 2px solid var(--theme-card-border); padding-bottom: 0.5rem; }
+.article-body h3 { font-size: 1.5rem; }
+.article-body h4 { font-size: 1.2rem; }
+.article-body a { color: var(--theme-link-color); text-decoration: underline; font-weight: 500; transition: color 0.2s ease; }
+.article-body a:hover { color: var(--theme-link-hover-color); }
+.article-body blockquote { margin: 2rem 0; padding: 1.5rem; background-color: var(--theme-input-bg); border-left: 5px solid var(--primary-green); border-radius: 0 8px 8px 0;
+font-size: 1.2rem; font-style: italic; color: var(--theme-heading-color); }
+.article-body blockquote p { margin-bottom: 0; }
+.article-body ul, .article-body ol { margin-bottom: 1.5rem; padding-left: 2rem; }
+.article-body li { margin-bottom: 0.5rem; }
+/* --- END ARTICLE CONTENT --- */
+
+
+/* --- DONATE MODAL --- */
+/* (Keeping original modal styles) */
+#donate-modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--theme-modal-backdrop); z-index: 2000; display: flex; align-items: center;
+justify-content: center; padding: 1rem; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+#donate-modal-backdrop.visible { opacity: 1; visibility: visible; }
+.donate-modal-content { background-color: var(--theme-modal-bg); border-radius: 16px; padding: 2rem; width: 100%; max-width: 500px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); position: relative;
+transform: scale(0.95); transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1); }
+#donate-modal-backdrop.visible .donate-modal-content { transform: scale(1); }
+#close-donate-modal-btn { position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--light-gray); font-size: 1.75rem; cursor: pointer;
+transition: color 0.2s ease; }
+#close-donate-modal-btn:hover { color: var(--theme-body-color); }
+.donate-modal-content h2 { font-size: 1.8rem; font-weight: 700; color: var(--theme-heading-color); margin-bottom: 0.5rem; text-align: center; }
+.donate-modal-content p { text-align: center; margin-bottom: 1.5rem; color: var(--light-gray); font-size: 1rem; }
+.donation-amounts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1.5rem; }
+.donation-amounts button, .donate-other-btn { width: 100%; padding: 1rem; font-size: 1.1rem; font-weight: 600; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
+border: 2px solid var(--theme-input-border); background-color: var(--theme-input-bg); color: var(--theme-body-color); }
+.donation-amounts button:hover { background-color: var(--theme-card-bg); border-color: var(--primary-green); }
+.donation-amounts button.selected { background-color: var(--primary-green); color: #fff; border-color: var(--primary-green); }
+.donate-other-btn { grid-column: 1 / -1; text-align: center; }
+.custom-amount-input { width: 100%; padding: 1rem; font-size: 1.2rem; font-weight: 600; border-radius: 8px; border: 2px solid var(--theme-input-border); background-color: var(--theme-input-bg); color: var(--theme-input-text);
+margin-bottom: 1.5rem; text-align: center; }
+.custom-amount-input:focus { outline: none; border-color: var(--primary-green); box-shadow: 0 0 0 3px rgba(55, 175, 75, 0.3); }
+.donate-submit-btn { width: 100%; padding: 1rem; font-size: 1.2rem; font-weight: 700; letter-spacing: 0.5px; }
+/* --- END DONATE MODAL --- */
+
+
+/* --- NEW FOOTER STYLES (Tailwind equivalent) --- */
+/*
+Tailwind classes are used directly in the HTML for the new footer.
+No additional CSS is needed here unless overriding Tailwind.
+Key classes used in the new footer:
+- bg-gradient-to-r from-[#148324] to-[#2ca33b]
+- text-white
+- max-w-7xl mx-auto px-6 pt-3 pb-12 lg:px-8
+- flex justify-center / flex-col items-center text-center
+- h-48 w-auto (for logo)
+- -mt-10 text-xl max-w-xs font-bold tracking-tight (for tagline)
+- mt-8 flex flex-wrap justify-center items-center gap-4 (for social icons nav)
+- bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 (for social icon links)
+- h-5 w-5 (for SVG icons)
+- mt-8 text-sm text-cyan-100 (for legal/address text)
+*/
+/* --- END NEW FOOTTER STYLES --- */
+
+
+/* --- RESPONSIVE STYLES --- */
+/* Show mobile header, hide desktop */
+@media (max-width: 768px) {
+.desktop-header-view { display: none; }
+.mobile-header-view { display: block; }
+.article-header { padding: 1.5rem 1rem 1rem; }
+.article-header h1 { font-size: 2rem; }
+.article-body { padding: 1.5rem 1rem; font-size: 1rem; }
+/* Footer responsiveness is handled by Tailwind's flex-wrap */
+}
+/* Show desktop header, hide mobile */
+@media (min-width: 769px) {
+.desktop-header-view { display: block; }
+.mobile-header-view { display: none; }
+body { font-size: 17px; }
+.article-header { padding: 3rem 4rem 2rem; }
+.article-header h1 { font-size: 3rem; }
+.article-body { padding: 2.5rem 4rem 3rem; font-size: 1.15rem; }
+/* Footer responsiveness is handled by Tailwind's max-w and mx-auto */
+}
+@media (min-width: 1024px) {
+.article-header h1 { font-size: 3.5rem; }
+/* Footer responsiveness is handled by Tailwind */
+}
+
+/* Utility classes */
+.hidden { display: none !important; }
+
+</style>
+</head>
+<body>
+
+<!--
+==================================================
+UNIFIED HEADER COMPONENT (Replaced Original Header)
+==================================================
+-->
+<header class="unified-header-wrapper">
+<!-- ===== DESKTOP HEADER & NAV ===== -->
+<div class="desktop-header-view">
+<!-- Desktop Top Bar -->
+<div class="desktop-wp-header-container">
+<header class="desktop-wp-header-contents">
+<div class="desktop-header-left-group">
+<a href="https://weareypi.com/">
+<img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Logo" class="desktop-header-logo-img">
+</a>
+</div>
+<div class="desktop-header-right-group">
+<!-- Theme Toggle (Using Original Structure) -->
+<label class="theme-toggle-switch" for="desktop-theme-toggle" aria-label="Toggle light/dark theme">
+<input type="checkbox" id="desktop-theme-toggle" class="theme-toggle-input">
+<span class="theme-slider">
+<i class="ph-fill ph-sun theme-slider-icon"></i>
+<i class="ph-fill ph-moon theme-slider-icon"></i>
+</span>
+</label>
+<!-- Donate Button (Added Back) -->
+<button class="action-button" id="desktop-donate-btn">Donate</button>
+<!-- Explore Button (Logged-out) -->
+<a href="#" class="action-button" id="explore-ypi-btn">Explore YPI</a>
+<!-- Icons (Logged-in) -->
+<div id="notificationBell" class="icon-link" aria-label="Notifications" style="display: none;">
+<i class="ph-fill ph-bell"></i>
+<span id="notificationCount" class="notification-dot"></span>
+</div>
+<a href="#" id="profilePicLink" class="icon-link" aria-label="Profile" style="display: none;">
+<img id="profilePic" class="profile-pic" src="https://placehold.co/64x64/777/ffffff?text=U&font=inter" alt="Profile">
+</a>
+</div>
+</header>
+</div>
+<!-- Desktop Navigation Bar -->
+<nav class="navbar">
+<ul class="navbar-menu">
+<li class="navbar-item">
+<a href="#" class="navbar-link">About Us<i class="dropdown-icon"></i></a>
+<div class="dropdown-menu">
+<a href="https://weareypi.com/mission-statement/" class="dropdown-item">Our Mission</a>
+<a href="https://weareypi.com/meet-ypi-roster/" class="dropdown-item">Meet the YPI Team</a>
+</div>
+</li>
+<li class="navbar-item">
+<a href="#" class="navbar-link">Get Involved<i class="dropdown-icon"></i></a>
+<div class="dropdown-menu">
+<a href="https://weareypi.com/donate/" class="dropdown-item">Donate</a>
+<a href="https://weareypi.com/info-guide/" class="dropdown-item">Information Guide for Parents</a>
+</div>
+</li>
+<li class="navbar-item">
+<a href="https://weareypi.com/Need_Volunteers/" class="navbar-link">Need Volunteers?</a>
+</li>
+</ul>
+</nav>
+</div>
+
+<!-- ===== MOBILE HEADER ===== -->
+<div class="mobile-header-view">
+<div class="header-container">
+<header class="site-header-mobile">
+<a href="https://weareypi.com/" aria-current="page">
+<img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" class="site-logo" alt="YPI">
+</a>
+<div class="mobile-header-controls">
+<!-- Icons (Logged-in) -->
+<a href="#" class="icon-link" id="mobile-notification-bell" aria-label="Notifications" style="display: none;">
+<i class="ph-fill ph-bell"></i>
+<span class="notification-dot"></span>
+</a>
+<a href="#" class="icon-link" id="mobile-profile-pic-link" aria-label="Profile" style="display: none;">
+<img src="https://placehold.co/64x64/777/ffffff?text=U&font=inter" alt="Profile Picture" class="profile-pic">
+</a>
+<!-- Hamburger Button -->
+<button id="open-sidebar-btn" aria-label="Open menu"> <!-- Changed ID -->
+<i class="ph-fill ph-list"></i>
+</button>
+</div>
+</header>
+</div>
+</div>
+</header>
+<!-- === END UNIFIED HEADER === -->
+
+
+<!--
+==================================================
+MOBILE SIDEBAR
+(This is the complete sidebar from your "base code")
+==================================================
+-->
+<div id="mobile-sidebar">
+<div class="sidebar-header">
+<!-- Logo -->
+<a href="#" class="logo-container">
+<img src="https://placehold.co/80x80/37af4b/ffffff?text=YPI&font=inter" alt="YPI Logo" class="logo-image">
+<span class="logo-text">YPI</span>
+</a>
+<button id="close-sidebar-btn" aria-label="Close menu">
+<i class="ph-fill ph-x"></i>
+</button>
+</div>
+
+<!-- Sidebar Search -->
+<div class="sidebar-search">
+<i class="ph-fill ph-magnifying-glass"></i>
+<input type="search" placeholder="Search...">
+</div>
+
+<!-- Sidebar Navigation -->
+<nav class="sidebar-nav">
+<ul>
+<li><a href="#" class="active">Home</a></li>
+<li><a href="#">About</a></li>
+<li><a href="#">Articles</a></li>
+<li><a href="#">Members</a></li>
+<li><a href="#">My Profile</a></li>
+<li><a href="#">Settings</a></li>
+</ul>
+</nav>
+
+<!-- Sidebar Footer -->
+<div class="sidebar-footer">
+<!-- Theme Switcher (Mobile) -->
+<div class="theme- switcher">
+<span>Dark Mode</span>
+<label class="theme-toggle-switch" for="mobile-theme-toggle" aria-label="Toggle light/dark theme">
+<input type="checkbox" id="mobile-theme-toggle" class="theme-toggle-input">
+<span class="theme-slider">
+<i class="ph-fill ph-sun theme-slider-icon"></i>
+<i class="ph-fill ph-moon theme-slider-icon"></i>
+</span>
+</label>
+</div>
+<!-- Donate Button (Added Back) -->
+<button class="action-button" id="mobile-donate-btn">Donate</button>
+</div>
+</div>
+
+<!--
+==================================================
+MAIN ARTICLE CONTENT
+==================================================
+-->
+<main class="article-wrapper">
+<article class="article-content-container">
+
+<!-- Article Header: Title, Meta -->
+<header class="article-header">
+<div class="article-category">News</div>
+<h1>BREAKING: Reem Idress hired by YPI</h1>
+<div class="article-meta">
+<span>
+<i class="ph-fill ph-user-circle"></i>
+By <a href="https://www.linkedin.com/feed/update/urn:li:activity:7387567718687932418/" style="color: var(--light-gray); text-decoration: none; font-weight: 600;">YPI</a>
+</span>
+<span data-publish-date="2025-10-31T14:32:00Z">
+<i class="ph-fill ph-calendar"></i>
+<span id="dynamic-date-display"></span>
+</span>
+<span>
+<i class="ph-fill ph-clock"></i>
+1 min read
+</span>
+</div>
+</header>
+
+<!-- Featured Image -->
+<img src="https://weareypi.com/wp-content/uploads/2025/10/Gemini_Generated_Image_8vdbue8vdbue8vdb1.png"
+alt="Featured image for the article"
+class="article-featured-image"
+id="featured-article-image">
+
+<!-- Article Body Content -->
+<div class="article-body">
+<p><strong>BREAKING:</strong> The Young Progressives Initiative is thrilled to welcome Reem Idress, a University of Maryland, Baltimore County, Class of '26, she is studying for a B.S. in Information Systems, from Rockville, Maryland / United Arab Emirates as a Database Intern.</p>
+<p>Reem’s dream is to become a Data Analyst or Security Analyst at Google NYC, and we’re confident this opportunity will be an exciting first step toward achieving that goal.</p>
+<p>Welcome to the team, Reem, the journey starts here!</p>
+<p>#ACompanyToChangeAmerica</p>
+<p>#OneHourAtATime</p>
+<p>#WeAreChange</p>
+</div>
+
+</article>
+</main>
+<!-- === END MAIN ARTICLE CONTENT === -->
+
+
+<!--
+==================================================
+DONATE MODAL
+==================================================
+-->
+<div id="donate-modal-backdrop">
+<div class="donate-modal-content">
+<button id="close-donate-modal-btn" aria-label="Close donation window">
+<i class="ph-fill ph-x"></i>
+</button>
+<h2>Support Our Mission</h2>
+<p>Your contribution fuels real change.</p>
+
+<div class="donation-amounts">
+<button class="donation-amount-btn" data-amount="10">$10</button>
+<button class="donation-amount-btn" data-amount="25">$25</button>
+<button class="donation-amount-btn" data-amount="50" class="selected">$50</button>
+<button class="donation-amount-btn" data-amount="100">$100</button>
+<button class="donation-amount-btn" data-amount="250">$250</button>
+<button class="donation-amount-btn" data-amount="other">Other</button>
+</div>
+
+<input type="text" class="custom-amount-input hidden" placeholder="Enter amount">
+
+<button class="action-button donate-submit-btn">
+Donate $50
+</button>
+</div>
+</div>
+
+<!--
+==================================================
+NEW FOOTER (Replaced Original Footer)
+==================================================
+-->
+<footer class="bg-gradient-to-r from-[#148324] to-[#2ca33b] text-white mt-12">
+<div class="max-w-7xl mx-auto px-6 pt-3 pb-12 lg:px-8">
+<div class="flex justify-center">
+<div class="flex flex-col items-center text-center">
+<img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon.png" alt="YPI Logo" class="h-48 w-auto">
+<p class="-mt-10 text-xl max-w-xs font-bold tracking-tight">A Company to Change America One Hour At a Time</p>
+<nav class="mt-8 flex flex-wrap justify-center items-center gap-4" aria-label="Footer">
+<a href="https://www.instagram.com/weareypi?igsh=NmQ0b2h2ZDM2eDJw&utm_source=qr" class="bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><title>Instagram</title><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44 1.441-.645 1.441-1.44-.645-1.44-1.441-1.44z"/></svg>
+</a>
+<a href="#" class="bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="h-5 w-5" viewBox="0 0 16 16"><title>Reddit</title><path d="M6.167 8a.83.83 0 0 0-.83.83c0 .459.372.84.83.831a.831.831 0 0 0 0-1.661m1.843 3.647c.315 0 1.403-.038 1.976-.611a.23.23 0 0 0 0-.306.213.213 0 0 0-.306 0c-.353.363-1.126.487-1.67.487-.545 0-1.308-.124-1.671-.487a.213.213 0 0 0-.306 0 .213.213 0 0 0 0 .306c.564.563 1.652.61 1.977.61zm.992-2.807c0 .458.373.83.831.83s.83-.381.83-.83a.831.831 0 0 0-1.66 0z"/><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.828-1.165c-.315 0-.602.124-.812.325-.801-.573-1.9-.945-3.121-.993l.534-2.501 1.738.372a.83.83 0 1 0 .83-.869.83.83 0 0 0-.744.468l-1.938-.41a.2.2 0 0 0-.153.028.2.2 0 0 0-.086.134l-.592 2.788c-1.24.038-2.358.41-3.17.992-.21-.2-.496-.324-.81-.324a1.163 1.163 0 0 0-.478 2.224q-.03.17-.029.353c0 1.795 2.091 3.256 4.669 3.256s4.668-1.451 4.668-3.256c0-.114-.01-.238-.029-.353.401-.181.688-.592.688-1.069 0-.65-.525-1.165-1.165-1.165"/></svg>
+</a>
+<a href="https://www.tiktok.com/@official.ypi?_t=ZP-90XyGBaaFo6&_r=1" class="bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="h-5 w-5" viewBox="0 0 16 16"><title>TikTok</title><path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3z"/></svg>
+</a>
+<a href="https://www.linkedin.com/company/103394900" class="bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="h-5 w-5" viewBox="0 0 16 16"><title>LinkedIn</title><path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z"/></svg>
+</a>
+<a href="https://www.youtube.com/@YoungProgressivesInitiative" class="bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="h-5 w-5" viewBox="0 0 16 16"><title>YouTube</title><path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.01 2.01 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31 31 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.01 2.01 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A100 100 0 0 1 7.858 2zM6.4 5.209v4.818l4.157-2.408z"/></svg>
+</a>
+<a href="#" class="bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="h-5 w-5" viewBox="0 0 16 16"><title>Facebook</title><path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.192.47-1.192 1.16v1.4h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951z"/></svg>
+</a>
+<a href="https-discord-com-invite-GvPY6M9T" class="bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="h-5 w-5" viewBox="0 0 16 16"><title>Discord</title><path d="M13.545 2.907a13.2 13.2 0 0 0-3.287-.445.7.7 0 0 0-.648.718c.253.921.5 1.845.69 2.757a11.6 11.6 0 0 0-2.61.001c.19-.912.437-1.836.69-2.757a.7.7 0 0 0-.648-.718 13.2 13.2 0 0 0-3.287.445.7.7 0 0 0-.5 1.036c1.677 3.423 2.41 6.11 2.608 7.962.081.764.15 1.5.21 2.164a.7.7 0 0 0 .753.662h.195a.7.7 0 0 0 .72-.613c.03-.283.054-.569.07-.864.048-.888.14-1.78.258-2.654a10.9 10.9 0 0 0 2.24 0c.118.874.21 1.766.258 2.654.016.295.04.58.07.864a.7.7 0 0 0 .72.613h.195a.7.7 0 0 0 .753-.662c.06-.66.13-1.4.21-2.164.198-1.852.93-4.54 2.608-7.962a.7.7 0 0 0-.5-1.036zM8.38 10.091c-.592 0-1.074-.53-1.074-1.182s.482-1.182 1.074-1.182c.59 0 1.073.53 1.073 1.182s-.483 1.182-1.073 1.182m-3.085 0c-.59 0-1.073-.53-1.073-1.182s.482-1.182 1.073-1.182c.591 0 1.074.53 1.074 1.182s-.483 1.182-1.074 1.182z"/></svg>
+</a>
+</nav>
+<p class="mt-8 text-sm text-cyan-100">&copy; 2025 Young Progressives Initiative. All rights reserved. <br> 7506 17th St NW, Washington, DC 20012, USA</p>
+</div>
+</div>
+</div>
+</footer>
+<!-- === END NEW FOOTER === -->
+
+
+<script>
+// --- GLOBAL HELPER FUNCTIONS ---
+const $ = (selector) => document.querySelector(selector);
+const $$ = (selector) => document.querySelectorAll(selector);
+
+// --- THEME TOGGLING LOGIC ---
+// (Combined logic for both desktop and mobile toggles)
+const themeToggles = $$('.theme-toggle-input');
+const sunIcons = $$('.ph-sun');
+const moonIcons = $$('.ph-moon');
+
+function setIconState(isDarkMode) {
+sunIcons.forEach(icon => icon.style.opacity = isDarkMode ? '1' : '0');
+moonIcons.forEach(icon => icon.style.opacity = isDarkMode ? '0' : '1');
+}
+
+function setTheme(isDarkMode) {
+document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+localStorage.setItem('ypi-theme', isDarkMode ? 'dark' : 'light');
+themeToggles.forEach(toggle => toggle.checked = !isDarkMode); // true = light, false = dark in original CSS
+setIconState(isDarkMode);
+}
+
+function syncToggles(changedToggle) {
+const isDarkMode = !changedToggle.checked; // true = light, false = dark
+themeToggles.forEach(toggle => {
+if (toggle !== changedToggle) {
+toggle.checked = changedToggle.checked;
+}
+});
+setTheme(isDarkMode);
+}
+
+// Initial theme load
+const savedTheme = localStorage.getItem('ypi-theme') || 'dark'; // Default to dark
+const isDark = savedTheme === 'dark';
+setTheme(isDark);
+
+// Add event listeners to both toggles
+themeToggles.forEach(toggle => {
+toggle.addEventListener('change', () => syncToggles(toggle));
+});
+
+// --- MOBILE SIDEBAR LOGIC ---
+const openSidebarBtn = $('#open-sidebar-btn');
+const closeSidebarBtn = $('#close-sidebar-btn');
+const mobileSidebar = $('#mobile-sidebar');
+
+if (openSidebarBtn && closeSidebarBtn && mobileSidebar) {
+openSidebarBtn.addEventListener('click', () => {
+mobileSidebar.classList.add('open');
+document.body.classList.add('sidebar-is-open');
+});
+
+closeSidebarBtn.addEventListener('click', () => {
+mobileSidebar.classList.remove('open');
+document.body.classList.remove('sidebar-is-open');
+});
+}
+
+// --- DONATE MODAL LOGIC ---
+const donateButtons = $$('#desktop-donate-btn, #mobile-donate-btn');
+const modalBackdrop = $('#donate-modal-backdrop');
+const closeModalBtn = $('#close-donate-modal-btn');
+const amountButtons = $$('.donation-amount-btn');
+const customAmountInput = $('.custom-amount-input');
+const donateSubmitBtn = $('.donate-submit-btn');
+
+let selectedAmount = 50; // Default amount
+
+function openModal() {
+if (modalBackdrop) modalBackdrop.classList.add('visible');
+}
+
+function closeModal() {
+if (modalBackdrop) modalBackdrop.classList.remove('visible');
+}
+
+function updateSubmitButton() {
+if (donateSubmitBtn) donateSubmitBtn.textContent = `Donate $${selectedAmount}`;
+}
+
+// Open modal
+donateButtons.forEach(btn => btn.addEventListener('click', openModal));
+
+// Close modal
+if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+if (modalBackdrop) {
+modalBackdrop.addEventListener('click', (e) => {
+if (e.target === modalBackdrop) {
+closeModal();
+}
+});
+}
+
+// Handle amount selection
+amountButtons.forEach(button => {
+button.addEventListener('click', () => {
+// Remove 'selected' from all buttons
+amountButtons.forEach(btn => btn.classList.remove('selected'));
+// Add 'selected' to clicked button
+button.classList.add('selected');
+
+const amount = button.dataset.amount;
+
+if (amount === 'other') {
+if (customAmountInput) customAmountInput.classList.remove('hidden');
+if (donateSubmitBtn) donateSubmitBtn.classList.add('hidden'); // Hide submit until they enter an amount
+} else {
+if (customAmountInput) customAmountInput.classList.add('hidden');
+if (donateSubmitBtn) donateSubmitBtn.classList.remove('hidden');
+selectedAmount = parseInt(amount, 10);
+updateSubmitButton();
+}
+});
+});
+
+// Handle custom amount input
+if (customAmountInput) {
+customAmountInput.addEventListener('input', (e) => {
+const value = parseInt(e.target.value, 10);
+if (isNaN(value) || value <= 0) {
+if (donateSubmitBtn) donateSubmitBtn.classList.add('hidden');
+} else {
+selectedAmount = value;
+if (donateSubmitBtn) {
+donateSubmitBtn.classList.remove('hidden');
+updateSubmitButton();
+}
+}
+});
+}
+
+// --- LOGGED-IN/LOGGED-OUT STATE ---
+// This is a simulation. Replace with actual authentication logic.
+const isLoggedIn = false; // <<< --- SET THIS TO true/false TO TEST
+
+const exploreBtn = $('#explore-ypi-btn');
+const notificationBell = $('#notificationBell');
+const profilePicLink = $('#profilePicLink');
+const mobileNotificationBell = $('#mobile-notification-bell');
+const mobileProfilePicLink = $('#mobile-profile-pic-link');
+
+if (isLoggedIn) {
+if (exploreBtn) exploreBtn.style.display = 'none';
+if (notificationBell) notificationBell.style.display = 'flex';
+if (profilePicLink) profilePicLink.style.display = 'block';
+if (mobileNotificationBell) mobileNotificationBell.style.display = 'flex';
+if (mobileProfilePicLink) mobileProfilePicLink.style.display = 'block';
+} else {
+if (exploreBtn) exploreBtn.style.display = 'inline-block';
+if (notificationBell) notificationBell.style.display = 'none';
+if (profilePicLink) profilePicLink.style.display = 'none';
+if (mobileNotificationBell) mobileNotificationBell.style.display = 'none';
+if (mobileProfilePicLink) mobileProfilePicLink.style.display = 'none';
+}
+
+// --- SET ACTIVE NAV LINK ---
+// This example makes "Articles" active.
+// In a real site, this would be based on the current URL.
+document.addEventListener('DOMContentLoaded', () => {
+$$('.sidebar-nav a').forEach(link => {
+if (link.textContent.trim() === 'Articles') {
+link.classList.add('active');
+} else {
+link.classList.remove('active'); // Ensure others aren't active
+}
+});
+// You would add similar logic for the desktop .navbar-link if needed
+
+// --- DYNAMIC DATE "TIME AGO" LOGIC ---
+calculateTimeAgo();
+// Update the time ago every minute to keep it current
+setInterval(calculateTimeAgo, 60000);
+
+});
+
+// --- DYNAMIC DATE "TIME AGO" FUNCTION ---
+function calculateTimeAgo() {
+    const dateSpan = document.querySelector('[data-publish-date]');
+    const displayElement = document.getElementById('dynamic-date-display');
+    
+    if (!dateSpan || !displayElement) {
+        // console.warn('Dynamic date elements not found.');
+        return;
+    }
+
+    try {
+        const publishDateStr = dateSpan.dataset.publishDate;
+        const publishDate = new Date(publishDateStr);
+        
+        // Use the real current date for a truly dynamic calculation
+        const now = new Date(); 
+        
+        const seconds = Math.floor((now - publishDate) / 1000);
+
+        if (seconds < 60) {
+            displayElement.textContent = "just now";
+            return;
+        }
+        
+        let interval = seconds / 31536000; // years
+        if (interval > 1) {
+            const val = Math.floor(interval);
+            displayElement.textContent = val + (val === 1 ? " year ago" : " years ago");
+            return;
+        }
+        interval = seconds / 2592000; // months
+        if (interval > 1) {
+            const val = Math.floor(interval);
+            displayElement.textContent = val + (val === 1 ? " month ago" : " months ago");
+            return;
+        }
+        interval = seconds / 86400; // days
+        if (interval > 1) {
+            const val = Math.floor(interval);
+            displayElement.textContent = val + (val === 1 ? " day ago" : " days ago");
+            return;
+        }
+        interval = seconds / 3600; // hours
+        if (interval > 1) {
+            const val = Math.floor(interval);
+            displayElement.textContent = val + (val === 1 ? " hour ago" : " hours ago");
+            return;
+        }
+        interval = seconds / 60; // minutes
+        if (interval > 1) {
+            const val = Math.floor(interval);
+            displayElement.textContent = val + (val === 1 ? " minute ago" : " minutes ago");
+            return;
+        }
+        displayElement.textContent = Math.floor(seconds) + (Math.floor(seconds) === 1 ? " second ago" : " seconds ago");
+    } catch (e) {
+        console.error("Error calculating time ago:", e);
+        displayElement.textContent = "on Oct 31, 2025"; // Fallback
+    }
+}
+
+</script>
+
+</body>
+</html>

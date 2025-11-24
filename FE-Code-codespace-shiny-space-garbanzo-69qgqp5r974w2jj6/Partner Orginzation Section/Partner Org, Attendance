@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Mark Attendance - Young Progressives Initiative</title>
+   <style>
+       /* Reset and base styles */
+       * {
+           margin: 0;
+           padding: 0;
+           box-sizing: border-box;
+       }
+
+
+       body {
+           font-family: 'Arial', sans-serif;
+           background-color: var(--theme-body-bg);
+           color: var(--theme-body-color);
+           line-height: 1.6;
+           overflow-x: hidden; /* Prevent horizontal scroll */
+           font-size: 16px; /* Set base font size for rem calculation */
+       }
+      
+       /* --- GLOBAL & COMMON STYLES --- */
+       :root {
+           --primary-green: #37af4b;
+           --dark-background: #1c1c1c;
+           --member-border: #28a745;
+           --light-gray: #bbb;
+           --danger-red: #ef4444;
+
+
+           /* Default to Dark Theme */
+           --theme-body-bg: #1c1c1c;
+           --theme-body-color: #fff;
+           --theme-popup-bg: #bbbbbb;
+           --theme-popup-text: #1c1c1c;
+           --theme-input-bg: #333;
+           --theme-input-border: #444;
+           --theme-input-text: #eee;
+           --theme-navbar-bg: #1c1c1c;
+           --theme-navbar-text: #fff;
+           --theme-navbar-dropdown-bg: #f0f0f0;
+           --theme-navbar-dropdown-text: #1c1c1c;
+           --theme-navbar-dropdown-hover-bg: #ddd;
+           --theme-button-bg: #FEFEFE;
+           --theme-button-text: #1c1c1c;
+           --theme-button-border: #1c1c1c;
+           --theme-button-hover-bg: #1c1c1c;
+           --theme-button-hover-text: #FEFEFE;
+       }
+
+
+       /* Light Theme Definition */
+       html[data-theme='light'] {
+           --theme-body-bg: #FEFEFE;
+           --theme-body-color: #1c1c1c;
+           --theme-popup-bg: #e0e0e0;
+           --theme-popup-text: #1c1c1c;
+           --theme-input-bg: #fff;
+           --theme-input-border: #ccc;
+           --theme-input-text: #1c1c1c;
+           --primary-green: #37af4b;
+           --member-border: #37af4b;
+           --theme-navbar-bg: #FEFEFE;
+           --theme-navbar-text: #1c1c1c;
+           --theme-navbar-dropdown-bg: #1c1c1c;
+           --theme-navbar-dropdown-text: #FEFEFE;
+           --theme-navbar-dropdown-hover-bg: #333;
+           --theme-button-bg: #1c1c1c;
+           --theme-button-text: #FEFEFE;
+           --theme-button-border: #1c1c1c;
+           --theme-button-hover-bg: #FEFEFE;
+           --theme-button-hover-text: #1c1c1c;
+       }
+      
+       html[data-theme='light'] .desktop-wp-footer,
+       html[data-theme='light'] .footer-container {
+            background: #1c1c1c;
+            color: #FEFEFE;
+       }
+      
+       html[data-theme='light'] .desktop-wp-footer a,
+       html[data-theme='light'] .footer-container a {
+            color: #FEFEFE;
+       }
+      
+       html[data-theme='light'] .gear-icon {
+           stroke: #1c1c1c;
+       }
+
+
+       html[data-theme='light'] .attendance-table th {
+           background-color: #f2f2f2;
+       }
+
+
+       html[data-theme='light'] .attendance-table tr:nth-child(even) {
+           background-color: #f9f9f9;
+       }
+
+
+       .highlight {
+           color: var(--primary-green);
+       }
+      
+       body {
+           background-color: var(--theme-body-bg);
+           color: var(--theme-body-color);
+           transition: background-color 0.3s ease, color 0.3s ease;
+       }
+
+
+       /* --- DESKTOP LAYOUTS & STYLES --- */
+       .main-wrapper {
+           width: 100%;
+           min-height: 100vh;
+           background-color: var(--theme-body-bg);
+           position: relative;
+           display: flex;
+           flex-direction: column;
+       }
+      
+       .content-body {
+           flex: 1;
+       }
+
+
+       /* --- HEADER AND NAVBAR STYLES --- */
+       .desktop-wp-header-container {
+           background: linear-gradient(135deg,rgb(5,114,21) 0%,rgb(55,175,75) 100%);
+           width: 100%;
+       }
+
+
+       .desktop-wp-header-contents {
+           display: flex;
+           flex-wrap: nowrap;
+           justify-content: space-between;
+           align-items: center;
+           width: 100%;
+           padding: 0 1.25rem;
+       }
+
+
+       .desktop-header-left-group {
+           display: flex;
+           flex-wrap: nowrap;
+           gap: 1.25rem;
+           align-items: center;
+       }
+
+
+       .desktop-header-right-group {
+           position: relative;
+           display: flex;
+           flex-wrap: nowrap;
+           justify-content: flex-end;
+           gap: 1.25rem;
+           align-items: center;
+       }
+
+
+       .desktop-header-logo-img {
+           width: 7.4375rem;
+           height: auto;
+           display: block;
+       }
+      
+       .theme-button {
+           background-color: transparent;
+           border: none;
+           cursor: pointer;
+           padding: 0.625rem;
+           position: relative;
+           transition: transform 0.3s ease;
+       }
+      
+       .theme-button:hover {
+           transform: scale(1.1);
+       }
+      
+       .gear-icon {
+           width: 1.875rem;
+           height: 1.875rem;
+           fill: none;
+           stroke: #FEFEFE;
+           stroke-width: 2;
+           transition: transform 0.5s ease, stroke 0.3s ease;
+       }
+
+
+       .maxbutton {
+           position: relative;
+           text-decoration: none;
+           display: inline-block;
+           vertical-align: middle;
+           width: 8.125rem;
+           height: 3.125rem;
+           border: 2px solid var(--theme-button-border);
+           border-radius: 0.25rem;
+           background-color: var(--theme-button-bg);
+           box-shadow: 0px 0px 2px 0px #333333;
+           cursor: pointer;
+           transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+       }
+
+
+       .maxbutton:hover {
+           background-color: var(--theme-button-hover-bg);
+           border-color: var(--theme-button-hover-bg);
+       }
+
+
+       .maxbutton .mb-text {
+           color: var(--theme-button-text);
+           font-family: Arial, sans-serif;
+           font-size: 1.3125rem;
+           text-align: center;
+           font-weight: bold;
+           line-height: 1em;
+           display: block;
+           padding: 0.75rem 0px 0px 0px;
+           transition: color 0.3s;
+       }
+      
+       .maxbutton:hover .mb-text {
+           color: var(--theme-button-hover-text);
+       }
+
+
+       .navbar {
+           background-color: var(--theme-navbar-bg);
+           padding: 0.9375rem 0;
+           text-align: center;
+           display: flex;
+           justify-content: center;
+           width: 100%;
+           transition: background-color 0.3s ease;
+       }
+      
+       .navbar-menu {
+           display: flex;
+           list-style-type: none;
+           margin: 0;
+           padding: 0;
+       }
+      
+       .navbar-item {
+           position: relative;
+           margin: 0 1.25rem;
+       }
+      
+       .navbar-link {
+           color: var(--theme-navbar-text);
+           text-decoration: none;
+           font-size: 1.125rem;
+           padding: 0.625rem 0.3125rem;
+           display: flex;
+           align-items: center;
+           font-weight: bold;
+           transition: color 0.3s ease;
+       }
+      
+       .dropdown-icon {
+           border: solid var(--theme-navbar-text);
+           border-width: 0 2px 2px 0;
+           display: inline-block;
+           padding: 0.1875rem;
+           margin-left: 0.3125rem;
+           transform: rotate(45deg);
+           transition: transform 0.3s, border-color 0.3s ease;
+           will-change: transform;
+       }
+      
+       .navbar-item:hover .dropdown-icon {
+           transform: rotate(-135deg);
+       }
+
+
+       .navbar-item:hover .dropdown-menu {
+           visibility: visible;
+           opacity: 1;
+       }
+      
+       .dropdown-menu {
+           display: block;
+           visibility: hidden;
+           opacity: 0;
+           transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+           position: absolute;
+           background-color: var(--theme-navbar-dropdown-bg);
+           min-width: 12.5rem;
+           box-shadow: 0rem 0.5rem 1rem 0rem rgba(0,0,0,0.1);
+           z-index: 1;
+           top: 100%;
+           left: 0;
+           text-align: left;
+           border-radius: 0.25rem;
+       }
+      
+       .dropdown-item {
+           display: block;
+           padding: 0.75rem 0.9375rem;
+           color: var(--theme-navbar-dropdown-text);
+           text-decoration: none;
+           font-size: 1rem;
+           font-weight: bold;
+       }
+      
+       .dropdown-item:hover {
+           background-color: var(--theme-navbar-dropdown-hover-bg);
+       }
+
+
+       /* --- ATTENDANCE FORM CONTAINER AND STYLES --- */
+       .form-page-container {
+           max-width: 900px;
+           margin: 3rem auto;
+           padding: 2rem;
+           background-color: rgba(128, 128, 128, 0.1);
+           border-radius: 1rem;
+           border: 1px solid var(--theme-input-border);
+       }
+
+
+       .form-page-container h1 {
+           text-align: center;
+           color: var(--primary-green);
+           margin-bottom: 0.5rem;
+           font-size: 2.5rem;
+       }
+
+
+       .form-page-container p.subtitle {
+           text-align: center;
+           margin-bottom: 2.5rem;
+           font-size: 1.1rem;
+           color: var(--light-gray);
+       }
+      
+       html[data-theme='light'] .form-page-container p.subtitle {
+            color: #555;
+       }
+
+
+       .form-group {
+           margin-bottom: 1.5rem;
+       }
+
+
+       .form-group label {
+           display: block;
+           margin-bottom: 0.5rem;
+           font-weight: bold;
+           font-size: 0.9rem;
+           color: var(--theme-body-color);
+       }
+
+
+       .form-group select {
+           width: 100%;
+           padding: 0.75rem;
+           border: 1px solid var(--theme-input-border);
+           border-radius: 0.25rem;
+           background-color: var(--theme-input-bg);
+           color: var(--theme-input-text);
+           box-sizing: border-box;
+           font-size: 1rem;
+       }
+      
+       .attendance-table {
+           width: 100%;
+           border-collapse: collapse;
+           margin-top: 1.5rem;
+       }
+      
+       .attendance-table th, .attendance-table td {
+           padding: 1rem;
+           text-align: left;
+           border-bottom: 1px solid var(--theme-input-border);
+       }
+      
+       .attendance-table th {
+           background-color: var(--theme-input-bg);
+           font-weight: bold;
+       }
+      
+       .attendance-table tr:hover {
+           background-color: rgba(128, 128, 128, 0.1);
+       }
+      
+       .attendance-status {
+           display: flex;
+           gap: 1rem;
+           align-items: center;
+       }
+
+
+       .attendance-status label {
+           cursor: pointer;
+           display: flex;
+           align-items: center;
+           gap: 0.5rem;
+       }
+      
+       .attendance-status input[type="radio"] {
+           appearance: none;
+           width: 1.25rem;
+           height: 1.25rem;
+           border: 2px solid var(--theme-input-border);
+           border-radius: 50%;
+           cursor: pointer;
+           transition: background-color 0.2s, border-color 0.2s;
+           position: relative;
+       }
+      
+       .attendance-status input[type="radio"]:checked {
+           border-color: var(--primary-green);
+       }
+      
+       .attendance-status input[type="radio"]:checked::after {
+           content: '';
+           display: block;
+           width: 0.75rem;
+           height: 0.75rem;
+           background-color: var(--primary-green);
+           border-radius: 50%;
+           position: absolute;
+           top: 50%;
+           left: 50%;
+           transform: translate(-50%, -50%);
+       }
+
+
+       .submit-button {
+           background: linear-gradient(135deg,rgb(5,114,21) 0%,rgb(55,175,75) 100%);
+           color: #fff;
+           border: none;
+           padding: 0.9375rem 1.25rem;
+           width: 100%;
+           border-radius: 0.5rem;
+           cursor: pointer;
+           font-weight: bold;
+           font-size: 1.25rem;
+           margin-top: 2rem;
+           transition: transform 0.2s, box-shadow 0.2s;
+       }
+
+
+       .submit-button:hover {
+           transform: translateY(-2px);
+           box-shadow: 0 4px 10px rgba(55, 175, 75, 0.4);
+       }
+
+
+       /* --- Footer Styles --- */
+       .footer-container {
+           background: linear-gradient(135deg, rgb(5, 114, 21) 0%, rgb(55, 175, 75) 100%);
+           padding: 1rem 0;
+           color: #FEFEFE; 
+       }
+
+
+       .footer-content {
+           max-width: 1200px;
+           margin: auto;
+           padding: 1.25rem;
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           flex-wrap: wrap;
+       }
+
+
+       .footer-column {
+           display: flex;
+           flex-direction: column;
+           align-items: center;
+           flex: 1;
+           padding: 0.625rem;
+       }
+
+
+       .footer-column.center-column {
+           text-align: center;
+       }
+
+
+       .footer-column.right-column {
+           align-items: flex-start;
+       }
+
+
+       .footer-container .site-logo {
+           width: 10.4125rem;
+           height: auto;
+           object-fit: contain;
+           margin-bottom: -2rem;
+       }
+
+
+       .company-heading {
+           font-size: 1.25rem;
+           text-align: center;
+           font-weight: bold;
+           margin: 0;
+       }
+
+
+       .instagram-link {
+           display: flex;
+           align-items: center;
+           text-decoration: none;
+           color: white;
+           margin-top: 0.625rem;
+       }
+
+
+       .instagram-link img {
+           width: 2.5625rem;
+           height: auto;
+           color: white;
+           margin-right: 0.625rem;
+       }
+
+
+       .instagram-link span {
+           font-size: 135%;
+       }
+
+
+       .address {
+           width: 100%;
+           text-align: center;
+           margin-top: 1rem;
+           padding-bottom: 0.3125rem;
+           font-size: 0.8rem;
+           color: #ccc;
+       }
+      
+       html[data-theme='light'] .address p {
+           color: #1c1c1c;
+       }
+      
+       .spacer-column {
+           flex-basis: 6.25rem;
+           flex-grow: 0;
+       }
+
+
+       /* Custom message box styles */
+       .message-box-overlay {
+           position: fixed;
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100%;
+           background-color: rgba(0, 0, 0, 0.5);
+           z-index: 10000;
+           display: flex;
+           justify-content: center;
+           align-items: center;
+           visibility: hidden;
+           opacity: 0;
+           transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+       }
+
+
+       .message-box {
+           background-color: var(--theme-body-bg);
+           color: var(--theme-body-color);
+           padding: 1.5625rem;
+           border-radius: 0.5rem;
+           box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.3);
+           max-width: 21.875rem;
+           width: 90%;
+           text-align: center;
+           position: relative;
+       }
+
+
+       .message-box h3 {
+           margin-top: 0;
+           margin-bottom: 0.9375rem;
+           color: var(--primary-green);
+       }
+
+
+       .message-box p {
+           margin-bottom: 1.25rem;
+           font-size: 1.1rem;
+       }
+
+
+       .message-box button {
+           background-color: var(--primary-green);
+           color: #1c1c1c;
+           border: none;
+           padding: 0.625rem 1.25rem;
+           border-radius: 0.3125rem;
+           cursor: pointer;
+           font-weight: bold;
+           transition: background-color 0.2s ease;
+       }
+
+
+       .message-box button:hover {
+           background-color: #2e9b41;
+       }
+   </style>
+   <script>
+       // Immediately-invoked function to set the theme from localStorage before the page loads
+       (function() {
+           try {
+               const savedTheme = localStorage.getItem('theme') || 'dark'; // Default to dark
+               document.documentElement.setAttribute('data-theme', savedTheme);
+           } catch (e) {
+               console.error("Could not access localStorage to set theme.", e);
+           }
+       })();
+   </script>
+</head>
+<body>
+   <!-- Main Wrapper for Desktop View -->
+   <div class="main-wrapper">
+     <div class="content-body">
+       <!-- Desktop Header -->
+       <div class="desktop-wp-header-container">
+           <div style="height:0.875rem" aria-hidden="true"></div>
+           <header class="desktop-wp-header-contents">
+               <div class="desktop-header-left-group">
+                   <a href="https://weareypi.com/">
+                       <img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Desktop Logo" class="desktop-header-logo-img">
+                   </a>
+               </div>
+               <div class="desktop-header-right-group">
+                   <button class="theme-button" id="themeButton" aria-label="Toggle color theme">
+                       <svg class="gear-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                           <circle cx="12" cy="12" r="3"></circle>
+                           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l-.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l.06.06a1.65 1.65 0 0 0 .33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                       </svg>
+                   </button>
+                   <a href="https://www.instagram.com/_youngprogressivesinitiative_?igsh=NmQ0b2h2ZDM2eDJw&amp;utm_source=qr" aria-label="Visit our Instagram page.">
+                       <img src="https://logos-world.net/wp-content/uploads/2020/04/Instagram-Emblem.png" alt="Instagram Logo" style="object-fit:cover;width:2.0625rem;height:2.0625rem"/>
+                   </a>
+                   <a class="maxbutton" href="#"><span class='mb-text'>Explore YPI</span></a>
+               </div>
+           </header>
+           <div style="height:0.75rem" aria-hidden="true"></div>
+       </div>
+      
+       <!-- Desktop Navigation -->
+       <nav class="navbar">
+           <ul class="navbar-menu">
+               <li class="navbar-item">
+                   <a href="#" class="navbar-link">About Us<i class="dropdown-icon"></i></a>
+                   <div class="dropdown-menu">
+                       <a href="https://weareypi.com/mission-statement/" class="dropdown-item">Our Mission</a>
+                       <a href="https://weareypi.com/meet-ypi-roster/" class="dropdown-item">Meet the YPI Team</a>
+                   </div>
+               </li>
+               <li class="navbar-item">
+                   <a href="#" class="navbar-link">Get Involved<i class="dropdown-icon"></i></a>
+                   <div class="dropdown-menu">
+                       <a href="https://weareypi.com/donate/" class="dropdown-item">Donate</a>
+                       <a href="https://weareypi.com/info-guide/" class="dropdown-item">Information Guide for Parents</a>
+                   </div>
+               </li>
+               <li class="navbar-item">
+                   <a href="https://weareypi.com/need-volunteers/" class="navbar-link">Need Volunteers?</a>
+               </li>
+           </ul>
+       </nav>
+      
+       <!-- Attendance Form -->
+       <main class="form-page-container">
+           <h1>Event Attendance</h1>
+           <p class="subtitle">Select an event to mark attendance for student volunteers. Marking a student as 'Present' will automatically log their hours.</p>
+           <form id="attendanceForm">
+               <div class="form-group">
+                   <label for="eventSelect">Select Event</label>
+                   <select id="eventSelect" name="eventSelect" required>
+                       <option value="" disabled selected>-- Please select an event --</option>
+                       <option value="event1">Community Park Cleanup - July 20, 2025</option>
+                       <option value="event2">Annual Food Drive - August 5, 2025</option>
+                       <option value="event3">Voter Registration Drive - August 15, 2025</option>
+                   </select>
+               </div>
+              
+               <table class="attendance-table">
+                   <thead>
+                       <tr>
+                           <th>Student Name</th>
+                           <th>Status</th>
+                       </tr>
+                   </thead>
+                   <tbody id="student-list">
+                       <!-- Student rows will be dynamically inserted here -->
+                       <tr>
+                           <td>Alex Johnson</td>
+                           <td class="attendance-status">
+                               <label><input type="radio" name="student1" value="present" checked> Present</label>
+                               <label><input type="radio" name="student1" value="absent"> Absent</label>
+                           </td>
+                       </tr>
+                       <tr>
+                           <td>Maria Garcia</td>
+                           <td class="attendance-status">
+                               <label><input type="radio" name="student2" value="present" checked> Present</label>
+                               <label><input type="radio" name="student2" value="absent"> Absent</label>
+                           </td>
+                       </tr>
+                       <tr>
+                           <td>David Smith</td>
+                           <td class="attendance-status">
+                               <label><input type="radio" name="student3" value="present" checked> Present</label>
+                               <label><input type="radio" name="student3" value="absent"> Absent</label>
+                           </td>
+                       </tr>
+                        <tr>
+                           <td>Emily White</td>
+                           <td class="attendance-status">
+                               <label><input type="radio" name="student4" value="present" checked> Present</label>
+                               <label><input type="radio" name="student4" value="absent"> Absent</label>
+                           </td>
+                       </tr>
+                        <tr>
+                           <td>Michael Brown</td>
+                           <td class="attendance-status">
+                               <label><input type="radio" name="student5" value="present" checked> Present</label>
+                               <label><input type="radio" name="student5" value="absent"> Absent</label>
+                           </td>
+                       </tr>
+                   </tbody>
+               </table>
+
+
+               <button type="submit" class="submit-button">Submit Attendance & Log Hours</button>
+           </form>
+       </main>
+
+
+       <!-- Desktop Footer -->
+       <footer class="footer-container">
+           <div class="footer-content">
+               <div class="footer-column center-column">
+                   <img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon.png" alt="Young Progressives Initiative Site Icon" class="site-logo">
+                   <h2 class="company-heading">A Company to Change America One Hour At a Time</h2>
+               </div>
+               <div class="footer-column spacer-column"></div>
+               <div class="footer-column right-column">
+                   <a class="instagram-link" href="https://www.instagram.com/_youngprogressivesinitiative_?igsh=NmQ0b2h2ZDM2eDJw&utm_source=qr" aria-label="Visit our Instagram page.">
+                       <img src="https://logos-world.net/wp-content/uploads/2020/04/Instagram-Emblem.png" alt="Instagram Logo">
+                       <span>Instagram</span>
+                   </a>
+               </div>
+           </div>
+           <div class="address">
+               <p>Young Progressives Initiative L.L.C , Chevy Chase, MD 20815</p>
+           </div>
+       </footer>
+     </div>
+   </div>
+
+
+   <!-- Message Box Overlay (for popups) -->
+   <div class="message-box-overlay" id="messageBoxOverlay"></div>
+
+
+   <script>
+       document.addEventListener('DOMContentLoaded', function() {
+           // --- THEME TOGGLE SCRIPT ---
+           function initializeThemeToggle() {
+               const themeButton = document.getElementById('themeButton');
+               const htmlElement = document.documentElement;
+
+
+               if (!themeButton) {
+                   console.error("Theme toggle button not found.");
+                   return;
+               }
+
+
+               const applyTheme = (theme) => {
+                   htmlElement.setAttribute('data-theme', theme);
+                   localStorage.setItem('theme', theme);
+               };
+
+
+               const setInitialState = () => {
+                   const gearIcon = themeButton.querySelector('.gear-icon');
+                   const currentTheme = htmlElement.getAttribute('data-theme') || 'dark';
+                   let rotationAngle = (currentTheme === 'light') ? 180 : 0;
+                   gearIcon.style.transform = `rotate(${rotationAngle}deg)`;
+                   gearIcon.dataset.rotation = rotationAngle;
+               };
+
+
+               themeButton.addEventListener('click', () => {
+                   const newTheme = htmlElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+                   applyTheme(newTheme);
+
+
+                   const gearIcon = themeButton.querySelector('.gear-icon');
+                   let currentRotation = parseFloat(gearIcon.dataset.rotation) || 0;
+                   currentRotation += 180;
+                   gearIcon.style.transform = `rotate(${currentRotation}deg)`;
+                   gearIcon.dataset.rotation = currentRotation;
+               });
+
+
+               setInitialState();
+           }
+          
+           // --- MESSAGE BOX FUNCTIONS ---
+           function showMessage(title, message) {
+               let messageBoxOverlay = document.getElementById('messageBoxOverlay');
+               if (!messageBoxOverlay) {
+                   messageBoxOverlay = document.createElement('div');
+                   messageBoxOverlay.id = 'messageBoxOverlay';
+                   messageBoxOverlay.className = 'message-box-overlay';
+                   document.body.appendChild(messageBoxOverlay);
+               }
+               messageBoxOverlay.innerHTML = `<div class="message-box"><h3>${title}</h3><p>${message}</p><button id="messageBoxCloseButton">OK</button></div>`;
+               document.getElementById('messageBoxCloseButton').onclick = () => hideMessageBox();
+               messageBoxOverlay.style.visibility = 'visible';
+               messageBoxOverlay.style.opacity = '1';
+               document.body.style.overflow = 'hidden';
+           }
+
+
+           function hideMessageBox() {
+               const messageBoxOverlay = document.getElementById('messageBoxOverlay');
+               if (messageBoxOverlay) {
+                   messageBoxOverlay.style.opacity = '0';
+                   setTimeout(() => {
+                       messageBoxOverlay.style.visibility = 'hidden';
+                       document.body.style.overflow = 'auto';
+                   }, 300);
+               }
+           }
+
+
+           // --- FORM SUBMISSION LOGIC ---
+           function initializeForm() {
+               const attendanceForm = document.getElementById('attendanceForm');
+               if(attendanceForm) {
+                   attendanceForm.addEventListener('submit', function(e) {
+                       e.preventDefault(); // Prevent actual form submission
+                      
+                       // In a real application, you would collect the data and send it to your database
+                       // to log hours for students marked "Present".
+                      
+                       let presentCount = 0;
+                       const studentRadios = attendanceForm.querySelectorAll('input[type="radio"][value="present"]:checked');
+                       presentCount = studentRadios.length;
+                      
+                       showMessage('Attendance Submitted', `Attendance has been recorded. ${presentCount} students' hours have been logged successfully.`);
+                      
+                       // Optionally, you might clear the form or redirect
+                       // For now, we'll just leave it as is.
+                   });
+               }
+           }
+
+
+           // --- INITIALIZE ALL SCRIPTS ---
+           initializeThemeToggle();
+           initializeForm();
+       });
+   </script>
+</body>
+</html>

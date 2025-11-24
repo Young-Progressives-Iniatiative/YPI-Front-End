@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Special Calendar</title>
+   <style>
+       /* Base styles and theme variables */
+       :root {
+           --primary-green: #37af4b; /* Bright green accent */
+           --dark-background: #1c1c1c;
+           --light-gray: #bbb;
+
+           /* Dark Theme Defaults */
+           --theme-body-bg: #1c1c1c; /* Overall background */
+           --theme-text-color: #fff; /* General text color */
+           --theme-border-color: #333; /* Borders for calendar cells, etc. */
+           --dark-gradient-start: rgb(5, 114, 21); /* Darker green for gradients */
+           --dark-gradient-end: rgb(55, 175, 75); /* Lighter green for gradients */
+           --theme-header-bg: var(--dark-gradient-start); /* Fallback/single color for header if not gradient */
+           --theme-header-text: #fff;
+           --theme-day-cell-bg: #2a2a2a; /* Background for individual day cells */
+           --theme-day-cell-hover-bg: #3a3a3a; /* Hover state for cells */
+           --theme-current-day-bg: var(--primary-green); /* Background for the current day */
+           --theme-current-day-text: #1c1c1c;
+           --theme-event-day-indicator: var(--primary-green); /* Color for event indicators */
+           --theme-sidebar-bg: #1c1c1c; /* Sidebar background */
+           --theme-sidebar-text: #fff;
+           --theme-mandatory-tag-bg: #e74c3c; /* Red for mandatory */
+           --theme-optional-tag-bg: #f39c12; /* Orange for optional */
+           --theme-tag-text: #fff;
+           --theme-event-item-bg: #222;
+           --theme-event-item-border: #444;
+           --theme-event-item-hover-bg: #333;
+           --theme-input-bg: #333;
+           --theme-input-border: #444;
+           --theme-input-text: #eee;
+           --theme-modal-bg: #2a2a2a;
+           --theme-modal-text: #fff;
+           --theme-close-button-color: #fff;
+           --theme-event-text-color: #eee; /* Color for event titles on calendar cells */
+           --theme-legend-text-color: #fff; /* Color for legend text */
+
+           /* Footer specific theme variables (using dark gradient by default) */
+           --footer-bg-gradient-start: var(--dark-gradient-start);
+           --footer-bg-gradient-end: var(--dark-gradient-end);
+           --footer-text-color: #FEFEFE;
+           --footer-link-color: #FEFEFE;
+           --footer-address-color: #ccc;
+       }
+
+       /* Light Theme Overrides */
+       html[data-theme='light'] {
+           --theme-body-bg: #f0f0f0;
+           --theme-text-color: #1c1c1c;
+           --theme-border-color: #ccc;
+           --light-gradient-start: #1c1c1c; /* Darker for light theme gradients */
+           --light-gradient-end: #333; /* Lighter for light theme gradients */
+           --theme-header-bg: var(--primary-green); /* Fallback/single color for header if not gradient */
+           --theme-header-text: #1c1c1c;
+           --theme-day-cell-bg: #fff;
+           --theme-day-cell-hover-bg: #e0e0e0;
+           --theme-current-day-bg: #1c1c1c;
+           --theme-current-day-text: #fff;
+           --theme-event-day-indicator: #1c1c1c;
+           --theme-sidebar-bg: #f5f5f5;
+           --theme-sidebar-text: #1c1c1c;
+           --theme-mandatory-tag-bg: #c0392b;
+           --theme-optional-tag-bg: #d35400;
+           --theme-tag-text: #fff;
+           --theme-event-item-bg: #fff;
+           --theme-event-item-border: #ddd;
+           --theme-event-item-hover-bg: #eee;
+           --theme-input-bg: #fff;
+           --theme-input-border: #ccc;
+           --theme-input-text: #1c1c1c;
+           --theme-modal-bg: #f0f0f0;
+           --theme-modal-text: #1c1c1c;
+           --theme-close-button-color: #1c1c1c;
+           --theme-event-text-color: #333;
+           --theme-legend-text-color: #1c1c1c;
+
+           /* Light theme specific overrides for footer */
+           --footer-bg-gradient-start: var(--light-gradient-start);
+           --footer-bg-gradient-end: var(--light-gradient-end);
+           --footer-text-color: #FEFEFE;
+           --footer-link-color: #FEFEFE;
+           --footer-address-color: #ccc;
+       }
+
+       body {
+           font-family: 'Inter', sans-serif;
+           background-color: var(--theme-body-bg);
+           color: var(--theme-text-color);
+           margin: 0;
+           padding: 20px;
+           display: flex;
+           flex-direction: column;
+           justify-content: flex-start;
+           align-items: center;
+           min-height: 100vh;
+           transition: background-color 0.3s ease, color 0.3s ease;
+           overflow-x: hidden;
+       }
+
+       /* Main calendar container */
+       .calendar-container {
+           display: flex;
+           background-color: var(--theme-body-bg);
+           border-radius: 10px;
+           box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+           width: 100%; /* Full width */
+           max-width: 1200px; /* Max width for the entire component */
+           margin: 0 auto 40px auto; /* Center it and add bottom margin */
+           border: 1px solid var(--theme-border-color);
+           overflow: hidden;
+           position: relative; /* For absolute positioning of sidebar */
+       }
+
+       /* Left Sidebar (now Event List) */
+       .calendar-sidebar {
+           width: 180px; /* Reduced width */
+           background-color: var(--theme-sidebar-bg);
+           padding: 20px;
+           border-right: 1px solid var(--theme-border-color);
+           display: flex;
+           flex-direction: column;
+           gap: 20px;
+           flex-shrink: 0;
+           position: absolute; /* Position absolutely */
+           left: 0; /* Start at 0, but we'll use transform to hide */
+           height: 100%; /* Take full height of container */
+           transform: translateX(-100%); /* Hide it to the left */
+           transition: transform 0.3s ease; /* Smooth slide in/out */
+           z-index: 10; /* Ensure it's above the main calendar */
+       }
+
+       .sidebar-header {
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           margin-bottom: 20px;
+       }
+
+       .sidebar-header h2 {
+           font-size: 1.5rem;
+           margin: 0;
+           color: var(--primary-green); /* Consistent green */
+       }
+
+       .theme-toggle-button {
+           background: none;
+           border: none;
+           cursor: pointer;
+           padding: 5px;
+           border-radius: 50%;
+           transition: background-color 0.3s ease;
+       }
+
+       .theme-toggle-button:hover {
+           background-color: rgba(255, 255, 255, 0.1);
+       }
+
+       .gear-icon {
+           width: 24px;
+           height: 24px;
+           fill: none;
+           stroke: var(--theme-text-color);
+           stroke-width: 2;
+           transition: transform 0.5s ease, stroke 0.3s ease;
+       }
+
+       .user-id-display {
+           font-size: 0.8em;
+           color: var(--light-gray);
+           word-break: break-all;
+           margin-top: 10px;
+           text-align: center;
+       }
+      
+       .sidebar-button {
+           width: 100%;
+           padding: 12px 15px;
+           background-color: var(--primary-green); /* Consistent green */
+           color: var(--theme-text-color);
+           border: none;
+           border-radius: 8px;
+           font-size: 1.1rem;
+           font-weight: bold;
+           cursor: pointer;
+           transition: background-color 0.3s ease, color 0.3s ease;
+           box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+           margin-top: 10px; /* Space from top */
+       }
+
+       .sidebar-button:hover {
+           background-color: #2e9b41; /* Slightly darker green on hover */
+       }
+
+       /* Event List Styles */
+       .event-list {
+           display: flex;
+           flex-direction: column;
+           gap: 15px;
+           margin-top: 20px;
+           flex-grow: 1;
+           overflow-y: auto;
+           padding-right: 5px;
+       }
+      
+       /* Custom scrollbar for event list */
+       .event-list::-webkit-scrollbar {
+           width: 8px;
+       }
+
+       .event-list::-webkit-scrollbar-track {
+           background: var(--theme-sidebar-bg);
+           border-radius: 10px;
+       }
+
+       .event-list::-webkit-scrollbar-thumb {
+           background: var(--theme-border-color);
+           border-radius: 10px;
+       }
+
+       .event-list::-webkit-scrollbar-thumb:hover {
+           background: var(--primary-green);
+       }
+
+       .event-item {
+           background-color: var(--theme-event-item-bg);
+           border: 1px solid var(--theme-event-item-border);
+           border-radius: 8px;
+           padding: 10px; /* Reduced padding for narrower sidebar */
+           display: flex;
+           flex-direction: column;
+           gap: 5px;
+           cursor: pointer;
+           transition: background-color 0.2s ease, transform 0.2s ease;
+           box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+           position: relative; /* For delete button positioning */
+       }
+
+       .event-item:hover {
+           background-color: var(--theme-event-item-hover-bg);
+           transform: translateY(-2px);
+       }
+
+       .event-title-wrapper {
+           display: flex;
+           align-items: center;
+           gap: 8px; /* Space between circle and title */
+       }
+
+       .event-type-circle {
+           width: 14px; /* Size of the circle */
+           height: 14px;
+           border-radius: 50%; /* Make it a circle */
+           flex-shrink: 0; /* Prevent it from shrinking */
+       }
+
+       .event-type-circle.mandatory {
+           background-color: var(--theme-mandatory-tag-bg);
+       }
+
+       .event-type-circle.optional {
+           background-color: var(--theme-optional-tag-bg);
+       }
+
+       .event-title {
+           font-size: 1rem; /* Slightly smaller font for narrower sidebar */
+           font-weight: bold;
+           color: var(--theme-text-color);
+           line-height: 1.2; /* Adjust line height for better alignment */
+       }
+
+       .event-description {
+           font-size: 0.8rem;
+           color: var(--light-gray);
+           margin-top: -3px; /* Pull closer to title */
+           line-height: 1.3;
+       }
+
+       .event-date {
+           font-size: 0.8rem; /* Slightly smaller font */
+           color: var(--light-gray);
+       }
+
+       .event-type-tag { /* This is the old tag, keeping it for now if needed elsewhere */
+           display: none; /* Hide the old tag if not used */
+       }
+
+       .event-controls {
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           margin-top: 8px;
+           width: 100%;
+       }
+
+       .event-controls label {
+           font-size: 0.8rem;
+           display: flex;
+           align-items: center;
+           gap: 5px;
+           cursor: pointer;
+           color: var(--light-gray);
+       }
+
+       .event-controls input[type="checkbox"] {
+           cursor: pointer;
+           accent-color: var(--primary-green); /* Green checkbox */
+       }
+
+       .delete-event-btn {
+           background: none;
+           border: none;
+           color: #e74c3c; /* Red for delete */
+           font-size: 1.2rem;
+           cursor: pointer;
+           padding: 0;
+           line-height: 1;
+           transition: color 0.2s ease;
+       }
+
+       .delete-event-btn:hover {
+           color: #c0392b;
+       }
+
+       /* Main Calendar Grid */
+       .main-calendar {
+           flex-grow: 1;
+           padding: 20px;
+           display: flex;
+           flex-direction: column;
+           color: var(--theme-text-color);
+           margin-left: 0; /* Initial margin */
+           transition: margin-left 0.3s ease; /* Smooth push */
+       }
+
+       /* Hover effect to reveal sidebar and push main calendar */
+       .calendar-container:hover .calendar-sidebar {
+           transform: translateX(0); /* Slide in */
+       }
+
+       .calendar-container:hover .main-calendar {
+           margin-left: 180px; /* Push main calendar by sidebar's width */
+       }
+
+       .main-calendar-header {
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           margin-bottom: 20px;
+           padding: 10px 0;
+           background: linear-gradient(135deg, var(--dark-gradient-start) 0%, var(--dark-gradient-end) 100%); /* Consistent gradient */
+           color: var(--theme-header-text);
+           border-radius: 8px;
+           font-weight: bold;
+           font-size: 1.8rem;
+           text-align: center;
+           transition: background 0.3s ease; /* Smooth transition for theme change */
+       }
+
+       html[data-theme='light'] .main-calendar-header {
+           background: linear-gradient(135deg, var(--light-gradient-start) 0%, var(--light-gradient-end) 100%); /* Light theme gradient */
+       }
+
+       .main-calendar-header span {
+           flex-grow: 1;
+       }
+
+       .main-calendar-header button {
+           background: none;
+           border: none;
+           color: var(--theme-header-text);
+           font-size: 2rem;
+           cursor: pointer;
+           padding: 0 15px;
+           border-radius: 5px;
+           transition: background-color 0.2s ease;
+       }
+
+       .main-calendar-header button:hover {
+           background-color: rgba(255, 255, 255, 0.1);
+       }
+
+       .main-calendar-grid {
+           display: grid;
+           grid-template-columns: repeat(7, 1fr);
+           border-top: 1px solid var(--theme-border-color);
+           border-left: 1px solid var(--theme-border-color);
+           flex-grow: 1;
+       }
+
+       .day-name {
+           /* Now uses the same gradient as the main header */
+           background: linear-gradient(135deg, var(--dark-gradient-start) 0%, var(--dark-gradient-end) 100%);
+           color: var(--theme-header-text);
+           padding: 10px 0;
+           font-weight: bold;
+           text-align: center;
+           border-right: 1px solid var(--theme-border-color);
+           border-bottom: 1px solid var(--theme-border-color);
+           font-size: 1rem;
+           transition: background 0.3s ease; /* Smooth transition for theme change */
+       }
+
+       html[data-theme='light'] .day-name {
+           background: linear-gradient(135deg, var(--light-gradient-start) 0%, var(--light-gradient-end) 100%);
+       }
+
+       .calendar-cell {
+           min-height: 100px;
+           border-right: 1px solid var(--theme-border-color);
+           border-bottom: 1px solid var(--theme-border-color);
+           padding: 10px;
+           display: flex;
+           flex-direction: column;
+           align-items: flex-start;
+           background-color: var(--theme-day-cell-bg);
+           transition: background-color 0.2s ease;
+           position: relative;
+           cursor: pointer;
+       }
+
+       .calendar-cell:hover {
+           background-color: var(--theme-day-cell-hover-bg);
+       }
+
+       .date-number {
+           font-size: 1.2rem;
+           font-weight: bold;
+           margin-bottom: 5px;
+           color: var(--theme-text-color);
+       }
+
+       .calendar-cell.current-day .date-number {
+           background-color: var(--theme-current-day-bg);
+           color: var(--theme-current-day-text);
+           border-radius: 50%;
+           width: 30px;
+           height: 30px;
+           display: flex;
+           justify-content: center;
+           align-items: center;
+           margin-bottom: 5px;
+       }
+
+       /* Styles for event titles directly in the calendar cell */
+       .calendar-cell .event-title-on-cell-wrapper {
+           display: flex;
+           align-items: center;
+           gap: 5px; /* Space between circle and title on calendar cell */
+           margin-top: 2px;
+           line-height: 1.2;
+       }
+
+       .calendar-cell .event-title-on-cell {
+           font-size: 0.8rem;
+           color: var(--theme-event-text-color);
+           overflow: hidden;
+           text-overflow: ellipsis;
+           display: -webkit-box;
+           -webkit-line-clamp: 3; /* Limit to 3 lines to save space */
+           -webkit-box-orient: vertical;
+       }
+
+       /* Re-using event-type-circle for calendar cells */
+       .calendar-cell .event-type-circle {
+           width: 10px; /* Slightly smaller circle for calendar cells */
+           height: 10px;
+           flex-shrink: 0;
+       }
+
+       .calendar-cell.empty {
+           background-color: transparent;
+           cursor: default;
+       }
+      
+       .calendar-cell.empty:hover {
+           background-color: transparent;
+       }
+
+       /* --- Footer Styles --- */
+       .footer-container {
+           background: linear-gradient(135deg, var(--footer-bg-gradient-start) 0%, var(--footer-bg-gradient-end) 100%);
+           padding: 1rem 0;
+           color: var(--footer-text-color);
+           width: 100%;
+           transition: background 0.3s ease, color 0.3s ease; /* Smooth transition for theme change */
+       }
+
+       .footer-content {
+           max-width: 1200px;
+           margin: auto;
+           padding: 1.25rem;
+           display: flex;
+           flex-direction: column; /* Stack columns vertically */
+           justify-content: center;
+           align-items: center; /* Center horizontally */
+           flex-wrap: wrap;
+       }
+
+       .footer-column {
+           display: flex;
+           flex-direction: column;
+           align-items: center; /* Center content within column */
+           flex: none; /* Do not grow or shrink */
+           width: 100%; /* Take full width */
+           padding: 0.625rem;
+       }
+
+       .footer-container .site-logo {
+           width: 10.4125rem;
+           height: auto;
+           object-fit: contain;
+           margin-bottom: -2rem;
+       }
+
+       .company-heading {
+           font-size: 1.25rem;
+           text-align: center;
+           font-weight: bold;
+           margin: 0;
+       }
+
+       /* Removed Instagram link styles */
+       .instagram-link {
+           display: none; /* Hide the Instagram link */
+       }
+
+       .address {
+           width: 100%;
+           text-align: center;
+           margin-top: 1rem;
+           padding-bottom: 0.3125rem;
+           font-size: 0.8rem;
+           color: var(--footer-address-color);
+       }
+      
+       html[data-theme='light'] .address p {
+           color: var(--theme-text-color);
+       }
+      
+       /* Removed spacer-column as it's no longer needed for centering */
+       .spacer-column {
+           display: none;
+       }
+
+       /* Modal Styles - Keep these for the delete confirmation, but hide the add event specific ones */
+       .modal-overlay {
+           position: fixed;
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100%;
+           background-color: rgba(0, 0, 0, 0.7);
+           display: flex;
+           justify-content: center;
+           align-items: center;
+           z-index: 1000;
+           visibility: hidden;
+           opacity: 0;
+           transition: opacity 0.3s ease, visibility 0.3s ease;
+       }
+
+       .modal-overlay.visible {
+           visibility: visible;
+           opacity: 1;
+       }
+
+       /* Hide the add event modal content entirely */
+       #addEventModal .modal-content {
+           display: none;
+       }
+
+       /* This rule is just to ensure other modals, if any, would still display */
+       .modal-content {
+           background-color: var(--theme-modal-bg);
+           color: var(--theme-modal-text);
+           padding: 30px;
+           border-radius: 10px;
+           box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+           width: 90%;
+           max-width: 400px;
+           position: relative;
+       }
+
+       /* Specific styles for elements within the hidden modal (which are now effectively unused) */
+       .modal-content h3,
+       .modal-content label,
+       .modal-content input[type="text"],
+       .modal-content input[type="date"],
+       .modal-content select,
+       .modal-content textarea,
+       .modal-content button,
+       .modal-close-btn {
+           display: none; /* Explicitly hide all elements within the removed modal to be safe */
+       }
+
+
+       /* Loading indicator for events */
+       .loading-events {
+           text-align: center;
+           color: var(--light-gray);
+           margin-top: 20px;
+       }
+
+       /* No mobile footer styles needed as per request for desktop-only */
+       @media (max-width: 768px) {
+           .footer-content {
+               flex-direction: column;
+           }
+           .address {
+               margin-top: 3.125rem;
+           }
+           .footer-container .site-logo {
+               width: 32rem;
+               height: 32rem;
+               max-width: 90%;
+           }
+       }
+   </style>
+</head>
+<body data-theme="dark">
+   <div class="calendar-container">
+       <div class="calendar-sidebar">
+           <div class="sidebar-header">
+               <h2>Upcoming Events</h2>
+               <button class="theme-toggle-button" id="themeToggleButton" aria-label="Toggle color theme">
+                   <svg class="gear-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                       <circle cx="12" cy="12" r="3"></circle>
+                       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l-.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l-.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                   </svg>
+               </button>
+           </div>
+           <div class="event-list" id="eventList">
+               <p class="loading-events">Loading events...</p>
+           </div>
+       </div>
+
+       <div class="main-calendar">
+           <div class="main-calendar-header">
+               <button id="prevMonthMain">&lt;</button>
+               <span id="currentMonthMain">July 2024</span>
+               <button id="nextMonthMain">&gt;</button>
+           </div>
+           <div class="main-calendar-grid" id="mainCalendarGrid">
+               <div class="day-name">MON</div>
+               <div class="day-name">TUE</div>
+               <div class="day-name">WED</div>
+               <div class="day-name">THU</div>
+               <div class="day-name">FRI</div>
+               <div class="day-name">SAT</div>
+               <div class="day-name">SUN</div>
+               </div>
+       </div>
+   </div>
+
+   <footer class="footer-container">
+       <div class="footer-content">
+           <div class="footer-column">
+               <img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon.png" alt="Young Progressives Initiative Site Icon" class="site-logo">
+               <h2 class="company-heading">A Company to Change America One Hour At a Time</h2>
+           </div>
+       </div>
+       <div class="address">
+           <p>Young Progressives Initiative L.L.C , Chevy Chase, MD 20815</p>
+       </div>
+   </footer>
+
+   <div class="modal-overlay" id="addEventModal">
+       <div class="modal-content">
+           </div>
+   </div>
+
+   <script>
+       document.addEventListener('DOMContentLoaded', function() {
+           const htmlElement = document.documentElement;
+           const themeToggleButton = document.getElementById('themeToggleButton');
+           const gearIcon = themeToggleButton.querySelector('.gear-icon');
+
+           const currentMonthMain = document.getElementById('currentMonthMain');
+           const mainCalendarGrid = document.getElementById('mainCalendarGrid');
+           const prevMonthMain = document.getElementById('prevMonthMain');
+           const nextMonthMain = document.getElementById('nextMonthMain');
+           const eventListContainer = document.getElementById('eventList');
+
+           let currentDate = new Date();
+           let activeMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+
+           let events = [];
+
+           function loadEventsFromLocalStorage() {
+               const savedEvents = localStorage.getItem('calendarEvents');
+               if (savedEvents) {
+                   events = JSON.parse(savedEvents).map(e => ({...e, date: new Date(e.date)}));
+               } else {
+                   // Default events if nothing is in local storage
+                   events = [
+                       { id: 'e1', title: 'Community Clean-up', description: 'Help clean up the local park.', date: new Date(2024, 6, 10), type: 'mandatory', confirmed: false },
+                       { id: 'e2', title: 'Volunteer Training Session', description: 'Mandatory training for new volunteers.', date: new Date(2024, 6, 18), type: 'optional', confirmed: true },
+                       { id: 'e3', title: 'Fundraiser Gala', description: 'Annual fundraising event at the city hall.', date: new Date(2024, 6, 25), type: 'mandatory', confirmed: false },
+                       { id: 'e4', title: 'New Member Orientation', description: 'Welcome session for new members.', date: new Date(2024, 7, 5), type: 'optional', confirmed: true },
+                       { id: 'e5', title: 'Local Policy Discussion', description: 'Discuss upcoming local policies.', date: new Date(2024, 7, 15), type: 'mandatory', confirmed: false },
+                       { id: 'e6', title: 'Online Outreach Workshop', description: 'Learn digital outreach strategies.', date: new Date(2024, 7, 22), type: 'optional', confirmed: true },
+                       { id: 'e7', title: 'October Fest Planning', description: 'Plan for the annual October Fest event.', date: new Date(2024, 8, 1), type: 'mandatory', confirmed: false },
+                       { id: 'e8', title: 'Community Feedback Session', description: 'Gathering feedback from the community.', date: new Date(2024, 6, 10), type: 'optional', confirmed: true },
+                   ];
+                   saveEventsToLocalStorage();
+               }
+               renderCalendar(activeMonth);
+           }
+
+           function saveEventsToLocalStorage() {
+               localStorage.setItem('calendarEvents', JSON.stringify(events));
+           }
+
+
+           // --- Theme Toggle Logic ---
+           const applyTheme = (theme) => {
+               htmlElement.setAttribute('data-theme', theme);
+               localStorage.setItem('theme', theme);
+           };
+
+           const setInitialThemeState = () => {
+               const savedTheme = localStorage.getItem('theme') || 'dark'; // Default to dark
+               applyTheme(savedTheme);
+               let rotationAngle = (savedTheme === 'light') ? 180 : 0;
+               gearIcon.style.transform = `rotate(${rotationAngle}deg)`;
+               gearIcon.dataset.rotation = rotationAngle;
+           };
+
+           themeToggleButton.addEventListener('click', () => {
+               const newTheme = htmlElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+               applyTheme(newTheme);
+
+               let currentRotation = parseFloat(gearIcon.dataset.rotation) || 0;
+               currentRotation += 180;
+               gearIcon.style.transform = `rotate(${currentRotation}deg)`;
+               gearIcon.dataset.rotation = currentRotation;
+           });
+
+           setInitialThemeState(); // Apply theme on load
+
+           // --- Event List Rendering Logic ---
+           function renderEventList(monthDate) {
+               eventListContainer.innerHTML = ''; // Clear existing events
+               const currentMonthEvents = events.filter(event =>
+                   event.date.getFullYear() === monthDate.getFullYear() &&
+                   event.date.getMonth() === monthDate.getMonth()
+               ).sort((a, b) => a.date - b.date); // Sort events by date
+
+               if (currentMonthEvents.length === 0) {
+                   eventListContainer.innerHTML = `<p style="text-align: center; color: var(--light-gray); margin-top: 20px;">No events scheduled for this month.</p>`;
+                   return;
+               }
+
+               currentMonthEvents.forEach(event => {
+                   const eventItem = document.createElement('div');
+                   eventItem.classList.add('event-item');
+                   eventItem.innerHTML = `
+                       <div class="event-title-wrapper">
+                           <span class="event-type-circle ${event.type}"></span>
+                           <span class="event-title">${event.title}</span>
+                       </div>
+                       <span class="event-description">${event.description || 'No description.'}</span>
+                       <span class="event-date">${event.date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                       <div class="event-controls">
+                           <label>
+                               <input type="checkbox" data-event-id="${event.id}" ${event.confirmed ? 'checked' : ''}> Confirmed
+                           </label>
+                           <button class="delete-event-btn" data-event-id="${event.id}">&times;</button>
+                       </div>
+                   `;
+                   eventListContainer.appendChild(eventItem);
+
+                   // Add event listeners for checkbox and delete button
+                   eventItem.querySelector('input[type="checkbox"]').addEventListener('change', (e) => {
+                       const eventId = e.target.dataset.eventId;
+                       const isConfirmed = e.target.checked;
+                       updateEvent(eventId, { confirmed: isConfirmed });
+                   });
+
+                   eventItem.querySelector('.delete-event-btn').addEventListener('click', (e) => {
+                       const eventId = e.target.dataset.eventId;
+                       if (confirm("Are you sure you want to delete this event?")) { // Using confirm for simplicity
+                           deleteEvent(eventId);
+                       }
+                   });
+               });
+           }
+
+           // --- Main Calendar Rendering Logic ---
+           function renderCalendar(monthDate) {
+               const year = monthDate.getFullYear();
+               const month = monthDate.getMonth();
+               const today = new Date();
+               const isCurrentMonth = (year === today.getFullYear() && month === today.getMonth());
+
+               currentMonthMain.textContent = monthDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+
+               while (mainCalendarGrid.children.length > 7) {
+                   mainCalendarGrid.removeChild(mainCalendarGrid.lastChild);
+               }
+
+               const firstDayOfMonth = new Date(year, month, 1).getDay();
+               const startDayIndex = (firstDayOfMonth === 0) ? 6 : firstDayOfMonth - 1;
+
+               const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+               for (let i = 0; i < startDayIndex; i++) {
+                   const emptyCell = document.createElement('div');
+                   emptyCell.classList.add('calendar-cell', 'empty');
+                   mainCalendarGrid.appendChild(emptyCell);
+               }
+
+               for (let day = 1; day <= daysInMonth; day++) {
+                   const cell = document.createElement('div');
+                   cell.classList.add('calendar-cell');
+                   cell.innerHTML = `<span class="date-number">${day}</span>`;
+                  
+                   if (isCurrentMonth && day === today.getDate()) {
+                       cell.classList.add('current-day');
+                   }
+
+                   const dayEvents = events.filter(event =>
+                       event.date.getFullYear() === year &&
+                       event.date.getMonth() === month &&
+                       event.date.getDate() === day
+                   );
+                   if (dayEvents.length > 0) {
+                       cell.classList.add('has-event');
+                       dayEvents.forEach(event => {
+                           const eventWrapperDiv = document.createElement('div');
+                           eventWrapperDiv.classList.add('event-title-on-cell-wrapper');
+
+                           const eventCircleSpan = document.createElement('span');
+                           eventCircleSpan.classList.add('event-type-circle', event.type);
+                           eventWrapperDiv.appendChild(eventCircleSpan);
+
+                           const eventTitleDiv = document.createElement('div');
+                           eventTitleDiv.classList.add('event-title-on-cell');
+                           eventTitleDiv.textContent = event.title;
+                           eventWrapperDiv.appendChild(eventTitleDiv);
+                          
+                           cell.appendChild(eventWrapperDiv);
+                       });
+                   }
+                   mainCalendarGrid.appendChild(cell);
+               }
+              
+               renderEventList(monthDate);
+           }
+
+           prevMonthMain.addEventListener('click', () => {
+               activeMonth.setMonth(activeMonth.getMonth() - 1);
+               renderCalendar(activeMonth);
+           });
+
+           nextMonthMain.addEventListener('click', () => {
+               activeMonth.setMonth(activeMonth.getMonth() + 1);
+               renderCalendar(activeMonth);
+           });
+
+           // --- Local Storage CRUD Operations ---
+           function updateEvent(eventId, updates) {
+               const eventIndex = events.findIndex(e => e.id === eventId);
+               if (eventIndex > -1) {
+                   events[eventIndex] = { ...events[eventIndex], ...updates };
+                   saveEventsToLocalStorage();
+                   renderCalendar(activeMonth);
+               }
+           }
+
+           function deleteEvent(eventId) {
+               events = events.filter(e => e.id !== eventId);
+               saveEventsToLocalStorage();
+               renderCalendar(activeMonth);
+           }
+
+           // Initial render
+           loadEventsFromLocalStorage();
+       });
+   </script>
+</body>
+</html>

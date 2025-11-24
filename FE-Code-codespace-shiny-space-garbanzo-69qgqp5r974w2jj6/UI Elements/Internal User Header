@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Header Preview</title>
+   <style>
+       :root {
+           --primary-green: #37af4b;
+           --dark-background: #1c1c1c;
+           --member-border: #28a745;
+           --light-gray: #bbb;
+           --theme-body-bg: #1c1c1c;
+           --theme-body-color: #fff;
+           --theme-popup-bg: #bbbbbb;
+           --theme-popup-text: #1c1c1c;
+           --theme-input-bg: #333;
+           --theme-input-border: #444;
+           --theme-input-text: #eee;
+           --theme-navbar-bg: #1c1c1c;
+           --theme-navbar-text: #fff;
+           --theme-navbar-dropdown-bg: #f0f0f0;
+           --theme-navbar-dropdown-text: #1c1c1c;
+           --theme-navbar-dropdown-hover-bg: #ddd;
+           --theme-button-bg: #FEFEFE;
+           --theme-button-text: #1c1c1c;
+           --theme-button-border: #1c1c1c;
+           --theme-button-hover-bg: #1c1c1c;
+           --theme-button-hover-text: #FEFEFE;
+           --mobile-section-bg: #2a2a2a;
+           --logo-color: #FEFEFE;
+           --logo-filter: none;
+       }
+
+
+       html[data-theme='light'] {
+           --theme-body-bg: #FEFEFE;
+           --theme-body-color: #1c1c1c;
+           --theme-popup-bg: #e0e0e0;
+           --theme-popup-text: #1c1c1c;
+           --theme-input-bg: #fff;
+           --theme-input-border: #ccc;
+           --theme-input-text: #1c1c1c;
+           --primary-green: #37af4b;
+           --member-border: #37af4b;
+           --theme-navbar-bg: #FEFEFE;
+           --theme-navbar-text: #1c1c1c;
+           --theme-navbar-dropdown-bg: #1c1c1c;
+           --theme-navbar-dropdown-text: #FEFEFE;
+           --theme-navbar-dropdown-hover-bg: #333;
+           --theme-button-bg: #1c1c1c;
+           --theme-button-text: #FEFEFE;
+           --theme-button-border: #1c1c1c;
+           --theme-button-hover-bg: #FEFEFE;
+           --theme-button-hover-text: #1c1c1c;
+           --mobile-section-bg: #f0f0f0;
+           --logo-color: #1c1c1c;
+       }
+
+
+       body {
+           font-family: 'Arial', sans-serif;
+           background-color: var(--theme-body-bg);
+           color: var(--theme-body-color);
+           margin: 0;
+           padding: 0;
+       }
+
+
+       .desktop-wp-header-container {
+           background: linear-gradient(135deg, rgb(5,114,21) 0%, rgb(55,175,75) 100%);
+           margin: 0;
+           padding: 0;
+           width: 100%;
+       }
+
+
+       .desktop-wp-header-contents {
+           display: flex;
+           flex-wrap: nowrap;
+           justify-content: space-between;
+           align-items: center;
+           width: 100%;
+           background: linear-gradient(135deg, rgb(5,114,21) 0%, rgb(55,175,75) 100%);
+           padding: 0 1.25rem;
+       }
+
+
+       .desktop-header-left-group,
+       .desktop-header-right-group {
+           display: flex;
+           flex-wrap: nowrap;
+           gap: 1.25rem;
+           align-items: center;
+       }
+
+
+       .desktop-header-right-group {
+           justify-content: flex-end;
+       }
+
+
+       .desktop-header-logo-img {
+           width: 7.4375rem;
+           height: auto;
+           display: block;
+           filter: var(--logo-filter);
+       }
+
+
+       .theme-button {
+           background-color: transparent;
+           border: none;
+           cursor: pointer;
+           padding: 0.625rem;
+       }
+
+
+       .palette-icon {
+           width: 1.875rem;
+           height: 1.875rem;
+           fill: none;
+           stroke: var(--logo-color);
+           stroke-width: 2;
+           transition: transform 0.5s ease, stroke 0.3s ease;
+       }
+
+
+       .profile-pic {
+           width: 50px;
+           height: 50px;
+           border-radius: 50%;
+           object-fit: cover;
+           cursor: pointer;
+           border: 2px solid var(--primary-green);
+           transition: border-color 0.3s ease;
+       }
+
+
+       .profile-pic:hover {
+           border-color: #2e9b41;
+       }
+
+
+       .popup-overlay {
+           position: fixed;
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100%;
+           background-color: rgba(0, 0, 0, 0.2);
+           z-index: 9998;
+           visibility: hidden;
+           opacity: 0;
+           transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+           display: flex;
+           justify-content: center;
+           align-items: center;
+       }
+
+
+       .customizer-panel {
+           background-color: var(--theme-popup-bg);
+           color: var(--theme-popup-text);
+           padding: 1.25rem;
+           border-radius: 0.5rem;
+           box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.2);
+           width: 15.625rem;
+           visibility: hidden;
+           opacity: 0;
+           z-index: 9999;
+           transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+       }
+
+
+       .popup-header {
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           margin-bottom: 0.9375rem;
+           cursor: move;
+       }
+
+
+       .popup-title {
+           margin: 0;
+           font-size: 1.125rem;
+           font-weight: bold;
+       }
+
+
+       .popup-close-button {
+           font-size: 1.5rem;
+           cursor: pointer;
+           padding: 0 0.3125rem;
+           line-height: 1;
+       }
+
+
+       .profile-menu-overlay {
+           position: fixed;
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100%;
+           background-color: rgba(0, 0, 0, 0.2);
+           z-index: 9998;
+           display: flex;
+           justify-content: center;
+           align-items: center;
+           visibility: hidden;
+           opacity: 0;
+           transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+       }
+
+
+       .profile-menu {
+           background-color: var(--theme-popup-bg);
+           color: var(--theme-popup-text);
+           padding: 1.25rem;
+           border-radius: 0.5rem;
+           box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.2);
+           width: 15.625rem;
+           text-align: center;
+           position: absolute;
+       }
+   </style>
+</head>
+<body>
+   <header class="desktop-wp-header-container">
+       <div class="desktop-wp-header-contents">
+           <div class="desktop-header-left-group">
+               <img id="desktopLogo" src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Logo" class="desktop-header-logo-img" onerror="this.src='https://placehold.co/50x50/cccccc/333333?text=YPI';">
+           </div>
+           <div class="desktop-header-right-group">
+               <button id="themeCustomizerBtn" class="theme-button" aria-label="Open Theme Customizer">
+                   <svg class="palette-icon" viewBox="0 0 24 24">
+                       <circle cx="6" cy="12" r="2"/>
+                       <circle cx="12" cy="12" r="2"/>
+                       <circle cx="18" cy="12" r="2"/>
+                   </svg>
+               </button>
+               <img src="https://placehold.co/50x50/cccccc/333333?text=User" alt="Profile Picture" class="profile-pic" onclick="showProfileMenu()">
+           </div>
+       </div>
+   </header>
+
+
+   <!-- Theme Customizer Overlay -->
+   <div id="customizerOverlay" class="popup-overlay" style="visibility: hidden; opacity: 0;">
+       <div class="customizer-panel">
+           <div class="popup-header">
+               <h2 class="popup-title">Theme Customizer</h2>
+               <span id="closeCustomizerBtn" class="popup-close-button">×</span>
+           </div>
+           <p>Theme customization options will be here.</p>
+       </div>
+   </div>
+
+
+   <!-- Profile Menu Overlay -->
+   <div id="profileMenuOverlay" class="profile-menu-overlay" style="visibility: hidden; opacity: 0;">
+       <div class="profile-menu">
+           <h3 id="profileMenuTitle">Welcome, Guest!</h3>
+           <span id="profileMenuClose" class="popup-close-button">×</span>
+           <button id="signOutButton" style="display: none;">Sign Out</button>
+       </div>
+   </div>
+
+
+   <script>
+       // Simplified showMessage function
+       function showMessage(title, message) {
+           alert(`${title}: ${message}`);
+       }
+
+
+       // Open the theme customizer
+       function openCustomizer() {
+           try {
+               const customizerOverlay = document.getElementById('customizerOverlay');
+               customizerOverlay.style.visibility = 'visible';
+               customizerOverlay.style.opacity = '1';
+           } catch (e) {
+               console.error('Error in openCustomizer:', e);
+               showMessage('Error', 'An error occurred while opening the theme customizer.');
+           }
+       }
+
+
+       // Show the profile menu
+       function showProfileMenu() {
+           try {
+               const profileMenuOverlay = document.getElementById('profileMenuOverlay');
+               profileMenuOverlay.style.visibility = 'visible';
+               profileMenuOverlay.style.opacity = '1';
+           } catch (e) {
+               console.error('Error in showProfileMenu:', e);
+               showMessage('Error', 'An error occurred while showing the profile menu.');
+           }
+       }
+
+
+       // Close customizer on close button click
+       document.getElementById('closeCustomizerBtn').addEventListener('click', () => {
+           const customizerOverlay = document.getElementById('customizerOverlay');
+           customizerOverlay.style.opacity = '0';
+           setTimeout(() => {
+               customizerOverlay.style.visibility = 'hidden';
+           }, 300);
+       });
+
+
+       // Close profile menu on close button click
+       document.getElementById('profileMenuClose').addEventListener('click', () => {
+           const profileMenuOverlay = document.getElementById('profileMenuOverlay');
+           profileMenuOverlay.style.opacity = '0';
+           setTimeout(() => {
+               profileMenuOverlay.style.visibility = 'hidden';
+           }, 300);
+       });
+
+
+       // Close customizer on overlay click
+       document.getElementById('customizerOverlay').addEventListener('click', (e) => {
+           if (e.target === document.getElementById('customizerOverlay')) {
+               document.getElementById('customizerOverlay').style.opacity = '0';
+               setTimeout(() => {
+                   document.getElementById('customizerOverlay').style.visibility = 'hidden';
+               }, 300);
+           }
+       });
+
+
+       // Close profile menu on overlay click
+       document.getElementById('profileMenuOverlay').addEventListener('click', (e) => {
+           if (e.target === document.getElementById('profileMenuOverlay')) {
+               document.getElementById('profileMenuOverlay').style.opacity = '0';
+               setTimeout(() => {
+                   document.getElementById('profileMenuOverlay').style.visibility = 'hidden';
+               }, 300);
+           }
+       });
+
+
+       // Initialize on page load
+       document.addEventListener('DOMContentLoaded', function() {
+           try {
+               const desktopThemeCustomizerBtn = document.getElementById('themeCustomizerBtn');
+               if (desktopThemeCustomizerBtn) {
+                   desktopThemeCustomizerBtn.addEventListener('click', openCustomizer);
+               }
+           } catch (e) {
+               console.error('Error in DOMContentLoaded handler:', e);
+               showMessage('Error', 'An error occurred while initializing the page.');
+           }
+       });
+   </script>
+</body>
+</html>

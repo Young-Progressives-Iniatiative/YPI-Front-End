@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submit a Report - Young Progressives Initiative</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+      /* Reset and base styles */
+      * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+      }
+
+
+      body {
+          font-family: 'Arial', sans-serif;
+          background-color: var(--theme-body-bg);
+          color: var(--theme-body-color);
+          line-height: 1.6;
+          overflow-x: hidden; /* Prevent horizontal scroll */
+          font-size: 16px; /* Set base font size for rem calculation */
+      }
+
+
+      body.customizer-is-open {
+          overflow: hidden;
+      }
+    
+      /* --- GLOBAL & COMMON STYLES --- */
+      :root {
+          --primary-green: #37af4b;
+          --dark-background: #1c1c1c;
+          --member-border: #28a745;
+          --light-gray: #bbb;
+          --danger-red: #ef4444;
+
+
+          /* Default to Dark Theme */
+          --theme-body-bg: #1c1c1c;
+          --theme-body-color: #fff;
+          --theme-popup-bg: #bbbbbb;
+          --theme-popup-text: #1c1c1c;
+          --theme-input-bg: #333;
+          --theme-input-border: #444;
+          --theme-input-text: #eee;
+          --theme-button-bg: #FEFEFE;
+          --theme-button-text: #1c1c1c;
+          --theme-button-border: #1c1c1c;
+          --theme-button-hover-bg: #1c1c1c;
+          --theme-button-hover-text: #FEFEFE;
+          --theme-header-bg: linear-gradient(135deg, rgb(5, 114, 21) 0%, rgb(55, 175, 75) 100%);
+      }
+
+
+      /* Light Theme Definition */
+      html[data-theme='light'] {
+          --theme-body-bg: #FEFEFE;
+          --theme-body-color: #1c1c1c;
+          --theme-popup-bg: #e0e0e0;
+          --theme-popup-text: #1c1c1c;
+          --theme-input-bg: #fff;
+          --theme-input-border: #ccc;
+          --theme-input-text: #1c1c1c;
+          --primary-green: #37af4b;
+          --member-border: #37af4b;
+          --theme-button-bg: #1c1c1c;
+          --theme-button-text: #FEFEFE;
+          --theme-button-border: #1c1c1c;
+          --theme-button-hover-bg: #FEFEFE;
+          --theme-button-hover-text: #1c1c1c;
+          --theme-header-bg: #FEFEFE;
+      }
+     
+      html[data-theme='light'] .gear-icon {
+          stroke: #1c1c1c;
+      }
+
+
+      body {
+          background-color: var(--theme-body-bg);
+          color: var(--theme-body-color);
+          transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+
+      .main-wrapper {
+          width: 100%;
+          min-height: 100vh;
+          background-color: var(--theme-body-bg);
+          position: relative;
+          display: flex;
+          flex-direction: column;
+      }
+    
+      .content-body {
+          flex: 1;
+          padding-top: 5rem; /* Added padding for fixed header */
+      }
+
+
+      /* Header Styles */
+      .header-container {
+          background: var(--theme-header-bg);
+          height: 5rem;
+          padding: 0 1.25rem;
+          position: fixed;
+          top: 0; left: 0;
+          width: 100%;
+          z-index: 50;
+          display: flex;
+          align-items: center;
+          transition: background-color 0.3s ease;
+      }
+      .header-contents {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          width: 100%;
+          height: 100%;
+      }
+      .header-left, .header-right {
+          display: flex;
+          gap: 1.25rem;
+          align-items: center;
+          height: 100%;
+      }
+      .header-logo {
+          width: 7.4375rem; /* Resized Logo */
+          height: auto;
+          object-fit: contain;
+      }
+      .icon-button {
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          padding: 0.5rem;
+          position: relative;
+          color: #FEFEFE;
+      }
+      html[data-theme='light'] .icon-button {
+          color: #1c1c1c;
+      }
+      .notification-bell-icon {
+          width: 1.875rem;
+          height: 1.875rem;
+          stroke: currentColor;
+          stroke-width: 1.5;
+      }
+      .gear-icon {
+          width: 1.875rem;
+          height: 1.875rem;
+          fill: none;
+          stroke: #FEFEFE;
+          stroke-width: 1.5;
+          transition: transform 0.5s ease, stroke 0.3s ease;
+      }
+      .profile-pic {
+          width: 45px;
+          height: 45px;
+          border-radius: 50%;
+          object-fit: cover;
+          cursor: pointer;
+          border: 2px solid var(--primary-green);
+      }
+
+
+
+
+      /* --- FORM CONTAINER AND STYLES --- */
+      .form-page-container {
+          max-width: 800px;
+          margin: 3rem auto;
+          padding: 2rem;
+          background-color: rgba(128, 128, 128, 0.1);
+          border-radius: 1rem;
+          border: 1px solid var(--theme-input-border);
+      }
+
+
+      .form-page-container h1 {
+          text-align: center;
+          color: var(--primary-green);
+          margin-bottom: 0.5rem;
+          font-size: 2.5rem;
+      }
+
+
+      .form-page-container p.subtitle {
+          text-align: center;
+          margin-bottom: 2.5rem;
+          font-size: 1.1rem;
+          color: var(--light-gray);
+      }
+    
+      html[data-theme='light'] .form-page-container p.subtitle {
+          color: #555;
+      }
+
+
+      .form-group {
+          margin-bottom: 1.5rem;
+      }
+
+
+      .form-group label {
+          display: block;
+          margin-bottom: 0.5rem;
+          font-weight: bold;
+          font-size: 0.9rem;
+          color: var(--theme-body-color);
+      }
+
+
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+          width: 100%;
+          padding: 0.75rem;
+          border: 1px solid var(--theme-input-border);
+          border-radius: 0.25rem;
+          background-color: var(--theme-input-bg);
+          color: var(--theme-input-text);
+          box-sizing: border-box;
+          font-size: 1rem;
+          transition: border-color 0.3s, box-shadow 0.3s;
+      }
+
+
+      .form-group input:focus,
+      .form-group textarea:focus,
+      .form-group select:focus {
+          outline: none;
+          border-color: var(--primary-green);
+          box-shadow: 0 0 0 3px rgba(55, 175, 75, 0.3);
+      }
+
+
+      .form-group textarea {
+          resize: vertical;
+          min-height: 150px;
+      }
+    
+      .form-group input[type="file"] {
+          padding: 0.5rem;
+      }
+    
+      .form-group input[type="file"]::file-selector-button {
+          font-weight: bold;
+          color: var(--primary-green);
+          padding: 0.5em 1em;
+          border: 1px solid var(--primary-green);
+          border-radius: 3px;
+          background-color: var(--theme-input-bg);
+          cursor: pointer;
+          transition: background-color 0.2s;
+      }
+    
+      .form-group input[type="file"]::file-selector-button:hover {
+          background-color: rgba(55, 175, 75, 0.2);
+      }
+
+
+      .submit-button {
+          background: linear-gradient(135deg,rgb(5,114,21) 0%,rgb(55,175,75) 100%);
+          color: #fff;
+          border: none;
+          padding: 0.9375rem 1.25rem;
+          width: 100%;
+          border-radius: 0.5rem;
+          cursor: pointer;
+          font-weight: bold;
+          font-size: 1.25rem;
+          margin-top: 1.5rem;
+          transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+
+      .submit-button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(55, 175, 75, 0.4);
+      }
+
+
+      /* --- Footer Styles --- */
+      .footer-container {
+          background: linear-gradient(135deg, rgb(5, 114, 21) 0%, rgb(55, 175, 75) 100%);
+          padding: 1rem 0;
+          color: #FEFEFE;
+      }
+      html[data-theme='light'] .footer-container {
+          background: #1c1c1c;
+          color: #FEFEFE;
+      }
+
+
+      .footer-content {
+          max-width: 1200px;
+          margin: auto;
+          padding: 1.25rem;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          flex-wrap: wrap;
+          text-align: center;
+      }
+
+
+      .footer-column {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 0.625rem;
+      }
+      .footer-container .site-logo {
+          width: 10.4125rem;
+          height: auto;
+          object-fit: contain;
+          margin-top: -25px;
+      }
+      .company-heading {
+          font-size: 1.25rem;
+          font-weight: bold;
+          margin: 0;
+      }
+      .address {
+          width: 100%;
+          margin-top: 1rem;
+          padding-bottom: 0.3125rem;
+          font-size: 0.8rem;
+          color: #ccc;
+      }
+      html[data-theme='light'] .address {
+          color: #FEFEFE;
+      }
+     
+      /* Pop-up Styles */
+      .popup-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.5);
+          z-index: 10000;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          visibility: hidden;
+          opacity: 0;
+          transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+      }
+      .popup-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 0.9375rem;
+      }
+      .popup-title {
+          margin: 0;
+          font-size: 1.125rem;
+          font-weight: bold;
+      }
+      .popup-close-button {
+          font-size: 1.5rem;
+          cursor: pointer;
+          padding: 0 0.3125rem;
+          line-height: 1;
+          background: none;
+          border: none;
+          color: inherit;
+      }
+
+
+      /* Profile Menu Styles */
+      .profile-menu {
+          background-color: var(--theme-popup-bg);
+          color: var(--theme-popup-text);
+          padding: 1.25rem;
+          border-radius: 0.5rem;
+          box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.2);
+          width: 15.625rem;
+          text-align: center;
+      }
+      .profile-menu h3 {
+          margin-top: 0;
+          margin-bottom: 0.9375rem;
+          color: var(--primary-green);
+      }
+      .profile-menu button {
+          background-color: var(--primary-green);
+          color: #1c1c1c;
+          border: none;
+          padding: 0.625rem 1.25rem;
+          border-radius: 0.3125rem;
+          cursor: pointer;
+          font-weight: bold;
+          transition: background-color 0.2s ease;
+          width: 100%;
+          margin-top: 0.5rem;
+      }
+      .profile-menu button:hover {
+          background-color: #2e9b41;
+      }
+
+
+      /* Message Box Styles */
+      .message-box-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(0, 0, 0, 0.5);
+          z-index: 10000;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          visibility: hidden;
+          opacity: 0;
+          transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+      }
+      .message-box {
+          background-color: var(--theme-body-bg);
+          color: var(--theme-body-color);
+          padding: 1.5625rem;
+          border-radius: 0.5rem;
+          box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.3);
+          max-width: 21.875rem;
+          width: 90%;
+          text-align: center;
+          position: relative;
+      }
+      .message-box h3 {
+          margin-top: 0;
+          margin-bottom: 0.9375rem;
+          color: var(--primary-green);
+      }
+      .message-box p {
+          margin-bottom: 1.25rem;
+          font-size: 1.1rem;
+      }
+      .message-box button {
+          background-color: var(--primary-green);
+          color: #1c1c1c;
+          border: none;
+          padding: 0.625rem 1.25rem;
+          border-radius: 0.3125rem;
+          cursor: pointer;
+          font-weight: bold;
+          transition: background-color 0.2s ease;
+      }
+      .message-box button:hover {
+          background-color: #2e9b41;
+      }
+  </style>
+  <script>
+      // Immediately-invoked function to set the theme from localStorage before the page loads
+      (function() {
+          try {
+              const savedTheme = localStorage.getItem('theme') || 'dark'; // Default to dark
+              document.documentElement.setAttribute('data-theme', savedTheme);
+          } catch (e) {
+              console.error("Could not access localStorage to set theme.", e);
+          }
+      })();
+  </script>
+</head>
+<body>
+  <div class="main-wrapper">
+      <header class="header-container">
+          <div class="header-contents">
+              <div class="header-left">
+                  <a href="https://weareypi.com/">
+                      <img class="header-logo" src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Logo" onerror="this.onerror=null;this.src='https://placehold.co/119x50/37af4b/ffffff?text=YPI';">
+                  </a>
+              </div>
+              <div class="header-right">
+                  <div id="notificationBell" class="icon-button">
+                      <svg class="notification-bell-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                  </div>
+                  <button id="themeButton" class="icon-button" aria-label="Toggle color theme">
+                      <svg class="gear-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                  </button>
+                  <img id="profilePic" class="profile-pic" src="https://placehold.co/45x45/37af4b/FFFFFF?text=U" alt="Profile Picture">
+              </div>
+          </div>
+      </header>
+
+
+      <main class="content-body">
+          <!-- Report Form -->
+          <div class="form-page-container">
+              <h1>Submit a Report</h1>
+              <p class="subtitle">Your safety and well-being are our top priorities. Please use this form to report any incidents or concerns. All reports will be handled with confidentiality and care.</p>
+              <form id="reportForm">
+                  <div class="form-group">
+                      <label for="reportType">I am reporting a...</label>
+                      <select id="reportType" name="reportType" required>
+                          <option value="" disabled selected>-- Please select an option --</option>
+                          <option value="student">Another Student</option>
+                          <option value="organization">A Partner Organization</option>
+                          <option value="staff" id="staffReportOption" style="display: none;">A YPI Staff Member</option>
+                      </select>
+                  </div>
+                  <div class="form-group">
+                      <label for="reportedEntity">Name of Person/Organization Being Reported</label>
+                      <input type="text" id="reportedEntity" name="reportedEntity" required>
+                  </div>
+                  <div class="form-group">
+                      <label for="incidentDate">Date of Incident</label>
+                      <input type="date" id="incidentDate" name="incidentDate" required>
+                  </div>
+                  <div class="form-group">
+                      <label for="incidentDescription">Detailed Description of Incident</label>
+                      <textarea id="incidentDescription" name="incidentDescription" placeholder="Please provide as much detail as possible, including what happened, where it happened, and who was involved." required></textarea>
+                  </div>
+                  <div class="form-group">
+                      <label for="evidence">Attach Supporting Evidence (Optional)</label>
+                      <input type="file" id="evidence" name="evidence">
+                  </div>
+                  <hr style="border: 1px solid var(--theme-input-border); margin: 2rem 0;">
+                  <div class="form-group">
+                      <label for="reporterName">Your Name (Optional)</label>
+                      <input type="text" id="reporterName" name="reporterName" placeholder="You can submit this report anonymously">
+                  </div>
+                  <div class="form-group">
+                      <label for="reporterEmail">Your Email (For follow-up)</label>
+                      <input type="email" id="reporterEmail" name="reporterEmail" required>
+                  </div>
+                  <button type="submit" class="submit-button">Submit Confidential Report</button>
+              </form>
+          </div>
+      </main>
+
+
+      <footer class="footer-container">
+          <div class="footer-content">
+              <div class="footer-column">
+                  <img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Footer Logo" class="site-logo" onerror="this.onerror=null;this.src='https://placehold.co/166x50/ffffff/000000?text=YPI';">
+                  <h3 class="company-heading">A Company to Change America One Hour At a Time</h3>
+                  <div class="address">
+                      <p>Young Progressives Initiative L.L.C, Chevy Chase, MD 20815</p>
+                  </div>
+              </div>
+          </div>
+      </footer>
+  </div>
+
+
+  <!-- Popups -->
+  <div id="messageBoxOverlay" class="message-box-overlay"></div>
+  <div id="profileMenuOverlay" class="popup-overlay">
+      <div class="profile-menu">
+          <div class="popup-header">
+              <h3 id="profileMenuTitle">User Profile</h3>
+              <button id="profileMenuClose" class="popup-close-button">&times;</button>
+          </div>
+          <p>Welcome, User!</p>
+          <button id="signOutButton">Sign Out</button>
+      </div>
+  </div>
+
+
+
+
+  <script>
+      document.addEventListener('DOMContentLoaded', function() {
+         
+          // --- MESSAGE BOX FUNCTIONS ---
+          function showMessage(title, message) {
+              const messageBoxOverlay = document.getElementById('messageBoxOverlay');
+              messageBoxOverlay.innerHTML = `<div class="message-box"><h3>${title}</h3><p>${message}</p><button id="messageBoxCloseButton">OK</button></div>`;
+              document.getElementById('messageBoxCloseButton').onclick = () => hideMessageBox();
+              messageBoxOverlay.style.visibility = 'visible';
+              messageBoxOverlay.style.opacity = '1';
+              document.body.classList.add('customizer-is-open');
+          }
+
+
+          function hideMessageBox() {
+              const messageBoxOverlay = document.getElementById('messageBoxOverlay');
+              if (messageBoxOverlay) {
+                  messageBoxOverlay.style.opacity = '0';
+                  setTimeout(() => {
+                      messageBoxOverlay.style.visibility = 'hidden';
+                      document.body.classList.remove('customizer-is-open');
+                  }, 300);
+              }
+          }
+
+
+          // --- THEME TOGGLE LOGIC ---
+          function initializeThemeToggle() {
+              const themeButton = document.getElementById('themeButton');
+              const htmlElement = document.documentElement;
+
+
+              if (!themeButton) {
+                  console.error("Theme toggle button not found.");
+                  return;
+              }
+
+
+              const applyTheme = (theme) => {
+                  htmlElement.setAttribute('data-theme', theme);
+                  localStorage.setItem('theme', theme);
+              };
+
+
+              const setInitialState = () => {
+                  const gearIcon = themeButton.querySelector('.gear-icon');
+                  const currentTheme = htmlElement.getAttribute('data-theme') || 'dark';
+                  let rotationAngle = (currentTheme === 'light') ? 180 : 0;
+                  gearIcon.style.transform = `rotate(${rotationAngle}deg)`;
+                  gearIcon.dataset.rotation = rotationAngle;
+              };
+
+
+              themeButton.addEventListener('click', () => {
+                  const newTheme = htmlElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+                  applyTheme(newTheme);
+
+
+                  const gearIcon = themeButton.querySelector('.gear-icon');
+                  let currentRotation = parseFloat(gearIcon.dataset.rotation) || 0;
+                  currentRotation += 180;
+                  gearIcon.style.transform = `rotate(${currentRotation}deg)`;
+                  gearIcon.dataset.rotation = currentRotation;
+              });
+
+
+              setInitialState();
+          }
+
+
+
+
+          // --- PROFILE MENU LOGIC ---
+          const profilePic = document.getElementById('profilePic');
+          const profileMenuOverlay = document.getElementById('profileMenuOverlay');
+          const profileMenuClose = document.getElementById('profileMenuClose');
+          const signOutButton = document.getElementById('signOutButton');
+
+
+          function showProfileMenu() {
+              profileMenuOverlay.style.visibility = 'visible';
+              profileMenuOverlay.style.opacity = '1';
+              document.body.classList.add('customizer-is-open');
+          }
+
+
+          function closeProfileMenu() {
+              profileMenuOverlay.style.opacity = '0';
+              setTimeout(() => {
+                  profileMenuOverlay.style.visibility = 'hidden';
+                  document.body.classList.remove('customizer-is-open');
+              }, 300);
+          }
+
+
+          profilePic.addEventListener('click', showProfileMenu);
+          profileMenuClose.addEventListener('click', closeProfileMenu);
+          signOutButton.addEventListener('click', () => {
+              closeProfileMenu();
+              showMessage('Signed Out', 'You have been successfully signed out.');
+          });
+          profileMenuOverlay.addEventListener('click', (e) => {
+              if(e.target === profileMenuOverlay) closeProfileMenu();
+          });
+
+
+
+
+          // --- ADMIN FUNCTIONALITY ---
+          function checkAdminMode() {
+              const urlParams = new URLSearchParams(window.location.search);
+              const isAdmin = urlParams.get('admin') === 'true';
+              const staffOption = document.getElementById('staffReportOption');
+
+
+              if (isAdmin && staffOption) {
+                  staffOption.style.display = 'block';
+              }
+          }
+        
+          // --- FORM SUBMISSION LOGIC ---
+          function initializeForm() {
+              const reportForm = document.getElementById('reportForm');
+              if(reportForm) {
+                  reportForm.addEventListener('submit', function(e) {
+                      e.preventDefault();
+                      showMessage('Report Submitted', 'Thank you for your submission. Your report has been sent to our team for review. We will contact you if more information is needed.');
+                      reportForm.reset();
+                  });
+              }
+          }
+
+
+          // --- NOTIFICATION BELL CLICK ---
+          const notificationBell = document.getElementById('notificationBell');
+          if (notificationBell) {
+              notificationBell.addEventListener('click', () => {
+                  showMessage('Notifications', 'You have no new notifications.');
+              });
+          }
+
+
+          // --- INITIALIZE ALL SCRIPTS ---
+          initializeThemeToggle();
+          checkAdminMode();
+          initializeForm();
+      });
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

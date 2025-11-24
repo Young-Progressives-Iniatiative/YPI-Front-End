@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Work Analysis - YPI Creator Hub</title>
+   <!-- Tailwind CSS for styling -->
+   <script src="https://cdn.tailwindcss.com"></script>
+   <!-- Google Fonts -->
+   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+   <!-- Font Awesome for icons -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+   <style>
+       /* Define CSS Variables for easy theme management */
+       :root {
+           --primary-green: #37af4b;
+           --dark-background: #1c1c1c;
+           --card-background: #2a2a2a;
+           --input-background: #333;
+           --border-color: #444;
+           --text-light: #e0e0e0;
+           --text-medium: #bbb;
+       }
+      
+       html[data-theme='light'] {
+           --primary-green: #37af4b;
+           --dark-background: #f4f4f5;
+           --card-background: #ffffff;
+           --input-background: #f9fafb;
+           --border-color: #d1d5db;
+           --text-light: #1f2937;
+           --text-medium: #6b7280;
+       }
+      
+       body {
+           font-family: 'Inter', sans-serif;
+           background-color: var(--dark-background);
+           color: var(--text-light);
+           transition: background-color 0.3s, color 0.3s;
+       }
+
+
+       /* Custom styles for UI elements */
+       .card {
+           background-color: var(--card-background);
+           border: 1px solid var(--border-color);
+           transition: background-color 0.3s, border-color 0.3s;
+       }
+      
+       .input-field {
+           background-color: var(--input-background);
+           border: 1px solid var(--border-color);
+           color: var(--text-light);
+           transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+       }
+
+
+       .input-field:focus {
+           outline: none;
+           border-color: var(--primary-green);
+           box-shadow: 0 0 0 3px rgba(55, 175, 75, 0.3);
+       }
+
+
+       .btn-primary {
+           background-color: var(--primary-green);
+           transition: background-color 0.3s;
+       }
+       .btn-primary:hover {
+           background-color: #2e9b41;
+       }
+
+
+       /* Styles for the analysis section */
+       .analysis-section {
+           display: none; /* Hidden by default */
+       }
+   </style>
+</head>
+<body>
+
+
+   <!-- Main Content -->
+   <main class="container mx-auto p-4 md:p-8">
+       <div class="max-w-4xl mx-auto">
+           <h2 class="text-3xl font-bold text-center mb-2" style="color: var(--primary-green);">Work Analysis</h2>
+           <p class="text-center text-lg mb-10" style="color: var(--text-medium);">Analyze and provide feedback on work submitted by other creators.</p>
+
+
+           <!-- Submissions to Analyze -->
+           <section id="submissions-list" class="card rounded-lg p-6 mb-8 shadow-lg">
+               <h3 class="text-2xl font-semibold mb-4 flex items-center"><i class="fas fa-tasks fa-fw mr-3 text-green-500"></i>Submissions Ready for Analysis</h3>
+               <div id="analysis-list" class="space-y-4">
+                   <!-- Sample Item 1 -->
+                   <div class="card p-4 rounded-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                       <div>
+                           <p class="font-semibold">'Fall Campaign Video - First Draft'</p>
+                           <p class="text-sm" style="color: var(--text-medium);">Submitted by Alex Ray</p>
+                       </div>
+                       <button class="btn-primary text-white text-sm font-bold py-2 px-3 rounded-md whitespace-nowrap analyze-btn" data-title="Fall Campaign Video - First Draft" data-url="https://example.com/video-draft">
+                           Analyze
+                       </button>
+                   </div>
+                   <!-- Sample Item 2 -->
+                   <div class="card p-4 rounded-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                       <div>
+                           <p class="font-semibold">'New Volunteer Handbook'</p>
+                           <p class="text-sm" style="color: var(--text-medium);">Submitted by Maria Garcia</p>
+                       </div>
+                       <button class="btn-primary text-white text-sm font-bold py-2 px-3 rounded-md whitespace-nowrap analyze-btn" data-title="New Volunteer Handbook" data-url="https://example.com/handbook">
+                           Analyze
+                       </button>
+                   </div>
+               </div>
+           </section>
+
+
+           <!-- Analysis Section (hidden by default) -->
+           <section id="analysis-section" class="analysis-section card rounded-lg p-6 shadow-lg">
+               <h3 class="text-2xl font-semibold mb-2 flex items-center"><i class="fas fa-clipboard-check fa-fw mr-3 text-green-500"></i>Analyzing Submission</h3>
+               <div id="analysis-details" class="mb-6 border-b pb-4" style="border-color: var(--border-color);">
+                   <p class="font-bold text-lg" id="analysis-title"></p>
+                   <a href="#" id="analysis-link" target="_blank" class="text-sm text-green-400 hover:underline">View Submitted Work <i class="fas fa-external-link-alt fa-xs ml-1"></i></a>
+               </div>
+              
+               <form id="analysis-form" class="space-y-6">
+                   <!-- Quality Rating -->
+                   <div>
+                       <label class="block text-lg font-medium mb-2">Overall Quality Rating</label>
+                       <div class="flex items-center space-x-2 text-2xl text-gray-400">
+                           <i class="far fa-star cursor-pointer rating-star" data-value="1"></i>
+                           <i class="far fa-star cursor-pointer rating-star" data-value="2"></i>
+                           <i class="far fa-star cursor-pointer rating-star" data-value="3"></i>
+                           <i class="far fa-star cursor-pointer rating-star" data-value="4"></i>
+                           <i class="far fa-star cursor-pointer rating-star" data-value="5"></i>
+                       </div>
+                       <input type="hidden" id="quality-rating" name="quality-rating" required>
+                   </div>
+
+
+                   <!-- Feedback Text -->
+                   <div>
+                       <label for="analysis-feedback" class="block text-lg font-medium mb-2">Qualitative Feedback</label>
+                       <textarea id="analysis-feedback" name="analysis-feedback" rows="5" class="input-field w-full p-2 rounded-md" placeholder="Provide constructive feedback. What works well? What could be improved?" required></textarea>
+                   </div>
+
+
+                   <!-- Action Buttons -->
+                   <div class="flex flex-col sm:flex-row gap-4 pt-4">
+                       <button type="button" id="cancel-analysis" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-md w-full sm:w-auto">Cancel</button>
+                       <button type="submit" class="btn-primary text-white font-bold py-2 px-4 rounded-md w-full sm:w-auto">Submit Analysis</button>
+                   </div>
+               </form>
+           </section>
+       </div>
+   </main>
+
+
+   <!-- JavaScript for interactivity -->
+   <script>
+       document.addEventListener('DOMContentLoaded', function() {
+           // NOTE: Theme Toggler and Mobile Menu button functionality has been removed as the header is gone.
+
+
+           // Analysis Section Logic
+           const submissionsList = document.getElementById('submissions-list');
+           const analysisSection = document.getElementById('analysis-section');
+           const analyzeButtons = document.querySelectorAll('.analyze-btn');
+           const cancelAnalysisButton = document.getElementById('cancel-analysis');
+           const analysisForm = document.getElementById('analysis-form');
+           const analysisTitle = document.getElementById('analysis-title');
+           const analysisLink = document.getElementById('analysis-link');
+           const ratingStars = document.querySelectorAll('.rating-star');
+           const ratingInput = document.getElementById('quality-rating');
+
+
+           analyzeButtons.forEach(button => {
+               button.addEventListener('click', () => {
+                   // Populate and show the analysis section
+                   analysisTitle.textContent = button.dataset.title;
+                   analysisLink.href = button.dataset.url;
+                   submissionsList.style.display = 'none';
+                   analysisSection.style.display = 'block';
+                   window.scrollTo(0, analysisSection.offsetTop - 20); // Scroll to the section
+               });
+           });
+
+
+           cancelAnalysisButton.addEventListener('click', () => {
+               // Hide analysis section and show the list
+               analysisSection.style.display = 'none';
+               submissionsList.style.display = 'block';
+               analysisForm.reset();
+               resetStars();
+           });
+
+
+           // Star Rating Logic
+           ratingStars.forEach(star => {
+               star.addEventListener('click', () => {
+                   const value = star.dataset.value;
+                   ratingInput.value = value;
+                   updateStars(value);
+               });
+           });
+
+
+           function updateStars(value) {
+               ratingStars.forEach(star => {
+                   if (star.dataset.value <= value) {
+                       star.classList.remove('far');
+                       star.classList.add('fas', 'text-yellow-400');
+                   } else {
+                       star.classList.remove('fas', 'text-yellow-400');
+                       star.classList.add('far');
+                   }
+               });
+           }
+          
+           function resetStars() {
+               ratingInput.value = '';
+               ratingStars.forEach(star => {
+                   star.classList.remove('fas', 'text-yellow-400');
+                   star.classList.add('far');
+               });
+           }
+
+
+           // Form Submission Handler
+           analysisForm.addEventListener('submit', function(event) {
+               event.preventDefault();
+               if (!ratingInput.value) {
+                   alert('Please provide a quality rating.');
+                   return;
+               }
+               alert(`Analysis for "${analysisTitle.textContent}" has been submitted!`);
+               analysisForm.reset();
+               resetStars();
+               analysisSection.style.display = 'none';
+               submissionsList.style.display = 'block';
+           });
+       });
+   </script>
+
+
+</body>
+</html>

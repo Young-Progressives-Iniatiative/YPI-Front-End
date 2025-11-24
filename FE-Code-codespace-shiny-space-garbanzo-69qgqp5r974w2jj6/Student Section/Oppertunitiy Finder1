@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Partner Role Management</title>
+   <script src="https://cdn.tailwindcss.com"></script>
+   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+   <style>
+       body {
+           font-family: 'Inter', sans-serif;
+           background-color: #1c1c1c;
+           color: #E0E0E0;
+       }
+       ::-webkit-scrollbar { width: 8px; }
+       ::-webkit-scrollbar-track { background: #1f1f1f; }
+       ::-webkit-scrollbar-thumb { background: #4a4a4a; border-radius: 4px; }
+       ::-webkit-scrollbar-thumb:hover { background: #6a6a6a; }
+       .tab-active {
+           border-bottom: 2px solid #22c55e;
+           color: #ffffff;
+       }
+       .tab-inactive {
+           border-bottom: 2px solid transparent;
+           color: #a0a0a0;
+       }
+   </style>
+</head>
+<body class="min-h-screen antialiased">
+
+
+   <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+      
+       <!-- Header -->
+       <header class="mb-8">
+           <h1 class="text-3xl font-bold text-white">Role Management</h1>
+           <p class="text-neutral-400 mt-1">Create, view, and manage roles for your organization.</p>
+       </header>
+
+
+       <!-- Navigation Tabs -->
+       <div class="border-b border-neutral-800 mb-8">
+           <nav class="flex -mb-px space-x-6">
+               <button id="myRolesTab" class="py-4 px-1 font-medium transition-colors duration-200 ease-in-out tab-active">
+                   Active Roles
+               </button>
+               <button id="createRoleTab" class="py-4 px-1 font-medium transition-colors duration-200 ease-in-out tab-inactive">
+                   Create New Role
+               </button>
+           </nav>
+       </div>
+
+
+       <!-- Your Active Roles Section -->
+       <main id="myRolesSection">
+           <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+               <div class="flex items-center gap-4 w-full md:w-auto">
+                   <input type="text" placeholder="Search roles..." class="w-full md:w-64 p-2.5 rounded-lg bg-neutral-800 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-green-500">
+                   <select class="p-2.5 rounded-lg bg-neutral-800 text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+                       <option>Status: All</option>
+                       <option>Actively Recruiting</option>
+                       <option>Paused</option>
+                       <option>Filled</option>
+                   </select>
+               </div>
+           </div>
+
+
+           <!-- Role Cards Grid -->
+           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+               <!-- Sample Role Card 1 -->
+               <div class="bg-[#1c1c1c] rounded-xl p-6 border border-green-700 hover:border-green-500 transition-all duration-300 flex flex-col justify-between">
+                   <div>
+                       <div class="flex justify-between items-start mb-4">
+                           <div>
+                               <h3 class="text-xl font-semibold text-white">Canvasser</h3>
+                               <p class="text-neutral-400 text-sm">Non-Profit X - Bethesda, MD</p>
+                           </div>
+                           <span class="bg-green-500/10 text-green-400 text-xs font-medium px-2.5 py-1 rounded-full">Recruiting</span>
+                       </div>
+                       <p class="text-neutral-400 text-sm mb-4">
+                           Applications Received: <span class="font-semibold text-white">12</span> (3 New)
+                       </p>
+                   </div>
+                   <div class="flex flex-wrap gap-2 mt-auto">
+                       <button class="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white text-sm rounded-md transition-colors duration-300">View Details</button>
+                       <button class="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white text-sm rounded-md transition-colors duration-300">Edit</button>
+                       <button class="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white text-sm rounded-md transition-colors duration-300">Pause</button>
+                   </div>
+               </div>
+
+
+               <!-- Sample Role Card 2 (Promoted) -->
+               <div class="bg-[#1c1c1c] rounded-xl p-6 border border-green-700 hover:border-green-500 transition-all duration-300 flex flex-col justify-between relative">
+                   <span class="absolute top-0 right-6 -mt-3 bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full">Promoted</span>
+                    <div>
+                       <div class="flex justify-between items-start mb-4">
+                           <div>
+                               <h3 class="text-xl font-semibold text-white">Outreach Coordinator</h3>
+                               <p class="text-neutral-400 text-sm">Community Action Group - Washington, D.C.</p>
+                           </div>
+                           <span class="bg-green-500/10 text-green-400 text-xs font-medium px-2.5 py-1 rounded-full">Recruiting</span>
+                       </div>
+                       <p class="text-neutral-400 text-sm mb-4">
+                           Applications Received: <span class="font-semibold text-white">25</span> (8 New)
+                       </p>
+                   </div>
+                   <div class="flex flex-wrap gap-2 mt-auto">
+                       <button class="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white text-sm rounded-md transition-colors duration-300">View Details</button>
+                       <button class="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white text-sm rounded-md transition-colors duration-300">Edit</button>
+                   </div>
+               </div>
+
+
+               <!-- Sample Role Card 3 (Filled) -->
+               <div class="bg-[#1c1c1c] rounded-xl p-6 border border-green-700 hover:border-green-500 transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                       <div class="flex justify-between items-start mb-4">
+                           <div>
+                               <h3 class="text-xl font-semibold text-white">Volunteer Coordinator</h3>
+                               <p class="text-neutral-400 text-sm">Local Food Bank - Silver Spring, MD</p>
+                           </div>
+                           <span class="bg-neutral-500/10 text-neutral-400 text-xs font-medium px-2.5 py-1 rounded-full">Filled</span>
+                       </div>
+                       <p class="text-neutral-400 text-sm mb-4">
+                           Applications Received: <span class="font-semibold text-white">30</span>
+                       </p>
+                   </div>
+                   <div class="flex flex-wrap gap-2 mt-auto">
+                       <button class="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white text-sm rounded-md transition-colors duration-300">View Details</button>
+                       <button class="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white text-sm rounded-md transition-colors duration-300">Reactivate</button>
+                   </div>
+               </div>
+           </div>
+       </main>
+
+
+       <!-- Create New Role Section -->
+       <main id="createRoleSection" class="hidden">
+           <form class="space-y-8 max-w-3xl">
+               <div class="p-8 bg-neutral-900 border border-neutral-800 rounded-xl">
+                   <h3 class="text-xl font-semibold text-white mb-6">Role Details</h3>
+                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                       <div>
+                           <label for="roleTitle" class="block text-neutral-300 text-sm font-medium mb-2">Role Title</label>
+                           <input type="text" id="roleTitle" class="w-full p-2.5 rounded-lg bg-neutral-800 text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+                       </div>
+                       <div>
+                           <label for="department" class="block text-neutral-300 text-sm font-medium mb-2">Department/Team</label>
+                           <input type="text" id="department" class="w-full p-2.5 rounded-lg bg-neutral-800 text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+                       </div>
+                       <div>
+                           <label for="location" class="block text-neutral-300 text-sm font-medium mb-2">Location</label>
+                           <input type="text" id="location" class="w-full p-2.5 rounded-lg bg-neutral-800 text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+                       </div>
+                       <div>
+                           <label for="roleType" class="block text-neutral-300 text-sm font-medium mb-2">Role Type</label>
+                           <select id="roleType" class="w-full p-2.5 rounded-lg bg-neutral-800 text-white focus:outline-none focus:ring-2 focus:ring-green-500">
+                               <option>Full-time</option>
+                               <option>Part-time</option>
+                               <option>Volunteer</option>
+                           </select>
+                       </div>
+                   </div>
+                    <div class="mt-6">
+                       <label for="description" class="block text-neutral-300 text-sm font-medium mb-2">Description</label>
+                       <textarea id="description" rows="5" class="w-full p-2.5 rounded-lg bg-neutral-800 text-white focus:outline-none focus:ring-2 focus:ring-green-500"></textarea>
+                   </div>
+               </div>
+               <div class="flex justify-end gap-4">
+                   <button type="button" class="px-6 py-2.5 bg-neutral-800 hover:bg-neutral-700 text-white font-semibold rounded-lg transition-colors duration-300">Save Draft</button>
+                   <button type="submit" class="px-6 py-2.5 bg-green-600 hover:bg-green-500 text-white font-semibold rounded-lg transition-colors duration-300">Publish Role</button>
+               </div>
+           </form>
+       </main>
+   </div>
+
+
+   <script>
+       document.addEventListener('DOMContentLoaded', () => {
+           const myRolesTab = document.getElementById('myRolesTab');
+           const createRoleTab = document.getElementById('createRoleTab');
+           const myRolesSection = document.getElementById('myRolesSection');
+           const createRoleSection = document.getElementById('createRoleSection');
+
+
+           function showSection(sectionToShow, tabToActivate) {
+               // Hide all sections
+               myRolesSection.classList.add('hidden');
+               createRoleSection.classList.add('hidden');
+              
+               // Deactivate all tabs
+               myRolesTab.classList.remove('tab-active');
+               myRolesTab.classList.add('tab-inactive');
+               createRoleTab.classList.remove('tab-active');
+               createRoleTab.classList.add('tab-inactive');
+              
+               // Show the selected section and activate tab
+               sectionToShow.classList.remove('hidden');
+               tabToActivate.classList.add('tab-active');
+               tabToActivate.classList.remove('tab-inactive');
+           }
+
+
+           myRolesTab.addEventListener('click', () => showSection(myRolesSection, myRolesTab));
+           createRoleTab.addEventListener('click', () => showSection(createRoleSection, createRoleTab));
+
+
+           // Set initial state
+           showSection(myRolesSection, myRolesTab);
+       });
+   </script>
+</body>
+</html>

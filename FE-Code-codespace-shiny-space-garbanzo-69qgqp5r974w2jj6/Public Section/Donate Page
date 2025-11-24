@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YPI Campaign - Unified Page</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* CSS Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Base Body Styles */
+        body {
+            font-family: 'Atkinson Hyperlegible', 'Arial', sans-serif;
+            background-color: var(--theme-body-bg);
+            color: var(--theme-body-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+            font-size: 16px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body.sidebar-is-open {
+            overflow: hidden;
+        }
+        
+        /* Color Themes */
+        :root {
+            --primary-green: #37af4b;
+            --dark-background: #1c1c1c;
+            --member-border: #28a745;
+            --light-gray: #bbb;
+            --theme-body-bg: #1c1c1c;
+            --theme-body-color: #fff;
+            --theme-popup-bg: #bbbbbb;
+            --theme-popup-text: #1c1c1c;
+            --theme-input-bg: #333;
+            --theme-input-border: #444;
+            --theme-input-text: #eee;
+            --theme-navbar-bg: #1c1c1c;
+            --theme-navbar-text: #fff;
+            --theme-navbar-dropdown-bg: #f0f0f0;
+            --theme-navbar-dropdown-text: #1c1c1c;
+            --theme-navbar-dropdown-hover-bg: #ddd;
+            --mobile-bottom-content-bg: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            --mobile-section-bg: #2a2a2a;
+        }
+        
+        html[data-theme='light'] {
+            --theme-body-bg: #FEFEFE;
+            --theme-body-color: #1c1c1c;
+            --theme-popup-bg: #e0e0e0;
+            --theme-popup-text: #1c1c1c;
+            --theme-input-bg: #fff;
+            --theme-input-border: #ccc;
+            --theme-input-text: #1c1c1c;
+            --theme-navbar-bg: #FEFEFE;
+            --theme-navbar-text: #1c1c1c;
+            --theme-navbar-dropdown-bg: #1c1c1c;
+            --theme-navbar-dropdown-text: #FEFEFE;
+            --theme-navbar-dropdown-hover-bg: #333;
+            --mobile-bottom-content-bg: linear-gradient(135deg, #f0f0f0 0%, #e9e9e9 100%);
+            --mobile-section-bg: #f5f5f5;
+        }
+
+        html[data-theme='light'] .ypi-campaign-wrapper,
+        html[data-theme='light'] .ypi-form-column,
+        html[data-theme='light'] .ypi-visual-column {
+            background-color: #f0f0f0 !important;
+        }
+        html[data-theme='light'] .ypi-subtitle {
+            color: #333 !important;
+        }
+        html[data-theme='light'] .gear-icon {
+            stroke: #1c1c1c;
+        }
+        
+        /* WordPress Block Styles */
+        .wp-block-columns {
+            display: flex;
+            margin-bottom: 1.75em;
+            flex-wrap: wrap; 
+        }
+        .image-grid {
+            gap: 1rem;
+            width: 100%;
+        }
+        .image-grid .wp-block-column {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            min-width: 0;
+        }
+        .wp-block-image img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 8px;
+        }
+        .bottom-image {
+            margin-top: 1rem;
+        }
+        
+        /* GiveWP Component Styles */
+        .give-form-wrap {
+            background-color: var(--mobile-section-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--primary-green);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        html[data-theme='light'] .give-form-wrap {
+            background-color: #f5f5f5;
+        }
+        .donation-image {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        .donation-description {
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: var(--light-gray);
+        }
+        html[data-theme='light'] .donation-description {
+            color: #333;
+        }
+        
+        /* Review System Styles */
+        .reviews-section-wrap {
+            text-align: left;
+        }
+        .reviews-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-green);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        #review-form {
+            background-color: var(--mobile-section-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        html[data-theme='light'] #review-form {
+             background-color: #f5f5f5;
+        }
+        .form-field {
+            margin-bottom: 1rem;
+        }
+        .form-field label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+        .form-field input[type="text"],
+        .form-field input[type="email"],
+        .form-field textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--theme-input-border);
+            border-radius: 4px;
+            background-color: var(--theme-input-bg);
+            color: var(--theme-input-text);
+        }
+        .star-rating {
+            display: flex;
+            gap: 0.25rem;
+        }
+        .star-rating .star {
+            cursor: pointer;
+            width: 24px;
+            height: 24px;
+            fill: var(--light-gray);
+            transition: fill 0.2s;
+        }
+        .star-rating .star.hover,
+        .star-rating .star.selected {
+            fill: #f5b32a;
+        }
+        #reviews-container h4 {
+            font-size: 1.2rem;
+            color: var(--light-gray);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--theme-input-border);
+            padding-bottom: 0.5rem;
+        }
+        .review-card {
+            background-color: var(--mobile-section-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary-green);
+        }
+        html[data-theme='light'] .review-card {
+             background-color: #f5f5f5;
+        }
+        .review-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .review-card-name {
+            font-weight: bold;
+        }
+        .review-card-stars {
+            display: flex;
+        }
+        .review-card-stars .star {
+             width: 16px;
+             height: 16px;
+             fill: #f5b32a;
+        }
+         .review-card-stars .star.empty {
+             fill: var(--light-gray);
+        }
+        .review-card-text {
+            font-size: 0.95rem;
+            color: var(--light-gray);
+        }
+        html[data-theme='light'] .review-card-text {
+            color: #555;
+        }
+        .admin-controls {
+            display: none;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        body.admin-mode .admin-controls {
+            display: flex;
+        }
+        .admin-btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .approve-btn { background-color: #28a745; color: white; border: none; }
+        .demote-btn { background-color: #ffc107; color: black; border: none; }
+        .delete-btn { background-color: #dc3545; color: white; border: none; }
+        
+        .btn-primary {
+            width: 100%;
+            background-color: var(--primary-green);
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 1rem;
+        }
+        .btn-primary:hover {
+            background-color: #2e9b41;
+        }
+        
+        /* Payment Options Styles - Mobile */
+        .payment-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+        .payment-option-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--primary-green);
+            border-radius: 4px;
+            background-color: transparent;
+            color: var(--theme-body-color);
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .payment-option-btn:hover {
+            background-color: var(--primary-green);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(55, 175, 75, 0.3);
+        }
+        .payment-option-btn svg {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+            fill: var(--theme-body-color);
+        }
+        .payment-option-btn:hover svg {
+            fill: #fff;
+        }
+        html[data-theme='light'] .payment-option-btn svg {
+            fill: #1c1c1c;
+        }
+        html[data-theme='light'] .payment-option-btn:hover svg {
+            fill: #fff;
+        }
+
+        /* Payment Slideshow Styles - Desktop */
+        .payment-slideshow-container {
+            position: relative;
+            margin-top: 1.5rem;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 1px solid rgba(55, 175, 75, 0.2);
+        }
+        .payment-slides-wrapper {
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .payment-slide {
+            min-width: 100%;
+            padding: 1.25rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 1rem;
+        }
+        .payment-slide-icon {
+            width: 48px;
+            height: 48px;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+        .payment-slide:hover .payment-slide-icon {
+            opacity: 1;
+        }
+        .payment-slide-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+        .payment-slide-icon svg path {
+            fill: var(--theme-body-color);
+        }
+        .payment-slide-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--theme-body-color);
+            margin: 0;
+        }
+        .payment-slide-description {
+            font-size: 0.9rem;
+            color: var(--light-gray);
+            max-width: 380px;
+            margin: 0;
+            line-height: 1.5;
+            opacity: 0.8;
+        }
+        html[data-theme='light'] .payment-slide-description {
+            color: #666;
+        }
+        .payment-slide-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.65rem 1.5rem;
+            background-color: transparent;
+            color: var(--primary-green);
+            border: 1px solid var(--primary-green);
+            border-radius: 4px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 0.5rem;
+        }
+        .payment-slide-btn:hover {
+            background-color: var(--primary-green);
+            color: #fff;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(55, 175, 75, 0.2);
+        }
+        .slideshow-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: transparent;
+            color: var(--theme-body-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            z-index: 10;
+            opacity: 0.4;
+        }
+        .slideshow-nav:hover {
+            opacity: 1;
+            background-color: rgba(55, 175, 75, 0.1);
+            border-color: var(--primary-green);
+        }
+        .slideshow-nav.prev {
+            left: 10px;
+        }
+        .slideshow-nav.next {
+            right: 10px;
+        }
+        .slideshow-dots {
+            display: flex;
+            justify-content: center;
+            gap: 0.4rem;
+            padding: 0.75rem 0 1rem;
+        }
+        .slideshow-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: transparent;
+            border: 1px solid var(--light-gray);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0.4;
+        }
+        .slideshow-dot:hover {
+            opacity: 0.7;
+        }
+        .slideshow-dot.active {
+            background-color: var(--primary-green);
+            border-color: var(--primary-green);
+            opacity: 1;
+            transform: scale(1.3);
+        }
+        
+        #copy-buttons-container {
+            display: none;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .btn-secondary {
+            flex: 1;
+            background-color: var(--theme-input-bg);
+            color: var(--theme-body-color);
+            border: 1px solid var(--primary-green);
+        }
+
+        /* Main Layout */
+        .main-wrapper {
+            width: 100%;
+            min-height: 100vh;
+            background-color: var(--theme-body-bg);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        .content-body {
+            flex: 1;
+        }
+
+        /* Desktop Header */
+        .desktop-header-view {
+            display: none; /* Hidden by default, shown on larger screens */
+        }
+        .desktop-wp-header-container {
+            background: linear-gradient(135deg, rgb(5, 114, 21) 0%, rgb(55, 175, 75) 100%);
+            width: 100%;
+        }
+        .desktop-wp-header-contents {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 1.25rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .desktop-header-left-group {
+            display: flex;
+            align-items: center;
+        }
+        .desktop-header-right-group {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .desktop-header-logo-img {
+            width: 7.4375rem;
+            height: auto;
+        }
+        .theme-button {
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+        }
+        .gear-icon {
+            width: 1.875rem;
+            height: 1.875rem;
+            fill: none;
+            stroke: #FEFEFE;
+            stroke-width: 2;
+        }
+        .icon-button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            position: relative;
+            line-height: 0;
+        }
+        .notification-bell-icon {
+            width: 1.875rem;
+            height: 1.875rem;
+            stroke: #FEFEFE;
+            stroke-width: 1.5;
+        }
+        .notification-count {
+            position: absolute;
+            top: 0.2rem;
+            right: 0.2rem;
+            background-color: #dc3545;
+            color: #fff;
+            border-radius: 50%;
+            padding: 0.1rem 0.4rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            cursor: pointer;
+            border: 2px solid var(--primary-green);
+        }
+        .maxbutton {
+            display: inline-block;
+            text-decoration: none;
+            color: white !important;
+            background-color: rgba(255, 255, 255, 0.15);
+            border: 2px solid white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        /* Navigation Bar Styles */
+        .navbar {
+            background-color: var(--theme-navbar-bg);
+            padding: 0.9375rem 0;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+        .navbar-menu {
+            display: flex;
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar-item {
+            position: relative;
+            margin: 0 1.25rem;
+        }
+        .navbar-link {
+            color: var(--theme-navbar-text);
+            text-decoration: none;
+            font-size: 1.125rem;
+            padding: 0.625rem 0.3125rem;
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+        }
+        .dropdown-icon {
+            border: solid var(--theme-navbar-text);
+            border-width: 0 2px 2px 0;
+            display: inline-block;
+            padding: 0.1875rem;
+            margin-left: 0.3125rem;
+            transform: rotate(45deg);
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            background-color: var(--theme-navbar-dropdown-bg);
+            min-width: 12.5rem;
+            box-shadow: 0rem 0.5rem 1rem 0rem rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+        .navbar-item:hover .dropdown-menu {
+             display: block;
+        }
+        .dropdown-item {
+            display: block;
+            padding: 0.75rem 0.9375rem;
+            color: var(--theme-navbar-dropdown-text);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+         .dropdown-item:hover {
+            background-color: var(--theme-navbar-dropdown-hover-bg);
+        }
+
+        /* Mobile Header Styles */
+        .mobile-header-view {
+             display: block; /* Shown by default */
+        }
+        .header-container {
+            background: linear-gradient(135deg, rgb(5, 114, 21) 0%, rgb(55, 175, 75) 100%);
+            padding: 0.9375rem 1.25rem;
+            width: 100%;
+            box-shadow: 0 2px 0.625rem rgba(0,0,0,0.3);
+        }
+        header.site-header-mobile {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 2.5rem;
+            width: 100%;
+        }
+        .site-header-mobile .site-logo {
+            width: 6.9375rem;
+            height: auto;
+            display: block;
+        }
+        .mobile-header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .menu-button {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            line-height: 0;
+        }
+        .menu-icon {
+            height: 1.75rem;
+            width: 1.75rem;
+            color: #FEFEFE;
+            display: block;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 280px;
+            background-color: var(--dark-background);
+            z-index: 1000;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease-in-out;
+            padding: 1.25rem;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+        }
+        html[data-theme='light'] .sidebar {
+            background-color: var(--theme-body-bg);
+        }
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        .sidebar .close-btn {
+            background: none;
+            border: none;
+            color: var(--theme-body-color);
+            font-size: 2.5rem;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .sidebar nav {
+            margin-top: 50px;
+        }
+        .sidebar nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sidebar nav ul li {
+            margin-bottom: 1rem;
+        }
+        .sidebar nav ul li a {
+            color: var(--theme-body-color);
+            text-decoration: none;
+            font-size: 1.2rem;
+            padding: 0.5rem 0;
+            display: block;
+            transition: color 0.3s ease;
+        }
+        .sidebar nav ul li a:hover,
+        .sidebar nav ul li a:focus {
+            color: var(--primary-green);
+        }
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0s 0.3s;
+        }
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        /* Message Box */
+        .message-box-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+        .message-box {
+            background-color: var(--theme-body-bg);
+            color: var(--theme-body-color);
+            padding: 1.5625rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.3);
+            max-width: 21.875rem;
+            width: 90%;
+            text-align: center;
+            position: relative;
+        }
+        .message-box h3 {
+            margin-top: 0;
+            margin-bottom: 0.9375rem;
+            color: var(--primary-green);
+        }
+        .message-box p {
+            margin-bottom: 1.25rem;
+            font-size: 1.1rem;
+        }
+        .message-box button {
+            background-color: var(--primary-green);
+            color: #1c1c1c;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.3125rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+        .message-box button:hover {
+            background-color: #2e9b41;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .ypi-main-content {
+                flex-direction: column;
+            }
+            .ypi-form-column, .ypi-visual-column {
+                flex-basis: 100% !important; /* Override inline styles */
+                padding: 1rem !important; /* Adjust padding */
+            }
+            .payment-slideshow-container {
+                display: none;
+            }
+            .payment-options {
+                display: flex;
+            }
+            .image-grid {
+                flex-direction: column;
+            }
+        }
+        
+        @media (min-width: 769px) {
+            .mobile-header-view {
+                display: none;
+            }
+            .desktop-header-view {
+                display: block;
+            }
+            .payment-slideshow-container {
+                display: block;
+            }
+            .payment-options {
+                display: none;
+            }
+            .image-grid {
+                flex-wrap: nowrap;
+            }
+            .image-grid > .wp-block-column {
+                flex: 1 1 50%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-wrapper">
+        <header class="unified-header-wrapper">
+            <!-- MOBILE HEADER -->
+            <div class="mobile-header-view">
+                <div class="header-container">
+                    <header class="site-header-mobile">
+                        <a href="https://weareypi.com/" class="custom-logo-link" rel="home">
+                            <img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" class="site-logo" alt="YPI">
+                        </a>
+                        <div class="mobile-header-controls">
+                            <button class="theme-button" id="themeButtonMobile" aria-label="Toggle color theme">
+                                <svg class="gear-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </button>
+                            <button class="menu-button" aria-label="Open menu" id="menuButton">
+                                <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </header>
+                </div>
+            </div>
+            
+            <!-- DESKTOP HEADER -->
+            <div class="desktop-header-view">
+                <div class="desktop-wp-header-container">
+                    <header class="desktop-wp-header-contents">
+                        <div class="desktop-header-left-group">
+                            <a href="https://weareypi.com/">
+                                <img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Logo" class="desktop-header-logo-img">
+                            </a>
+                        </div>
+                        <div class="desktop-header-right-group">
+                            <button class="theme-button" id="themeButton" aria-label="Toggle color theme">
+                                <svg class="gear-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </button>
+                            <div id="notificationBell" class="icon-button" style="display: none;">
+                                <svg class="notification-bell-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.4-1.4a2 2 0 01-.6-1.4V11a6 6 0 10-12 0v3.2a2 2 0 01-.6 1.4L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                                <span id="notificationCount" class="notification-count">3</span>
+                            </div>
+                            <img id="profilePic" class="profile-pic" src="https://placehold.co/50x50/37af4b/FFFFFF?text=U" alt="Profile" style="display: none;">
+                            <a class="maxbutton" href="javascript:void(0);" id="exploreYpiBtn">Explore YPI</a>
+                        </div>
+                    </header>
+                </div>
+                <nav class="navbar">
+                    <ul class="navbar-menu">
+                        <li class="navbar-item">
+                            <a href="#" class="navbar-link">About Us<i class="dropdown-icon"></i></a>
+                            <div class="dropdown-menu">
+                                <a href="https://weareypi.com/mission-statement/" class="dropdown-item">Our Mission</a>
+                                <a href="https://weareypi.com/meet-ypi-roster/" class="dropdown-item">Meet the YPI Team</a>
+                            </div>
+                        </li>
+                        <li class="navbar-item">
+                            <a href="#" class="navbar-link">Get Involved<i class="dropdown-icon"></i></a>
+                            <div class="dropdown-menu">
+                                <a href="https://weareypi.com/donate/" class="dropdown-item">Donate</a>
+                                <a href="https://weareypi.com/info-guide/" class="dropdown-item">Information Guide for Parents</a>
+                            </div>
+                        </li>
+                        <li class="navbar-item">
+                            <a href="https://weareypi.com/Need_Volunteers/" class="navbar-link">Need Volunteers?</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <div class="content-body">
+            <div class="wp-block-group ypi-campaign-wrapper has-background" style="background-color:#1a1a1a">
+                <div class="wp-block-columns ypi-main-content" style="justify-content: center;">
+                    <div class="wp-block-column ypi-form-column has-background" style="background-color:#1a1a1a; flex-basis: 100%; max-width: 800px; padding:2rem">
+                        <h2 class="wp-block-heading text-center ypi-thank-you has-text-color" style="color:#4caf50;margin-bottom:1rem;font-size:2rem;font-style:normal;font-weight:700">Thank You for Your Contribution!</h2>
+                        <p class="text-center ypi-subtitle has-text-color" style="color:#ffffff;margin-bottom:2rem;font-size:1.1rem;font-style:normal;font-weight:500">Defending Democracy depends on donations from people like you</p>
+                        
+                        <div class="give-form-wrap">
+                            <img src="https://weareypi.com/wp-content/uploads/2025/07/YPI.jpg" alt="A diverse group of young people engaged in a community project." class="donation-image">
+                            <p class="donation-description">A donation to the Young Progressives Initiative invests in MoCo & the DMV's next generation of progressive leaders. Our mission is to mobilize youth beyond the ballot box, translating their passion into lasting impact. We connect high school students to meaningful internships in the non-profit world and provide mentorship for their creative passions, for whatever post education carrer they seek.</p>
+                            
+                            <!-- Desktop Slideshow -->
+                            <div class="payment-slideshow-container">
+                                <button class="slideshow-nav prev" onclick="changeSlide(-1)" aria-label="Previous payment option">‹</button>
+                                <button class="slideshow-nav next" onclick="changeSlide(1)" aria-label="Next payment option">›</button>
+                                
+                                <div class="payment-slides-wrapper" id="slidesWrapper">
+                                    <!-- Square Slide -->
+                                    <div class="payment-slide">
+                                        <div class="payment-slide-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                                <path d="M4.01 0A4.01 4.01 0 0 0 0 4.01v15.98c0 2.21 1.8 4 4.01 4.01h15.98C22.2 24 24 22.2 24 19.99V4a4.01 4.01 0 0 0-4.01-4H4zm1.62 4.36h12.74c.7 0 1.26.57 1.26 1.27v12.74c0 .7-.56 1.27-1.26 1.27H5.63c-.7 0-1.26-.57-1.26-1.27V5.63a1.27 1.27 0 0 1 1.26-1.27zm3.83 4.35a.73.73 0 0 0-.73.73v5.09c0 .4.32.72.72.72h5.1a.73.73 0 0 0 .73-.72V9.44a.73.73 0 0 0-.73-.73h-5.1Z"/>
+                                            </svg>
+                                        </div>
+                                        <h3 class="payment-slide-title">Square</h3>
+                                        <a href="https://square.link/u/vLM51Tgz" class="payment-slide-btn" target="_blank" rel="noopener noreferrer">Donate with Square →</a>
+                                    </div>
+                                    
+                                    <!-- Fundable Slide -->
+                                    <div class="payment-slide">
+                                        <h3 class="payment-slide-title">Fundable</h3>
+                                        <a href="https://fundable.com/yourorganization" class="payment-slide-btn" target="_blank" rel="noopener noreferrer">Donate with Fundable →</a>
+                                    </div>
+                                    
+                                    <!-- FreeFunder Slide -->
+                                    <div class="payment-slide">
+                                        <h3 class="payment-slide-title">FreeFunder</h3>
+                                        <a href="https://freefunder.com/yourorganization" class="payment-slide-btn" target="_blank" rel="noopener noreferrer">Donate with FreeFunder →</a>
+                                    </div>
+                                    
+                                    <!-- GoFundMe Slide -->
+                                    <div class="payment-slide">
+                                        <div class="payment-slide-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                                <path d="M21.624 4.08L17.4 7.15a1.502 1.502 0 0 0-.33 2.092a1.5 1.5 0 0 0 2.091.331l4.222-3.07c.67-.49.813-1.423.332-2.093a1.488 1.488 0 0 0-2.092-.33zm-9.649-1.182c-.828 0-1.498.67-1.498 1.497v2.521a1.497 1.497 0 1 0 2.996 0v-2.52c0-.829-.67-1.498-1.498-1.498zM.288 4.41c-.49.67-.339 1.603.33 2.093l4.223 3.07c.67.49 1.603.339 2.092-.331c.49-.67.339-1.603-.331-2.092L2.38 4.08a1.5 1.5 0 0 0-2.092.33zm3.695 7.79a11.959 11.959 0 0 1 7.992-3.056c3.07 0 5.87 1.159 7.993 3.055zm14.555 1.633c-1.347 0-2.236.443-2.8.993c-.595.587-1.023 1.505-1.023 2.65c0 1.301.564 2.144 1.009 2.588c.843.843 1.926 1.038 2.829 1.038c1.482 0 2.28-.458 2.784-.947a3.06 3.06 0 0 0 .828-1.408h-2.34a1.16 1.16 0 0 1-.43.459c-.308.165-.736.181-.797.181c-.549 0-.858-.188-1.008-.339c-.294-.286-.43-.775-.43-1.144h5.095v-.263c0-.76-.12-1.957-1.083-2.875c-.814-.768-1.836-.933-2.634-.933zm.06 1.558c.241 0 .685.045 1.008.368c.188.188.339.475.4.738h-2.77c.045-.308.203-.557.369-.738c.256-.263.58-.368.993-.368zm-16.85-1.355h2.445v.828c.58-.7 1.377-.949 2.047-.949c.49 0 .949.106 1.317.31c.505.263.783.639.948.977c.28-.489.626-.782.934-.948c.49-.278.963-.338 1.423-.338c.503 0 1.331.075 1.896.624c.61.595.64 1.408.64 1.882v4.455H10.95v-3.38c0-.722-.075-1.21-.353-1.467c-.136-.12-.324-.226-.64-.226a.986.986 0 0 0-.722.279c-.414.399-.444.963-.444 1.302v3.507H6.346v-3.38c0-.654-.045-1.18-.324-1.467c-.21-.226-.49-.278-.737-.278c-.264 0-.474.045-.67.248c-.429.414-.429 1.069-.429 1.498v3.379H1.74v-6.856Z"/>
+                                            </svg>
+                                        </div>
+                                        <h3 class="payment-slide-title">GoFundMe</h3>
+                                        <a href="https://gofundme.com/yourorganization" class="payment-slide-btn" target="_blank" rel="noopener noreferrer">Donate with GoFundMe →</a>
+                                    </div>
+
+                                    <!-- Patreon Slide -->
+                                    <div class="payment-slide">
+                                        <div class="payment-slide-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 .48v23.04h4.22V.48zm15.385 0c-4.764 0-8.641 3.88-8.641 8.65c0 4.755 3.877 8.623 8.641 8.623c4.75 0 8.615-3.868 8.615-8.623C24 4.36 20.136.48 15.385.48z"/></svg>
+                                        </div>
+                                        <h3 class="payment-slide-title">Patreon</h3>
+                                        <a href="https://patreon.com/yourorganization" class="payment-slide-btn" target="_blank" rel="noopener noreferrer">Support on Patreon →</a>
+                                    </div>
+                                </div>
+                                
+                                <div class="slideshow-dots" id="slideshowDots"></div>
+                            </div>
+
+                            <!-- Mobile Payment Buttons -->
+                            <div class="payment-options">
+                                <a href="https://square.link/u/vLM51Tgz" class="payment-option-btn" target="_blank" rel="noopener noreferrer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                        <path d="M4.01 0A4.01 4.01 0 0 0 0 4.01v15.98c0 2.21 1.8 4 4.01 4.01h15.98C22.2 24 24 22.2 24 19.99V4a4.01 4.01 0 0 0-4.01-4H4zm1.62 4.36h12.74c.7 0 1.26.57 1.26 1.27v12.74c0 .7-.56 1.27-1.26 1.27H5.63c-.7 0-1.26-.57-1.26-1.27V5.63a1.27 1.27 0 0 1 1.26-1.27zm3.83 4.35a.73.73 0 0 0-.73.73v5.09c0 .4.32.72.72.72h5.1a.73.73 0 0 0 .73-.72V9.44a.73.73 0 0 0-.73-.73h-5.1Z"/>
+                                    </svg>
+                                    <span>Donate via Square</span>
+                                </a>
+                                
+                                <a href="https://fundable.com/yourorganization" class="payment-option-btn" target="_blank" rel="noopener noreferrer">
+                                    <span>Donate via Fundable</span>
+                                </a>
+                                
+                                <a href="https://freefunder.com/yourorganization" class="payment-option-btn" target="_blank" rel="noopener noreferrer">
+                                    <span>Donate via FreeFunder</span>
+                                </a>
+                                
+                                <a href="https://gofundme.com/yourorganization" class="payment-option-btn" target="_blank" rel="noopener noreferrer">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                        <path d="M21.624 4.08L17.4 7.15a1.502 1.502 0 0 0-.33 2.092a1.5 1.5 0 0 0 2.091.331l4.222-3.07c.67-.49.813-1.423.332-2.093a1.488 1.488 0 0 0-2.092-.33zm-9.649-1.182c-.828 0-1.498.67-1.498 1.497v2.521a1.497 1.497 0 1 0 2.996 0v-2.52c0-.829-.67-1.498-1.498-1.498zM.288 4.41c-.49.67-.339 1.603.33 2.093l4.223 3.07c.67.49 1.603.339 2.092-.331c.49-.67.339-1.603-.331-2.092L2.38 4.08a1.5 1.5 0 0 0-2.092.33zm3.695 7.79a11.959 11.959 0 0 1 7.992-3.056c3.07 0 5.87 1.159 7.993 3.055zm14.555 1.633c-1.347 0-2.236.443-2.8.993c-.595.587-1.023 1.505-1.023 2.65c0 1.301.564 2.144 1.009 2.588c.843.843 1.926 1.038 2.829 1.038c1.482 0 2.28-.458 2.784-.947a3.06 3.06 0 0 0 .828-1.408h-2.34a1.16 1.16 0 0 1-.43.459c-.308.165-.736.181-.797.181c-.549 0-.858-.188-1.008-.339c-.294-.286-.43-.775-.43-1.144h5.095v-.263c0-.76-.12-1.957-1.083-2.875c-.814-.768-1.836-.933-2.634-.933zm.06 1.558c.241 0 .685.045 1.008.368c.188.188.339.475.4.738h-2.77c.045-.308.203-.557.369-.738c.256-.263.58-.368.993-.368zm-16.85-1.355h2.445v.828c.58-.7 1.377-.949 2.047-.949c.49 0 .949.106 1.317.31c.505.263.783.639.948.977c.28-.489.626-.782.934-.948c.49-.278.963-.338 1.423-.338c.503 0 1.331.075 1.896.624c.61.595.64 1.408.64 1.882v4.455H10.95v-3.38c0-.722-.075-1.21-.353-1.467c-.136-.12-.324-.226-.64-.226a.986.986 0 0 0-.722.279c-.414.399-.444.963-.444 1.302v3.507H6.346v-3.38c0-.654-.045-1.18-.324-1.467c-.21-.226-.49-.278-.737-.278c-.264 0-.474.045-.67.248c-.429.414-.429 1.069-.429 1.498v3.379H1.74v-6.856Z"/>
+                                    </svg>
+                                    <span>Donate via GoFundMe</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="reviews-section-wrap">
+                            <h3 class="reviews-title">Don't have any money to give? leave a review</h3>
+                            <form id="review-form">
+                                <div class="form-field">
+                                    <label for="reviewer-name">Name</label>
+                                    <input type="text" id="reviewer-name" required>
+                                </div>
+                                <div class="form-field">
+                                    <label>Rating</label>
+                                    <div class="star-rating">
+                                        <svg class="star" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                                        <svg class="star" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                                        <svg class="star" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                                        <svg class="star" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                                        <svg class="star" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                                    </div>
+                                    <input type="hidden" id="rating-value" value="0">
+                                </div>
+                                <div class="form-field">
+                                    <label for="review-text">Review</label>
+                                    <textarea id="review-text" rows="4" required></textarea>
+                                </div>
+                                <button type="submit" class="btn-primary">Submit Review</button>
+                            </form>
+                            <div id="reviews-container">
+                                <!-- Reviews will be dynamically inserted here -->
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
+        <button class="close-btn" id="closeButton" aria-label="Close menu">&times;</button>
+        <nav>
+            <ul>
+                <li><a href="https://weareypi.com/mission-statement/">Our Mission</a></li>
+                <li><a href="https://weareypi.com/meet-ypi-roster/">Meet the YPI Team</a></li>
+                <li><a href="https://weareypi.com/donate/">Donate</a></li>
+                <li><a href="https://weareypi.com/info-guide/">Info Guide</a></li>
+                <li><a href="https://weareypi.com/Need_Volunteers/">Need Volunteers?</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Message Box -->
+    <div class="message-box-overlay" id="messageBoxOverlay">
+        <div class="message-box">
+            <h3 id="messageBoxTitle"></h3>
+            <p id="messageBoxText"></p>
+            <button id="messageBoxButton">OK</button>
+        </div>
+    </div>
+
+    <footer class="bg-gradient-to-r from-[#148324] to-[#2ca33b] text-white">
+       <div class="max-w-7xl mx-auto px-6 pt-3 pb-12 lg:px-8">
+           <div class="flex justify-center">
+               <div class="flex flex-col items-center text-center">
+                   <img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon.png" alt="YPI Logo" class="h-48 w-auto">
+                   <p class="-mt-10 text-xl max-w-xs font-bold tracking-tight">A Company to Change America One Hour At a Time</p>
+                   <nav class="mt-8 flex flex-wrap justify-center items-center gap-4" aria-label="Footer">
+                       <a href="https://www.instagram.com/weareypi?igsh=NmQ0b2h2ZDM2eDJw&utm_source=qr" class="bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+                           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><title>Instagram</title><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.162 6.162 6.162 6.162-2.759 6.162-6.162-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4s1.791-4 4-4 4 1.79 4 4-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44 1.441-.645 1.441-1.44-.645-1.44-1.441-1.44z"/></svg>
+                       </a>
+                       <a href="#" class="bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+                           <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="h-5 w-5" viewBox="0 0 16 16"><title>Reddit</title><path d="M6.167 8a.83.83 0 0 0-.83.83c0 .459.372.84.83.831a.831.831 0 0 0 0-1.661m1.843 3.647c.315 0 1.403-.038 1.976-.611a.23.23 0 0 0 0-.306.213.213 0 0 0-.306 0c-.353.363-1.126.487-1.67.487-.545 0-1.308-.124-1.671-.487a.213.213 0 0 0-.306 0 .213.213 0 0 0 0 .306c.564.563 1.652.61 1.977.61zm.992-2.807c0 .458.373.83.831.83s.83-.381.83-.83a.831.831 0 0 0-1.66 0z"/><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.828-1.165c-.315 0-.602.124-.812.325-.801-.573-1.9-.945-3.121-.993l.534-2.501 1.738.372a.83.83 0 1 0 .83-.869.83.83 0 0 0-.744.468l-1.938-.41a.2.2 0 0 0-.153.028.2.2 0 0 0-.086.134l-.592 2.788c-1.24.038-2.358.41-3.17.992-.21-.2-.496-.324-.81-.324a1.163 1.163 0 0 0-.478 2.224q-.03.17-.029.353c0 1.795 2.091 3.256 4.669 3.256s4.668-1.451 4.668-3.256c0-.114-.01-.238-.029-.353.401-.181.688-.592.688-1.069 0-.65-.525-1.165-1.165-1.165"/></svg>
+                       </a>
+                       <a href="https://www.tiktok.com/@official.ypi?_t=ZP-90XyGBaaFo6&_r=1" class="bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+                           <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="h-5 w-5" viewBox="0 0 16 16"><title>TikTok</title><path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3z"/></svg>
+                       </a>
+                       <a href="https://www.linkedin.com/company/103394900" class="bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+                           <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="h-5 w-5" viewBox="0 0 16 16"><title>LinkedIn</title><path d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854zm4.943 12.248V6.169H2.542v7.225zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248S2.4 3.226 2.4 3.934c0 .694.521 1.248 1.327 1.248zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016l.016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225z"/></svg>
+                       </a>
+                       <a href="https://www.youtube.com/@YoungProgressivesInitiative" class="bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+                           <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="h-5 w-5" viewBox="0 0 16 16"><title>YouTube</title><path d="M8.051 1.999h.089c.822.003 4.987.033 6.11.335a2.01 2.01 0 0 1 1.415 1.42c.101.38.172.883.22 1.402l.01.104.022.26.008.104c.065.914.073 1.77.074 1.957v.075c-.001.194-.01 1.108-.082 2.06l-.008.105-.009.104c-.05.572-.124 1.14-.235 1.558a2.01 2.01 0 0 1-1.415 1.42c-1.16.312-5.569.334-6.18.335h-.142c-.309 0-1.587-.006-2.927-.052l-.17-.006-.087-.004-.171-.007-.171-.007c-1.11-.049-2.167-.128-2.654-.26a2.01 2.01 0 0 1-1.415-1.419c-.111-.417-.185-.986-.235-1.558L.09 9.82l-.008-.104A31 31 0 0 1 0 7.68v-.123c.002-.215.01-.958.064-1.778l.007-.103.003-.052.008-.104.022-.26.01-.104c.048-.519.119-1.023.22-1.402a2.01 2.01 0 0 1 1.415-1.42c.487-.13 1.544-.21 2.654-.26l.17-.007.172-.006.086-.003.171-.007A100 100 0 0 1 7.858 2zM6.4 5.209v4.818l4.157-2.408z"/></svg>
+                       </a>
+                       <a href="#" class="bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="h-5 w-5" viewBox="0 0 16 16"><title>Facebook</title><path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951"/></svg>
+                       </a>
+                       <a href="#" class="bg-white text-[#148324] rounded-full p-2 text-sm font-semibold hover:bg-gray-200 transition-colors duration-200 flex items-center justify-center">
+                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="h-5 w-5" viewBox="0 0 16 16"><title>Bluesky</title><path d="M3.468 1.948C5.303 3.325 7.276 6.118 8 7.616c.725-1.498 2.698-4.29 4.532-5.668C13.855.955 16 .186 16 2.632c0 .489-.28 4.105-.444 4.692-.572 2.04-2.653 2.561-4.504 2.246 3.236.551 4.06 2.375 2.281 4.2-3.376 3.464-4.852-.87-5.23-1.98-.07-.204-.103-.3-.103-.218 0-.081-.033.014-.102.218-.379 1.11-1.855 5.444-5.231 1.98-1.778-1.825-.955-3.65 2.28-4.2-1.85.315-3.932-.205-4.503-2.246C.28 6.737 0 3.12 0 2.632 0 .186 2.145.955 3.468 1.948"/></svg>
+                       </a>
+                   </nav>
+                   <div class="mt-8 text-sm text-cyan-100">
+                       <p>Young Progressives Initiative L.L.C</p>
+                       <p class="mt-1">Chevy Chase, MD 20815</p>
+                   </div>
+               </div>
+           </div>
+       </div>
+   </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggleButton = document.getElementById('themeButton');
+            const themeToggleButtonMobile = document.getElementById('themeButtonMobile');
+            const menuButton = document.getElementById('menuButton');
+            const closeButton = document.getElementById('closeButton');
+            const sidebar = document.getElementById('sidebar');
+            const sidebarOverlay = document.getElementById('sidebarOverlay');
+            
+            // Theme Toggler
+            const applyTheme = (theme) => {
+                document.documentElement.setAttribute('data-theme', theme);
+                document.body.setAttribute('data-theme', theme); // Keep body attribute for compatibility if needed
+                localStorage.setItem('theme', theme);
+            };
+
+            const toggleTheme = () => {
+                const currentTheme = localStorage.getItem('theme') || 'dark';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                applyTheme(newTheme);
+            };
+
+            themeToggleButton.addEventListener('click', toggleTheme);
+            themeToggleButtonMobile.addEventListener('click', toggleTheme);
+
+            // Load saved theme
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                applyTheme(savedTheme);
+            }
+
+            // Mobile Sidebar
+            const openSidebar = () => {
+                sidebar.classList.add('open');
+                sidebarOverlay.classList.add('active');
+                document.body.classList.add('sidebar-is-open');
+            };
+
+            const closeSidebar = () => {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('active');
+                document.body.classList.remove('sidebar-is-open');
+            };
+
+            menuButton.addEventListener('click', openSidebar);
+            closeButton.addEventListener('click', closeSidebar);
+            sidebarOverlay.addEventListener('click', closeSidebar);
+
+            // Payment Slideshow
+            const slidesWrapper = document.getElementById('slidesWrapper');
+            const dotsContainer = document.getElementById('slideshowDots');
+            let currentSlide = 0;
+            let slideCount = 0;
+            
+            if (slidesWrapper) {
+                slideCount = slidesWrapper.children.length;
+
+                // Create dots
+                for (let i = 0; i < slideCount; i++) {
+                    const dot = document.createElement('button');
+                    dot.classList.add('slideshow-dot');
+                    dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+                    dot.addEventListener('click', () => goToSlide(i));
+                    dotsContainer.appendChild(dot);
+                }
+                
+                window.changeSlide = (n) => {
+                    goToSlide(currentSlide + n);
+                };
+
+                const goToSlide = (n) => {
+                    currentSlide = (n + slideCount) % slideCount;
+                    slidesWrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
+                    updateDots();
+                };
+                
+                const updateDots = () => {
+                    const dots = dotsContainer.children;
+                    for (let i = 0; i < dots.length; i++) {
+                        dots[i].classList.toggle('active', i === currentSlide);
+                    }
+                };
+
+                // Initialize first slide
+                goToSlide(0);
+            }
+
+            // Review System
+            const reviewForm = document.getElementById('review-form');
+            const starRatingContainer = reviewForm.querySelector('.star-rating');
+            const stars = starRatingContainer.querySelectorAll('.star');
+            const ratingInput = document.getElementById('rating-value');
+            const reviewsContainer = document.getElementById('reviews-container');
+
+            let currentRating = 0;
+
+            stars.forEach((star, index) => {
+                star.addEventListener('mouseover', () => {
+                    stars.forEach((s, i) => s.classList.toggle('hover', i <= index));
+                });
+
+                star.addEventListener('mouseout', () => {
+                    stars.forEach(s => s.classList.remove('hover'));
+                });
+
+                star.addEventListener('click', () => {
+                    currentRating = index + 1;
+                    ratingInput.value = currentRating;
+                    stars.forEach((s, i) => s.classList.toggle('selected', i < currentRating));
+                });
+            });
+
+            reviewForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('reviewer-name').value;
+                const reviewText = document.getElementById('review-text').value;
+
+                if (currentRating === 0) {
+                    showMessage('Rating Required', 'Please select a star rating.');
+                    return;
+                }
+                
+                // In a real app, you'd send this to a server.
+                // For now, we'll just display it locally.
+                addReview(name, currentRating, reviewText);
+                
+                // Reset form
+                reviewForm.reset();
+                stars.forEach(s => s.classList.remove('selected'));
+                currentRating = 0;
+                ratingInput.value = 0;
+                showMessage('Success!', 'Thank you for your review.');
+            });
+
+            function addReview(name, rating, text) {
+                if (!reviewsContainer.querySelector('h4')) {
+                    const title = document.createElement('h4');
+                    title.textContent = 'Submitted Reviews';
+                    reviewsContainer.prepend(title);
+                }
+
+                const reviewCard = document.createElement('div');
+                reviewCard.className = 'review-card';
+
+                let starHTML = '';
+                for (let i = 0; i < 5; i++) {
+                    starHTML += `<svg class="star ${i < rating ? '' : 'empty'}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`;
+                }
+
+                reviewCard.innerHTML = `
+                    <div class="review-card-header">
+                        <span class="review-card-name">${escapeHTML(name)}</span>
+                        <div class="review-card-stars">${starHTML}</div>
+                    </div>
+                    <p class="review-card-text">${escapeHTML(text)}</p>
+                `;
+                
+                const existingTitle = reviewsContainer.querySelector('h4');
+                if (existingTitle) {
+                    existingTitle.after(reviewCard);
+                } else {
+                    reviewsContainer.appendChild(reviewCard);
+                }
+            }
+            
+            function escapeHTML(str) {
+                return str.replace(/[&<>'"]/g, 
+                    tag => ({
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        "'": '&#39;',
+                        '"': '&quot;'
+                    }[tag] || tag)
+                );
+            }
+
+            // Message Box
+            const messageBoxOverlay = document.getElementById('messageBoxOverlay');
+            const messageBoxButton = document.getElementById('messageBoxButton');
+            const messageBoxTitle = document.getElementById('messageBoxTitle');
+            const messageBoxText = document.getElementById('messageBoxText');
+            
+            function showMessage(title, text) {
+                messageBoxTitle.textContent = title;
+                messageBoxText.textContent = text;
+                messageBoxOverlay.style.visibility = 'visible';
+                messageBoxOverlay.style.opacity = '1';
+            }
+
+            function hideMessage() {
+                messageBoxOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    messageBoxOverlay.style.visibility = 'hidden';
+                }, 300);
+            }
+            
+            messageBoxButton.addEventListener('click', hideMessage);
+            messageBoxOverlay.addEventListener('click', (e) => {
+                if(e.target === messageBoxOverlay) {
+                    hideMessage();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

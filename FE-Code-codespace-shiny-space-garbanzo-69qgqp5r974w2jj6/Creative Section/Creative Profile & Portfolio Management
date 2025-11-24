@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Creator Profile Editor</title>
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+   <style>
+       /* Global CSS Variables */
+       :root {
+           --primary-green: #37af4b;
+           --dark-background: #1c1c1c;
+           --member-border: #28a745;
+           --light-gray: #bbb;
+       }
+
+
+       /* Dark Theme (Default) */
+       html[data-theme='dark'] {
+           --theme-body-bg: #1c1c1c;
+           --theme-body-color: #fff;
+           --theme-section-bg: #2a2a2a;
+           --theme-card-bg: rgba(255, 255, 255, 0.02);
+           --theme-border-color: #38b04c;
+           --theme-input-bg: #333;
+           --theme-input-border: #444;
+           --theme-input-text: #eee;
+           --theme-button-text-light: #1c1c1c;
+           --theme-button-text-dark: #FEFEFE;
+           --theme-gear-icon-stroke: #FEFEFE;
+       }
+
+
+       /* Light Theme */
+       html[data-theme='light'] {
+           --theme-body-bg: #FEFEFE;
+           --theme-body-color: #1c1c1c;
+           --theme-section-bg: #f5f5f5;
+           --theme-card-bg: #f0f0f0;
+           --theme-border-color: #ccc;
+           --theme-input-bg: #fff;
+           --theme-input-border: #ccc;
+           --theme-input-text: #1c1c1c;
+           --theme-button-text-light: #FEFEFE;
+           --theme-button-text-dark: #1c1c1c;
+           --theme-gear-icon-stroke: #1c1c1c;
+       }
+
+
+       /* General Body & Layout */
+       body {
+           font-family: 'Atkinson Hyperlegible', sans-serif;
+           background-color: var(--theme-body-bg);
+           color: var(--theme-body-color);
+           transition: background-color 0.3s ease, color 0.3s ease;
+           min-height: 100vh;
+           display: flex;
+           flex-direction: column;
+           margin: 0;
+           padding: 0;
+           box-sizing: border-box;
+       }
+       .main-content-wrapper {
+           flex-grow: 1;
+           padding: 1rem;
+           display: flex;
+           justify-content: center;
+           align-items: flex-start;
+       }
+       .form-container {
+           max-width: 64rem;
+           width: 100%;
+           background-color: var(--theme-section-bg);
+           color: var(--theme-body-color);
+           padding: 1.5rem;
+           border-radius: 0.75rem;
+           box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+           margin: 2rem 0;
+       }
+
+
+       /* Form Sections & Titles */
+       .form-section {
+           border: 1px solid var(--theme-border-color);
+           border-radius: 0.5rem;
+           padding: 1.5rem;
+           background-color: var(--theme-card-bg);
+           margin-bottom: 2rem;
+       }
+       .section-title {
+           font-size: 1.5rem;
+           font-weight: 600;
+           margin-bottom: 1rem;
+           color: var(--theme-body-color);
+       }
+       .section-description {
+           font-size: 0.9rem;
+           color: var(--light-gray);
+           margin-top: -0.75rem;
+           margin-bottom: 1.25rem;
+       }
+     
+       /* Inputs & Labels */
+       .input-group { margin-bottom: 1rem; }
+       .grid-cols-2-md { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
+       @media (min-width: 768px) { .grid-cols-2-md { grid-template-columns: 1fr 1fr; } }
+     
+       .label {
+           display: block;
+           font-size: 1.125rem;
+           font-weight: 500;
+           margin-bottom: 0.5rem;
+           color: var(--primary-green);
+       }
+       .text-input, .textarea-input, .select-input {
+           display: block;
+           width: 100%;
+           padding: 0.75rem 1rem;
+           border: 1px solid var(--theme-input-border);
+           border-radius: 0.375rem;
+           box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+           background-color: var(--theme-input-bg);
+           color: var(--theme-input-text);
+           transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+           box-sizing: border-box;
+       }
+       .text-input:focus, .textarea-input:focus, .select-input:focus {
+           outline: none;
+           border-color: #3b82f6;
+           box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+       }
+       .textarea-input { resize: vertical; }
+
+
+       /* Profile Picture & Logo */
+       .pic-container {
+           display: flex;
+           flex-direction: column;
+           align-items: center;
+           gap: 1rem;
+       }
+       .pic-display {
+           width: 8rem;
+           height: 8rem;
+           border-radius: 9999px;
+           object-fit: cover;
+           border: 4px solid var(--member-border);
+           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+       }
+       .pic-placeholder {
+           width: 8rem;
+           height: 8rem;
+           border-radius: 9999px;
+           background-color: var(--theme-input-border);
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           color: var(--theme-input-text);
+           font-size: 0.875rem;
+           text-align: center;
+           padding: 0.5rem;
+       }
+     
+       /* Portfolio Showcase */
+       .portfolio-controls {
+           display: flex;
+           gap: 0.5rem;
+           margin-bottom: 1rem;
+           flex-wrap: wrap;
+       }
+       .portfolio-btn {
+           padding: 0.5rem 1rem;
+           border-radius: 0.375rem;
+           border: 1px solid var(--primary-green);
+           background-color: transparent;
+           color: var(--primary-green);
+           cursor: pointer;
+           transition: background-color 0.2s, color 0.2s;
+           font-weight: 500;
+       }
+       .portfolio-btn:hover {
+           background-color: var(--primary-green);
+           color: var(--theme-button-text-dark);
+       }
+       .portfolio-grid {
+           display: grid;
+           grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+           gap: 1rem;
+       }
+       .portfolio-item {
+           position: relative;
+           background-color: var(--theme-input-bg);
+           border: 1px solid var(--theme-input-border);
+           border-radius: 0.5rem;
+           overflow: hidden;
+           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+       }
+       .portfolio-item-img {
+           width: 100%;
+           height: 120px;
+           object-fit: cover;
+           display: block;
+       }
+       .portfolio-item-icon {
+           width: 100%;
+           height: 120px;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           background-color: var(--theme-section-bg);
+       }
+       .portfolio-item-icon svg {
+           width: 48px;
+           height: 48px;
+           color: var(--light-gray);
+       }
+       .portfolio-item-caption {
+           padding: 0.75rem;
+           font-size: 0.875rem;
+           background-color: var(--theme-input-bg);
+           border-top: 1px solid var(--theme-input-border);
+           word-break: break-all;
+       }
+       .remove-item-btn {
+           position: absolute;
+           top: 0.25rem; right: 0.25rem;
+           background-color: #ef4444; color: #fff;
+           border-radius: 9999px; padding: 0.25rem;
+           line-height: 1;
+           font-size: 0.75rem; opacity: 0;
+           transition: opacity 0.15s ease-in-out;
+           cursor: pointer; border: none;
+           width: 1.25rem;
+           height: 1.25rem;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+       }
+       .portfolio-item:hover .remove-item-btn { opacity: 1; }
+
+
+       /* Social Links */
+       .social-link-group {
+           display: flex;
+           align-items: center;
+       }
+       .social-link-icon {
+           padding: 0.75rem;
+           background-color: #333;
+           border: 1px solid var(--theme-input-border);
+           border-right: none;
+           border-radius: 0.375rem 0 0 0.375rem;
+           display: flex;
+           align-items: center;
+           justify-content: center;
+       }
+       .social-link-icon svg {
+           width: 1.25rem;
+           height: 1.25rem;
+           fill: var(--light-gray);
+       }
+       .social-link-group .text-input {
+           border-radius: 0 0.375rem 0.375rem 0;
+       }
+     
+       /* Niches/Skills Tags */
+       .skills-container { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+       .skills-tag {
+           display: inline-flex;
+           align-items: center;
+           padding: 0.25rem 0.75rem;
+           border-radius: 9999px;
+           font-size: 0.875rem; font-weight: 500;
+           background-color: var(--primary-green);
+           color: var(--theme-button-text-dark);
+       }
+       .remove-skill-btn {
+           margin-left: 0.5rem; border: none; background: none; cursor: pointer;
+           color: var(--theme-button-text-dark);
+           height: 1rem; width: 1rem;
+           display: flex; align-items: center; justify-content: center;
+           padding: 0;
+       }
+       .remove-skill-icon { height: 0.75rem; width: 0.75rem; }
+
+
+       /* Branding Tools */
+       .branding-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
+       .color-input-group { display: flex; align-items: center; gap: 0.5rem; }
+       .color-input {
+           -webkit-appearance: none; -moz-appearance: none; appearance: none;
+           width: 40px; height: 40px;
+           background-color: transparent; border: none; cursor: pointer;
+       }
+       .color-input::-webkit-color-swatch { border-radius: 50%; border: 2px solid var(--theme-input-border); }
+       .color-input::-moz-color-swatch { border-radius: 50%; border: 2px solid var(--theme-input-border); }
+       .font-display {
+           margin-top: 0.5rem;
+           padding: 0.5rem;
+           background-color: var(--theme-input-bg);
+           border: 1px solid var(--theme-input-border);
+           border-radius: 0.375rem;
+           font-size: 0.9rem;
+           color: var(--light-gray);
+           text-align: center;
+       }
+
+
+       /* Save Button & Messages */
+       .save-section {
+           padding-top: 1.5rem; display: flex;
+           justify-content: flex-end; align-items: center; gap: 1rem;
+       }
+       .save-message { font-size: 0.875rem; font-weight: 500; min-height: 1.25rem; transition: color 0.3s; }
+       .save-message.error { color: #dc2626; }
+       .save-message.success { color: #16a34a; }
+       .save-message.info { color: #3b82f6; }
+       .save-button {
+           padding: 0.75rem 1.5rem; font-weight: 600;
+           border-radius: 0.5rem;
+           box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+           transition: all 0.15s ease-in-out;
+           border: none; cursor: pointer;
+           background: linear-gradient(135deg,rgb(5,114,21) 0%,rgb(55,175,75) 100%);
+           color: #FEFEFE;
+       }
+       .save-button:hover { opacity: 0.9; }
+       .save-button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+
+       /* Header & Footer */
+       .header {
+           width: 100%;
+           background: linear-gradient(135deg,rgb(5,114,21) 0%,rgb(55,175,75) 100%);
+           padding: 0.875rem 1.25rem;
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           box-sizing: border-box;
+       }
+       .header .logo { height: 2.5rem; width: auto; }
+       .theme-toggle-button {
+           background-color: transparent; border: none; cursor: pointer; padding: 0.625rem;
+       }
+       .gear-icon {
+           width: 1.875rem; height: 1.875rem;
+           stroke: var(--theme-gear-icon-stroke);
+           transition: transform 0.5s ease, stroke 0.3s ease;
+       }
+       .footer-container {
+           background: linear-gradient(135deg, rgb(5, 114, 21) 0%, rgb(55, 175, 75) 100%);
+           padding: 1rem 0; color: #FEFEFE; text-align: center;
+       }
+       html[data-theme='light'] .footer-container { background: #1c1c1c; color: #FEFEFE; }
+     
+       /* Modal Styles */
+       .modal-overlay {
+           position: fixed;
+           top: 0; left: 0;
+           width: 100%; height: 100%;
+           background-color: rgba(0, 0, 0, 0.7);
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           z-index: 1000;
+       }
+       .modal-content {
+           background-color: var(--theme-section-bg);
+           padding: 2rem;
+           border-radius: 0.75rem;
+           width: 90%;
+           max-width: 500px;
+           box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+       }
+       .modal-title {
+           font-size: 1.5rem;
+           font-weight: 600;
+           margin-bottom: 1.5rem;
+           color: var(--theme-body-color);
+       }
+       .modal-buttons {
+           margin-top: 1.5rem;
+           display: flex;
+           justify-content: flex-end;
+           gap: 0.75rem;
+       }
+       .modal-button {
+           padding: 0.6rem 1.2rem;
+           border-radius: 0.375rem;
+           border: 1px solid var(--theme-input-border);
+           cursor: pointer;
+           font-weight: 500;
+       }
+       .modal-button.primary {
+           background-color: var(--primary-green);
+           color: var(--theme-button-text-dark);
+           border-color: var(--primary-green);
+       }
+       .modal-button.secondary {
+           background-color: transparent;
+           color: var(--theme-body-color);
+       }
+       .modal-error-message {
+           color: #dc2626;
+           font-size: 0.875rem;
+           min-height: 1.25rem;
+           margin-top: 1rem;
+           text-align: left;
+       }
+
+
+       /* Utility */
+       .hidden { display: none !important; }
+       .loading-screen {
+           display: flex; align-items: center; justify-content: center;
+           min-height: 100vh; background-color: var(--theme-body-bg);
+           color: var(--theme-body-color); font-size: 1.25rem; font-weight: 600;
+       }
+   </style>
+</head>
+<body>
+ 
+   <div class="loading-screen" id="loadingScreen">Loading...</div>
+
+
+   <div class="main-content-wrapper hidden" id="mainContent">
+       <div class="form-container">
+           <h1 style="font-size: 2.25rem; font-weight: 700; text-align: center; margin-bottom: 2rem; color: var(--primary-green);">Edit Your Creator Profile</h1>
+
+
+           <form id="creatorForm" novalidate>
+               <!-- Basic Info -->
+               <div class="form-section grid-cols-2-md">
+                   <div class="input-group">
+                       <label for="displayNameInput" class="label">Display Name</label>
+                       <input type="text" id="displayNameInput" class="text-input" placeholder="e.g., Alex The Artist">
+                   </div>
+                   <div class="input-group">
+                       <label for="headlineInput" class="label">Headline</label>
+                       <input type="text" id="headlineInput" class="text-input" placeholder="e.g., Illustrator & Digital Creator">
+                   </div>
+               </div>
+
+
+               <!-- Bio -->
+               <div class="form-section">
+                   <h2 class="section-title">Creator Bio</h2>
+                   <p class="section-description">Tell your story. What drives your creativity?</p>
+                   <textarea id="bioInput" rows="5" class="textarea-input" placeholder="Write a brief biography..."></textarea>
+               </div>
+
+
+               <!-- Portfolio Showcase -->
+               <div class="form-section">
+                   <h2 class="section-title">Portfolio Showcase</h2>
+                   <p class="section-description">Showcase your best work. Upload images or link to external videos and projects.</p>
+                   <div class="portfolio-controls">
+                       <button type="button" id="addPortfolioImageBtn" class="portfolio-btn">Add Image</button>
+                       <button type="button" id="addPortfolioVideoBtn" class="portfolio-btn">Add Video Link</button>
+                       <button type="button" id="addPortfolioOtherBtn" class="portfolio-btn">Add Other Link</button>
+                       <input type="file" id="portfolioImageInput" accept="image/*" class="hidden" multiple>
+                   </div>
+                   <div id="portfolioGrid" class="portfolio-grid">
+                       <!-- Portfolio items will be injected here by JS -->
+                   </div>
+               </div>
+             
+               <!-- Social Links -->
+               <div class="form-section">
+                       <h2 class="section-title">Social & External Links</h2>
+                       <p class="section-description">Link to your social media, storefronts, or personal website.</p>
+                       <div class="grid-cols-2-md" id="socialLinksContainer">
+                           <!-- Social link inputs will be injected here by JS -->
+                       </div>
+               </div>
+
+
+               <!-- Niches & Skills -->
+               <div class="form-section">
+                   <h2 class="section-title">Creative Niches & Skills</h2>
+                   <p class="section-description">Tag your specialties (e.g., Illustration, Poetry, Music Production). Press Enter to add.</p>
+                   <input type="text" id="skillInput" class="text-input" placeholder="Add a skill or niche...">
+                   <div id="skillsContainer" class="skills-container"></div>
+               </div>
+
+
+               <!-- Branding -->
+               <div class="form-section">
+                   <h2 class="section-title">Branding Tools</h2>
+                   <p class="section-description">Customize your profile's look and feel.</p>
+                   <div class="branding-grid">
+                       <div class="pic-container">
+                               <label class="label">Logo</label>
+                               <img id="logoDisplay" src="" alt="Logo" class="pic-display" style="display:none;">
+                               <div id="logoPlaceholder" class="pic-placeholder">No Logo Uploaded</div>
+                               <input type="file" id="logoInput" accept="image/*" class="hidden">
+                               <button type="button" id="logoUploadBtn" class="portfolio-btn">Upload Logo</button>
+                       </div>
+                       <div>
+                           <label class="label">Color Palette</label>
+                           <div class="input-group color-input-group">
+                               <input type="color" id="primaryColorInput" class="color-input">
+                               <span>Primary Color</span>
+                           </div>
+                            <div class="input-group color-input-group">
+                               <input type="color" id="accentColorInput" class="color-input">
+                               <span>Accent Color</span>
+                           </div>
+                       </div>
+                       <div>
+                           <label class="label">Custom Font</label>
+                           <div id="fontNameDisplay" class="font-display">Default: Arial</div>
+                           <input type="file" id="fontUploadInput" class="hidden" accept=".ttf,.otf,.woff,.woff2">
+                           <button type="button" id="fontUploadBtn" class="portfolio-btn" style="width:100%; margin-top: 0.5rem;">Upload Font</button>
+                       </div>
+                   </div>
+               </div>
+
+
+               <!-- Save Section -->
+               <div class="save-section">
+                   <p id="saveMessage" class="save-message"></p>
+                   <button type="submit" id="saveButton" class="save-button">Save Profile</button>
+               </div>
+           </form>
+       </div>
+   </div>
+
+
+   <!-- Modal for Portfolio Links -->
+   <div id="portfolioLinkModal" class="modal-overlay hidden">
+       <div class="modal-content">
+           <h3 id="modalTitle" class="modal-title">Add Link</h3>
+           <div class="input-group">
+               <label for="modalUrlInput" class="label">URL</label>
+               <input type="url" id="modalUrlInput" class="text-input" placeholder="https://example.com">
+           </div>
+           <div class="input-group">
+               <label for="modalTitleInput" class="label">Title</label>
+               <input type="text" id="modalTitleInput" class="text-input" placeholder="My Awesome Project">
+           </div>
+           <p id="modalErrorMessage" class="modal-error-message"></p>
+           <div class="modal-buttons">
+               <button type="button" id="modalCancelBtn" class="modal-button secondary">Cancel</button>
+               <button type="button" id="modalSaveBtn" class="modal-button primary">Save</button>
+           </div>
+       </div>
+   </div>
+
+
+   <script type="module">
+       // --- Firebase Imports ---
+       import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+       import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+       import { getFirestore, doc, setDoc, onSnapshot, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+       import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+
+
+       // --- CONFIG & GLOBAL VARIABLES ---
+       const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "DEMO", authDomain: "DEMO", projectId: "DEMO" };
+       const appId = typeof __app_id !== 'undefined' ? __app_id : 'creator-profiles-app-demo';
+
+
+       let app, db, auth, storage, currentUserId;
+       let profileData = {
+           displayName: '',
+           headline: '',
+           bio: '',
+           logoUrl: '',
+           portfolioItems: [],
+           socialLinks: { youtube: '', patreon: '', twitch: '', kick: '', instagram: '', twitter: '', bluesky: '', facebook: '', linkedin: '', email: '', github: '', website: '' },
+           creativeNiches: [],
+           branding: {
+               primaryColor: '#37af4b',
+               accentColor: '#FEFEFE',
+               fontName: 'Atkinson Hyperlegible',
+               fontUrl: ''
+           }
+       };
+
+
+       // --- DOM ELEMENTS ---
+       const loadingScreen = document.getElementById('loadingScreen');
+       const mainContent = document.getElementById('mainContent');
+       const creatorForm = document.getElementById('creatorForm');
+     
+       const displayNameInput = document.getElementById('displayNameInput');
+       const headlineInput = document.getElementById('headlineInput');
+       const bioInput = document.getElementById('bioInput');
+       const skillInput = document.getElementById('skillInput');
+       const skillsContainer = document.getElementById('skillsContainer');
+       const socialLinksContainer = document.getElementById('socialLinksContainer');
+     
+       // Portfolio
+       const portfolioGrid = document.getElementById('portfolioGrid');
+       const addPortfolioImageBtn = document.getElementById('addPortfolioImageBtn');
+       const addPortfolioVideoBtn = document.getElementById('addPortfolioVideoBtn');
+       const addPortfolioOtherBtn = document.getElementById('addPortfolioOtherBtn');
+       const portfolioImageInput = document.getElementById('portfolioImageInput');
+     
+       // Branding
+       const logoDisplay = document.getElementById('logoDisplay');
+       const logoPlaceholder = document.getElementById('logoPlaceholder');
+       const logoInput = document.getElementById('logoInput');
+       const logoUploadBtn = document.getElementById('logoUploadBtn');
+       const primaryColorInput = document.getElementById('primaryColorInput');
+       const accentColorInput = document.getElementById('accentColorInput');
+       const fontUploadInput = document.getElementById('fontUploadInput');
+       const fontUploadBtn = document.getElementById('fontUploadBtn');
+       const fontNameDisplay = document.getElementById('fontNameDisplay');
+
+
+       // Modal
+       const portfolioLinkModal = document.getElementById('portfolioLinkModal');
+       const modalTitle = document.getElementById('modalTitle');
+       const modalUrlInput = document.getElementById('modalUrlInput');
+       const modalTitleInput = document.getElementById('modalTitleInput');
+       const modalCancelBtn = document.getElementById('modalCancelBtn');
+       const modalSaveBtn = document.getElementById('modalSaveBtn');
+       const modalErrorMessage = document.getElementById('modalErrorMessage');
+
+
+       const saveButton = document.getElementById('saveButton');
+       const saveMessage = document.getElementById('saveMessage');
+
+
+       // --- FIREBASE & AUTH ---
+       try {
+           app = initializeApp(firebaseConfig);
+           db = getFirestore(app);
+           auth = getAuth(app);
+           storage = getStorage(app);
+           setLogLevel('debug'); // For detailed console logs
+
+
+           onAuthStateChanged(auth, async (user) => {
+               if (user) {
+                   currentUserId = user.uid;
+                   console.log("User authenticated:", currentUserId);
+                   loadProfileData();
+               } else {
+                   try {
+                       if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                           await signInWithCustomToken(auth, __initial_auth_token);
+                            console.log("Signed in with custom token.");
+                       } else {
+                           await signInAnonymously(auth);
+                           console.log("No custom token, signed in anonymously.");
+                       }
+                   } catch (authError) {
+                       console.error("Authentication failed:", authError);
+                       loadingScreen.textContent = "Authentication failed.";
+                   }
+               }
+           });
+       } catch (error) {
+           console.error("Firebase init error:", error);
+           loadingScreen.textContent = "Could not initialize application.";
+       }
+
+
+       // --- DATA HANDLING ---
+       function loadProfileData() {
+           if (!currentUserId) return;
+           const profileDocRef = doc(db, `artifacts/${appId}/users/${currentUserId}/data/creatorProfile`);
+         
+           onSnapshot(profileDocRef, (docSnap) => {
+               if (docSnap.exists()) {
+                   const loadedData = docSnap.data();
+                   // Merge loaded data with defaults to prevent errors if some fields are missing
+                   profileData = {
+                       ...profileData,
+                       ...loadedData,
+                       socialLinks: { ...profileData.socialLinks, ...(loadedData.socialLinks || {}) },
+                       branding: { ...profileData.branding, ...(loadedData.branding || {}) },
+                   };
+                   console.log("Profile data loaded.", profileData);
+               } else {
+                   console.log("No profile found. Using defaults.");
+               }
+               renderUI();
+               loadingScreen.classList.add('hidden');
+               mainContent.classList.remove('hidden');
+           }, (error) => {
+               console.error("Error loading profile:", error);
+               loadingScreen.textContent = "Error loading data.";
+           });
+       }
+     
+       async function handleSave(event) {
+           event.preventDefault();
+           if (!currentUserId) {
+               displaySaveMessage('Cannot save. User not authenticated.', 'error');
+               return;
+           }
+           saveButton.disabled = true;
+           saveButton.textContent = 'Saving...';
+         
+           // Collect data from UI into profileData object
+           profileData.displayName = displayNameInput.value;
+           profileData.headline = headlineInput.value;
+           profileData.bio = bioInput.value;
+           profileData.branding.primaryColor = primaryColorInput.value;
+           profileData.branding.accentColor = accentColorInput.value;
+          
+           // Collect social links
+           Object.keys(profileData.socialLinks).forEach(key => {
+               const input = document.getElementById(`${key}Input`);
+               if (input) {
+                   profileData.socialLinks[key] = input.value;
+               }
+           });
+         
+           try {
+               const profileDocRef = doc(db, `artifacts/${appId}/users/${currentUserId}/data/creatorProfile`);
+               await setDoc(profileDocRef, profileData, { merge: true });
+               displaySaveMessage('Profile saved successfully!', 'success');
+           } catch (error) {
+               console.error("Error saving profile:", error);
+               displaySaveMessage('Save failed. See console for details.', 'error');
+           } finally {
+               saveButton.disabled = false;
+               saveButton.textContent = 'Save Profile';
+           }
+       }
+      
+       /**
+        * Uploads a file to Firebase Storage and returns the download URL.
+        * @param {File} file The file to upload.
+        * @param {string} category The category for storage path (e.g., 'logos', 'portfolio').
+        * @returns {Promise<string>} A promise that resolves with the file's download URL.
+        */
+       async function uploadFile(file, category) {
+           if (!currentUserId || !storage) {
+               throw new Error("User not authenticated or Firebase Storage not initialized.");
+           }
+           // Create a unique path for the file.
+           const storagePath = `artifacts/${appId}/users/${currentUserId}/${category}/${Date.now()}_${file.name}`;
+           const storageRef = ref(storage, storagePath);
+
+
+           displaySaveMessage(`Uploading ${file.name}...`, 'info', 10000); // Show long-lasting message for uploads
+          
+           await uploadBytes(storageRef, file);
+           const downloadURL = await getDownloadURL(storageRef);
+          
+           displaySaveMessage('Upload complete!', 'success');
+           return downloadURL;
+       }
+
+
+
+
+       // --- UI RENDERING & FONT HANDLING ---
+       function applyCustomFont(fontName, fontUrl) {
+           const styleId = 'custom-font-style';
+           const existingStyle = document.getElementById(styleId);
+           if (existingStyle) {
+               existingStyle.remove();
+           }
+
+
+           if (!fontUrl || !fontName) {
+               // If no custom font, set to default
+               document.body.style.fontFamily = "'Atkinson Hyperlegible', sans-serif";
+               return;
+           }
+         
+           const fontFaceRule = `
+               @font-face {
+                   font-family: '${fontName}';
+                   src: url('${fontUrl}');
+               }
+           `;
+           const styleElement = document.createElement('style');
+           styleElement.id = styleId;
+           styleElement.innerHTML = fontFaceRule;
+           document.head.appendChild(styleElement);
+           document.body.style.fontFamily = `'${fontName}', sans-serif`;
+       }
+
+
+
+
+       function renderUI() {
+           displayNameInput.value = profileData.displayName;
+           headlineInput.value = profileData.headline;
+           bioInput.value = profileData.bio;
+         
+           primaryColorInput.value = profileData.branding.primaryColor;
+           accentColorInput.value = profileData.branding.accentColor;
+         
+           fontNameDisplay.textContent = profileData.branding.fontUrl ? profileData.branding.fontName : 'Default: Atkinson Hyperlegible';
+           applyCustomFont(profileData.branding.fontName, profileData.branding.fontUrl);
+
+
+           renderSocialLinks();
+           renderSkills();
+           renderPortfolio();
+           renderLogo();
+       }
+
+
+       function renderSocialLinks() {
+           socialLinksContainer.innerHTML = '';
+           const socialSvgs = {
+               youtube: `<svg viewBox="0 0 24 24"><path d="M10,15L15.19,12L10,9V15M21.56,7.17C21.69,7.64 21.78,8.27 21.84,9.07C21.91,9.87 21.94,10.56 21.94,11.16L22,12C22,14.19 21.84,15.8 21.56,16.83C21.31,17.73 20.73,18.31 19.83,18.56C19.36,18.69 18.73,18.78 17.93,18.84C17.13,18.91 16.44,18.94 15.84,18.94L15,19C12.81,19 11.2,18.84 10.17,18.56C9.27,18.31 8.69,17.73 8.44,16.83C8.31,16.36 8.22,15.73 8.16,14.93C8.09,14.13 8.06,13.44 8.06,12.84L8,12C8,9.81 8.16,8.2 8.44,7.17C8.69,6.27 9.27,5.69 10.17,5.44C10.64,5.31 11.27,5.22 12.07,5.16C12.87,5.09 13.56,5.06 14.16,5.06L15,5C17.19,5 18.8,5.16 19.83,5.44C20.73,5.69 21.31,6.27 21.56,7.17Z" /></svg>`,
+               patreon: `<svg viewBox="0 0 24 24"><path d="M15.3,16.2C15.3,16.2 15.3,16.2 15.3,16.2C12.4,16.2 10,13.8 10,10.9C10,8 12.4,5.6 15.3,5.6C18.2,5.6 20.6,8 20.6,10.9C20.6,13.8 18.2,16.2 15.3,16.2M3.4,5.6H6.7V18.4H3.4V5.6Z" /></svg>`,
+               twitch: `<svg viewBox="0 0 24 24"><path d="M11.64,2.71L10.05,5.13L8.45,2.71H5.16L8.85,8.13V14.1H11.64V8.13L15.32,2.71H11.64M6.56,15.53V18.32H9.35V15.53H6.56M15.32,15.53V18.32H18.11V15.53H15.32M3.76,0L0,4.12V18.32H5.16V22.43H8.25L11.34,18.32H16.03L22,12.71V0H3.76M20.59,11.83L17.5,14.62H13.53L10.64,17.22V14.62H5.86V1.41H20.59V11.83Z" /></svg>`,
+               kick: `<svg viewBox="0 0 24 24"><path d="M10 4H6v16h4v-7l5 7h4l-6-7 6-9h-4l-5 7V4z" /></svg>`,
+               instagram: `<svg viewBox="0 0 24 24"><path d="M7.8,2H16.2C19.4,2 22,4.6 22,7.8V16.2A5.2,5.2 0 0,1 16.2,22H7.8C4.6,22 2,19.4 2,16.2V7.8A5.2,5.2 0 0,1 7.8,2M7.6,4A3.6,3.6 0 0,0 4,7.6V16.4C4,18.39 5.61,20 7.6,20H16.4A3.6,3.6 0 0,0 20,16.4V7.6C20,5.61 18.39,4 16.4,4H7.6M17.25,5.5A1.25,1.25 0 0,1 18.5,6.75A1.25,1.25 0 0,1 17.25,8A1.25,1.25 0 0,1 16,6.75A1.25,1.25 0 0,1 17.25,5.5M12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9Z" /></svg>`,
+               twitter: `<svg viewBox="0 0 24 24"><path d="M22.46,6C21.69,6.35 20.86,6.58 20,6.69C20.88,6.16 21.56,5.32 21.88,4.31C21.05,4.81 20.13,5.16 19.16,5.36C18.37,4.5 17.26,4 16,4C13.65,4 11.73,5.92 11.73,8.29C11.73,8.63 11.77,8.96 11.84,9.27C8.28,9.09 5.11,7.38 3,4.79C2.63,5.42 2.42,6.16 2.42,6.94C2.42,8.43 3.17,9.75 4.33,10.5C3.62,10.5 2.96,10.3 2.38,10C2.38,10 2.38,10 2.38,10.03C2.38,12.11 3.86,13.85 5.82,14.24C5.46,14.34 5.08,14.39 4.69,14.39C4.42,14.39 4.15,14.36 3.89,14.31C4.43,16 6,17.26 7.89,17.29C6.43,18.45 4.58,19.13 2.56,19.13C2.22,19.13 1.88,19.11 1.54,19.07C3.44,20.29 5.7,21 8.12,21C16,21 20.33,14.46 20.33,8.79C20.33,8.6 20.33,8.42 20.32,8.23C21.16,7.63 21.88,6.87 22.46,6Z" /></svg>`,
+               github: `<svg viewBox="0 0 24 24"><path d="M12,2A10,10 0 0,0 2,12C2,16.42 4.87,20.17 8.84,21.5C9.34,21.58 9.5,21.27 9.5,21C9.5,20.77 9.5,20.14 9.5,19.31C6.73,19.91 6.14,17.97 6.14,17.97C5.68,16.81 5.03,16.5 5.03,16.5C4.12,15.88 5.1,15.9 5.1,15.9C6.1,15.97 6.63,16.93 6.63,16.93C7.5,18.45 8.97,18 9.54,17.76C9.63,17.11 9.89,16.67 10.17,16.42C7.95,16.17 5.62,15.31 5.62,11.5C5.62,10.39 6,9.5 6.65,8.79C6.55,8.54 6.2,7.5 6.75,6.15C6.75,6.15 7.59,5.88 9.5,7.17C10.29,6.95 11.15,6.84 12,6.84C12.85,6.84 13.71,6.95 14.5,7.17C16.41,5.88 17.25,6.15 17.25,6.15C17.8,7.5 17.45,8.54 17.35,8.79C18,9.5 18.38,10.39 18.38,11.5C18.38,15.32 16.04,16.16 13.81,16.41C14.17,16.72 14.5,17.33 14.5,18.26C14.5,19.6 14.5,20.68 14.5,21C14.5,21.27 14.66,21.59 15.17,21.5C19.14,20.16 22,16.42 22,12A10,10 0 0,0 12,2Z" /></svg>`,
+               bluesky: `<svg viewBox="0 0 24 24"><path d="M14.5 13.8L12.3 12l2.2-1.8c2.3-2 1.7-5.7-0.9-7.1S8 2.6 6.4 4.9l2.9 2.9-3.6 1.5L2.8 6.4c-0.9 1.4-0.6 3.3 0.6 4.5s3.2 1.6 4.8 0.7l2.8 2.8v0c-1.5 1.5-1.8 3.7-0.6 5.2s3.2 2.1 5.0 1.2l2.9-2.9-3.5-1.5 2.8-2.9c-0.8-0.6-1.9-0.7-3-0.1l-0.4 0.2z"/></svg>`,
+               facebook: `<svg viewBox="0 0 24 24"><path d="M14 13.5h2.5l1-4H14v-2c0-1.03 0-2 2-2h1.5V2.14c-.326-.043-1.557-.14-2.857-.14C11.928 2 10 3.657 10 6.7v2.8H7v4h3V22h4v-8.5z"/></svg>`,
+               linkedin: `<svg viewBox="0 0 24 24"><path d="M19,3A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3H19M18.5,18.5V13.2A3.26,3.26 0 0,0 15.24,9.94C14.39,9.94 13.4,10.43 12.9,11.2V10.13H10.13V18.5H12.9V13.57C12.9,12.8 13.5,12.17 14.31,12.17A1.4,1.4 0 0,1 15.71,13.57V18.5H18.5M6.88,8.56A1.68,1.68 0 0,0 8.56,6.88C8.56,6 8,5.44 7.21,5.44C6.42,5.44 5.86,6 5.86,6.88C5.86,7.77 6.42,8.34 7.21,8.34C7.21,8.34 7.21,8.34 7.21,8.34C8,8.34 8.56,7.77 8.56,6.88M8.56,18.5V10.13H5.86V18.5H8.56Z" /></svg>`,
+               email: `<svg viewBox="0 0 24 24"><path d="M20,8L12,13L4,8V6L12,11L20,6M20,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6C22,4.89 21.1,4 20,4Z" /></svg>`,
+               website: `<svg viewBox="0 0 24 24"><path fill="currentColor" d="M10.58,13.42L7.76,10.61L9.17,9.19L12,12L9.17,14.81L7.76,13.42M13.42,10.58L16.24,13.39L14.83,14.81L12,12L14.83,9.19L16.24,10.58M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" /></svg>`
+           };
+           Object.entries(profileData.socialLinks).forEach(([key, value]) => {
+               const div = document.createElement('div');
+               div.className = 'input-group social-link-group';
+               const inputType = key === 'email' ? 'email' : 'url';
+               const placeholder = key === 'email'
+                   ? 'your@email.com'
+                   : `${key.charAt(0).toUpperCase() + key.slice(1)} URL`;
+
+
+               div.innerHTML = `
+                   <span class="social-link-icon" title="${key.charAt(0).toUpperCase() + key.slice(1)}">${socialSvgs[key] || ''}</span>
+                   <input type="${inputType}" id="${key}Input" class="text-input" placeholder="${placeholder}" value="${value || ''}">
+               `;
+               socialLinksContainer.appendChild(div);
+           });
+       }
+
+
+       function renderSkills() {
+           skillsContainer.innerHTML = '';
+           profileData.creativeNiches.forEach(skill => {
+               const tag = document.createElement('span');
+               tag.className = 'skills-tag';
+               tag.innerHTML = `
+                   ${skill}
+                   <button type="button" class="remove-skill-btn" data-skill="${skill}" aria-label="Remove ${skill}">
+                       <svg class="remove-skill-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                       </svg>
+                   </button>`;
+               skillsContainer.appendChild(tag);
+           });
+       }
+     
+       function renderPortfolio() {
+           portfolioGrid.innerHTML = '';
+           profileData.portfolioItems.forEach((item, index) => {
+               const div = document.createElement('div');
+               div.className = 'portfolio-item';
+               let mediaHtml = '';
+             
+               if (item.type === 'image') {
+                   mediaHtml = `<img src="${item.url}" alt="${item.title}" class="portfolio-item-img" onerror="this.onerror=null;this.src='https://placehold.co/150x120/2a2a2a/eeeeee?text=Invalid\\nImage';">`;
+               } else if (item.type === 'video') {
+                    mediaHtml = `<div class="portfolio-item-icon"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>`;
+               } else { // 'other'
+                    mediaHtml = `<div class="portfolio-item-icon"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg></div>`;
+               }
+             
+               div.innerHTML = `
+                   <a href="${item.url}" target="_blank" rel="noopener noreferrer">
+                       ${mediaHtml}
+                       <div class="portfolio-item-caption">${item.title}</div>
+                   </a>
+                   <button type="button" class="remove-item-btn" data-index="${index}" aria-label="Remove item">&times;</button>`;
+               portfolioGrid.appendChild(div);
+           });
+       }
+     
+       function renderLogo() {
+           if (profileData.logoUrl) {
+               logoDisplay.src = profileData.logoUrl;
+               logoDisplay.style.display = 'block';
+               logoPlaceholder.style.display = 'none';
+           } else {
+               logoDisplay.style.display = 'none';
+               logoPlaceholder.style.display = 'flex';
+           }
+       }
+     
+       function displaySaveMessage(msg, type, duration = 4000) {
+           saveMessage.textContent = msg;
+           saveMessage.className = `save-message ${type}`;
+           setTimeout(() => { saveMessage.textContent = ''; saveMessage.className = 'save-message'; }, duration);
+       }
+
+
+       // --- EVENT LISTENERS ---
+       creatorForm.addEventListener('submit', handleSave);
+
+
+       // Skills
+       skillInput.addEventListener('keydown', e => {
+           if (e.key === 'Enter' && skillInput.value.trim()) {
+               e.preventDefault();
+               const newSkill = skillInput.value.trim();
+               if (!profileData.creativeNiches.includes(newSkill)) {
+                   profileData.creativeNiches.push(newSkill);
+                   renderSkills();
+               }
+               skillInput.value = '';
+           }
+       });
+       skillsContainer.addEventListener('click', e => {
+           const removeBtn = e.target.closest('.remove-skill-btn');
+           if (removeBtn) {
+               const skillToRemove = removeBtn.dataset.skill;
+               profileData.creativeNiches = profileData.creativeNiches.filter(s => s !== skillToRemove);
+               renderSkills();
+           }
+       });
+     
+       // Portfolio
+       addPortfolioImageBtn.addEventListener('click', () => portfolioImageInput.click());
+       portfolioImageInput.addEventListener('change', async (e) => {
+           for(const file of e.target.files) {
+               try {
+                   const downloadURL = await uploadFile(file, 'portfolio');
+                   profileData.portfolioItems.push({ type: 'image', title: file.name, url: downloadURL });
+                   renderPortfolio();
+               } catch (error) {
+                   console.error("Portfolio image upload failed:", error);
+                   displaySaveMessage(`Upload failed for ${file.name}.`, 'error');
+               }
+           }
+           portfolioImageInput.value = ''; // Reset file input
+       });
+
+
+       let currentPortfolioLinkType = 'video';
+       const openPortfolioLinkModal = (type) => {
+           currentPortfolioLinkType = type;
+           modalTitle.textContent = `Add ${type.charAt(0).toUpperCase() + type.slice(1)} Link`;
+           modalUrlInput.value = '';
+           modalTitleInput.value = '';
+           modalErrorMessage.textContent = '';
+           portfolioLinkModal.classList.remove('hidden');
+           modalUrlInput.focus();
+       };
+
+
+       const closePortfolioLinkModal = () => {
+           portfolioLinkModal.classList.add('hidden');
+       };
+
+
+       modalSaveBtn.addEventListener('click', () => {
+           const url = modalUrlInput.value.trim();
+           modalErrorMessage.textContent = '';
+           if (!url) {
+               modalErrorMessage.textContent = 'Please enter a valid URL.';
+               return;
+           }
+           const title = modalTitleInput.value.trim() || url;
+           profileData.portfolioItems.push({ type: currentPortfolioLinkType, title, url });
+           renderPortfolio();
+           closePortfolioLinkModal();
+       });
+
+
+       modalCancelBtn.addEventListener('click', closePortfolioLinkModal);
+       addPortfolioVideoBtn.addEventListener('click', () => openPortfolioLinkModal('video'));
+       addPortfolioOtherBtn.addEventListener('click', () => openPortfolioLinkModal('other'));
+
+
+       portfolioGrid.addEventListener('click', e => {
+           const removeBtn = e.target.closest('.remove-item-btn');
+           if (removeBtn) {
+               e.preventDefault(); // Prevent link navigation
+               const indexToRemove = parseInt(removeBtn.dataset.index, 10);
+               profileData.portfolioItems.splice(indexToRemove, 1);
+               renderPortfolio();
+           }
+       });
+     
+       // Branding
+       logoUploadBtn.addEventListener('click', () => logoInput.click());
+       logoInput.addEventListener('change', async (e) => {
+           const file = e.target.files[0];
+           if (file) {
+               try {
+                   const downloadURL = await uploadFile(file, 'logos');
+                   profileData.logoUrl = downloadURL;
+                   renderLogo();
+               } catch (error) {
+                    console.error("Logo upload failed:", error);
+                    displaySaveMessage('Logo upload failed.', 'error');
+               }
+           }
+       });
+
+
+       fontUploadBtn.addEventListener('click', () => fontUploadInput.click());
+       fontUploadInput.addEventListener('change', async (e) => {
+           const file = e.target.files[0];
+           if (file) {
+                try {
+                   const downloadURL = await uploadFile(file, 'fonts');
+                   profileData.branding.fontName = file.name;
+                   profileData.branding.fontUrl = downloadURL;
+                   fontNameDisplay.textContent = file.name;
+                   applyCustomFont(file.name, downloadURL);
+               } catch (error) {
+                    console.error("Font upload failed:", error);
+                    displaySaveMessage('Font upload failed.', 'error');
+               }
+           }
+       });
+     
+       // --- HEADER, FOOTER & THEME TOGGLE ---
+       function setupStaticUI() {
+           const headerHtml = `
+               <a href="https://weareypi.com" target="_blank" rel="noopener noreferrer">
+                   <img src="https://placehold.co/120x40/FFFFFF/37af4b?text=YPI" alt="YPI Logo" class="logo">
+               </a>
+               <button class="theme-toggle-button" aria-label="Toggle color theme">
+                   <svg class="gear-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                       <circle cx="12" cy="12" r="3"></circle>
+                       <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0-.33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                   </svg>
+               </button>`;
+           const header = document.createElement('header');
+           header.className = 'header';
+           header.innerHTML = headerHtml;
+           document.body.prepend(header);
+         
+           const footer = document.createElement('footer');
+           footer.className = 'footer-container';
+           footer.innerHTML = `<p>&copy; ${new Date().getFullYear()} Creator Profiles. All Rights Reserved.</p>`;
+           document.body.appendChild(footer);
+
+
+           const themeToggleButton = header.querySelector('.theme-toggle-button');
+           const htmlElement = document.documentElement;
+         
+           const applyTheme = (theme) => {
+               htmlElement.setAttribute('data-theme', theme);
+               localStorage.setItem('theme', theme);
+           };
+
+
+           themeToggleButton.addEventListener('click', () => {
+               const currentTheme = htmlElement.getAttribute('data-theme');
+               applyTheme(currentTheme === 'light' ? 'dark' : 'light');
+           });
+
+
+           applyTheme(localStorage.getItem('theme') || 'dark');
+       }
+     
+       document.addEventListener('DOMContentLoaded', setupStaticUI);
+
+
+   </script>
+</body>
+</html>

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reviewer Dashboard - YPI</title>
+  <!-- Tailwind CSS for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+      /* Define CSS Variables for easy theme management */
+      :root {
+          --primary-green: #37af4b;
+          --dark-background: #1c1c1c;
+          --card-background: #2a2a2a;
+          --input-background: #333;
+          --border-color: #444;
+          --text-light: #e0e0e0;
+          --text-medium: #bbb;
+          --highlight-blue: #3b82f6;
+      }
+   
+      html[data-theme='light'] {
+          --primary-green: #37af4b;
+          --dark-background: #f4f4f5;
+          --card-background: #ffffff;
+          --input-background: #f9fafb;
+          --border-color: #d1d5db;
+          --text-light: #1f2937;
+          --text-medium: #6b7280;
+          --highlight-blue: #2563eb;
+      }
+   
+      body {
+          font-family: 'Atkinson Hyperlegible', sans-serif;
+          background-color: var(--dark-background);
+          color: var(--text-light);
+          transition: background-color 0.3s, color 0.3s;
+      }
+
+
+      /* Custom styles for UI elements */
+      .card {
+          background-color: var(--card-background);
+          border: 1px solid var(--border-color);
+          transition: background-color 0.3s, border-color 0.3s;
+      }
+   
+      .input-field {
+          background-color: var(--input-background);
+          border: 1px solid var(--border-color);
+          color: var(--text-light);
+          transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+      }
+
+
+      .input-field:focus {
+          outline: none;
+          border-color: var(--primary-green);
+          box-shadow: 0 0 0 3px rgba(55, 175, 75, 0.3);
+      }
+
+
+      .btn-primary {
+          background-color: var(--primary-green);
+          transition: background-color 0.3s;
+      }
+      .btn-primary:hover {
+          background-color: #2e9b41;
+      }
+     
+      .btn-secondary {
+           background-color: var(--highlight-blue);
+      }
+      .btn-secondary:hover {
+           background-color: #1d4ed8;
+      }
+
+
+      .header, .footer {
+          background: linear-gradient(135deg, rgb(5, 114, 21) 0%, rgb(55, 175, 75) 100%);
+      }
+     
+      /* Accordion styles */
+      .accordion-header button.active .accordion-icon {
+          transform: rotate(180deg);
+      }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+
+  <!-- Header -->
+  <header class="header text-white shadow-md">
+      <div class="container mx-auto flex justify-between items-center p-4">
+          <div class="flex items-center">
+              <img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Logo" class="h-10 mr-4" onerror="this.onerror=null;this.src='https://placehold.co/40x40/37af4b/ffffff?text=YPI';">
+              <h1 class="text-xl font-bold">Creator Hub</h1>
+          </div>
+          <nav class="hidden md:flex items-center space-x-6">
+              <a href="#" class="hover:text-gray-300">Dashboard</a>
+              <a href="#" class="font-bold">Review Queue</a>
+              <a href="#" class="hover:text-gray-300">Resources</a>
+              <button id="theme-toggle" class="focus:outline-none">
+                  <i class="fas fa-sun"></i>
+              </button>
+          </nav>
+          <button class="md:hidden text-2xl" id="mobile-menu-button">
+              <i class="fas fa-bars"></i>
+          </button>
+      </div>
+  </header>
+
+
+  <!-- Main Content -->
+  <main class="flex-grow container mx-auto p-4 md:p-8">
+      <div class="max-w-4xl mx-auto">
+          <h2 class="text-3xl font-bold text-center mb-2" style="color: var(--primary-green);">Content Review Dashboard</h2>
+          <p class="text-center text-lg mb-10" style="color: var(--text-medium);">Analyze submissions, provide constructive critiques, and uphold our quality standards.</p>
+
+
+          <!-- Review Queue Section -->
+          <section id="review-queue">
+               <h3 class="text-2xl font-semibold mb-4 flex items-center"><i class="fas fa-inbox fa-fw mr-3 text-green-500"></i>Submissions Awaiting Review</h3>
+               <div id="submissions-list" class="space-y-6">
+                   <!-- Sample Submission Item 1 -->
+                   <div class="card rounded-lg shadow-lg overflow-hidden">
+                       <div class="accordion-header p-4 cursor-pointer flex justify-between items-center" data-target="#submission-1">
+                            <div>
+                               <p class="font-bold text-lg">'New Partner Onboarding Deck'</p>
+                               <p class="text-sm" style="color: var(--text-medium);">Submitted by: Jane Doe | 2 hours ago</p>
+                           </div>
+                           <i class="fas fa-chevron-down accordion-icon transition-transform"></i>
+                       </div>
+                       <div id="submission-1" class="accordion-content hidden">
+                           <div class="p-6 border-t" style="border-color: var(--border-color);">
+                               <h4 class="font-semibold mb-2">Creator's Request:</h4>
+                               <p class="mb-4 p-3 rounded-md text-sm" style="background-color: var(--input-background);">"Looking for feedback on the overall flow and if the key value propositions are clear. Is slide 5 too wordy?"</p>
+                               <a href="#" target="_blank" class="inline-block btn-primary text-white font-bold py-2 px-4 rounded-md mb-6"><i class="fas fa-external-link-alt mr-2"></i>View Work</a>
+                              
+                               <h4 class="font-semibold mb-3">Your Feedback:</h4>
+                               <form class="space-y-4 critique-form">
+                                   <div>
+                                       <label for="critique-notes-1" class="block text-sm font-medium mb-1" style="color: var(--text-medium);">Overall Critique</label>
+                                       <textarea id="critique-notes-1" rows="5" class="input-field w-full p-2 rounded-md" placeholder="Provide constructive comments on the work..."></textarea>
+                                   </div>
+                                   <div>
+                                       <label class="block text-sm font-medium mb-2" style="color: var(--text-medium);">Quick Assessment</label>
+                                       <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                           <select class="input-field p-2 rounded-md"><option>Clarity</option><option>Excellent</option><option>Good</option><option>Needs Work</option></select>
+                                           <select class="input-field p-2 rounded-md"><option>Tone</option><option>Excellent</option><option>Good</option><option>Needs Work</option></select>
+                                           <select class="input-field p-2 rounded-md"><option>Branding</option><option>Excellent</option><option>Good</option><option>Needs Work</option></select>
+                                           <select class="input-field p-2 rounded-md"><option>Accuracy</option><option>Excellent</option><option>Good</option><option>Needs Work</option></select>
+                                       </div>
+                                   </div>
+                                   <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                                       <button type="submit" class="btn-secondary text-white font-bold py-2 px-4 rounded-md w-full sm:w-auto">Submit Critique</button>
+                                       <button type="button" class="btn-primary text-white font-bold py-2 px-4 rounded-md w-full sm:w-auto">Approve for Release</button>
+                                   </div>
+                               </form>
+                           </div>
+                       </div>
+                   </div>
+                    <!-- Sample Submission Item 2 -->
+                   <div class="card rounded-lg shadow-lg overflow-hidden">
+                       <div class="accordion-header p-4 cursor-pointer flex justify-between items-center" data-target="#submission-2">
+                            <div>
+                               <p class="font-bold text-lg">'Community Outreach Video Script'</p>
+                               <p class="text-sm" style="color: var(--text-medium);">Submitted by: John Smith | 1 day ago</p>
+                           </div>
+                           <i class="fas fa-chevron-down accordion-icon transition-transform"></i>
+                       </div>
+                       <div id="submission-2" class="accordion-content hidden">
+                          <div class="p-6 border-t" style="border-color: var(--border-color);">
+                               <h4 class="font-semibold mb-2">Creator's Request:</h4>
+                               <p class="mb-4 p-3 rounded-md text-sm" style="background-color: var(--input-background);">"Does the opening hook you in? I'm not sure about the call to action at the end."</p>
+                               <a href="#" target="_blank" class="inline-block btn-primary text-white font-bold py-2 px-4 rounded-md mb-6"><i class="fas fa-external-link-alt mr-2"></i>View Work</a>
+                              
+                               <h4 class="font-semibold mb-3">Your Feedback:</h4>
+                               <form class="space-y-4 critique-form">
+                                   <div>
+                                       <label for="critique-notes-2" class="block text-sm font-medium mb-1" style="color: var(--text-medium);">Overall Critique</label>
+                                       <textarea id="critique-notes-2" rows="5" class="input-field w-full p-2 rounded-md" placeholder="Provide constructive comments on the work..."></textarea>
+                                   </div>
+                                    <div>
+                                       <label class="block text-sm font-medium mb-2" style="color: var(--text-medium);">Quick Assessment</label>
+                                       <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                           <select class="input-field p-2 rounded-md"><option>Clarity</option><option>Excellent</option><option>Good</option><option>Needs Work</option></select>
+                                           <select class="input-field p-2 rounded-md"><option>Tone</option><option>Excellent</option><option>Good</option><option>Needs Work</option></select>
+                                           <select class="input-field p-2 rounded-md"><option>Branding</option><option>Excellent</option><option>Good</option><option>Needs Work</option></select>
+                                           <select class="input-field p-2 rounded-md"><option>Accuracy</option><option>Excellent</option><option>Good</option><option>Needs Work</option></select>
+                                       </div>
+                                   </div>
+                                   <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                                       <button type="submit" class="btn-secondary text-white font-bold py-2 px-4 rounded-md w-full sm:w-auto">Submit Critique</button>
+                                       <button type="button" class="btn-primary text-white font-bold py-2 px-4 rounded-md w-full sm:w-auto">Approve for Release</button>
+                                   </div>
+                               </form>
+                           </div>
+                       </div>
+                   </div>
+               </div>
+          </section>
+      </div>
+  </main>
+
+
+  <!-- Footer -->
+  <footer class="footer text-white mt-12">
+      <div class="container mx-auto p-8 text-center">
+          <img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon.png" alt="YPI Site Icon" class="h-16 mx-auto mb-4" onerror="this.onerror=null;this.src='https://placehold.co/64x64/37af4b/ffffff?text=YPI';">
+          <h2 class="text-lg font-bold">A Company to Change America One Hour At a Time</h2>
+          <p class="text-sm mt-4 text-gray-300">Young Progressives Initiative L.L.C , Chevy Chase, MD 20815</p>
+      </div>
+  </footer>
+
+
+  <!-- JavaScript for interactivity -->
+  <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          // Theme Toggler
+          const themeToggle = document.getElementById('theme-toggle');
+          const html = document.documentElement;
+
+
+          themeToggle.addEventListener('click', () => {
+              if (html.getAttribute('data-theme') === 'dark') {
+                  html.setAttribute('data-theme', 'light');
+                  themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+              } else {
+                  html.setAttribute('data-theme', 'dark');
+                  themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+              }
+          });
+
+
+          if (html.getAttribute('data-theme') === 'dark') {
+              themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+          } else {
+              themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+          }
+       
+          // Mobile Menu
+          const mobileMenuButton = document.getElementById('mobile-menu-button');
+          mobileMenuButton.addEventListener('click', () => {
+              const mobileMenuModal = document.createElement('div');
+              mobileMenuModal.className = 'fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50';
+              mobileMenuModal.innerHTML = `<div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl text-center"><p class="text-gray-800 dark:text-gray-200">Mobile menu would open here.</p><button class="mt-4 px-4 py-2 bg-green-500 text-white rounded-md" onclick="this.parentElement.parentElement.remove()">Close</button></div>`;
+              document.body.appendChild(mobileMenuModal);
+          });
+
+
+          // Accordion functionality for review items
+          const accordionHeaders = document.querySelectorAll('.accordion-header');
+          accordionHeaders.forEach(header => {
+              header.addEventListener('click', () => {
+                  const content = document.querySelector(header.dataset.target);
+                  header.classList.toggle('active');
+                  content.classList.toggle('hidden');
+              });
+          });
+
+
+          // Critique Form Submission
+          const critiqueForms = document.querySelectorAll('.critique-form');
+          critiqueForms.forEach(form => {
+               form.addEventListener('submit', function(event) {
+                   event.preventDefault();
+                   const submissionModal = document.createElement('div');
+                   submissionModal.className = 'fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50';
+                   submissionModal.innerHTML = `<div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl text-center"><p class="text-gray-800 dark:text-gray-200">Your critique has been sent to the creator!</p><button class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md" onclick="this.parentElement.parentElement.remove()">OK</button></div>`;
+                   document.body.appendChild(submissionModal);
+                   // Optionally, you can collapse the accordion and remove the item from the list
+                   // For now, just reset the form
+                   form.reset();
+               });
+          });
+      });
+  </script>
+
+
+</body>
+</html>
