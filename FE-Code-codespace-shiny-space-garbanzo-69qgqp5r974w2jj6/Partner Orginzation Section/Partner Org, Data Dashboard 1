@@ -1,1201 +1,1715 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
- <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <title>Staff Bio Editor</title>
- <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
- <script src="https://cdn.tailwindcss.com"></script>
- <style>
-      * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-      }
-      body {
-          font-family: 'Inter', sans-serif;
-          background-color: var(--theme-body-bg);
-          color: var(--theme-body-color);
-          line-height: 1.6;
-          overflow-x: hidden;
-          font-size: 16px;
-      }
-      body.customizer-is-open, body.tour-is-active {
-          overflow: hidden;
-      }
-      :root {
-          --primary-green: #37af4b;
-          --dark-background: #1c1c1c;
-          --member-border: #28a745;
-          --light-gray: #bbb;
-          --wp--preset--spacing--20: 5rem;
-          --theme-body-bg: #1c1c1c;
-          --theme-body-color: #fff;
-          --theme-popup-bg: #bbbbbb;
-          --theme-popup-text: #1c1c1c;
-          --theme-input-bg: #333;
-          --theme-input-border: #444;
-          --theme-input-text: #eee;
-          --theme-navbar-bg: #1c1c1c;
-          --theme-navbar-text: #fff;
-          --theme-navbar-dropdown-bg: #f0f0f0;
-          --theme-navbar-dropdown-text: #1c1c1c;
-          --theme-navbar-dropdown-hover-bg: #ddd;
-          --theme-button-bg: #FEFEFE;
-          --theme-button-text: #1c1c1c;
-          --theme-button-border: #1c1c1c;
-          --theme-button-hover-bg: #1c1c1c;
-          --theme-button-hover-text: #FEFEFE;
-          --mobile-section-bg: #2a2a2a;
-          --logo-color: #FEFEFE;
-          --theme-header-bg: linear-gradient(135deg, rgb(5, 114, 21) 0%, rgb(55, 175, 75) 100%);
-      }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiered Partner Organization Dashboard - Sports Metrics</title>
+    <!-- Tailwind CSS CDN for utility classes and responsive design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for the line graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Sortable.js CDN for drag and drop functionality -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <!-- jsPDF for PDF exporting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // Explicitly import and attach Firestore functions to window
+        import { getFirestore, collection, addDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global Firebase variables (will be initialized on DOMContentLoaded)
+        window.firebaseApp = null;
+        window.db = null;
+        window.auth = null;
+        window.currentUserId = null;
+        window.appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; // Provided by Canvas environment
+        window.allOverflowInsightsData = []; // Global array to store overflow insights
+        window.isPremiumUser = localStorage.getItem('isPremiumUser') === 'true'; // Load premium status from localStorage
+
+        // Attach Firestore functions to window for global access
+        window.collection = collection;
+        window.addDoc = addDoc;
+        window.onSnapshot = onSnapshot;
+        window.query = query;
+
+        // Function to initialize charts (main dashboard charts)
+        function initializeCharts() {
+            // ROI Trend Chart (Original)
+            const roiTrendCtx = document.getElementById('roiTrendChart').getContext('2d');
+            new Chart(roiTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'], // Months
+                    datasets: [{
+                        label: 'ROI Ratio',
+                        data: [2.5, 3.0, 2.8, 3.2, 3.5, 3.1, 3.4], // Example ROI data
+                        borderColor: 'var(--text-light)',
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 0,
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false,
+                        },
+                        tooltip: {
+                            enabled: false,
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: false,
+                        },
+                        y: {
+                            display: false,
+                            min: 2.0,
+                            max: 4.0,
+                        }
+                    }
+                }
+            });
+
+            // Hours by Project Type Chart
+            const hoursByTypeChartCtx = document.getElementById('hoursByTypeChart').getContext('2d');
+            new Chart(hoursByTypeChartCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Community', 'Training', 'Events', 'Mentoring', 'Admin', 'Outreach'],
+                    datasets: [
+                        {
+                            label: 'Hours',
+                            data: [300, 250, 400, 200, 350, 500], // Example hours data
+                            borderColor: 'var(--accent-blue)',
+                            backgroundColor: 'rgba(66, 165, 245, 0.2)',
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointRadius: 0,
+                            fill: false,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: 'var(--text-light)'
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'var(--border-color)',
+                            },
+                            ticks: {
+                                color: 'var(--text-medium)',
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'var(--border-color)',
+                            },
+                            ticks: {
+                                color: 'var(--text-medium)',
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Function to initialize Sortable.js for drag and drop
+        function initializeSortable() {
+            const dashboardGrid = document.getElementById('dashboardGrid');
+            if (dashboardGrid) {
+                new Sortable(dashboardGrid, {
+                    animation: 150, // milliseconds
+                    ghostClass: 'sortable-ghost', // Class name for the drop placeholder
+                    onEnd: function (evt) {
+                        // Optional: You can add logic here to save the new order
+                        console.log('Item moved:', evt.item);
+                        console.log('Old index:', evt.oldIndex);
+                        console.log('New index:', evt.newIndex);
+                    }
+                });
+            }
+        }
+
+        // Function to add a new financial value entry
+        function addFinancialContributionEntry(volunteerName, task, value) {
+            const tableBody = document.getElementById('financialContributionTableBody');
+            const newRow = tableBody.insertRow(0); // Insert at the top
+            newRow.classList.add('border-b', 'border-[rgba(255,255,255,0.1)]'); // Add border for consistency
+
+            const volunteerCell = newRow.insertCell(0);
+            volunteerCell.classList.add('py-2', 'text-left', 'text-[#e0e0e0]');
+            volunteerCell.textContent = volunteerName;
+
+            const taskCell = newRow.insertCell(1);
+            taskCell.classList.add('py-2', 'text-left', 'text-[#e0e0e0]');
+            taskCell.textContent = task;
+
+            const valueCell = newRow.insertCell(2);
+            valueCell.classList.add('py-2', 'text-left', 'text-[#e0e0e0]');
+            valueCell.textContent = value;
+        }
+
+        // Function to save an insight to localStorage
+        function addInsightToLocalStorage(title, description, category, userId) {
+            const insightsKey = `userInsights_${userId}`;
+            let insights = JSON.parse(localStorage.getItem(insightsKey)) || [];
+            insights.unshift({ title, description, category, timestamp: new Date().toLocaleString() }); // Add to the beginning
+            localStorage.setItem(insightsKey, JSON.stringify(insights));
+            loadInsightsFromLocalStorage(userId); // Reload to update display
+        }
+
+        // Function to load insights from localStorage and populate the lists
+        function loadInsightsFromLocalStorage(userId) {
+            const insightsKey = `userInsights_${userId}`;
+            const insights = JSON.parse(localStorage.getItem(insightsKey)) || [];
+
+            const userInsightsList = document.getElementById('userInsightsList');
+            userInsightsList.innerHTML = ''; // Clear current display
+            window.allOverflowInsightsData = []; // Clear global overflow data
+
+            const displayLimit = 3; // Number of insights to show directly in the card
+
+            if (insights.length === 0) {
+                userInsightsList.innerHTML = '<p class="no-insights-message" id="noInsightsMessage">No insights submitted yet.</p>';
+                // Hide dropdown toggle for User Insights card if no insights
+                const userInsightsToggle = document.querySelector('#userInsightsCard .insights-dropdown-toggle');
+                if (userInsightsToggle) userInsightsToggle.style.display = 'none';
+            } else {
+                const existingNoInsightsMessage = document.getElementById('noInsightsMessage');
+                if (existingNoInsightsMessage) {
+                    existingNoInsightsMessage.remove();
+                }
+
+                insights.forEach((data, index) => {
+                    const insightDiv = document.createElement('div');
+                    insightDiv.classList.add('user-insight-item');
+
+                    const titleElement = document.createElement('p');
+                    titleElement.classList.add('font-semibold', 'text-white', 'mb-1');
+                    titleElement.textContent = data.title;
+
+                    const descriptionElement = document.createElement('p');
+                    descriptionElement.textContent = data.description;
+
+                    const metaInfo = document.createElement('p');
+                    metaInfo.classList.add('meta-info');
+                    metaInfo.textContent = `Submitted: ${data.timestamp}`;
+
+                    insightDiv.appendChild(titleElement);
+                    insightDiv.appendChild(descriptionElement);
+                    insightDiv.appendChild(metaInfo);
+
+                    if (index < displayLimit) {
+                        userInsightsList.appendChild(insightDiv);
+                    } else {
+                        window.allOverflowInsightsData.push(data); // Add to global overflow array
+                    }
+                });
+
+                // Show/hide dropdown toggle for User Insights card based on overflow
+                const userInsightsToggle = document.querySelector('#userInsightsCard .insights-dropdown-toggle');
+                if (userInsightsToggle) {
+                    userInsightsToggle.style.display = window.allOverflowInsightsData.length > 0 ? 'block' : 'none';
+                }
+            }
+        }
+
+        // Function to add an insight to Firestore (kept for future use/reference, not currently displayed)
+        async function addInsightToFirestore(title, description, category, userId) {
+            if (!userId) {
+                console.error("User ID not available. Cannot submit insight to Firestore.");
+                return;
+            }
+            try {
+                const insightsCollectionRef = window.collection(window.db, `artifacts/${window.appId}/users/${userId}/insights`);
+                await window.addDoc(insightsCollectionRef, {
+                    title: title,
+                    description: description,
+                    category: category, // Save category to Firestore
+                    timestamp: new Date().toLocaleString(),
+                    userId: userId
+                });
+                console.log("Insight added to Firestore!");
+            } catch (e) {
+                console.error("Error adding document to Firestore: ", e);
+            }
+        }
+
+        // Function to generate premium content HTML (title only initially)
+        function getPremiumContentHtml(cardId) {
+            // Content for each premium card based on its ID
+            switch(cardId) {
+                case 'totalVolunteerHoursCard': // Premium: Expected Value (EV) per Hour
+                    return `
+                        <div class="premium-stat-item" data-stat-id="volunteerHoursTrend">
+                            <h4 class="premium-stat-title cursor-pointer flex justify-between items-center">
+                                Volunteer Hours Trend <span class="toggle-arrow">&gt;</span>
+                            </h4>
+                            <div class="premium-stat-details hidden">
+                                <div class="chart-container relative h-48 w-full">
+                                    <canvas id="dropdownVolunteerHoursTrendChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="premium-stat-item" data-stat-id="evPerHour">
+                            <h4 class="premium-stat-title cursor-pointer flex justify-between items-center">
+                                Expected Value (EV) per Hour <span class="toggle-arrow">&gt;</span>
+                            </h4>
+                            <div class="premium-stat-details hidden">
+                                <div class="metric mb-4">
+                                    <span class="value text-3xl font-semibold text-white block mb-1">1.15<span class="unit text-base font-normal opacity-80">EV</span></span>
+                                    <span class="label text-sm text-[var(--text-medium)]">Avg. EV per Hour</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="value text-3xl font-semibold text-white block mb-1">1.18</span>
+                                    <span class="label text-sm text-[var(--text-medium)]">Happiness Modifier</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                case 'volunteerEngagementCard': // Premium: Key Modifiers
+                    return `
+                        <div class="premium-stat-item" data-stat-id="volunteerReturnRate">
+                            <h4 class="premium-stat-title cursor-pointer flex justify-between items-center">
+                                Volunteer Return Rate <span class="toggle-arrow">&gt;</span>
+                            </h4>
+                            <div class="premium-stat-details hidden">
+                                <div class="metric mb-4">
+                                    <span class="value text-3xl font-semibold text-white block mb-1">62%</span>
+                                    <span class="label text-sm text-[var(--text-medium)]">Attended a Second Event</span>
+                                </div>
+                            </div>
+                        </div>
+                         <div class="premium-stat-item" data-stat-id="newVsReturningRatio">
+                            <h4 class="premium-stat-title cursor-pointer flex justify-between items-center">
+                                New vs. Returning Volunteers <span class="toggle-arrow">&gt;</span>
+                            </h4>
+                            <div class="premium-stat-details hidden">
+                                <div class="chart-container relative h-48 w-full">
+                                    <canvas id="dropdownNewVsReturningRatioChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="premium-stat-item" data-stat-id="keyModifiers">
+                            <h4 class="premium-stat-title cursor-pointer flex justify-between items-center">
+                                Key Modifiers <span class="toggle-arrow">&gt;</span>
+                            </h4>
+                            <div class="premium-stat-details hidden">
+                                <div class="metric mb-4">
+                                    <span class="value text-3xl font-semibold text-white block mb-1">1.2<span class="unit text-base font-normal opacity-80">x</span></span>
+                                    <span class="label text-sm text-[var(--text-medium)]">Experience Modifier</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="value text-3xl font-semibold text-white block mb-1">1.15<span class="unit text-base font-normal opacity-80">x</span></span>
+                                    <span class="label text-sm text-[var(--text-medium)]">Cultural Fit Modifier</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                case 'roiCard': // Premium: ROI per Hour
+                    return `
+                        <div class="premium-stat-item" data-stat-id="roiPerHour">
+                            <h4 class="premium-stat-title cursor-pointer flex justify-between items-center">
+                                ROI per Hour <span class="toggle-arrow">&gt;</span>
+                            </h4>
+                            <div class="premium-stat-details hidden">
+                                <div class="metric mb-4">
+                                    <span class="value text-3xl font-bold text-white block mb-1">$28.54<span class="unit text-base font-normal opacity-80">/hr</span></span>
+                                    <span class="label text-sm text-[var(--text-medium)]">Avg. ROI per Hour</span>
+                                </div>
+                                <div class="chart-container relative h-24 w-full">
+                                    <canvas id="dropdownRoiChart"></canvas>
+                                </div>
+                                <p class="text-xs text-[var(--text-medium)] text-right mt-1">EV Trend (Simulated)</p>
+                            </div>
+                        </div>
+                    `;
+                case 'projectsCompletedCard': // Premium: Projects per Hour Leaderboard
+                    return `
+                        <div class="premium-stat-item" data-stat-id="mostEffectiveOpportunity">
+                            <h4 class="premium-stat-title cursor-pointer flex justify-between items-center">
+                                Most Effective Opportunity <span class="toggle-arrow">&gt;</span>
+                            </h4>
+                            <div class="premium-stat-details hidden">
+                                <div class="metric mb-4">
+                                    <span class="value text-3xl font-semibold text-white block mb-1">Phone Banking</span>
+                                    <span class="label text-sm text-[var(--text-medium)]">Highest Sign-ups & Attendance</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="premium-stat-item" data-stat-id="attendanceRateTrend">
+                            <h4 class="premium-stat-title cursor-pointer flex justify-between items-center">
+                                Attendance Rate Trend <span class="toggle-arrow">&gt;</span>
+                            </h4>
+                            <div class="premium-stat-details hidden">
+                                <div class="chart-container relative h-48 w-full">
+                                    <canvas id="dropdownAttendanceRateTrendChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="premium-stat-item" data-stat-id="projectsPerHour">
+                            <h4 class="premium-stat-title cursor-pointer flex justify-between items-center">
+                                Projects per Hour Leaderboard <span class="toggle-arrow">&gt;</span>
+                            </h4>
+                            <div class="premium-stat-details hidden">
+                                <table class="w-full text-sm">
+                                    <thead>
+                                        <tr>
+                                            <th class="py-2 text-left text-[var(--text-medium)] font-normal text-xs uppercase">Person Name</th>
+                                            <th class="py-2 text-left text-[var(--text-medium)] font-normal text-xs uppercase">Projects/Hr</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">Alice Johnson</td><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">0.12</td></tr>
+                                        <tr><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">Bob Williams</td><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">0.10</td></tr>
+                                        <tr><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">Charlie Brown</td><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">0.08</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                case 'hoursByTypeChartCard': // Premium: Hours by Project Type (Chart, possibly with more detail)
+                    return `
+                        <div class="premium-stat-item" data-stat-id="hoursByTypeDetailed">
+                            <h4 class="premium-stat-title cursor-pointer flex justify-between items-center">
+                                Hours by Project Type (Detailed) <span class="toggle-arrow">&gt;</span>
+                            </h4>
+                            <div class="premium-stat-details hidden">
+                                <div class="chart-container relative h-24 w-full">
+                                    <canvas id="dropdownHoursByTypeChart"></canvas>
+                                </div>
+                                <p class="text-xs text-[var(--text-medium)] text-right mt-1">Detailed Breakdown</p>
+                            </div>
+                        </div>
+                    `;
+                case 'financialValueCard': // Premium: Experience Value per Hour
+                    return `
+                        <div class="premium-stat-item" data-stat-id="experienceValue">
+                            <h4 class="premium-stat-title cursor-pointer flex justify-between items-center">
+                                Experience Value per Hour <span class="toggle-arrow">&gt;</span>
+                            </h4>
+                            <div class="premium-stat-details hidden">
+                                <div class="metric mb-4">
+                                    <span class="value text-3xl font-semibold text-white block mb-1">0.19<span class="unit text-base font-normal opacity-80">EV</span></span>
+                                    <span class="label text-sm text-[var(--text-medium)]">Avg. Experience Value</span>
+                                </div>
+                                <p class="text-xs text-[var(--text-medium)] mt-2">Based on EV - (Base Value * Happiness * Cultural Fit)</p>
+                            </div>
+                        </div>
+                    `;
+                case 'individualSatisfactionCard': // Premium: Happiness Value Impact (%)
+                    return `
+                        <div class="premium-stat-item" data-stat-id="happinessImpact">
+                            <h4 class="premium-stat-title cursor-pointer flex justify-between items-center">
+                                Happiness Value Impact (%) <span class="toggle-arrow">&gt;</span>
+                            </h4>
+                            <div class="premium-stat-details hidden">
+                                <div class="metric mb-4">
+                                    <span class="value text-3xl font-semibold text-white block mb-1">69.1<span class="unit text-base font-normal opacity-80">%</span></span>
+                                    <span class="label text-sm text-[var(--text-medium)]">Impact from Happiness</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="value text-3xl font-semibold text-white block mb-1">8.0</span>
+                                    <span class="label text-sm text-[var(--text-medium)]">Avg. Happiness Score</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                case 'hungerScoreCard': // Premium: Hunger Score (Ambition) and Hunger-Adjusted EV
+                    return `
+                        <div class="premium-stat-item" data-stat-id="hungerScoreDetails">
+                            <h4 class="premium-stat-title cursor-pointer flex justify-between items-center">
+                                Hunger Score (Ambition) Details <span class="toggle-arrow">&gt;</span>
+                            </h4>
+                            <div class="premium-stat-details hidden">
+                                <div class="metric mb-4">
+                                    <span class="value text-3xl font-semibold text-white block mb-1">7.5<span class="unit text-base font-normal opacity-80">/10</span></span>
+                                    <span class="label text-sm text-[var(--text-medium)]">Avg. Hunger Score</span>
+                                </div>
+                                <div class="metric">
+                                    <span class="value text-3xl font-semibold text-white block mb-1">1.58<span class="unit text-base font-normal opacity-80">EV</span></span>
+                                    <span class="label text-sm text-[var(--text-medium)]">Hunger-Adjusted EV</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                case 'userInsightsCard': // This card's dropdown will only show user-submitted insights
+                    return ''; // No specific premium stat for this card itself
+                default:
+                    return `<p class="text-sm text-[var(--text-medium)] text-center py-2">No specific advanced insights for this card.</p>`;
+            }
+        }
+
+        // Function to toggle premium stat details visibility
+        function togglePremiumStatDetails(clickedTitleElement, cardId) {
+            const parentStatItem = clickedTitleElement.closest('.premium-stat-item');
+            const statDetails = parentStatItem.querySelector('.premium-stat-details');
+            const toggleArrow = clickedTitleElement.querySelector('.toggle-arrow');
+
+            // Close other open premium stat details within the same dropdown
+            parentStatItem.parentNode.querySelectorAll('.premium-stat-details.show').forEach(openDetails => {
+                if (openDetails !== statDetails) {
+                    openDetails.classList.remove('show');
+                    openDetails.classList.add('hidden');
+                    const otherArrow = openDetails.previousElementSibling.querySelector('.toggle-arrow');
+                    if (otherArrow) otherArrow.classList.remove('open');
+                }
+            });
+
+            statDetails.classList.toggle('hidden');
+            statDetails.classList.toggle('show');
+            toggleArrow.classList.toggle('open');
+
+            // If a chart is present, re-initialize it when visible
+            if (statDetails.classList.contains('show')) {
+                const statId = parentStatItem.dataset.statId; // Get the specific stat ID
+
+                if (statId === 'roiPerHour') {
+                    const roiChartCanvas = statDetails.querySelector('#dropdownRoiChart');
+                    if (roiChartCanvas) {
+                        if (Chart.getChart(roiChartCanvas)) {
+                            Chart.getChart(roiChartCanvas).destroy();
+                        }
+                        const roiCtx = roiChartCanvas.getContext('2d');
+                        new Chart(roiCtx, {
+                            type: 'line',
+                            data: {
+                                labels: ['P1', 'P2', 'P3', 'P4', 'P5', 'P6', 'P7'],
+                                datasets: [{
+                                    label: 'ROI Ratio',
+                                    data: [2.5, 3.0, 2.8, 3.2, 3.5, 3.1, 3.4],
+                                    borderColor: 'var(--text-light)',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                                    borderWidth: 2,
+                                    tension: 0.3,
+                                    pointRadius: 0,
+                                    fill: true,
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                                scales: { x: { display: false }, y: { display: false, min: 2.0, max: 4.0 } }
+                            }
+                        });
+                    }
+                } else if (statId === 'hoursByTypeDetailed') {
+                    const hoursByTypeCanvas = statDetails.querySelector('#dropdownHoursByTypeChart');
+                    if (hoursByTypeCanvas) {
+                        if (Chart.getChart(hoursByTypeCanvas)) {
+                            Chart.getChart(hoursByTypeCanvas).destroy();
+                        }
+                        const hoursByTypeCtx = hoursByTypeCanvas.getContext('2d');
+                        new Chart(hoursByTypeCtx, {
+                            type: 'line',
+                            data: {
+                                labels: ['Comm', 'Train', 'Event', 'Ment', 'Admin', 'Outr'],
+                                datasets: [
+                                    {
+                                        label: 'Hours',
+                                        data: [300, 250, 400, 200, 350, 500],
+                                        borderColor: 'var(--accent-blue)',
+                                        backgroundColor: 'rgba(66, 165, 245, 0.2)',
+                                        borderWidth: 2,
+                                        tension: 0.4,
+                                        pointRadius: 0,
+                                        fill: false,
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                                scales: { x: { display: false }, y: { display: false } }
+                            }
+                        });
+                    }
+                } else if (statId === 'volunteerHoursTrend') {
+                    const canvas = statDetails.querySelector('#dropdownVolunteerHoursTrendChart');
+                    if (canvas && !Chart.getChart(canvas)) {
+                        new Chart(canvas.getContext('2d'), {
+                            type: 'line',
+                            data: {
+                                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                                datasets: [{
+                                    label: 'Volunteer Hours',
+                                    data: [120, 150, 180, 220, 250, 230, 270, 300, 280, 310, 340, 370],
+                                    borderColor: 'var(--accent-green)',
+                                    backgroundColor: 'rgba(102, 187, 106, 0.2)',
+                                    fill: true,
+                                }]
+                            },
+                            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } },
+                        });
+                    }
+                } else if (statId === 'newVsReturningRatio') {
+                    const canvas = statDetails.querySelector('#dropdownNewVsReturningRatioChart');
+                    if (canvas && !Chart.getChart(canvas)) {
+                         new Chart(canvas.getContext('2d'), {
+                            type: 'doughnut',
+                            data: {
+                                labels: ['New Volunteers', 'Returning Volunteers'],
+                                datasets: [{
+                                    data: [40, 60],
+                                    backgroundColor: ['var(--accent-blue)', 'var(--accent-orange)'],
+                                }]
+                            },
+                            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { color: 'var(--text-light)' } } } },
+                        });
+                    }
+                } else if (statId === 'attendanceRateTrend') {
+                    const canvas = statDetails.querySelector('#dropdownAttendanceRateTrendChart');
+                    if (canvas && !Chart.getChart(canvas)) {
+                        new Chart(canvas.getContext('2d'), {
+                            type: 'bar',
+                            data: {
+                                labels: ['Q1', 'Q2', 'Q3', 'Q4'],
+                                datasets: [{
+                                    label: 'Attendance Rate',
+                                    data: [75, 80, 85, 90],
+                                    backgroundColor: 'var(--accent-red)',
+                                }]
+                            },
+                            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } },
+                        });
+                    }
+                }
+            }
+        }
+
+        // Function to populate and show a generic card dropdown
+        function populateAndShowDropdown(dropdownContentElement, toggleElement, cardId) {
+            const overflowList = dropdownContentElement.querySelector('.overflow-list');
+            if (!overflowList) return;
+
+            // Close any other open dropdowns first
+            document.querySelectorAll('.card-dropdown-content.show').forEach(openDropdown => {
+                if (openDropdown !== dropdownContentElement) {
+                    openDropdown.classList.remove('show');
+                    const associatedToggle = openDropdown.closest('.card').querySelector('.insights-dropdown-toggle');
+                    if (associatedToggle) associatedToggle.classList.remove('open');
+                }
+            });
+
+            // Toggle current dropdown
+            dropdownContentElement.classList.toggle('show');
+            toggleElement.classList.toggle('open');
+
+            // Populate only if showing
+            if (dropdownContentElement.classList.contains('show')) {
+                overflowList.innerHTML = ''; // Clear existing content
+
+                // Get the specific premium content for this card
+                const premiumContentHtml = getPremiumContentHtml(cardId);
+                overflowList.innerHTML = premiumContentHtml;
+
+                // Attach event listeners to premium stat titles (only if premium content is present)
+                if (window.isPremiumUser || premiumContentHtml.includes('upgradePremiumBtn')) { // Only attach if there's content to interact with
+                    overflowList.querySelectorAll('.premium-stat-title').forEach(titleElement => {
+                        titleElement.addEventListener('click', (event) => {
+                            event.stopPropagation(); // Prevent dropdown from closing
+                            togglePremiumStatDetails(titleElement, cardId);
+                        });
+                    });
+                }
 
 
-      html[data-theme='light'] {
-          --theme-body-bg: #FEFEFE;
-          --theme-body-color: #1c1c1c;
-          --theme-popup-bg: #e0e0e0;
-          --theme-popup-text: #1c1c1c;
-          --theme-input-bg: #fff;
-          --theme-input-border: #ccc;
-          --theme-input-text: #1c1c1c;
-          --primary-green: #37af4b;
-          --member-border: #37af4b;
-          --theme-navbar-bg: #FEFEFE;
-          --theme-navbar-text: #1c1c1c;
-          --theme-navbar-dropdown-bg: #1c1c1c;
-          --theme-navbar-dropdown-text: #FEFEFE;
-          --theme-navbar-dropdown-hover-bg: #333;
-          --theme-button-bg: #1c1c1c;
-          --theme-button-text: #FEFEFE;
-          --theme-button-border: #1c1c1c;
-          --theme-button-hover-bg: #FEFEFE;
-          --theme-button-hover-text: #1c1c1c;
-          --mobile-section-bg: #f0f0f0;
-          --logo-color: #1c1c1c;
-      }
-    
-      html[data-theme='light'] .header-container {
-          --theme-header-bg: #FEFEFE;
-      }
+                // Add event listener for the "Upgrade Now" button if present
+                const upgradeBtn = dropdownContentElement.querySelector('#upgradePremiumBtn');
+                if (upgradeBtn) {
+                    upgradeBtn.addEventListener('click', () => {
+                        window.isPremiumUser = true;
+                        localStorage.setItem('isPremiumUser', 'true');
+                        // Reload the dropdown content to show premium data
+                        populateAndShowDropdown(dropdownContentElement, toggleElement, cardId);
+                        updatePremiumToggleBtn(); // Update the main toggle button state
+                    });
+                }
+
+                // Append general overflow insights if any (categorized)
+                if (window.allOverflowInsightsData.length > 0) {
+                    const insightsByCategory = window.allOverflowInsightsData.reduce((acc, insight) => {
+                        const category = insight.category || 'Uncategorized';
+                        if (!acc[category]) {
+                            acc[category] = [];
+                        }
+                        acc[category].push(insight);
+                        return acc;
+                    }, {});
+
+                    // Add a separator if there's premium content and also general insights
+                    // Check if premiumContentHtml is not just the default "No specific advanced insights" message
+                    const hasPremiumContent = premiumContentHtml.trim() !== `<p class="text-sm text-[var(--text-medium)] text-center py-2">No specific advanced insights for this card.</p>`.trim();
+
+                    if (hasPremiumContent) {
+                        const separator = document.createElement('hr');
+                        separator.classList.add('border-t', 'border-[var(--border-color)]', 'my-4');
+                        overflowList.appendChild(separator);
+                    }
 
 
-      html[data-theme='light'] .footer-container {
-          background: #1c1c1c;
-          color: #FEFEFE;
-      }
+                    for (const category in insightsByCategory) {
+                        const categoryHeader = document.createElement('h4');
+                        categoryHeader.classList.add('category-header');
+                        categoryHeader.textContent = category;
+                        overflowList.appendChild(categoryHeader);
+
+                        insightsByCategory[category].forEach(data => {
+                            const insightDiv = document.createElement('div');
+                            insightDiv.classList.add('user-insight-item');
+                            insightDiv.innerHTML = `<p class="font-semibold text-white mb-1">${data.title}</p><p>${data.description}</p><p class="meta-info">Submitted: ${data.timestamp}</p>`;
+                            overflowList.appendChild(insightDiv);
+                        });
+                    }
+                } else if (!window.isPremiumUser && premiumContentHtml.trim() === `<p class="text-sm text-[var(--text-medium)] text-center py-2">No specific advanced insights for this card.</p>`.trim()) {
+                    // If no specific premium content and no general insights, show a general message
+                    overflowList.innerHTML = '<p class="text-sm text-[var(--text-medium)] text-center py-2">No additional insights available.</p>';
+                }
+            }
+        }
+
+        // Function to update the premium toggle button text and style
+        function updatePremiumToggleBtn() {
+            const toggleButton = document.getElementById('togglePremiumAccessBtn');
+            if (toggleButton) {
+                if (window.isPremiumUser) {
+                    toggleButton.textContent = 'Premium: ON';
+                    toggleButton.classList.remove('bg-gray-500', 'hover:bg-gray-600');
+                    toggleButton.classList.add('bg-[var(--accent-green)]', 'hover:bg-[#5cb85c]');
+                } else {
+                    toggleButton.textContent = 'Premium: OFF';
+                    toggleButton.classList.remove('bg-[var(--accent-green)]', 'hover:bg-[#5cb85c]');
+                    toggleButton.classList.add('bg-gray-500', 'hover:bg-gray-600');
+                }
+            }
+        }
+
+        // Function to make table columns sortable
+        function makeTableSortable(tableId) {
+            const table = document.getElementById(tableId);
+            if (!table) return;
+
+            const headers = table.querySelectorAll('th');
+            headers.forEach((header, index) => {
+                header.style.cursor = 'pointer'; // Add pointer cursor to indicate sortable
+                header.setAttribute('data-sort-dir', 'none'); // Initial sort direction
+
+                // Add sort indicator span
+                const sortIndicator = document.createElement('span');
+                sortIndicator.classList.add('sort-indicator');
+                header.appendChild(sortIndicator);
+
+                header.addEventListener('click', () => {
+                    const currentSortDir = header.getAttribute('data-sort-dir');
+                    let newSortDir = 'asc';
+
+                    // Determine new sort direction
+                    if (currentSortDir === 'asc') {
+                        newSortDir = 'desc';
+                    } else if (currentSortDir === 'desc') {
+                        newSortDir = 'none'; // Cycle to no sort
+                    } else {
+                        newSortDir = 'asc';
+                    }
+
+                    // Reset all other headers
+                    headers.forEach(h => {
+                        if (h !== header) {
+                            h.setAttribute('data-sort-dir', 'none');
+                            h.querySelector('.sort-indicator').textContent = '';
+                        }
+                    });
+
+                    // Update current header's sort direction and indicator
+                    header.setAttribute('data-sort-dir', newSortDir);
+                    if (newSortDir === 'asc') {
+                        sortIndicator.textContent = ' ▲';
+                    } else if (newSortDir === 'desc') {
+                        sortIndicator.textContent = ' ▼';
+                    } else {
+                        sortIndicator.textContent = '';
+                    }
+
+                    const tbody = table.querySelector('tbody');
+                    const rows = Array.from(tbody.querySelectorAll('tr'));
+
+                    if (newSortDir === 'none') {
+                        // If no sort, revert to original order (if possible, or just do nothing)
+                        // For simplicity, we'll just leave it as is for 'none'
+                        return;
+                    }
+
+                    rows.sort((rowA, rowB) => {
+                        const cellA = rowA.children[index].textContent.trim();
+                        const cellB = rowB.children[index].textContent.trim();
+
+                        let valA = cellA;
+                        let valB = cellB;
+
+                        // Attempt to convert to number for numerical columns (e.g., Projects, Score, Value)
+                        if (!isNaN(parseFloat(cellA)) && !isNaN(parseFloat(cellB))) {
+                            valA = parseFloat(cellA.replace(/[^0-9.-]+/g,"")); // Remove non-numeric chars except decimal/sign
+                            valB = parseFloat(cellB.replace(/[^0-9.-]+/g,""));
+                        } else if (cellA.startsWith('$') && cellB.startsWith('$')) { // Handle currency specifically
+                            valA = parseFloat(cellA.replace('$', '').replace(/,/g, ''));
+                            valB = parseFloat(cellB.replace('$', '').replace(/,/g, ''));
+                        }
 
 
-      html[data-theme='light'] .footer-container a {
-          color: #FEFEFE;
-      }
+                        if (newSortDir === 'asc') {
+                            return valA > valB ? 1 : -1;
+                        } else { // desc
+                            return valA < valB ? 1 : -1;
+                        }
+                    });
+
+                    // Re-append sorted rows
+                    rows.forEach(row => tbody.appendChild(row));
+                });
+            });
+        }
+        
+        // Report Generation
+        function generateReport() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.text("Volunteer Engagement Report", 20, 20);
+            doc.text(`Date Range: ${document.getElementById('dateRange').value}`, 20, 30);
+            doc.text(`Event Type: ${document.getElementById('eventType').value}`, 20, 40);
+
+            // Add more data to the report as needed
+            doc.text("Key Metrics:", 20, 60);
+            doc.text(`- Volunteer Return Rate: 62%`, 20, 70);
+            doc.text(`- Most Effective Opportunity: Phone Banking`, 20, 80);
+
+            doc.save("volunteer-report.pdf");
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Volunteer,Task,Value\r\n";
+            document.querySelectorAll("#financialContributionTableBody tr").forEach(row => {
+                let rowData = [];
+                row.querySelectorAll("td").forEach(cell => {
+                    rowData.push(cell.textContent);
+                });
+                csvContent += rowData.join(",") + "\r\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "volunteer_data.csv");
+            document.body.appendChild(link);
+            link.click();
+        }
 
 
-      html[data-theme='light'] .address {
-          color: #1c1c1c;
-      }
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+                const currentUserIdDisplay = document.getElementById('currentUserIdDisplay');
 
+                // Validate Firebase config
+                if (!firebaseConfig.apiKey) {
+                    console.error("Firebase config is missing or invalid.");
+                    currentUserIdDisplay.textContent = 'Error: Firebase config invalid.';
+                    return; // Stop execution if config is bad
+                }
 
-      .highlight {
-          color: var(--primary-green);
-      }
+                // Initialize Firebase
+                window.firebaseApp = initializeApp(firebaseConfig);
+                window.db = getFirestore(window.firebaseApp);
+                window.auth = getAuth(window.firebaseApp);
+                
+                currentUserIdDisplay.textContent = `User ID: Authenticating...`;
 
+                // Set up the auth state change listener to react to sign-in state
+                onAuthStateChanged(window.auth, (user) => {
+                    if (user) {
+                        // User is signed in.
+                        window.currentUserId = user.uid;
+                        currentUserIdDisplay.textContent = `User ID: ${window.currentUserId}`;
+                        loadInsightsFromLocalStorage(window.currentUserId);
+                    } else {
+                        // User is signed out.
+                        window.currentUserId = null;
+                        currentUserIdDisplay.textContent = 'User ID: Not authenticated.';
+                    }
+                });
 
-      .main-wrapper {
-          width: 100%;
-          min-height: 100vh;
-          background-color: var(--theme-body-bg);
-          position: relative;
-          display: flex;
-          flex-direction: column;
-      }
+                // Attempt to sign in immediately after initialization
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(window.auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(window.auth);
+                    }
+                } catch (authError) {
+                    console.error("Error during authentication:", authError);
+                    // Fallback to a random ID if auth fails completely
+                    window.currentUserId = crypto.randomUUID();
+                    currentUserIdDisplay.textContent = `User ID (Offline): ${window.currentUserId.substring(0,8)}`;
+                    loadInsightsFromLocalStorage(window.currentUserId);
+                }
 
+                // Initialize the rest of the application
+                initializeCharts();
+                initializeSortable();
+                updatePremiumToggleBtn();
 
-      .content-body {
-          flex: 1;
-          padding-top: 5rem;
-      }
+                // Make tables sortable
+                makeTableSortable('projectsCompletedTable');
+                makeTableSortable('financialContributionTable');
+                makeTableSortable('individualSatisfactionTable');
 
+                // Attach other event listeners
+                const addFinancialContributionBtn = document.getElementById('addFinancialContributionBtn');
+                const addFinancialContributionModal = document.getElementById('addFinancialContributionModal');
+                const closeFinancialContributionModalBtn = document.getElementById('closeFinancialContributionModalBtn');
+                const newFinancialContributionForm = document.getElementById('newFinancialContributionForm');
 
-      .header-container {
-          background: var(--theme-header-bg);
-          height: 5rem;
-          padding: 0 1.25rem;
-          position: fixed;
-          top: 0; left: 0;
-          width: 100%;
-          z-index: 50;
-          display: flex;
-          align-items: center;
-      }
-      .header-contents {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          width: 100%;
-          height: 100%;
-      }
-      .header-left, .header-right {
-          display: flex;
-          gap: 1.25rem;
-          align-items: center;
-          height: 100%;
-      }
-      .header-logo {
-          height: 70%;
-          width: auto;
-          object-fit: contain;
-      }
-      .icon-button {
-          background: transparent;
-          border: none;
-          cursor: pointer;
-          padding: 0.5rem;
-          position: relative;
-      }
-     .gear-icon, .notification-bell-icon {
-         width: 1.875rem;
-         height: 1.875rem;
-         stroke: #FEFEFE;
-         stroke-width: 1.5;
-         transition: transform 0.5s ease, stroke 0.3s ease;
-     }
-      html[data-theme='light'] .gear-icon,
-      html[data-theme='light'] .notification-bell-icon {
-          stroke: #1c1c1c;
-      }
-      html[data-theme='dark'] .gear-icon,
-      html[data-theme='dark'] .notification-bell-icon {
-          stroke: #FEFEFE;
-      }
-      .profile-pic {
-          width: 45px;
-          height: 45px;
-          border-radius: 50%;
-          object-fit: cover;
-          cursor: pointer;
-          border: 2px solid var(--primary-green);
-      }
-      .notification-count {
-          position: absolute;
-          top: 0.2rem;
-          right: 0.2rem;
-          background-color: #dc3545;
-          color: #fff;
-          border-radius: 50%;
-          padding: 0.1rem 0.4rem;
-          font-size: 0.75rem;
-          font-weight: bold;
-          display: none;
-          align-items: center;
-          justify-content: center;
-      }
-      .notification-dropdown {
-          position: absolute;
-          top: calc(100% + 0.5rem);
-          right: 0;
-          background-color: var(--theme-popup-bg);
-          color: var(--theme-popup-text);
-          border-radius: 0.5rem;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-          width: 20rem;
-          max-height: 25rem;
-          overflow-y: auto;
-          z-index: 1001;
-          visibility: hidden;
-          opacity: 0;
-          transition: opacity 0.3s, visibility 0.3s;
-      }
-      .notification-dropdown.active {
-          visibility: visible;
-          opacity: 1;
-      }
-      .notification-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 0.75rem 1rem;
-          border-bottom: 1px solid var(--theme-input-border);
-      }
-      .notification-title {
-          font-weight: bold;
-          font-size: 1.1rem;
-      }
-      .notification-close {
-          font-size: 1.5rem;
-          cursor: pointer;
-          background: none;
-          border: none;
-          color: inherit;
-      }
-      .notification-item {
-          padding: 0.75rem 1rem;
-          border-bottom: 1px solid var(--theme-input-border);
-          cursor: pointer;
-          transition: background-color 0.2s;
-      }
-      .notification-item:last-child {
-          border-bottom: none;
-      }
-      html[data-theme='light'] .notification-item:hover { background-color: rgba(0, 0, 0, 0.05); }
-      html[data-theme='dark'] .notification-item:hover { background-color: rgba(255, 255, 255, 0.1); }
-      .notification-item.read {
-          opacity: 0.6;
-      }
-      .popup-overlay {
-          position: fixed;
-          top: 0; left: 0;
-          width: 100%;
-          height: 100%;
-          background-color: rgba(0, 0, 0, 0.2);
-          z-index: 9998;
-          visibility: hidden;
-          opacity: 0;
-          transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-      }
+                const submitInsightBtn = document.getElementById('submitInsightBtn');
+                const submitInsightModal = document.getElementById('submitInsightModal');
+                const closeInsightModalBtn = document.getElementById('closeInsightModalBtn');
+                const newInsightForm = document.getElementById('newInsightForm');
 
+                const togglePremiumAccessBtn = document.getElementById('togglePremiumAccessBtn');
+                const allDropdownToggles = document.querySelectorAll('.insights-dropdown-toggle');
+                
+                document.getElementById('generateReportBtn').addEventListener('click', generateReport);
+                document.getElementById('exportCsvBtn').addEventListener('click', exportToCSV);
 
-      .popup-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 0.9375rem;
-      }
-      .popup-title {
-          margin: 0;
-          font-size: 1.125rem;
-          font-weight: bold;
-      }
-      .popup-close-button {
-          font-size: 1.5rem;
-          cursor: pointer;
-          padding: 0 0.3125rem;
-          line-height: 1;
-      }
-      .message-box-overlay {
-          position: fixed; top: 0; left: 0;
-          width: 100%; height: 100%;
-          background-color: rgba(0, 0, 0, 0.5);
-          z-index: 10000;
-          display: flex; justify-content: center; align-items: center;
-          visibility: hidden; opacity: 0;
-          transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-      }
-      .message-box {
-          background-color: var(--theme-body-bg);
-          color: var(--theme-body-color);
-          padding: 1.5625rem;
-          border-radius: 0.5rem;
-          box-shadow: 0 0.3125rem 0.9375rem rgba(0, 0, 0, 0.3);
-          max-width: 21.875rem;
-          width: 90%;
-          text-align: center;
-      }
-      .message-box h3 {
-          margin-top: 0; margin-bottom: 0.9375rem;
-          color: var(--primary-green);
-      }
-      .message-box p {
-          margin-bottom: 1.25rem;
-          font-size: 1.1rem;
-      }
-      .message-box button {
-          background-color: var(--primary-green);
-          color: #1c1c1c; border: none;
-          padding: 0.625rem 1.25rem;
-          border-radius: 0.3125rem; cursor: pointer; font-weight: bold;
-          transition: background-color 0.2s ease;
-      }
-      .message-box button:hover {
-          background-color: #2e9b41;
-      }
+                addFinancialContributionBtn.addEventListener('click', () => addFinancialContributionModal.classList.add('show'));
+                closeFinancialContributionModalBtn.addEventListener('click', () => addFinancialContributionModal.classList.remove('show'));
 
+                newFinancialContributionForm.addEventListener('submit', (event) => {
+                    event.preventDefault();
+                    const volunteerName = document.getElementById('financialContributionVolunteerName').value;
+                    const task = document.getElementById('financialContributionTask').value;
+                    const value = document.getElementById('financialContributionValue').value;
+                    addFinancialContributionEntry(volunteerName, task, value);
+                    newFinancialContributionForm.reset();
+                    addFinancialContributionModal.classList.remove('show');
+                });
 
-      .profile-menu {
-          background-color: var(--theme-popup-bg);
-          color: var(--theme-popup-text);
-          padding: 1.25rem;
-          border-radius: 0.5rem;
-          box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.2);
-          width: 15.625rem;
-          text-align: center;
-      }
-      .profile-menu button {
-          background-color: var(--primary-green);
-          color: #1c1c1c; border: none;
-          padding: 0.625rem 1.25rem;
-          border-radius: 0.3125rem; cursor: pointer; font-weight: bold;
-          transition: background-color 0.2s ease;
-          width: 100%;
-      }
-      .profile-menu button:hover {
-          background-color: #2e9b41;
-      }
-      .footer-container {
-          background: linear-gradient(135deg, rgb(5, 114, 21) 0%, rgb(55, 175, 75) 100%);
-          padding: 1rem 0;
-          color: #FEFEFE;
-      }
+                submitInsightBtn.addEventListener('click', () => submitInsightModal.classList.add('show'));
+                closeInsightModalBtn.addEventListener('click', () => submitInsightModal.classList.remove('show'));
 
+                newInsightForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    const insightTitle = document.getElementById('insightTitle').value;
+                    const insightDescription = document.getElementById('insightDescription').value;
+                    const insightCategory = document.getElementById('insightCategory').value;
+                    if (window.currentUserId) {
+                        addInsightToLocalStorage(insightTitle, insightDescription, insightCategory, window.currentUserId);
+                        await addInsightToFirestore(insightTitle, insightDescription, insightCategory, window.currentUserId);
+                    } else {
+                        console.error("User ID not available. Cannot submit insight.");
+                    }
+                    newInsightForm.reset();
+                    submitInsightModal.classList.remove('show');
+                });
 
-      .footer-content {
-          max-width: 1200px;
-          margin: auto;
-          padding: 1.25rem;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          flex-wrap: wrap;
-      }
+                togglePremiumAccessBtn.addEventListener('click', () => {
+                    window.isPremiumUser = !window.isPremiumUser;
+                    localStorage.setItem('isPremiumUser', window.isPremiumUser);
+                    updatePremiumToggleBtn();
+                    document.querySelectorAll('.card-dropdown-content.show').forEach(openDropdown => {
+                        openDropdown.classList.remove('show');
+                        const associatedToggle = openDropdown.closest('.card').querySelector('.insights-dropdown-toggle');
+                        if (associatedToggle) associatedToggle.classList.remove('open');
+                    });
+                });
 
+                allDropdownToggles.forEach(toggle => {
+                    toggle.addEventListener('click', (event) => {
+                        event.stopPropagation();
+                        const parentCard = toggle.closest('.card');
+                        const dropdownContent = parentCard.querySelector('.card-dropdown-content');
+                        if (dropdownContent) {
+                            populateAndShowDropdown(dropdownContent, toggle, parentCard.id);
+                        }
+                    });
+                });
 
-      .footer-column {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          padding: 0.625rem;
-          text-align: center;
-      }
+                document.addEventListener('click', (event) => {
+                    document.querySelectorAll('.card-dropdown-content.show').forEach(openDropdown => {
+                        const parentCard = openDropdown.closest('.card');
+                        if (!parentCard.contains(event.target)) {
+                            openDropdown.classList.remove('show');
+                            const associatedToggle = parentCard.querySelector('.insights-dropdown-toggle');
+                            if (associatedToggle) associatedToggle.classList.remove('open');
+                        }
+                    });
+                });
 
+            } catch (e) {
+                console.error("Fatal Initialization Error:", e);
+                document.getElementById('currentUserIdDisplay').textContent = 'Error: App failed to load.';
+            }
+        });
+    </script>
+    <style>
+        /* Define CSS Variables for Easy Customization */
+        :root {
+            /* Adjust these values to match your partner organization's color palette */
+            --bg-primary: #1A1A38; /* Main background color (Dark Blue) */
+            --card-bg: #27274E; /* Card background color (Slightly Lighter Dark Blue) */
+            --text-light: #F0F0F0; /* Light text color for headings, values (Off-white) */
+            --text-medium: #BBB; /* Medium text color for labels, table headers (Light Gray) */
 
-      .footer-container .site-logo {
-          width: 10.4125rem;
-          height: auto;
-          object-fit: contain;
-          margin-top: -25px;
-          filter: var(--logo-filter);
-      }
+            --accent-blue: #42A5F5; /* Primary accent blue (e.g., Add Rating button, New tickets line) */
+            --accent-green: #66BB6A; /* Primary accent green (e.g., Submit Insight button, Online status) */
+            --accent-orange: #FFA726; /* Primary accent orange (e.g., Closed tickets line, Away status) */
+            --accent-red: #E44D67; /* Primary accent red (e.g., CSAT card background, exclamation mark) */
 
+            --border-color: rgba(255, 255, 255, 0.1); /* Border color for tables, subtle dividers */
+            --chart-bg-subtle: rgba(255, 255, 255, 0.05); /* Subtle background for chart areas */
+        }
 
-      .company-heading {
-          font-size: 1.25rem;
-          text-align: center;
-          font-weight: bold;
-          margin: 0;
-      }
+        /* Custom CSS for specific styling not easily covered by Tailwind or for overrides */
+        body {
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+            background-color: var(--bg-primary); /* Using CSS variable */
+            color: var(--text-light); /* Using CSS variable */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align to top */
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px; /* Padding around the entire dashboard */
+            box-sizing: border-box;
+        }
 
+        /* Dashboard Container */
+        .dashboard-container {
+            width: 100%;
+            max-width: 1400px; /* Max width to keep it manageable on large screens */
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
 
-      .address {
-          width: 100%;
-          text-align: center;
-          margin-top: 1rem;
-          padding-bottom: 0.3125rem;
-          font-size: 0.8rem;
-          color: #ccc;
-      }
-    
-      /* Form Specific Styles (Merged) */
-      .main-content-wrapper {
-         flex-grow: 1;
-         padding: 1rem;
-         display: flex;
-         justify-content: center;
-         align-items: flex-start;
-     }
+        /* Card Styling */
+        .card {
+            background-color: var(--card-bg); /* Using CSS variable */
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            /* Add cursor for draggable items */
+            cursor: grab;
+            transition: transform 0.2s ease-in-out; /* Smooth transition for dragging */
+            position: relative; /* Crucial for absolute positioning of dropdown toggle and content */
+        }
 
+        /* Style for when an item is being dragged */
+        .sortable-ghost {
+            opacity: 0.4;
+            background-color: var(--chart-bg-subtle); /* Using CSS variable */
+            border: 2px dashed var(--accent-blue); /* Using CSS variable */
+        }
 
-     .form-container {
-         max-width: 64rem;
-         width: 100%;
-         background-color: var(--mobile-section-bg);
-         color: var(--theme-body-color);
-         padding: 1.5rem;
-         border-radius: 0.75rem;
-         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-         margin-top: 2rem;
-         margin-bottom: 2rem;
-     }
-     html[data-theme='light'] .form-container {
-         background-color: #f5f5f5;
-     }
+        .card h3 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            color: var(--text-light); /* Using CSS variable */
+            display: flex; /* To align toggle to right */
+            justify-content: space-between; /* To push toggle to right */
+            align-items: center;
+        }
 
+        /* Metric Styling (for Live Tickets and Response Time) */
+        .metric {
+            margin-bottom: 15px;
+        }
 
-     .form-section {
-         border: 1px solid var(--member-border);
-         border-radius: 0.5rem;
-         padding: 1.5rem;
-         background-color: rgba(0,0,0,0.1);
-         margin-bottom: 2rem;
-     }
-     html[data-theme='light'] .form-section {
-         background-color: #f0f0f0;
-         border-color: #ccc;
-     }
-     html[data-theme='dark'] .form-section {
-         border-color: #38b04c;
-         background-color: rgba(255, 255, 255, 0.02);
-     }
-      .section-title {
-          font-size: 1.5rem;
-          font-weight: 600;
-          margin-bottom: 1rem;
-          color: var(--theme-body-color);
-          text-align: left;
-      }
+        .metric .value {
+            font-size: 2.8em;
+            font-weight: 600;
+            color: #fff; /* White for primary values */
+            display: block;
+            margin-bottom: 5px;
+        }
 
+        .metric .value .unit {
+            font-size: 0.6em;
+            font-weight: normal;
+            opacity: 0.8;
+        }
 
-     .input-group {
-         margin-bottom: 1rem;
-     }
+        .metric .label {
+            font-size: 0.9em;
+            color: var(--text-medium); /* Using CSS variable */
+        }
 
+        /* CSAT Card Specifics */
+        .csat-card {
+            background-color: var(--accent-red); /* Using CSS variable */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden; /* To contain the exclamation mark */
+        }
 
-     .label {
-         display: block;
-         font-size: 1.125rem;
-         font-weight: 500;
-         margin-bottom: 0.5rem;
-         color: var(--primary-green);
-     }
+        .csat-card h3 {
+            color: #fff; /* White for CSAT card heading */
+        }
 
+        .csat-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-grow: 1;
+        }
 
-     .text-input,
-     .textarea-input {
-         display: block;
-         width: 100%;
-         padding: 0.75rem 1rem;
-         border: 1px solid var(--theme-input-border);
-         border-radius: 0.375rem;
-         box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-         background-color: var(--theme-input-bg);
-         color: var(--theme-input-text);
-         transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-     }
-     .text-input:focus,
-     .textarea-input:focus {
-         outline: none;
-         border-color: #3b82f6;
-         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
-     }
-     .textarea-input {
-         resize: vertical;
-     }
+        .csat-score .value {
+            font-size: 4em; /* Larger for the main CSAT score */
+            font-weight: 700;
+            color: #fff; /* White for CSAT score */
+        }
 
+        .csat-score .label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1em;
+        }
 
-     .profile-pic-container {
-         display: flex;
-         flex-direction: column;
-         align-items: center;
-         gap: 1rem;
-     }
-     .profile-pic-display {
-         width: 8rem;
-         height: 8rem;
-         border-radius: 9999px;
-         object-fit: cover;
-         border: 4px solid var(--member-border);
-         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-     }
-     .profile-pic-placeholder {
-         width: 8rem;
-         height: 8rem;
-         border-radius: 9999px;
-         background-color: var(--theme-input-border);
-         display: flex;
-         align-items: center;
-         justify-content: center;
-         color: var(--theme-input-text);
-         font-size: 0.875rem;
-     }
-     .file-input {
-         display: block;
-         width: 100%;
-         font-size: 0.875rem;
-         color: var(--theme-body-color);
-         padding-top: 0.5rem;
-     }
-     .file-input::-webkit-file-upload-button {
-         margin-right: 1rem;
-         padding: 0.5rem 1rem;
-         border-radius: 9999px;
-         border: 0;
-         font-size: 0.875rem;
-         font-weight: 600;
-         background-color: var(--primary-green);
-         color: #FEFEFE;
-         cursor: pointer;
-         transition: background-color 0.15s ease-in-out;
-     }
-      html[data-theme='light'] .file-input::-webkit-file-upload-button {
-          color: #1c1c1c;
-      }
-     .file-input::-webkit-file-upload-button:hover {
-         background-color: #2e9b41;
-     }
+        .csat-chart-container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end; /* Align chart and labels to the right */
+            position: relative;
+        }
 
+        .csat-chart-container p {
+            font-size: 0.8em;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 5px;
+        }
 
-     .personal-pics-grid {
-         display: grid;
-         grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-         gap: 1rem;
-         margin-bottom: 1rem;
-     }
-     @media (min-width: 640px) { .personal-pics-grid { grid-template-columns: repeat(3, 1fr); } }
-     @media (min-width: 768px) { .personal-pics-grid { grid-template-columns: repeat(4, 1fr); } }
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
 
+        table th,
+        table td {
+            padding: 10px 0;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color); /* Using CSS variable */
+        }
 
-     .personal-pic-item {
-         position: relative;
-     }
-     .personal-pic-img {
-         width: 100%;
-         height: 6rem;
-         object-fit: cover;
-         border-radius: 0.375rem;
-         box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-         border: 1px solid var(--theme-input-border);
-     }
-     .remove-pic-btn {
-         position: absolute;
-         top: 0.25rem;
-         right: 0.25rem;
-         background-color: #ef4444;
-         color: #fff;
-         border-radius: 9999px;
-         padding: 0.25rem;
-         font-size: 0.75rem;
-         opacity: 0;
-         transition: opacity 0.15s ease-in-out;
-         cursor: pointer;
-         border: none;
-     }
-     .personal-pic-item:hover .remove-pic-btn {
-         opacity: 1;
-     }
-     .add-image-placeholder {
-         display: flex;
-         align-items: center;
-         justify-content: center;
-         width: 100%;
-         height: 6rem;
-         border: 2px dashed var(--theme-input-border);
-         border-radius: 0.375rem;
-         cursor: pointer;
-         transition: border-color 0.15s ease-in-out;
-     }
-     .add-image-placeholder:hover {
-         border-color: #3b82f6;
-     }
-     .add-image-icon {
-         height: 1.5rem;
-         width: 1.5rem;
-         color: var(--light-gray);
-     }
-     .add-image-text {
-         font-size: 0.875rem;
-         color: var(--light-gray);
-     }
-     .upload-errors {
-         margin-top: 0.5rem;
-         color: #dc2626;
-         font-size: 0.875rem;
-     }
+        table th {
+            color: var(--text-medium); /* Using CSS variable */
+            font-weight: normal;
+            font-size: 0.85em;
+            text-transform: uppercase;
+        }
 
+        table td {
+            color: var(--text-light); /* Using CSS variable */
+        }
 
-     .grid-cols-2-md {
-         display: grid;
-         grid-template-columns: 1fr;
-         gap: 1.5rem;
-     }
-     @media (min-width: 768px) { .grid-cols-2-md { grid-template-columns: 1fr 1fr; } }
+        /* Agent Status specific styling */
+        .status-offline { color: var(--text-medium); } /* Using CSS variable */
+        .status-away    { color: var(--accent-orange); } /* Using CSS variable */
+        .status-online  { color: var(--accent-green); } /* Using CSS variable */
+        .status-oncall  { color: var(--accent-blue); } /* Using CSS variable */
 
+        /* Chart Placeholder Styling */
+        .tickets-chart canvas {
+            width: 100%;
+            background-color: var(--chart-bg-subtle); /* Using CSS variable */
+            border-radius: 5px;
+        }
 
-     .warning-box {
-         margin-top: 0.5rem;
-         color: #a16207;
-         background-color: #fffbeb;
-         border: 1px solid #fde68a;
-         border-radius: 0.375rem;
-         padding: 0.75rem;
-         display: flex;
-         align-items: flex-start;
-     }
-     .warning-icon {
-         height: 1.25rem;
-         width: 1.25rem;
-         margin-right: 0.5rem;
-         margin-top: 0.125rem;
-     }
-     .warning-text-bold {
-         font-weight: 500;
-     }
-     .warning-text-small {
-         font-size: 0.875rem;
-     }
-     .override-checkbox-container {
-         display: inline-flex;
-         align-items: center;
-         margin-top: 0.5rem;
-     }
-     .form-checkbox {
-         height: 1rem;
-         width: 1rem;
-         color: #3b82f6;
-         border-radius: 0.125rem;
-     }
-     .override-label {
-         margin-left: 0.5rem;
-         font-size: 0.875rem;
-         color: var(--theme-body-color);
-     }
+        /* Footer Styling */
+        .dashboard-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-top: 1px solid var(--border-color); /* Using CSS variable */
+            margin-top: 20px;
+        }
 
+        /* Modal specific styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.3s ease-in-out;
+        }
 
-     .experience-checkbox-label {
-         display: inline-flex;
-         align-items: center;
-         padding: 0.75rem;
-         border: 1px solid var(--theme-input-border);
-         border-radius: 0.375rem;
-         box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-         cursor: pointer;
-         transition: background-color 0.15s ease-in-out;
-         background-color: var(--theme-input-bg);
-         color: var(--theme-body-color);
-     }
-     html[data-theme='light'] .experience-checkbox-label { background-color: #fff; }
-     html[data-theme='dark'] .experience-checkbox-label { background-color: rgba(255, 255, 255, 0.05); }
-     .experience-checkbox-label:hover { background-color: #eff6ff; }
-     .experience-checkbox-label input[type="checkbox"] {
-         height: 1.25rem;
-         width: 1.25rem;
-         color: #3b82f6;
-         border-radius: 0.125rem;
-     }
-     .experience-name {
-         margin-left: 0.75rem;
-         font-size: 1rem;
-         color: var(--theme-body-color);
-     }
+        .modal.show {
+            visibility: visible;
+            opacity: 1;
+        }
 
+        .modal-content {
+            background-color: var(--card-bg); /* Using CSS variable */
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            width: 90%;
+            max-width: 500px;
+            position: relative;
+        }
 
-     .unprofessional-warning-box {
-         margin-top: 0.5rem;
-         color: #dc2626;
-         background-color: #fee2e2;
-         border: 1px solid #fca5a5;
-         border-radius: 0.375rem;
-         padding: 0.75rem;
-         display: flex;
-         align-items: flex-start;
-     }
-     .unprofessional-warning-box .warning-icon {
-         color: #dc2626;
-     }
-     .interests-textarea.unprofessional {
-         border-color: #ef4444;
-     }
-     .interests-textarea.unprofessional:focus {
-         border-color: #ef4444;
-         box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.5);
-     }
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            color: var(--text-light); /* Using CSS variable */
+            cursor: pointer;
+        }
 
+        .form-group {
+            margin-bottom: 15px;
+        }
 
-     .skills-tag {
-         display: inline-flex;
-         align-items: center;
-         padding: 0.25rem 0.75rem;
-         border-radius: 9999px;
-         font-size: 0.875rem;
-         font-weight: 500;
-         background-color: var(--primary-green);
-     }
-      html[data-theme='light'] .skills-tag { color: #1c1c1c; }
-      html[data-theme='dark'] .skills-tag { color: #FEFEFE; }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-light); /* Using CSS variable */
+        }
 
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #444; /* Specific border color for form elements */
+            background-color: #333; /* Specific background for form elements */
+            color: var(--text-light); /* Using CSS variable */
+            box-sizing: border-box;
+        }
 
-     .remove-skill-btn {
-         margin-left: 0.5rem;
-         margin-right: -0.125rem;
-         height: 1rem;
-         width: 1rem;
-         border-radius: 9999px;
-         display: flex;
-         align-items: center;
-         justify-content: center;
-         transition: background-color 0.15s ease-in-out;
-         border: none;
-         background: none;
-         cursor: pointer;
-     }
-     html[data-theme='light'] .remove-skill-btn { color: #1c1c1c; }
-     html[data-theme='dark'] .remove-skill-btn { color: #FEFEFE; }
-     .remove-skill-btn:hover { background-color: #bfdbfe; }
-     .remove-skill-icon {
-         height: 0.75rem;
-         width: 0.75rem;
-     }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
 
+        .user-insight-item {
+            background-color: var(--chart-bg-subtle); /* Using CSS variable */
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color); /* Using CSS variable */
+        }
 
-     .save-section {
-         padding-top: 1.5rem;
-         display: flex;
-         justify-content: flex-end;
-         align-items: center;
-         gap: 1rem;
-     }
-     .save-message {
-         font-size: 0.875rem;
-         font-weight: 500;
-     }
-     .save-message.error { color: #dc2626; }
-     .save-message.success { color: #16a34a; }
-     .save-button {
-         padding: 0.75rem 1.5rem;
-         font-weight: 600;
-         border-radius: 0.5rem;
-         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-         transition: background-color 0.15s ease-in-out, opacity 0.15s ease-in-out;
-         border: none;
-         cursor: pointer;
-         background: linear-gradient(135deg,rgb(5,114,21) 0%,rgb(55,175,75) 100%);
-         color: #FEFEFE;
-     }
-     .save-button:hover { opacity: 0.9; }
-     .save-button:focus {
-         outline: none;
-         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5), 0 0 0 6px rgba(255, 255, 255, 0.5);
-     }
-     .save-button:disabled {
-         opacity: 0.5;
-         cursor: not-allowed;
-     }
-     .user-id-display {
-         text-align: center;
-         font-size: 0.75rem;
-         color: var(--light-gray);
-         margin-top: 1rem;
-     }
-     .user-id-display span {
-         font-family: monospace;
-         word-break: break-all;
-     }
+        .user-insight-item:last-child {
+            margin-bottom: 0;
+        }
 
+        .user-insight-item p {
+            margin: 0;
+            font-size: 0.95em;
+            color: var(--text-light); /* Using CSS variable */
+        }
 
-     .loading-screen {
-         display: flex;
-         align-items: center;
-         justify-content: center;
-         position: fixed;
-         inset: 0;
-         background-color: var(--theme-body-bg);
-         color: var(--theme-body-color);
-         font-size: 1.25rem;
-         font-weight: 600;
-         z-index: 100;
-     }
- </style>
+        .user-insight-item .meta-info {
+            font-size: 0.75em;
+            color: var(--text-medium); /* Using CSS variable */
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .no-insights-message {
+            font-style: italic;
+            color: var(--text-medium); /* Using CSS variable */
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* CSS for the dropdown indicator */
+        .insights-dropdown-toggle {
+            cursor: pointer;
+            font-size: 1.5em; /* Make it visible */
+            transform: rotate(90deg); /* Point right by default */
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+            opacity: 0; /* Hidden by default */
+            /* Position relative to the card's top-right corner */
+            position: absolute;
+            right: 25px;
+            top: 25px;
+            color: var(--text-medium);
+            z-index: 10; /* Ensure it's above other content in the card */
+        }
+
+        .card:hover .insights-dropdown-toggle {
+            opacity: 1; /* Show on hover */
+        }
+
+        .insights-dropdown-toggle.open {
+            transform: rotate(270deg); /* Point down when open */
+        }
+
+        /* CSS for the dropdown content */
+        .card-dropdown-content {
+            position: absolute;
+            top: 100%; /* Position below the card */
+            left: 0;
+            right: 0;
+            background-color: var(--card-bg); /* Same as card background */
+            border-radius: 8px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            margin-top: 10px; /* Space between card and dropdown */
+            z-index: 999; /* Ensure it's above other content */
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            max-height: 300px; /* Limit height for scrolling */
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        .card-dropdown-content.show {
+            display: flex;
+        }
+
+        .card-dropdown-content .category-header { /* New class for category headers */
+            font-size: 1em;
+            color: var(--text-light);
+            margin-top: 10px;
+            margin-bottom: 5px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+        }
+
+        .card-dropdown-content .category-header:first-of-type {
+            margin-top: 0; /* No top margin for the first category */
+        }
+
+        .card-dropdown-content .overflow-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .card-dropdown-content .user-insight-item {
+            background-color: rgba(255, 255, 255, 0.03); /* Slightly different background for items in dropdown */
+            padding: 8px 12px;
+        }
+
+        /* Premium Stat Item Styling */
+        .premium-stat-item {
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 10px;
+        }
+        .premium-stat-item:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .premium-stat-title {
+            font-size: 1.05em;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .premium-stat-title .toggle-arrow {
+            transform: rotate(90deg); /* Point right by default */
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .premium-stat-title .toggle-arrow.open {
+            transform: rotate(270deg); /* Point down when open */
+        }
+
+        .premium-stat-details {
+            margin-top: 10px;
+            padding-left: 10px;
+            border-left: 2px solid var(--accent-blue);
+        }
+        .premium-stat-details.hidden {
+            display: none;
+        }
+        .premium-stat-details.show {
+            display: block; /* Use block for metrics/tables, flex for charts if needed */
+        }
+
+        /* Sortable Table Headers */
+        table th {
+            position: relative;
+            padding-right: 20px; /* Space for indicator */
+        }
+
+        table th .sort-indicator {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.8em;
+            color: var(--text-medium);
+        }
+    </style>
 </head>
-<body>
- <div class="main-wrapper">
-     <header class="header-container">
-         <div class="header-contents">
-             <div class="header-left">
-                 <img class="header-logo" src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Logo">
-             </div>
-             <div class="header-right">
-                 <div id="notificationBell" class="icon-button">
-                     <svg class="notification-bell-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                     <span id="notificationCount" class="notification-count">0</span>
-                     <div id="notificationDropdown" class="notification-dropdown">
-                         <div class="notification-header">
-                             <h3 class="notification-title">Notifications</h3>
-                             <button id="notificationDropdownClose" class="notification-close">&times;</button>
-                         </div>
-                         <div id="notificationList">
-                             <p style="padding: 1rem; text-align: center; font-size: 0.875rem; opacity: 0.75;">No new notifications.</p>
-                         </div>
-                     </div>
-                 </div>
-                 <button id="themeToggleButton" class="icon-button" aria-label="Toggle color theme">
-                     <svg class="gear-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                 </button>
-                 <img id="profilePic" class="profile-pic" src="https://placehold.co/50x50/cccccc/FFFFFF?text=U" alt="Profile">
-             </div>
-         </div>
-     </header>
-    
-     <main class="content-body">
-         <div class="loading-screen" id="loadingScreen" style="display:none;">Loading...</div>
-         <div class="main-content-wrapper" id="mainContent">
-             <div class="form-container">
-                 <h1 class="text-3xl font-bold text-center mb-8" style="color: var(--primary-green);">Edit Your Staff Bio</h1>
-                 <form id="bioForm" class="space-y-8">
-                     <div class="form-section">
-                         <h2 class="section-title">Profile Picture</h2>
-                         <div class="profile-pic-container">
-                             <img id="profilePictureDisplay" src="" alt="Profile" class="profile-pic-display" style="display:none;">
-                             <div id="profilePicturePlaceholder" class="profile-pic-placeholder">No Image</div>
-                             <input type="file" id="profilePictureInput" accept="image/*" class="file-input">
-                         </div>
-                     </div>
-                     <div class="form-section">
-                         <h2 class="section-title">Personal Pictures (Max 5)</h2>
-                         <p class="text-sm mb-4" style="color: var(--light-gray);">
-                             Upload a few pictures of yourself. Please ensure they are professional and appropriate.
-                         </p>
-                         <div id="personalPicturesGrid" class="personal-pics-grid"></div>
-                         <div class="add-image-placeholder">
-                             <label for="personalPicturesInput" style="display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100%; cursor:pointer;">
-                                 <svg class="add-image-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                                 </svg>
-                                 <span class="add-image-text">Add Image</span>
-                                 <input type="file" id="personalPicturesInput" accept="image/*" multiple style="display:none;">
-                             </label>
-                         </div>
-                         <div id="personalPicUploadErrors" class="upload-errors"></div>
-                     </div>
-                     <div class="form-section grid-cols-2-md">
-                         <div>
-                             <label for="jobTitleInput" class="label">Job Title</label>
-                             <input type="text" id="jobTitleInput" name="jobTitle" class="text-input" placeholder="e.g., Program Manager">
-                         </div>
-                         <div>
-                             <label for="departmentInput" class="label">Department</label>
-                             <input type="text" id="departmentInput" name="department" class="text-input" placeholder="e.g., Operations">
-                         </div>
-                     </div>
-                     <div class="form-section">
-                         <h2 class="section-title">Short Biography</h2>
-                         <p class="text-sm mb-2" style="color: var(--light-gray);">Tell us a bit about your professional background.</p>
-                         <textarea id="bioInput" name="bio" rows="5" class="textarea-input" placeholder="Write a brief biography here..."></textarea>
-                     </div>
-                     <div class="form-section">
-                         <h2 class="section-title">Areas of Expertise</h2>
-                         <p class="text-sm mb-4" style="color: var(--light-gray);">Select your main areas of expertise.</p>
-                         <div id="expertiseCheckboxes" class="grid-cols-2-md"></div>
-                     </div>
-                     <div class="form-section">
-                         <h2 class="section-title">Personal Interests</h2>
-                         <p class="text-sm mb-2" style="color: var(--light-gray);">List your personal interests. Please keep them professional and appropriate.</p>
-                         <textarea id="interestsInput" name="interests" rows="3" class="textarea-input" placeholder="e.g., Reading, hiking, coding, playing guitar..."></textarea>
-                         <div id="interestsUnprofessionalWarning" class="unprofessional-warning-box" style="display:none;">
-                             <svg class="warning-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                             </svg>
-                             <div>
-                                 <p class="warning-text-bold">Unprofessional Content Detected!</p>
-                                 <p class="warning-text-small">Your personal interests contain content that is not allowed. Please revise.</p>
-                             </div>
-                         </div>
-                     </div>
-                     <div class="form-section">
-                         <h2 class="section-title">Professional Skills</h2>
-                         <p class="text-sm mb-2" style="color: var(--light-gray);">Add your key professional skills (press Enter after each skill).</p>
-                         <input type="text" id="skillInput" class="text-input" placeholder="e.g., Project Management, Data Analysis">
-                         <div id="skillsContainer" class="mt-4 flex flex-wrap gap-2"></div>
-                     </div>
-                     <div class="save-section">
-                         <p id="saveMessage" class="save-message"></p>
-                         <button type="submit" id="saveButton" class="save-button">Save Profile</button>
-                     </div>
-                 </form>
-             </div>
-         </div>
-     </main>
-    
-     <footer class="footer-container">
-         <div class="footer-content">
-             <div class="footer-column">
-                 <img id="desktopFooterLogo" src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Footer Logo" class="site-logo" onerror="this.src='https://placehold.co/50x50/cccccc/333333?text=YPI';">
-                 <h3 class="company-heading">A Company to Change America One Hour At a Time</h3>
-                 <div class="address">
-                     <p>Young Progressives Initiative L.L.C, Chevy Chase, MD 20815</p>
-                 </div>
-             </div>
-         </div>
-     </footer>
- </div>
- <div id="profileMenuOverlay" class="popup-overlay" style="visibility: hidden; opacity: 0;">
-     <div class="profile-menu">
-         <div class="popup-header">
-             <h3 id="profileMenuTitle" class="popup-title">Profile</h3>
-             <span id="profileMenuClose" class="popup-close-button">×</span>
-         </div>
-         <button id="signOutButton">Sign Out (Placeholder)</button>
-     </div>
- </div>
- <div id="messageBoxOverlay" class="message-box-overlay" style="visibility: hidden; opacity: 0;"></div>
+<body class="bg-[var(--bg-primary)] text-[var(--text-light)] p-5 box-border">
+    <div class="dashboard-container w-full max-w-[1400px] flex flex-col gap-5">
+        <header class="dashboard-header bg-[var(--card-bg)] p-4 rounded-lg flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <select id="dateRange" class="bg-gray-800 text-white p-2 rounded-md">
+                    <option>Last Quarter</option>
+                    <option>This Year</option>
+                    <option>Custom Range</option>
+                </select>
+                <select id="eventType" class="bg-gray-800 text-white p-2 rounded-md">
+                    <option>All Event Types</option>
+                    <option>Phone Banking</option>
+                    <option>Community Service</option>
+                </select>
+            </div>
+            <div class="flex items-center gap-4">
+                <button id="generateReportBtn" class="bg-[var(--accent-blue)] hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-md">Generate Report</button>
+                <button id="exportCsvBtn" class="bg-[var(--accent-green)] hover:bg-green-500 text-white font-bold py-2 px-4 rounded-md">Export CSV</button>
+            </div>
+        </header>
 
+        <main id="dashboardGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            <!-- Total Volunteer Hours Card -->
+            <div class="card col-span-1" id="totalVolunteerHoursCard">
+                <h3 class="text-lg font-semibold mb-5">
+                    Total Volunteer Hours
+                    <span class="insights-dropdown-toggle" id="totalVolunteerHoursToggle">&gt;</span>
+                </h3>
+                <div class="metric mb-4">
+                    <span class="value text-5xl font-semibold text-white block mb-1">23,450<span class="unit text-xl font-normal opacity-80">hrs</span></span>
+                    <span class="label text-sm text-[var(--text-medium)]">Total Hours</span>
+                </div>
+                <div class="metric">
+                    <span class="value text-5xl font-semibold text-white block mb-1">1,200</span>
+                    <span class="label text-sm text-[var(--text-medium)]">Active Volunteers</span>
+                </div>
+                <div class="card-dropdown-content" id="totalVolunteerHoursDropdown">
+                    <div class="overflow-list"></div>
+                </div>
+            </div>
 
-<script>
-   document.addEventListener('DOMContentLoaded', () => {
-       let profileData = {
-           profilePictureUrl: '', personalPictures: [], jobTitle: '', department: '', bio: '',
-           selectedExpertise: [], interests: '', professionalSkills: [],
-       };
-       let interestsUnprofessional = false;
-       let personalPicUploadErrors = {};
+            <!-- Volunteer Engagement Card -->
+            <div class="card col-span-1" id="volunteerEngagementCard">
+                <h3 class="text-lg font-semibold mb-5">
+                    Volunteer Engagement
+                    <span class="insights-dropdown-toggle" id="volunteerEngagementToggle">&gt;</span>
+                </h3>
+                <div class="metric mb-4">
+                    <span class="value text-5xl font-semibold text-white block mb-1">19.5<span class="unit text-xl font-normal opacity-80">hrs</span></span>
+                    <span class="label text-sm text-[var(--text-medium)]">Avg. Hours/Volunteer</span>
+                </div>
+                <div class="metric">
+                    <span class="value text-5xl font-semibold text-white block mb-1">2.1</span>
+                    <span class="label text-sm text-[var(--text-medium)]">Avg. Projects/Volunteer</span>
+                </div>
+                <div class="card-dropdown-content" id="volunteerEngagementDropdown">
+                    <div class="overflow-list"></div>
+                </div>
+            </div>
 
+            <!-- Return on Investment Card -->
+            <div class="card csat-card col-span-1" id="roiCard">
+                <h3 class="text-lg font-semibold mb-5 text-white">
+                    Return on Investment
+                    <span class="insights-dropdown-toggle" id="roiToggle">&gt;</span>
+                </h3>
+                <div class="csat-main flex justify-between items-center flex-grow">
+                    <div class="csat-score">
+                        <span class="value text-7xl font-bold text-white">3.5:1</span>
+                        <span class="label text-base text-[rgba(255,255,255,0.8)]">ROI Ratio</span>
+                    </div>
+                    <div class="csat-chart-container flex flex-col items-end flex-grow relative">
+                        <p class="text-xs text-[rgba(255,255,255,0.8)] mb-1">Total Value Trend</p>
+                        <canvas id="roiTrendChart" class="bg-[rgba(255,255,255,0.1)] rounded-md mt-2 max-w-[150px]"></canvas>
+                        <div class="chart-labels flex gap-4 text-xs text-[rgba(255,255,255,0.7)] mt-1">
+                            <span>J</span><span>A</span><span>J</span>
+                        </div>
+                        <div class="exclamation-mark absolute bottom-5 right-5 bg-white text-[var(--accent-red)] rounded-full w-[30px] h-[30px] flex justify-center items-center text-xl font-bold shadow-md">!</div>
+                    </div>
+                </div>
+                <div class="card-dropdown-content" id="roiDropdown">
+                    <div class="overflow-list"></div>
+                </div>
+            </div>
 
-       const sampleExpertise = [
-           { id: 'project-management', name: 'Project Management' },
-           { id: 'curriculum-dev', name: 'Curriculum Development' },
-           { id: 'marketing', name: 'Marketing & Outreach' },
-           { id: 'fundraising', name: 'Fundraising & Grant Writing' },
-           { id: 'tech-support', name: 'Technical Support & IT' },
-           { id: 'mentorship', name: 'Student Mentorship' },
-       ];
-       const unprofessionalKeywords = [ 'gambling', 'illegal', 'drugs', 'violence', 'hate speech' ];
+            <!-- Projects Completed Leaderboard Card -->
+            <div class="card col-span-1" id="projectsCompletedCard">
+                <h3 class="text-lg font-semibold mb-5">
+                    Projects Completed Leaderboard
+                    <span class="insights-dropdown-toggle" id="projectsCompletedToggle">&gt;</span>
+                </h3>
+                <table class="w-full text-sm" id="projectsCompletedTable">
+                    <thead>
+                        <tr>
+                            <th class="py-2 text-left text-[var(--text-medium)] font-normal text-xs uppercase">Person Name</th>
+                            <th class="py-2 text-left text-[var(--text-medium)] font-normal text-xs uppercase">Projects</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">Alice Johnson</td><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">12</td></tr>
+                        <tr><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">Bob Williams</td><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">10</td></tr>
+                        <tr><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">Charlie Brown</td><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">8</td></tr>
+                        <tr><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">Diana Prince</td><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">7</td></tr>
+                        <tr><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">Eve Adams</td><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">6</td></tr>
+                        <tr><td class="py-2 text-left text-[var(--text-light)]">Frank White</td><td class="py-2 text-left text-[var(--text-light)]">5</td></tr>
+                    </tbody>
+                </table>
+                <div class="card-dropdown-content" id="projectsCompletedDropdown">
+                    <div class="overflow-list"></div>
+                </div>
+            </div>
 
+            <!-- Hours by Project Type Chart Card -->
+            <div class="card tickets-chart col-span-full lg:col-span-2" id="hoursByTypeChartCard">
+                <h3 class="text-lg font-semibold mb-5">
+                    Hours by Project Type
+                    <span class="insights-dropdown-toggle" id="hoursByTypeChartToggle">&gt;</span>
+                </h3>
+                <div class="relative h-64">
+                    <canvas id="hoursByTypeChart" class="w-full bg-[var(--chart-bg-subtle)] rounded-md"></canvas>
+                </div>
+                <div class="card-dropdown-content" id="hoursByTypeChartDropdown">
+                    <div class="overflow-list"></div>
+                </div>
+            </div>
 
-       const loadingScreen = document.getElementById('loadingScreen');
-       const mainContent = document.getElementById('mainContent');
-       const bioForm = document.getElementById('bioForm');
-       const profilePictureDisplay = document.getElementById('profilePictureDisplay');
-       const profilePicturePlaceholder = document.getElementById('profilePicturePlaceholder');
-       const profilePictureInput = document.getElementById('profilePictureInput');
-       const personalPicturesGrid = document.getElementById('personalPicturesGrid');
-       const personalPicturesInput = document.getElementById('personalPicturesInput');
-       const personalPicUploadErrorsDiv = document.getElementById('personalPicUploadErrors');
-       const jobTitleInput = document.getElementById('jobTitleInput');
-       const departmentInput = document.getElementById('departmentInput');
-       const bioInput = document.getElementById('bioInput');
-       const expertiseCheckboxesDiv = document.getElementById('expertiseCheckboxes');
-       const interestsInput = document.getElementById('interestsInput');
-       const interestsUnprofessionalWarningDiv = document.getElementById('interestsUnprofessionalWarning');
-       const skillInput = document.getElementById('skillInput');
-       const skillsContainer = document.getElementById('skillsContainer');
-       const saveButton = document.getElementById('saveButton');
-       const saveMessageDisplay = document.getElementById('saveMessage');
-       const htmlElement = document.documentElement;
-       const profilePic = document.getElementById('profilePic');
+            <!-- Financial Value of Individual Contributions Card -->
+            <div class="card col-span-1" id="financialValueCard">
+                <h3 class="text-lg font-semibold mb-5">
+                    Financial Value of Contributions
+                    <span class="insights-dropdown-toggle" id="financialValueToggle">&gt;</span>
+                </h3>
+                <table class="w-full text-sm" id="financialContributionTable">
+                    <thead>
+                        <tr>
+                            <th class="py-2 text-left text-[var(--text-medium)] font-normal text-xs uppercase">Volunteer</th>
+                            <th class="py-2 text-left text-[var(--text-medium)] font-normal text-xs uppercase">Task</th>
+                            <th class="py-2 text-left text-[var(--text-medium)] font-normal text-xs uppercase">Value</th>
+                        </tr>
+                    </thead>
+                    <tbody id="financialContributionTableBody">
+                        <tr><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">Alice Johnson</td><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">Graphic Design</td><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">$750</td></tr>
+                        <tr><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">Bob Williams</td><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">Event Coordination</td><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">$1,200</td></tr>
+                        <tr><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">Charlie Brown</td><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">Mentoring Session</td><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">$300</td></tr>
+                        <tr><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">Diana Prince</td><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">Website Development</td><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">$2,500</td></tr>
+                        <tr><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">Eve Adams</td><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">Grant Writing</td><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">$1,500</td></tr>
+                        <tr><td class="py-2 text-left text-[var(--text-light)]">Frank White</td><td class="py-2 text-left text-[var(--text-light)]">Social Media Mgmt</td><td class="py-2 text-left text-[var(--text-light)]">$600</td></tr>
+                    </tbody>
+                </table>
+                <button id="addFinancialContributionBtn" class="mt-4 bg-[var(--accent-blue)] hover:bg-[#348ee0] text-white font-bold py-2 px-4 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                    Add New Contribution
+                </button>
+                <div class="card-dropdown-content" id="financialValueDropdown">
+                    <div class="overflow-list"></div>
+                </div>
+            </div>
 
+            <!-- Individual Satisfaction Scores Card -->
+            <div class="card col-span-1" id="individualSatisfactionCard">
+                <h3 class="text-lg font-semibold mb-5">
+                    Individual Satisfaction Scores
+                    <span class="insights-dropdown-toggle" id="individualSatisfactionToggle">&gt;</span>
+                </h3>
+                <table class="w-full text-sm" id="individualSatisfactionTable">
+                    <thead>
+                        <tr>
+                            <th class="py-2 text-left text-[var(--text-medium)] font-normal text-xs uppercase">Person Name</th>
+                            <th class="py-2 text-left text-[var(--text-medium)] font-normal text-xs uppercase">Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">David Lee</td><td class="py-2 text-left status-online border-b border-[var(--border-color)]">9.2</td></tr>
+                        <tr><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">Emily Chen</td><td class="py-2 text-left status-online border-b border-[var(--border-color)]">8.8</td></tr>
+                        <tr><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">Michael Kim</td><td class="py-2 text-left status-online border-b border-[var(--border-color)]">9.0</td></tr>
+                        <tr><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">Sarah Davis</td><td class="py-2 text-left status-online border-b border-[var(--border-color)]">8.5</td></tr>
+                        <tr><td class="py-2 text-left text-[var(--text-light)] border-b border-[var(--border-color)]">James Wilson</td><td class="py-2 text-left status-online border-b border-[var(--border-color)]">9.1</td></tr>
+                        <tr><td class="py-2 text-left text-[var(--text-light)]">Laura Miller</td><td class="py-2 text-left status-online">8.7</td></tr>
+                    </tbody>
+                </table>
+                <div class="card-dropdown-content" id="individualSatisfactionDropdown">
+                    <div class="overflow-list"></div>
+                </div>
+            </div>
 
-       function loadProfileData() {
-           const savedData = localStorage.getItem('staffProfileData');
-           if (savedData) {
-               profileData = JSON.parse(savedData);
-               console.log("Staff profile data loaded:", profileData);
-           }
-           renderProfileData();
-       }
+            <!-- Hunger Score (Ambition) Card -->
+            <div class="card col-span-1 relative" id="hungerScoreCard">
+                <h3 class="text-lg font-semibold mb-5 flex justify-between items-center">
+                    Hunger Score (Ambition)
+                    <span id="hungerScoreToggle" class="insights-dropdown-toggle">&gt;</span>
+                </h3>
+                <div class="metric mb-4">
+                    <span class="value text-5xl font-semibold text-white block mb-1">7.5<span class="unit text-xl font-normal opacity-80">/10</span></span>
+                    <span class="label text-sm text-[var(--text-medium)]">Avg. Hunger Score</span>
+                </div>
+                <div class="metric">
+                    <span class="value text-5xl font-semibold text-white block mb-1">1.58<span class="unit text-xl font-normal opacity-80">EV</span></span>
+                    <span class="label text-sm text-[var(--text-medium)]">Hunger-Adjusted EV</span>
+                </div>
+                <div class="card-dropdown-content" id="hungerScoreDropdown">
+                    <div class="overflow-list"></div>
+                </div>
+            </div>
 
+            <!-- User Insights Card -->
+            <div class="card col-span-1 relative" id="userInsightsCard">
+                <h3 class="text-lg font-semibold mb-5 flex justify-between items-center">
+                    User Insights
+                    <span id="userInsightsToggle" class="insights-dropdown-toggle">&gt;</span>
+                </h3>
+                <div id="userInsightsList" class="flex flex-col gap-3">
+                    <p class="no-insights-message" id="noInsightsMessage">No insights submitted yet.</p>
+                </div>
 
-       function saveProfileData(e) {
-           e.preventDefault();
-           if (isInterestUnprofessional(profileData.interests)) {
-               return displaySaveMessage('Error: Unprofessional content in interests.', 'error');
-           }
-           saveButton.disabled = true;
-           saveButton.textContent = 'Saving...';
-           try {
-               localStorage.setItem('staffProfileData', JSON.stringify(profileData));
-               displaySaveMessage('Profile saved successfully!', 'success');
-           } catch (error) {
-               console.error("Error saving profile:", error);
-               displaySaveMessage(`Error: ${error.message}`, 'error');
-           } finally {
-               saveButton.disabled = false;
-               saveButton.textContent = 'Save Profile';
-           }
-       }
+                <!-- The Dropdown Container for Overflow Insights (Specific to User Insights) -->
+                <div class="card-dropdown-content" id="userInsightsDropdown">
+                    <div id="overflowInsightsList" class="overflow-list">
+                        <!-- Overflow insights will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </main>
 
+        <footer class="dashboard-footer flex justify-between items-center py-4 border-t border-[var(--border-color)] mt-5">
+            <div class="flex items-center gap-4">
+                <span id="currentUserIdDisplay" class="text-sm text-[var(--text-medium)]">User ID: Loading...</span>
+                <button id="togglePremiumAccessBtn" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                    Premium: OFF
+                </button>
+            </div>
+            <button id="submitInsightBtn" class="bg-[var(--accent-green)] hover:bg-[#5cb85c] text-white font-bold py-2 px-4 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                Submit New Insight
+            </button>
+        </footer>
 
-       function renderProfileData() {
-           profilePic.src = profileData.profilePictureUrl || 'https://placehold.co/50x50/cccccc/FFFFFF?text=U';
-           profilePictureDisplay.src = profileData.profilePictureUrl;
-           profilePictureDisplay.style.display = profileData.profilePictureUrl ? 'block' : 'none';
-           profilePicturePlaceholder.style.display = profileData.profilePictureUrl ? 'none' : 'flex';
-          
-           personalPicturesGrid.innerHTML = '';
-           (profileData.personalPictures || []).forEach((picUrl, index) => {
-               const div = document.createElement('div');
-               div.className = 'personal-pic-item';
-               div.innerHTML = `<img src="${picUrl}" class="personal-pic-img"><button type="button" class="remove-pic-btn" data-index="${index}">×</button>`;
-               personalPicturesGrid.appendChild(div);
-           });
-           document.querySelectorAll('.remove-pic-btn').forEach(b => b.onclick = (e) => removePersonalPicture(parseInt(e.currentTarget.dataset.index)));
+        <!-- Add New Financial Contribution Modal -->
+        <div id="addFinancialContributionModal" class="modal">
+            <div class="modal-content">
+                <button class="close-button" id="closeFinancialContributionModalBtn">&times;</button>
+                <h2 class="text-xl font-bold mb-4 text-white">Add New Contribution Entry</h2>
+                <form id="newFinancialContributionForm">
+                    <div class="form-group">
+                        <label for="financialContributionVolunteerName">Volunteer Name:</label>
+                        <input type="text" id="financialContributionVolunteerName" class="w-full p-2 rounded-md border border-gray-700 bg-gray-800 text-white" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="financialContributionTask">Task Performed:</label>
+                        <input type="text" id="financialContributionTask" class="w-full p-2 rounded-md border border-gray-700 bg-gray-800 text-white" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="financialContributionValue">Calculated Value (e.g., $500):</label>
+                        <input type="text" id="financialContributionValue" class="w-full p-2 rounded-md border border-gray-700 bg-gray-800 text-white" required>
+                    </div>
+                    <button type="submit" class="bg-[var(--accent-blue)] hover:bg-[#348ee0] text-white font-bold py-2 px-4 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                        Add Entry
+                    </button>
+                </form>
+            </div>
+        </div>
 
+        <!-- Submit New Insight Modal -->
+        <div id="submitInsightModal" class="modal">
+            <div class="modal-content">
+                <button class="close-button" id="closeInsightModalBtn">&times;</button>
+                <h2 class="text-xl font-bold mb-4 text-white">Submit New Insight</h2>
+                <form id="newInsightForm">
+                    <div class="form-group">
+                        <label for="insightTitle">Insight Title:</label>
+                        <input type="text" id="insightTitle" class="w-full p-2 rounded-md border border-gray-700 bg-gray-800 text-white" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="insightDescription">Description:</label>
+                        <textarea id="insightDescription" class="w-full p-2 rounded-md border border-gray-700 bg-gray-800 text-white" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="insightCategory">Category:</label>
+                        <select id="insightCategory" class="w-full p-2 rounded-md border border-gray-700 bg-gray-800 text-white">
+                            <option value="Total Volunteer Hours">Total Volunteer Hours</option>
+                            <option value="Volunteer Engagement">Volunteer Engagement</option>
+                            <option value="Return on Investment">Return on Investment</option>
+                            <option value="Projects Completed">Projects Completed</option>
+                            <option value="Hours by Project Type">Hours by Project Type</option>
+                            <option value="Financial Value">Financial Value</option>
+                            <option value="Satisfaction Scores">Satisfaction Scores</option>
+                            <option value="Hunger Score">Hunger Score</option>
+                            <option value="Expected Value">Expected Value</option>
+                            <option value="Modifiers">Modifiers</option>
+                            <option value="Projects per Hour">Projects per Hour</option>
+                            <option value="ROI per Hour">ROI per Hour</option>
+                            <option value="Happiness Impact">Happiness Impact</option>
+                            <option value="Experience Value">Experience Value</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="bg-[var(--accent-green)] hover:bg-[#5cb85c] text-white font-bold py-2 px-4 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                        Submit Insight
+                    </button>
+                </form>
+            </div>
+        </div>
 
-           jobTitleInput.value = profileData.jobTitle || '';
-           departmentInput.value = profileData.department || '';
-           bioInput.value = profileData.bio || '';
-           interestsInput.value = profileData.interests || '';
-           checkAndDisplayInterestsWarning();
-           renderSkills();
-           updateSaveButtonState();
-          
-           expertiseCheckboxesDiv.innerHTML = '';
-           sampleExpertise.forEach(exp => {
-               const label = document.createElement('label');
-               label.className = 'experience-checkbox-label';
-               label.innerHTML = `<input type="checkbox" name="selectedExpertise" value="${exp.id}" class="form-checkbox"><span class="experience-name">${exp.name}</span>`;
-               const checkbox = label.querySelector('input');
-               checkbox.checked = (profileData.selectedExpertise || []).includes(exp.id);
-               checkbox.onchange = handleExpertiseChange;
-               expertiseCheckboxesDiv.appendChild(label);
-           });
-       }
-
-
-       function renderSkills() {
-           skillsContainer.innerHTML = '';
-           (profileData.professionalSkills || []).forEach(skill => {
-               const span = document.createElement('span');
-               span.className = 'skills-tag';
-               span.innerHTML = `${skill}<button type="button" class="remove-skill-btn" data-skill="${skill}">×</button>`;
-               skillsContainer.appendChild(span);
-           });
-           document.querySelectorAll('.remove-skill-btn').forEach(b => b.onclick = (e) => removeProfessionalSkill(e.currentTarget.dataset.skill));
-       }
-
-
-       function displaySaveMessage(message, type) {
-           saveMessageDisplay.textContent = message;
-           saveMessageDisplay.className = `save-message ${type || ''}`;
-           if (message) setTimeout(() => { saveMessageDisplay.textContent = ''; saveMessageDisplay.className = 'save-message'; }, 3000);
-       }
-
-
-       function updateSaveButtonState() { saveButton.disabled = interestsUnprofessional; }
-       function isInterestUnprofessional(text) { return text && unprofessionalKeywords.some(k => text.toLowerCase().includes(k)); }
-      
-       function checkAndDisplayInterestsWarning() {
-           interestsUnprofessional = isInterestUnprofessional(interestsInput.value);
-           interestsUnprofessionalWarningDiv.style.display = interestsUnprofessional ? 'flex' : 'none';
-           interestsInput.classList.toggle('unprofessional', interestsUnprofessional);
-           updateSaveButtonState();
-       }
-
-
-       profilePictureInput.addEventListener('change', (e) => {
-           const file = e.target.files[0];
-           if (file) {
-               const reader = new FileReader();
-               reader.onloadend = () => { profileData.profilePictureUrl = reader.result; renderProfileData(); };
-               reader.readAsDataURL(file);
-           }
-       });
-
-
-       personalPicturesInput.addEventListener('change', (e) => {
-           const files = Array.from(e.target.files);
-           if (!profileData.personalPictures) profileData.personalPictures = [];
-           files.forEach(file => {
-               if (profileData.personalPictures.length < 5) {
-                   const reader = new FileReader();
-                   reader.onloadend = () => { profileData.personalPictures.push(reader.result); renderProfileData(); };
-                   reader.readAsDataURL(file);
-               }
-           });
-       });
-
-
-       function removePersonalPicture(index) {
-           profileData.personalPictures.splice(index, 1);
-           renderProfileData();
-       }
-
-
-       jobTitleInput.addEventListener('input', (e) => { profileData.jobTitle = e.target.value; });
-       departmentInput.addEventListener('input', (e) => { profileData.department = e.target.value; });
-       bioInput.addEventListener('input', (e) => { profileData.bio = e.target.value; });
-
-
-       function handleExpertiseChange(e) {
-           if (!profileData.selectedExpertise) profileData.selectedExpertise = [];
-           const { value, checked } = e.target;
-           if (checked) profileData.selectedExpertise.push(value);
-           else profileData.selectedExpertise = profileData.selectedExpertise.filter(id => id !== value);
-       }
-       interestsInput.addEventListener('input', (e) => { profileData.interests = e.target.value; checkAndDisplayInterestsWarning(); });
-
-
-       skillInput.addEventListener('keydown', (e) => {
-           if (e.key === 'Enter' && e.target.value.trim()) {
-               e.preventDefault();
-               const newSkill = e.target.value.trim();
-               if (!profileData.professionalSkills) profileData.professionalSkills = [];
-               if (!profileData.professionalSkills.includes(newSkill)) {
-                   profileData.professionalSkills.push(newSkill);
-                   renderSkills();
-               }
-               e.target.value = '';
-           }
-       });
-
-
-       function removeProfessionalSkill(skill) {
-           profileData.professionalSkills = profileData.professionalSkills.filter(s => s !== skill);
-           renderSkills();
-       }
-
-
-       bioForm.addEventListener('submit', saveProfileData);
-
-
-       function applyTheme(themeName) {
-           htmlElement.setAttribute('data-theme', themeName);
-           localStorage.setItem('theme', themeName);
-       }
-      
-       const savedTheme = localStorage.getItem('theme') || 'dark';
-       applyTheme(savedTheme);
-       const themeToggleButton = document.getElementById('themeToggleButton');
-       if (themeToggleButton) {
-           themeToggleButton.addEventListener('click', () => {
-               const currentTheme = htmlElement.getAttribute('data-theme');
-               const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-               applyTheme(newTheme);
-           });
-       }
-
-
-       function showMessage(title, message) {
-           const overlay = document.getElementById('messageBoxOverlay');
-           overlay.innerHTML = `<div class="message-box"><h3>${title}</h3><p>${message}</p><button>OK</button></div>`;
-           overlay.style.visibility = 'visible';
-           overlay.style.opacity = '1';
-           overlay.querySelector('button').onclick = () => {
-               overlay.style.opacity = '0';
-               setTimeout(() => overlay.style.visibility = 'hidden', 300);
-           };
-       }
-      
-       const notificationBell = document.getElementById('notificationBell');
-       const notificationDropdown = document.getElementById('notificationDropdown');
-       notificationBell.addEventListener('click', (e) => {
-           e.stopPropagation();
-           notificationDropdown.classList.toggle('active');
-       });
-       document.addEventListener('click', (e) => {
-           if (!notificationDropdown.contains(e.target) && !notificationBell.contains(e.target)) {
-               notificationDropdown.classList.remove('active');
-           }
-       });
-       document.getElementById('notificationDropdownClose').addEventListener('click', () => notificationDropdown.classList.remove('active'));
-
-
-       const profileMenuOverlay = document.getElementById('profileMenuOverlay');
-       profilePic.addEventListener('click', () => {
-           profileMenuOverlay.style.visibility = 'visible';
-           profileMenuOverlay.style.opacity = '1';
-       });
-
-
-       function closeProfileMenu() {
-           profileMenuOverlay.style.opacity = '0';
-           setTimeout(() => profileMenuOverlay.style.visibility = 'hidden', 300);
-       }
-       document.getElementById('profileMenuClose').addEventListener('click', closeProfileMenu);
-       profileMenuOverlay.addEventListener('click', (e) => {
-           if (e.target === profileMenuOverlay) closeProfileMenu();
-       });
-       document.getElementById('signOutButton').addEventListener('click', () => {
-           console.log("Sign out clicked. Implement sign out logic here.");
-           showMessage("Sign Out", "This is a placeholder for the sign out functionality.");
-       });
-
-
-       mainContent.style.display = 'flex';
-       loadingScreen.style.display = 'none';
-       loadProfileData();
-   });
-</script>
+    </div>
 </body>
 </html>
