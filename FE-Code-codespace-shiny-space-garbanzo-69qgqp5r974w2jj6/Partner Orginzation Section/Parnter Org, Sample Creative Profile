@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Influencer Analytics: Cole Holland</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Vis.js -->
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* --- CSS Variables for Theming --- */
+        :root {
+            /* --- Dark Mode (Default) --- */
+            --bg-body: #1c1c1c;
+            --bg-header: #1b1b1b;
+            --border-header: #2a2a2a;
+            
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            
+            /* Card Specifics - Dark Mode */
+            --card-bg: #1c1c1c;
+            --text-card: #ffffff;
+            --border-inner: #374151;
+            
+            /* Accents */
+            --accent-color: #98fb98;
+            --nav-active: #98fb98;
+            --nav-glow: rgba(152, 251, 152, 0.25);
+            
+            /* Buttons */
+            --btn-bg: #2a2d35;
+            --btn-border: rgba(59, 130, 246, 0.5);
+            --icon-color: #d1d5db;
+            
+            --logo-filter: none;
+        }
+
+        /* --- Light Mode Overrides --- */
+        body.light-mode {
+            --bg-body: #f3f4f6;
+            --bg-header: #fefefe;
+            --border-header: #e5e7eb;
+            
+            --text-primary: #1c1c1c;
+            --text-secondary: #4b5563;
+            
+            /* Card Specifics - Light Mode */
+            --card-bg: #fefefe;
+            --text-card: #1c1c1c;
+            --border-inner: #e5e7eb;
+            
+            /* Accents - Darker Green for visibility */
+            --accent-color: #16a34a;
+            --nav-active: #16a34a;
+            --nav-glow: rgba(22, 163, 74, 0.15);
+            
+            /* Buttons */
+            --btn-bg: #fefefe;
+            --btn-border: rgba(59, 130, 246, 0.3);
+            --icon-color: #1c1c1c;
+            --logo-filter: invert(1);
+        }
+
+        body {
+            font-family: 'Atkinson Hyperlegible', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            margin: 0;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--bg-header);
+            border-bottom: 1px solid var(--border-header);
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        /* Cards - Adaptive */
+        .analytics-card {
+            background-color: var(--card-bg);
+            color: var(--text-card);
+            border: 2px solid var(--accent-color);
+            border-radius: 0.5rem;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        /* Helper classes */
+        .text-card-base { color: var(--text-card); }
+        .text-accent { color: var(--accent-color); }
+        .bg-accent { background-color: var(--accent-color); }
+        .border-inner { border-color: var(--border-inner); }
+
+        /* Navigation Buttons */
+        .nav-btn {
+            color: var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+        .nav-btn:hover {
+            color: var(--text-primary);
+            transform: scale(1.05);
+        }
+        .nav-btn.active {
+            color: var(--nav-active);
+            filter: drop-shadow(0 0 8px var(--nav-glow));
+            transform: scale(1.05);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-body); }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Modal Styles */
+        .modal-enter { opacity: 0; pointer-events: none; transform: scale(0.95); }
+        .modal-active { opacity: 1; pointer-events: auto; transform: scale(1); }
+        .modal-transition { transition: all 0.2s ease-in-out; }
+
+        /* Custom Tooltip */
+        #globalTooltip {
+            transition: opacity 0.15s ease, transform 0.1s ease;
+            position: absolute; /* Changed from fixed to absolute so it scrolls with the page */
+            pointer-events: auto; /* Allow clicking the link inside */
+            z-index: 100;
+        }
+        #globalTooltip.hidden-tooltip {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(10px);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Header Component -->
+    <header class="fixed top-0 left-0 right-0 w-full shadow-lg transition-colors duration-300 z-50">
+        <div class="flex items-center h-16 px-6 gap-6 overflow-x-auto no-scrollbar">
+            
+            <!-- Navigation Controls -->
+            <div class="flex items-center mr-2 flex-shrink-0">
+                <button class="flex items-center justify-center w-8 h-10 border rounded-l transition-colors group relative hover:opacity-80" style="background-color: var(--btn-bg); border-color: var(--btn-border);">
+                    <div class="absolute inset-0 border border-blue-400/30 rounded-l opacity-50"></div>
+                    <i data-lucide="chevron-left" class="w-5 h-5 transition-colors" style="color: var(--icon-color)"></i>
+                </button>
+                <button class="flex items-center justify-center w-8 h-10 transition-colors rounded-r border-y border-r hover:opacity-80" style="background-color: var(--bg-body); border-color: var(--border-header);">
+                    <i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i>
+                </button>
+            </div>
+
+            <!-- Logo -->
+            <div class="flex-shrink-0 mr-4">
+                <div class="h-12 w-auto flex items-center justify-center">
+                    <img 
+                        src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" 
+                        alt="Team Logo" 
+                        class="h-full w-auto object-contain drop-shadow-md transition-all duration-300"
+                        style="filter: var(--logo-filter)"
+                        id="headerLogo"
+                        onerror="this.src='https://via.placeholder.com/150x50?text=YPI';"
+                    >
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="flex items-center gap-2" id="mainNav">
+                <!-- Injected via JS -->
+            </nav>
+
+            <!-- Theme Switcher -->
+            <div class="ml-auto flex items-center pl-4 border-l" style="border-color: var(--border-header)">
+                <button id="themeToggle" class="p-2 rounded-full transition-all active:scale-95 hover:bg-black/10" style="color: var(--text-primary)">
+                    <i data-lucide="sun" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Spacer for fixed header -->
+    <div class="h-16"></div>
+
+    <!-- Main Content Area -->
+    <div class="p-2 md:p-4 pb-20">
+        <div class="flex flex-col md:flex-row gap-4 mb-4">
+            
+            <!-- Profile Card -->
+            <div class="w-full md:w-1/3 flex flex-col gap-2">
+                <div class="relative group">
+                    <h1 id="profileName" class="text-3xl md:text-4xl font-extrabold italic tracking-tighter transition-colors duration-300" style="color: var(--text-primary)">
+                        Cole Holland
+                    </h1>
+                    <p class="text-[10px] mb-2 font-mono text-accent">A Young Progressive CEO trying to make an impact on the non-profit industry</p>
+                    <div class="relative overflow-hidden rounded-lg border-2" style="border-color: var(--accent-color)">
+                        <img src="https://weareypi.com/wp-content/uploads/2024/09/YPI-Site-Images_4.jpg" alt="Cole Holland" class="w-full h-auto object-cover opacity-90 group-hover:opacity-100 transition-opacity" onerror="this.src='https://placehold.co/400x400/111/98fb98?text=Cole';">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Analytics -->
+            <div class="w-full md:w-2/3 flex flex-col gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4 h-full">
+                    
+                    <!-- Info Box -->
+                    <div class="analytics-card md:col-span-4 flex flex-col justify-center space-y-4 p-4">
+                        <div class="flex justify-center space-x-4 mb-2">
+                            <img src="https://flagcdn.com/w40/us.png" alt="US" class="inline-block h-5 rounded-sm">
+                        </div>
+                        <div class="space-y-3 text-center text-card-base">
+                            <div>
+                                <div class="text-gray-400 text-xs uppercase tracking-widest">Date of Creation</div>
+                                <div class="font-bold">May 12, 2015</div>
+                            </div>
+                            <div>
+                                <div class="text-gray-400 text-xs uppercase tracking-widest">Largest Audience</div>
+                                <div class="flex items-center justify-center gap-2">
+                                    <span class="font-bold">Males 25-34 years old</span>
+                                    <img src="https://flagcdn.com/w40/us.png" alt="US" class="inline-block h-4 rounded-sm">
+                                </div>
+                            </div>
+                            <div>
+                                <div class="text-gray-400 text-xs uppercase tracking-widest">Most Engaged</div>
+                                <div class="flex items-center justify-center gap-2">
+                                    <span class="font-bold">Women 18-24 years old</span>
+                                    <img src="https://flagcdn.com/w40/us.png" alt="US" class="inline-block h-4 rounded-sm">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interest Chart -->
+                    <div class="analytics-card md:col-span-7 flex flex-col p-3 relative cursor-pointer hover:border-blue-400/50 transition-colors" id="chartContainer">
+                        <div class="flex justify-between items-center mb-2 px-2">
+                            <div class="flex items-center gap-2">
+                                <h3 id="interestTitle" class="text-accent font-bold italic transition-all">Interest Over Time</h3>
+                                <button id="resetInterest" class="hidden text-[10px] bg-black/10 dark:bg-white/10 px-2 py-0.5 rounded hover:bg-opacity-20 transition-colors text-card-base">Reset</button>
+                            </div>
+                            <div class="flex gap-2">
+                                <div id="interestIndicator" class="w-2 h-2 rounded-full bg-accent transition-colors duration-500"></div>
+                            </div>
+                        </div>
+                        <div class="h-full min-h-[160px] w-full flex-grow relative pointer-events-none">
+                            <canvas id="interestChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar Icons -->
+                    <div class="md:col-span-1 flex flex-row md:flex-col gap-2 justify-center md:justify-start">
+                        <button onclick="updateInterestGraph('Google')" id="btnGoogle" class="analytics-card p-3 rounded-lg border hover:bg-opacity-50 transition-colors group">
+                            <svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-gray-400 group-hover:text-blue-400 transition-transform group-hover:scale-110">
+                                <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" />
+                            </svg>
+                        </button>
+                        <button onclick="updateInterestGraph('Pinterest')" id="btnPinterest" class="analytics-card p-3 rounded-lg border hover:bg-opacity-50 transition-colors group">
+                            <svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-gray-400 group-hover:text-red-500 transition-transform group-hover:scale-110">
+                                <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.399.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.951-7.252 4.173 0 7.41 2.967 7.41 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.367 18.62 0 12.017 0z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+            
+            <!-- Following -->
+            <div class="analytics-card p-3">
+                <h3 class="text-accent font-bold italic mb-2 uppercase tracking-wide text-sm border-b border-inner pb-1">FOLLOWING</h3>
+                <div class="space-y-1" id="followingStats"></div>
+            </div>
+
+            <!-- Engagement & Watch -->
+            <div class="flex flex-col gap-4">
+                <div class="analytics-card p-3">
+                    <h3 class="text-accent font-bold italic mb-2 uppercase tracking-wide text-sm border-b border-inner pb-1">Engagement</h3>
+                    <div class="space-y-1" id="engagementStats"></div>
+                </div>
+                <div class="analytics-card p-3">
+                    <h3 class="text-accent font-bold italic mb-2 uppercase tracking-wide text-sm border-b border-inner pb-1">Watch Time</h3>
+                    <div class="space-y-1" id="watchTimeStats"></div>
+                </div>
+            </div>
+
+            <!-- Multi-Tab Section -->
+            <div class="analytics-card p-0 flex flex-col h-full overflow-hidden relative min-h-[300px]">
+                <!-- Tabs Header -->
+                <div class="absolute top-0 left-0 right-0 z-20 flex flex-wrap gap-2 text-[10px] uppercase font-bold text-gray-400 mb-4 border-b pb-2 bg-black/80 backdrop-blur-sm rounded-t px-3 pt-3" style="border-color: var(--border-inner);">
+                    <button onclick="switchTab('network')" class="tab-btn hover:text-white transition-colors" id="tab-network">Creator Network Node</button>
+                    <button onclick="switchTab('keywords')" class="tab-btn hover:text-white transition-colors" id="tab-keywords">Advertising Keywords</button>
+                    <button onclick="switchTab('region')" class="tab-btn text-accent" id="tab-region">Interest By Region</button>
+                    <button class="hover:text-white cursor-not-allowed opacity-50">Audience by Age</button>
+                    <button class="hover:text-white cursor-not-allowed opacity-50">Recent Content</button>
+                </div>
+
+                <!-- Tab Content -->
+                <div class="flex-grow relative mt-10">
+                    <!-- 1. Region Map -->
+                    <div id="view-region" class="w-full h-full absolute inset-0 transition-opacity duration-300">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <svg viewBox="0 0 1010 500" class="w-full h-full" style="background-color: transparent;">
+                                <g id="worldMapGroup" fill="currentColor" stroke="none" class="text-gray-600 dark:text-gray-800" style="opacity: 0.4;">
+                                    <path d="M50,30 L350,30 L300,150 L200,200 L100,250 L50,150 Z" />
+                                    <path d="M220,250 L320,250 L300,480 L200,400 Z" />
+                                    <path d="M400,30 L950,30 L900,250 L750,300 L600,200 L450,150 Z" />
+                                    <path d="M450,200 L600,200 L550,420 L450,350 Z" />
+                                    <path d="M780,350 L920,350 L900,450 L750,450 Z" />
+                                </g>
+                                <g id="mapHighlights"></g>
+                            </svg>
+                        </div>
+                        <div class="relative z-10 mt-auto bg-black/40 p-2 rounded backdrop-blur-sm border border-white/10 pointer-events-none transition-all duration-300 w-fit absolute bottom-2 left-2">
+                            <h4 id="regionTitle" class="font-bold text-xs italic mb-2 text-accent">Interest by Region</h4>
+                            <div class="text-xs space-y-1" id="regionList"></div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Creator Network -->
+                    <div id="view-network" class="w-full h-full absolute inset-0 opacity-0 pointer-events-none transition-opacity duration-300">
+                        <div id="mynetwork" class="w-full h-full" style="background-color: var(--card-bg);"></div>
+                        <div class="absolute bottom-2 right-2 bg-black/80 p-2 rounded border border-[#98fb98]/30 text-[9px] text-gray-300 pointer-events-none">
+                            <div class="flex items-center gap-1 mb-1"><div class="w-2 h-2 bg-white"></div> Hub</div>
+                            <div class="flex items-center gap-1 mb-1"><div class="w-2 h-2 bg-blue-400 rounded-full"></div> Featured</div>
+                            <div class="flex items-center gap-1 mb-1"><div class="w-2 h-2 bg-teal-500 rounded-full"></div> Core Team</div>
+                            <div class="flex items-center gap-1 mb-1"><div class="w-2 h-2 bg-orange-500 rounded-full"></div> Partners</div>
+                            <div class="flex items-center gap-1"><div class="w-2 h-2 bg-purple-500 rounded-full"></div> Podcast</div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Advertising Keywords -->
+                    <div id="view-keywords" class="w-full h-full absolute inset-0 opacity-0 pointer-events-none transition-opacity duration-300 p-4 overflow-y-auto">
+                        <div class="grid grid-cols-1 gap-2" id="keywordList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Section -->
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+            
+            <!-- Sponsorships -->
+            <!-- Added id="sponsorshipsCard" and onclick event -->
+            <div id="sponsorshipsCard" class="analytics-card xl:col-span-1 p-3 cursor-pointer hover:border-green-400/50 transition-colors" onclick="openSponsorshipsModal()">
+                <div class="flex justify-between items-center mb-2 border-b border-inner pb-1">
+                    <h3 class="text-accent font-bold italic uppercase tracking-wide text-sm">SPONSORSHIPS</h3>
+                    <i data-lucide="maximize-2" class="w-3 h-3 text-gray-500"></i>
+                </div>
+                <div class="overflow-x-auto pointer-events-none"> <!-- pointer-events-none prevents table interactions from blocking card click -->
+                    <table class="w-full text-left text-xs">
+                        <thead>
+                            <tr class="text-gray-400 border-b border-gray-800">
+                                <th class="pb-2"></th>
+                                <!-- Removed onmouseenter/onmouseleave, kept onclick. Added pointer-events-auto to allow click through parent container -->
+                                <th class="pb-2 text-center cursor-help hover:text-white transition-colors pointer-events-auto" onclick="event.stopPropagation(); toggleTooltip(event, 'VIDS')">VIDS</th>
+                                <th class="pb-2 text-center cursor-help hover:text-white transition-colors pointer-events-auto" onclick="event.stopPropagation(); toggleTooltip(event, 'SPON')">SPON</th>
+                                <th class="pb-2 text-center cursor-help hover:text-white transition-colors pointer-events-auto" onclick="event.stopPropagation(); toggleTooltip(event, 'MINS')">MINS</th>
+                                <th class="pb-2 text-center cursor-help hover:text-white transition-colors pointer-events-auto" onclick="event.stopPropagation(); toggleTooltip(event, 'RET+')">RET+</th>
+                                <th class="pb-2 text-center cursor-help hover:text-white transition-colors pointer-events-auto" onclick="event.stopPropagation(); toggleTooltip(event, 'ALIGN')">ALIGN</th>
+                                <th class="pb-2 text-center cursor-help hover:text-white transition-colors pointer-events-auto" onclick="event.stopPropagation(); toggleTooltip(event, 'wexRAR+')">wexRAR+</th>
+                                <th class="pb-2 text-center cursor-help hover:text-white transition-colors pointer-events-auto" onclick="event.stopPropagation(); toggleTooltip(event, 'exCTAR')">exCTAR</th>
+                                <th class="pb-2 text-center cursor-help hover:text-white transition-colors pointer-events-auto" onclick="event.stopPropagation(); toggleTooltip(event, 'wexPSAR')">wexPSAR</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-400" id="sponsorshipTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Alignment Score -->
+            <div class="analytics-card xl:col-span-1 p-3">
+                <h3 class="text-accent font-bold italic mb-2 uppercase tracking-wide text-sm border-b border-inner pb-1">ALIGNMENT SCORE</h3>
+                <div class="grid grid-cols-2 gap-4 text-xs">
+                    <div>
+                        <h4 class="text-accent font-bold mb-1">Most Common Words Used</h4>
+                        <p class="text-card-base italic mb-4 leading-relaxed">change, young, volunteer, initiative, community</p>
+                        
+                        <h4 class="text-accent font-bold mb-1">Subjects</h4>
+                        <ul class="text-card-base space-y-2 list-decimal list-inside pl-1 text-[10px]">
+                            <li>Assessing the Negative Consequences of Project Rudy for Maryland</li>
+                            <li>From Bush to Trump: Evolution of Microtargeting</li>
+                            <li>Cultivating Controversy: Mexico-US GMO Corn Conflict</li>
+                            <li>Young Progressives Initiative: Countering Right-Wing Extremism</li>
+                            <li>Forms of Expression and Racialization in the United States</li>
+                            <li>Kids and Parents in the Hyper Digital Age</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-accent font-bold mb-1">YPI</h4>
+                        <p class="text-card-base italic mb-4 leading-relaxed">change, young, volunteer, initiative, community</p>
+
+                        <h4 class="text-accent font-bold mb-1">Sentiment Analysis</h4>
+                        <p class="text-gray-400 leading-snug">
+                            Cole Holland's carries high cultural reach among younger audiences.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audience Chart -->
+            <div class="analytics-card xl:col-span-1 p-3 flex flex-col">
+                <h3 class="text-accent font-bold italic mb-2 uppercase tracking-wide text-sm border-b border-inner pb-1">Audience by age and gender</h3>
+                <div class="h-48 w-full mt-2 relative">
+                    <canvas id="audienceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Google Trends Modal -->
+    <div id="googleModal" class="modal-enter fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-10 modal-transition">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeGoogleModal()"></div>
+        
+        <!-- Modal Content -->
+        <div class="relative w-full h-full max-w-7xl border rounded-xl flex flex-col overflow-hidden shadow-2xl z-[70] transition-colors duration-300" style="background-color: var(--card-bg); border-color: var(--border-inner);">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-4 border-b" style="border-color: var(--border-inner);">
+                <div class="flex items-center gap-4">
+                    <button onclick="closeGoogleModal()" class="w-8 h-8 flex items-center justify-center rounded transition-colors" style="background-color: var(--btn-bg); color: var(--text-secondary);">
+                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    </button>
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-2">
+                             <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="G" class="w-6 h-6">
+                             <h2 class="text-2xl font-bold tracking-tight" style="color: var(--text-primary)">Interest Over Time</h2>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs font-medium" style="color: var(--text-secondary)">
+                            <span>Google Trends</span>
+                            <span>•</span>
+                            <span>Cole Holland</span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="closeGoogleModal()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-red-500/20 hover:text-red-500 transition-colors" style="color: var(--text-secondary)">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex-grow p-6 flex flex-col gap-6 overflow-hidden">
+                <!-- Large Chart Area -->
+                <div class="flex-grow w-full relative min-h-[300px] border-b pb-4" style="border-color: var(--border-inner);">
+                    <canvas id="googleModalChart"></canvas>
+                </div>
+
+                <!-- Bottom Panels -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-1/3 min-h-[180px]">
+                    
+                    <!-- Panel 1: Region -->
+                    <div class="rounded-lg border p-4 flex flex-col relative overflow-hidden" style="background-color: var(--bg-header); border-color: var(--border-inner);">
+                         <div class="flex items-center justify-between mb-2 z-10">
+                            <h4 class="text-[#98fb98] font-bold italic text-sm">Interest by Region</h4>
+                         </div>
+                         <div class="flex-grow flex items-center gap-4 z-10">
+                            <!-- Simple SVG Map Placeholder -->
+                             <div class="w-1/2 h-full opacity-60">
+                                <svg viewBox="0 0 100 60" class="w-full h-full text-[#98fb98]" fill="currentColor">
+                                     <path d="M10,10 L40,10 L35,30 L15,35 Z" opacity="0.8"/> <!-- US-ish -->
+                                     <path d="M45,5 L60,5 L55,20 L45,15 Z" opacity="0.3"/> <!-- UK-ish -->
+                                </svg>
+                             </div>
+                             <div class="w-1/2 text-xs space-y-2" style="color: var(--text-secondary)">
+                                <div class="flex justify-between"><span>1. United States</span><span class="font-bold" style="color: var(--text-primary)">100</span></div>
+                                <div class="flex justify-between"><span>2. Canada</span><span class="font-bold" style="color: var(--text-primary)">18</span></div>
+                                <div class="flex justify-between"><span>3. United Kingdom</span><span class="font-bold" style="color: var(--text-primary)">12</span></div>
+                             </div>
+                         </div>
+                         <div class="mt-auto pt-2 border-t flex items-center gap-2 text-[10px] z-10" style="border-color: var(--border-inner); color: var(--text-secondary)">
+                             <span class="px-1 rounded" style="background-color: var(--btn-bg)"> < </span>
+                             <span>December 12, 2025</span>
+                             <span class="px-1 rounded" style="background-color: var(--btn-bg)"> > </span>
+                         </div>
+                    </div>
+
+                    <!-- Panel 2: Related Searches -->
+                    <div class="rounded-lg border p-4 flex flex-col" style="background-color: var(--bg-header); border-color: var(--border-inner);">
+                        <h4 class="font-bold italic text-sm mb-3" style="color: var(--text-primary)">Related Searches</h4>
+                        <div class="space-y-2 text-xs overflow-y-auto pr-1 custom-scroll" style="color: var(--text-secondary)">
+                            <div class="flex justify-between items-center hover:bg-black/5 p-1 rounded">
+                                <span>cole holland project rudy</span>
+                                <i data-lucide="more-horizontal" class="w-3 h-3"></i>
+                            </div>
+                            <div class="flex justify-between items-center hover:bg-black/5 p-1 rounded">
+                                <span>cole holland net worth</span>
+                                <i data-lucide="more-horizontal" class="w-3 h-3"></i>
+                            </div>
+                            <div class="flex justify-between items-center hover:bg-black/5 p-1 rounded">
+                                <span>ypi organization</span>
+                                <i data-lucide="more-horizontal" class="w-3 h-3"></i>
+                            </div>
+                            <div class="flex justify-between items-center hover:bg-black/5 p-1 rounded">
+                                <span>senator hayes connection</span>
+                                <i data-lucide="more-horizontal" class="w-3 h-3"></i>
+                            </div>
+                             <div class="flex justify-between items-center hover:bg-black/5 p-1 rounded">
+                                <span>donate to ypi</span>
+                                <i data-lucide="more-horizontal" class="w-3 h-3"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel 3: Related News -->
+                    <div class="rounded-lg border p-4 flex flex-col" style="background-color: var(--bg-header); border-color: var(--border-inner);">
+                        <div class="flex justify-between items-center mb-3">
+                             <h4 class="font-bold italic text-sm" style="color: var(--text-primary)">Related News</h4>
+                             <span class="text-[10px]" style="color: var(--text-secondary)">Co-Accuracy Rating</span>
+                        </div>
+                        <div class="space-y-3 overflow-y-auto pr-1 custom-scroll">
+                            <!-- Item 1 -->
+                            <div class="flex gap-2 items-start group cursor-pointer">
+                                <div class="mt-0.5 text-orange-500">
+                                    <i data-lucide="play-circle" class="w-4 h-4 fill-orange-500/20"></i>
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="text-[10px] leading-tight group-hover:underline" style="color: var(--text-primary)">Cole Holland Announces Partnership with Senator Hayes for County Executive Campaign...</p>
+                                    <p class="text-[9px] mt-0.5 italic" style="color: var(--text-secondary)">What Does This Indicate for Montgomery County's 2026 Local Elections</p>
+                                </div>
+                                <div class="w-5 h-5 rounded-full border border-[#98fb98] flex items-center justify-center text-[#98fb98] text-[9px] font-bold">A</div>
+                            </div>
+                             <!-- Item 2 -->
+                            <div class="flex gap-2 items-start group cursor-pointer">
+                                <div class="mt-0.5 text-orange-500">
+                                    <i data-lucide="play-circle" class="w-4 h-4 fill-orange-500/20"></i>
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="text-[10px] leading-tight group-hover:underline" style="color: var(--text-primary)">YPI Launches New Initiative for Digital Literacy...</p>
+                                    <p class="text-[9px] mt-0.5 italic" style="color: var(--text-secondary)">Community impact assessment regarding the new tech centers</p>
+                                </div>
+                                <div class="w-5 h-5 rounded-full border border-[#98fb98] flex items-center justify-center text-[#98fb98] text-[9px] font-bold">A</div>
+                            </div>
+                             <!-- Item 3 -->
+                            <div class="flex gap-2 items-start group cursor-pointer">
+                                <div class="mt-0.5 text-orange-500">
+                                    <i data-lucide="play-circle" class="w-4 h-4 fill-orange-500/20"></i>
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="text-[10px] leading-tight group-hover:underline" style="color: var(--text-primary)">Op-Ed: The Future of Non-Profits in a Digital Age...</p>
+                                    <p class="text-[9px] mt-0.5 italic" style="color: var(--text-secondary)">Analysis of Cole Holland's recent keynote speech</p>
+                                </div>
+                                <div class="w-5 h-5 rounded-full border border-[#98fb98] flex items-center justify-center text-[#98fb98] text-[9px] font-bold">A</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Definition Modal -->
+    <div id="definitionModal" class="modal-enter fixed inset-0 z-[80] flex items-center justify-center p-4 md:p-10 modal-transition">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeDefinitionModal()"></div>
+        <div class="relative w-full max-w-2xl border rounded-xl flex flex-col shadow-2xl z-[90] max-h-[80vh] transition-colors" style="background-color: var(--card-bg); border-color: var(--border-inner);">
+            <div class="flex items-center justify-between p-4 border-b" style="border-color: var(--border-inner);">
+                <h2 id="defModalTitle" class="text-xl font-bold tracking-tight text-accent">Term Definition</h2>
+                <button onclick="closeDefinitionModal()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-red-500/20 hover:text-red-500 transition-colors" style="color: var(--text-secondary)">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto custom-scroll">
+                <div id="defModalContent" class="text-sm leading-relaxed space-y-4 whitespace-pre-line" style="color: var(--text-primary)"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pinterest Trends Modal -->
+    <div id="pinterestModal" class="modal-enter fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-10 modal-transition">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closePinterestModal()"></div>
+        
+        <!-- Modal Content -->
+        <div class="relative w-full h-full max-w-7xl border rounded-xl flex flex-col overflow-hidden shadow-2xl z-[70] transition-colors duration-300" style="background-color: var(--card-bg); border-color: var(--border-inner);">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-4 border-b" style="border-color: var(--border-inner);">
+                <div class="flex items-center gap-4">
+                    <button onclick="closePinterestModal()" class="w-8 h-8 flex items-center justify-center rounded transition-colors" style="background-color: var(--btn-bg); color: var(--text-secondary);">
+                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    </button>
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-2">
+                             <!-- Pinterest Logo -->
+                             <svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-[#e60023]">
+                                <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.399.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.951-7.252 4.173 0 7.41 2.967 7.41 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.367 18.62 0 12.017 0z" />
+                             </svg>
+                             <h2 class="text-2xl font-bold tracking-tight" style="color: var(--text-primary)">Interest Over Time</h2>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs font-medium" style="color: var(--text-secondary)">
+                            <span>Pinterest Trends</span>
+                            <span>•</span>
+                            <span>Cole Holland</span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="closePinterestModal()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-red-500/20 hover:text-red-500 transition-colors" style="color: var(--text-secondary)">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex-grow p-6 flex flex-col gap-6 overflow-hidden">
+                <!-- Large Chart Area -->
+                <div class="flex-grow w-full relative min-h-[300px] border-b pb-4" style="border-color: var(--border-inner);">
+                    <canvas id="pinterestModalChart"></canvas>
+                </div>
+
+                <!-- Bottom Panels -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-1/3 min-h-[180px]">
+                    
+                    <!-- Panel 1: Region -->
+                    <div class="rounded-lg border p-4 flex flex-col relative overflow-hidden" style="background-color: var(--bg-header); border-color: var(--border-inner);">
+                         <div class="flex items-center justify-between mb-2 z-10">
+                            <h4 class="text-[#ef4444] font-bold italic text-sm">Interest by Region</h4>
+                         </div>
+                         <div class="flex-grow flex items-center gap-4 z-10">
+                            <!-- Simple SVG Map Placeholder -->
+                             <div class="w-1/2 h-full opacity-60">
+                                <svg viewBox="0 0 100 60" class="w-full h-full text-[#ef4444]" fill="currentColor">
+                                     <path d="M10,10 L40,10 L35,30 L15,35 Z" opacity="0.8"/> <!-- US -->
+                                     <path d="M60,10 L70,10 L70,20 L60,20 Z" opacity="0.4"/> <!-- Germany-ish -->
+                                     <path d="M50,15 L58,15 L58,25 L50,25 Z" opacity="0.3"/> <!-- France-ish -->
+                                </svg>
+                             </div>
+                             <div class="w-1/2 text-xs space-y-2" style="color: var(--text-secondary)">
+                                <div class="flex justify-between"><span>1. United States</span><span class="font-bold" style="color: var(--text-primary)">85</span></div>
+                                <div class="flex justify-between"><span>2. Germany</span><span class="font-bold" style="color: var(--text-primary)">9</span></div>
+                                <div class="flex justify-between"><span>3. France</span><span class="font-bold" style="color: var(--text-primary)">6</span></div>
+                             </div>
+                         </div>
+                         <div class="mt-auto pt-2 border-t flex items-center gap-2 text-[10px] z-10" style="border-color: var(--border-inner); color: var(--text-secondary)">
+                             <span class="px-1 rounded" style="background-color: var(--btn-bg)"> < </span>
+                             <span>December 12, 2025</span>
+                             <span class="px-1 rounded" style="background-color: var(--btn-bg)"> > </span>
+                         </div>
+                    </div>
+
+                    <!-- Panel 2: Related Topics -->
+                    <div class="rounded-lg border p-4 flex flex-col" style="background-color: var(--bg-header); border-color: var(--border-inner);">
+                        <h4 class="font-bold italic text-sm mb-3" style="color: var(--text-primary)">Related Boards & Topics</h4>
+                        <div class="space-y-2 text-xs overflow-y-auto pr-1 custom-scroll" style="color: var(--text-secondary)">
+                            <div class="flex justify-between items-center hover:bg-black/5 p-1 rounded">
+                                <span>non profit infographic design</span>
+                                <i data-lucide="more-horizontal" class="w-3 h-3"></i>
+                            </div>
+                            <div class="flex justify-between items-center hover:bg-black/5 p-1 rounded">
+                                <span>cole holland aesthetic</span>
+                                <i data-lucide="more-horizontal" class="w-3 h-3"></i>
+                            </div>
+                            <div class="flex justify-between items-center hover:bg-black/5 p-1 rounded">
+                                <span>campaign poster ideas</span>
+                                <i data-lucide="more-horizontal" class="w-3 h-3"></i>
+                            </div>
+                            <div class="flex justify-between items-center hover:bg-black/5 p-1 rounded">
+                                <span>gen z activism quotes</span>
+                                <i data-lucide="more-horizontal" class="w-3 h-3"></i>
+                            </div>
+                             <div class="flex justify-between items-center hover:bg-black/5 p-1 rounded">
+                                <span>sustainable tech graphics</span>
+                                <i data-lucide="more-horizontal" class="w-3 h-3"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel 3: Popular Pins -->
+                    <div class="rounded-lg border p-4 flex flex-col" style="background-color: var(--bg-header); border-color: var(--border-inner);">
+                        <div class="flex justify-between items-center mb-3">
+                             <h4 class="font-bold italic text-sm" style="color: var(--text-primary)">Popular Pins</h4>
+                             <span class="text-[10px]" style="color: var(--text-secondary)">Visual Impact</span>
+                        </div>
+                        <div class="space-y-3 overflow-y-auto pr-1 custom-scroll">
+                            <!-- Item 1 -->
+                            <div class="flex gap-2 items-start group cursor-pointer">
+                                <div class="mt-0.5 text-red-500">
+                                    <i data-lucide="pin" class="w-4 h-4 fill-red-500/20"></i>
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="text-[10px] leading-tight group-hover:underline" style="color: var(--text-primary)">"The Future is Now" - Campaign Poster Mockup...</p>
+                                    <p class="text-[9px] mt-0.5 italic" style="color: var(--text-secondary)">Saved to 'Political Design' 12k times</p>
+                                </div>
+                                <div class="w-5 h-5 rounded-full border border-red-500 flex items-center justify-center text-red-500 text-[9px] font-bold">A+</div>
+                            </div>
+                             <!-- Item 2 -->
+                            <div class="flex gap-2 items-start group cursor-pointer">
+                                <div class="mt-0.5 text-red-500">
+                                    <i data-lucide="pin" class="w-4 h-4 fill-red-500/20"></i>
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="text-[10px] leading-tight group-hover:underline" style="color: var(--text-primary)">YPI Annual Report Data Visualization...</p>
+                                    <p class="text-[9px] mt-0.5 italic" style="color: var(--text-secondary)">Trending in 'Data Viz Inspiration'</p>
+                                </div>
+                                <div class="w-5 h-5 rounded-full border border-red-500 flex items-center justify-center text-red-500 text-[9px] font-bold">A</div>
+                            </div>
+                             <!-- Item 3 -->
+                            <div class="flex gap-2 items-start group cursor-pointer">
+                                <div class="mt-0.5 text-red-500">
+                                    <i data-lucide="pin" class="w-4 h-4 fill-red-500/20"></i>
+                                </div>
+                                <div class="flex-grow">
+                                    <p class="text-[10px] leading-tight group-hover:underline" style="color: var(--text-primary)">Cole Holland at Tech Summit 2025...</p>
+                                    <p class="text-[9px] mt-0.5 italic" style="color: var(--text-secondary)">Featured in 'Men's Professional Style'</p>
+                                </div>
+                                <div class="w-5 h-5 rounded-full border border-red-500 flex items-center justify-center text-red-500 text-[9px] font-bold">B+</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sponsorships Modal (New) -->
+    <div id="sponsorshipsModal" class="modal-enter fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-10 modal-transition">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeSponsorshipsModal()"></div>
+        
+        <div class="relative w-full h-full max-w-7xl border rounded-xl flex flex-col overflow-hidden shadow-2xl z-[70] transition-colors duration-300" style="background-color: var(--card-bg); border-color: var(--border-inner);">
+            <!-- Header -->
+            <div class="p-6 pb-2">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-[#98fb98] tracking-tight mb-1">Sponsorships</h2>
+                        <div class="flex items-center gap-2 text-xs" style="color: var(--text-secondary)">
+                            <span>Sponsorships Performance (By Platform)</span>
+                            <span class="px-1 rounded text-[10px]" style="background-color: var(--btn-bg)">&gt;</span>
+                        </div>
+                    </div>
+                    <button onclick="closeSponsorshipsModal()" class="hover:text-accent transition-colors" style="color: var(--text-secondary)">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-grow p-6 overflow-y-auto">
+                <div class="w-full">
+                    <table class="w-full text-left text-sm">
+                        <thead>
+                            <tr class="border-b font-bold italic" style="border-color: var(--border-inner); color: var(--text-primary)">
+                                <th class="pb-4 pl-4 font-extrabold text-lg w-1/4">Platform</th>
+                                <th class="pb-4 text-center">tVIDS</th>
+                                <th class="pb-4 text-center">tSPON</th>
+                                <th class="pb-4 text-center">tMINS</th>
+                                <th class="pb-4 text-center">RET+</th>
+                                <th class="pb-4 text-center">ALIGN</th>
+                                <th class="pb-4 text-center">wexRAR+</th>
+                                <th class="pb-4 text-center">wexCTAR+</th>
+                                <th class="pb-4 text-center">wexPSAR+</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-base" id="sponsorshipsModalBody" style="color: var(--text-secondary)">
+                            <!-- Rows generated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Tooltip Element -->
+    <div id="globalTooltip" class="fixed z-[100] hidden-tooltip bg-gray-900 border border-gray-700 text-white p-3 rounded-lg shadow-xl text-xs max-w-xs pointer-events-auto transition-opacity duration-200">
+        <h4 id="tooltipTitle" class="font-bold mb-1 text-[#98fb98]">Title</h4>
+        <p id="tooltipDesc" class="text-gray-300 mb-2 leading-relaxed">Description goes here.</p>
+        <button id="tooltipBtn" class="text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1 text-xs bg-transparent border-0 p-0 cursor-pointer">
+            Read full explanation <span aria-hidden="true">&rarr;</span>
+        </button>
+    </div>
+
+    <!-- JS Logic -->
+    <script>
+        // --- Tooltip Definitions ---
+        // Helper string for the dynamic update note
+        const dynamicNote = "\n\n(Note: Each update will lead to the metric being different due to your and the creator's situations being dynamic; factors like earnings and estimated incoming work are ever-changing.)";
+
+        const statDefinitions = {
+            // Social Media Stats
+            "YouTube Subscribers": {
+                short: "Total number of unique accounts subscribed to the channel. Indicates core audience size." + dynamicNote,
+                long: "Total number of unique accounts subscribed to the channel. This metric indicates the core audience size and long-term interest in the creator's content." + dynamicNote
+            },
+            "Instagram Followers": {
+                short: "Total number of accounts following the profile. A key metric for brand reach." + dynamicNote,
+                long: "Total number of accounts following the profile. A key metric for brand reach and visual impact." + dynamicNote
+            },
+            "Tiktok Followers": {
+                short: "Total follower count. High volatility but potential for massive viral reach." + dynamicNote,
+                long: "Total follower count on TikTok. While this metric implies potential reach, it is characterized by high volatility compared to other platforms." + dynamicNote
+            },
+            "Facebook Friends": {
+                short: "Personal connections on Facebook. Less relevant for public influence but indicates personal network." + dynamicNote,
+                long: "Personal connections on Facebook. This is less relevant for broad public influence but indicates the strength of the creator's personal network." + dynamicNote
+            },
+            "Linkedin Followers": {
+                short: "Professional audience following the page. Crucial for B2B and non-profit partnerships." + dynamicNote,
+                long: "Professional audience following the page. This metric is crucial for B2B relationships and non-profit partnerships where professional credibility is key." + dynamicNote
+            },
+            "Linkedin Connections": {
+                short: "Direct professional network size. Indicates personal outreach capability." + dynamicNote,
+                long: "Direct professional network size. Indicates personal outreach capability and the depth of professional relationships." + dynamicNote
+            },
+            "Twitter Followers": {
+                short: "Total followers. Key for real-time engagement and political discourse." + dynamicNote,
+                long: "Total followers on Twitter/X. Key for real-time engagement, news dissemination, and political discourse." + dynamicNote
+            },
+            "Reddit Followers": {
+                short: "Users following the personal profile. Rare on Reddit; indicates high individual authority." + dynamicNote,
+                long: "Users following the personal profile directly. This is rare on Reddit and indicates high individual authority and superfan interest." + dynamicNote
+            },
+            "Substack Followers": {
+                short: "Email newsletter subscribers. Represents high-intent, owned audience." + dynamicNote,
+                long: "Email newsletter subscribers. This represents a high-intent, owned audience that is not subject to platform algorithm changes." + dynamicNote
+            },
+            "Snapchat Followers": {
+                short: "Subscribers to public stories. Skews younger demographic." + dynamicNote,
+                long: "Subscribers to public stories. This audience heavily skews towards younger demographics (Gen Z)." + dynamicNote
+            },
+            "Threads Followers": {
+                short: "Followers on Meta's text-based app. Emerging platform metric." + dynamicNote,
+                long: "Followers on Meta's text-based app. As an emerging platform, this metric indicates early adoption and cross-platform influence." + dynamicNote
+            },
+            "Twitch Followers": {
+                short: "Users notified when going live. Critical for live streaming retention." + dynamicNote,
+                long: "Users notified when going live. Critical for live streaming retention and recurring viewership." + dynamicNote
+            },
+            "Rumble Followers": {
+                short: "Alternative video platform subscribers. Indicates reach in specific political niches." + dynamicNote,
+                long: "Alternative video platform subscribers. Indicates reach in specific political niches and alternative media ecosystems." + dynamicNote
+            },
+            "Pinterest Followers": {
+                short: "Users following boards/profile. High intent for visual inspiration and planning." + dynamicNote,
+                long: "Users following boards or the main profile. Indicates high intent for visual inspiration, planning, and purchasing." + dynamicNote
+            },
+            "Google Profile Views": {
+                short: "Impressions on the Google Knowledge Panel. Indicates general search interest." + dynamicNote,
+                long: "Impressions on the Google Knowledge Panel. This indicates general search interest and broader fame beyond social media." + dynamicNote
+            },
+
+            // Engagement Metrics
+            "YouTube Engagement Rate +": {
+                short: "Composite score of Likes + Comments + Shares divided by Views, normalized against industry average." + dynamicNote,
+                long: "A composite score calculated by (Likes + Comments + Shares) / Views, normalized against the industry average for this category." + dynamicNote
+            },
+            "TikTok Engagement Rate +": {
+                short: "Viral efficiency score based on Shares and Watch Time completion relative to Followers." + dynamicNote,
+                long: "Viral efficiency score based on Shares and Watch Time completion relative to Followers. High scores indicate algorithmic favorability." + dynamicNote
+            },
+            "Linkedin Engagement Rate +": {
+                short: "Interaction rate (Likes + Comments) per impression on professional posts." + dynamicNote,
+                long: "Interaction rate (Likes + Comments) per impression on professional posts. Measures professional relevance." + dynamicNote
+            },
+            "Facebook Engagement Rate +": {
+                short: "Activity score based on Reactions and Shares." + dynamicNote,
+                long: "Activity score based on Reactions and Shares. Shares are weighted heavier as they indicate network amplification." + dynamicNote
+            },
+            "Twitter Engagement Rate +": {
+                short: "Retweets and Replies per 1k impressions." + dynamicNote,
+                long: "Retweets and Replies per 1,000 impressions. Indicates how sparky or controversial the content is." + dynamicNote
+            },
+            "Instagram Engagement Rate +": {
+                short: "Likes and Comments relative to follower count." + dynamicNote,
+                long: "Likes and Comments relative to follower count. Standard industry measure for influencer impact." + dynamicNote
+            },
+            "Reddit Karma +": {
+                short: "Net upvotes across all posts and comments. Measure of community contribution value." + dynamicNote,
+                long: "Net upvotes across all posts and comments. A cumulative measure of community contribution value and respect." + dynamicNote
+            },
+            "Reddit Gold": {
+                short: "Premium awards received. Indicates high-quality, high-impact content." + dynamicNote,
+                long: "Premium awards received from other users. Indicates specific pieces of content were deemed high-quality or high-impact." + dynamicNote
+            },
+            "Snapscore +": {
+                short: "Activity index based on snaps sent/received and story engagement." + dynamicNote,
+                long: "Activity index based on snaps sent/received and story engagement. Indicates daily active usage." + dynamicNote
+            },
+            "Twitch Engagement Rate+": {
+                short: "Chat activity and emote usage per live viewer." + dynamicNote,
+                long: "Chat activity volume and emote usage per live viewer. Measures community vibrancy during streams." + dynamicNote
+            },
+            "Rumble Engagement Rate+": {
+                short: "Rumbles (likes) and comments relative to video views." + dynamicNote,
+                long: "Rumbles (likes) and comments relative to video views. Specific to the Rumble ecosystem." + dynamicNote
+            },
+            "Pinterest Engagement Rate +": {
+                short: "Saves (repins) and clicks relative to total impressions." + dynamicNote,
+                long: "Saves (repins) and clicks relative to total impressions. Saves are the highest value metric here." + dynamicNote
+            },
+            "Google Interaction Rate +": {
+                short: "Clicks on Knowledge Panel links relative to search impressions." + dynamicNote,
+                long: "Clicks on Knowledge Panel links relative to search impressions. Shows how many searchers want to learn more." + dynamicNote
+            },
+
+            // Watch Time
+            "YouTube Watch Time +": {
+                short: "Average view duration relative to video length. Key algorithm ranking factor." + dynamicNote,
+                long: "Average view duration relative to video length. This is the primary factor for YouTube's recommendation algorithm." + dynamicNote
+            },
+            "TikTok Watch Time +": {
+                short: "Percentage of viewers watching until the end (Retention Rate)." + dynamicNote,
+                long: "Percentage of viewers watching until the end (Retention Rate). Crucial for short-form content success." + dynamicNote
+            },
+            "Instagram Watch Time +": {
+                short: "Average view time on Reels and IGTV content." + dynamicNote,
+                long: "Average view time on Reels and IGTV content. Estimates how long the user holds attention." + dynamicNote
+            },
+            "Twitch Watch Time+": {
+                short: "Average concurrent viewership duration per stream session." + dynamicNote,
+                long: "Average concurrent viewership duration per stream session. Indicates 'stickiness' of the live broadcast." + dynamicNote
+            },
+
+            // Sponsorship Table Headers
+            "VIDS": {
+                short: "Videos Published: The number of sponsored videos released in the period." + dynamicNote,
+                long: "Videos Published: The total count of sponsored videos released within the specified date range." + dynamicNote
+            },
+            "SPON": {
+                short: "Sponsorship Count: Total number of individual brand deals." + dynamicNote,
+                long: "Sponsorship Count: The total number of individual brand deals or partnerships executed." + dynamicNote
+            },
+            "MINS": {
+                short: "Minutes Watched: Total minutes of sponsored content consumed by audience." + dynamicNote,
+                long: "Minutes Watched: The aggregate number of minutes audiences spent watching the sponsored segments." + dynamicNote
+            },
+            "RET+": {
+                short: "Retention Rate Plus: Audience retention during the sponsored segment specifically." + dynamicNote,
+                long: "Retention Rate Plus: A specialized metric measuring audience drop-off specifically during the sponsored integration, compared to the rest of the video." + dynamicNote
+            },
+            "ALIGN": {
+                short: "Brand Alignment Score: Algorithmic score (0-100) of how well the brand fits the creator's niche." + dynamicNote,
+                long: "Brand Alignment Score: An algorithmic score (0-100) determining how naturally the brand fits into the creator's existing content niche." + dynamicNote
+            },
+            "wexRAR+": {
+                short: "wexRAR+ is a composite index (where 100 represents average compared to what is available to you based on your budget and needs) that estimates the expected audience retention of a creator’s sponsored content above a readily available alternative, adjusted for niche and brand alignment, production and aesthetic compatibility, audience demographics, audience authenticity, and the financial and operational constraints of the sponsoring organization. The metric discounts inflated reach driven by bots, paid views, or low-quality traffic that does not generate sustained attention, prioritizing organic retention as the primary indicator of real impact and value." + dynamicNote,
+                long: "wexRAR+ is an index-based metric (where 100 represents average compared to what is available to you based on your budget and needs) that estimates the expected audience retention of a creator’s sponsored content above or below a readily available alternative, adjusted for niche alignment, production and aesthetic compatibility, audience demographics, financial feasibility, negotiating context, and audience authenticity.\n\nThe metric is designed to evaluate not who is largest, but who is most likely to sustain attention and deliver meaningful impact given the specific constraints and objectives of a nonprofit or mission-driven organization.\n\nwexRAR+ accounts for the degree of niche correlation between the creator and the organization, reducing expected retention when audiences are weakly correlated or when collaborations are likely to feel generic or inauthentic. It incorporates visual and production alignment, including color palette, cinematography, and stylistic appeal to the organization’s primary demographics, recognizing that mismatched aesthetic language can materially reduce retention even when reach is high.\n\nThe metric integrates audience demographic composition, including age distribution and psychographic compatibility, to better estimate whether viewers are likely to meaningfully engage with and remain attentive to the content. It further adjusts for organizational fiscal context, weighing creator affordability, demand, travel and production costs, time requirements, and relative negotiating power to prevent overvaluing creators whose costs scale faster than expected retention.\n\nwexRAR+ also includes an audience authenticity and retention-quality adjustment, discounting expected performance when follower behavior suggests a significant presence of bots, automated traffic, or low-intent audiences. Because inauthentic followers do not generate organic retention, the metric distinguishes between paid or inflated views and genuine, sustained watch time, ensuring that apparent scale does not outweigh real attention.\n\nIn aggregate, wexRAR+ provides a context-aware estimate of how much retention a creator is expected to generate relative to a replacement-level option, enabling more efficient, realistic, and impact-driven creator selection under real-world budgetary and operational constraints.\n\nImportant: wexRAR+ is not a standard formula; it has a base formula that we are collecting data on to improve its accuracy relating to its different modifiers, so please do not use that statistic as an end-all-be-all." + dynamicNote
+            },
+            "exCTAR": {
+                short: "External Click-Through Action Rate: The percentage of viewers who clicked an external link (conversion potential)." + dynamicNote,
+                long: "External Click-Through Action Rate: Measures the percentage of unique viewers who took action by clicking an external link provided in the content (e.g., bio link, description link)." + dynamicNote
+            },
+            "wexPSAR": {
+                short: "Weighted Psycho-Social Alignment Rating: A brand safety and values-match score based on audience sentiment analysis." + dynamicNote,
+                long: "Weighted Psycho-Social Alignment Rating: A composite score evaluating brand safety and values alignment based on deep sentiment analysis of audience comments and creator history." + dynamicNote
+            }
+        };
+
+        const globalTooltip = document.getElementById('globalTooltip');
+        const tooltipTitle = document.getElementById('tooltipTitle');
+        const tooltipDesc = document.getElementById('tooltipDesc');
+        const tooltipBtn = document.getElementById('tooltipBtn');
+        
+        let lockedTooltipKey = null; // Track if a tooltip is locked by click
+
+        function toggleTooltip(e, key) {
+            e.stopPropagation(); // Prevent the body click from firing
+            
+            // If clicking the currently locked item, unlock and hide
+            if (lockedTooltipKey === key) {
+                lockedTooltipKey = null;
+                hideTooltip(true); // force hide
+            } else {
+                // Lock the new one
+                lockedTooltipKey = key;
+                showTooltip(e, key);
+            }
+        }
+
+        function showTooltip(e, key) {
+            // If another tooltip is locked and we are just hovering (not clicking), ignore
+            if (lockedTooltipKey && lockedTooltipKey !== key) {
+                return;
+            }
+
+            const def = statDefinitions[key] || { short: "No definition available.", long: "" };
+            tooltipTitle.textContent = key;
+            tooltipDesc.textContent = def.short;
+            
+            if (def.long && def.long !== def.short) {
+                tooltipBtn.style.display = 'flex';
+                tooltipBtn.onclick = (evt) => {
+                    evt.stopPropagation(); 
+                    openDefinitionModal(key);
+                };
+            } else {
+                tooltipBtn.style.display = 'none';
+            }
+            
+            globalTooltip.classList.remove('hidden-tooltip');
+            moveTooltip(e);
+        }
+
+        function hideTooltip(force = false) {
+            // If tooltip is locked, do not hide on mouseleave unless forced
+            if (lockedTooltipKey && !force) return;
+            
+            globalTooltip.classList.add('hidden-tooltip');
+        }
+
+        function moveTooltip(e) {
+            // Position tooltip near cursor but prevent overflow
+            // We use clientX/Y for viewport boundary checks
+            const x = e.clientX + 15;
+            const y = e.clientY + 15;
+            
+            const rect = globalTooltip.getBoundingClientRect();
+            const winWidth = window.innerWidth;
+            const winHeight = window.innerHeight;
+
+            let finalX = x;
+            let finalY = y;
+
+            // Check viewport overflow (shift left/up if needed)
+            if (x + rect.width > winWidth) finalX = e.clientX - rect.width - 10;
+            if (y + rect.height > winHeight) finalY = e.clientY - rect.height - 10;
+
+            // Apply scroll offset because position is absolute
+            globalTooltip.style.left = `${finalX + window.scrollX}px`;
+            globalTooltip.style.top = `${finalY + window.scrollY}px`;
+        }
+
+        // Close locked tooltip when clicking anywhere else
+        document.addEventListener('click', (e) => {
+            // If clicking inside the tooltip itself, don't close
+            if (globalTooltip.contains(e.target)) return;
+
+            if (lockedTooltipKey) {
+                lockedTooltipKey = null;
+                hideTooltip(true);
+            }
+        });
+        
+        // Global mouse tracker to ensure tooltip appears at correct location
+        document.addEventListener('mousemove', (e) => {
+            // If tooltip is locked, DO NOT update position on mousemove
+            if (lockedTooltipKey) return;
+
+            if (!globalTooltip.classList.contains('hidden-tooltip')) {
+                moveTooltip(e);
+            }
+        });
+
+        // --- Definition Modal Logic ---
+        const definitionModal = document.getElementById('definitionModal');
+        const defModalTitle = document.getElementById('defModalTitle');
+        const defModalContent = document.getElementById('defModalContent');
+
+        definitionModal.classList.add('hidden');
+        definitionModal.classList.remove('modal-enter');
+
+        function openDefinitionModal(key) {
+            // Hide tooltip first
+            hideTooltip(true);
+
+            const def = statDefinitions[key];
+            if (!def) return;
+
+            defModalTitle.textContent = key;
+            defModalContent.textContent = def.long || def.short;
+
+            definitionModal.classList.remove('hidden');
+            setTimeout(() => {
+                definitionModal.classList.add('modal-active');
+            }, 10);
+        }
+
+        function closeDefinitionModal() {
+            definitionModal.classList.remove('modal-active');
+            setTimeout(() => {
+                definitionModal.classList.add('hidden');
+            }, 200);
+        }
+
+
+        // Icons Dictionary
+        const icons = {
+            youtube: '<svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-red-500 inline-block mr-2"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>',
+            instagram: '<svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-pink-500 inline-block mr-2"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>',
+            tiktok: '<svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-white inline-block mr-2"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93v6.16c0 2.52-1.12 4.84-2.9 6.24-1.72 1.36-3.92 1.95-6.08 1.71-2.07-.24-3.99-1.39-5.18-3.08-1.2-1.69-1.48-3.94-.78-5.88.7-1.94 2.37-3.46 4.39-3.97.66-.17 1.34-.23 2.02-.2v4.13a3.67 3.67 0 0 0-1.24.49 3.02 3.02 0 0 0-1.19 1.76 2.94 2.94 0 0 0 .56 2.67 3.06 3.06 0 0 0 2.45 1.16 3.01 3.01 0 0 0 2.87-3.14V.02h.98z"/></svg>',
+            twitter: '<svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-blue-400 inline-block mr-2"><path d="M23.953 4.57a10 10 0 0 1-2.825.775 4.958 4.958 0 0 0 2.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 0 0-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 0 0-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 0 1-2.228-.616v.06a4.923 4.923 0 0 0 3.946 4.827 4.996 4.996 0 0 1-2.212.085 4.936 4.936 0 0 0 4.604 3.417 9.867 9.867 0 0 1-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 0 0 7.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0 0 24 4.59z"/></svg>',
+            facebook: '<svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-blue-600 inline-block mr-2"><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036c-2.148 0-2.797 1.603-2.797 2.898v1.074h5.306l-1.017 3.667h-4.289v7.98h-5.017z"/></svg>',
+            linkedin: '<svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-blue-500 inline-block mr-2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>',
+            reddit: '<svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-orange-500 inline-block mr-2"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/></svg>',
+            substack: '<svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-orange-500 inline-block mr-2"><path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/></svg>',
+            snapchat: '<svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-yellow-400 inline-block mr-2"><path d="M12.005 0c-4.492 0-8.086 3.65-8.031 7.234 0 2.375 1.621 3.863 1.55 5.594-.066 1.637-1.574 2.188-1.265 3.395.27 1.054 2.37 1.226 2.657 2.05.25.731-.59 2.04.851 3.255.938.79 2.274.34 4.239.34s3.301.449 4.238-.34c1.441-1.216.601-2.524.852-3.255.285-.824 2.386-.996 2.656-2.05.309-1.207-1.199-1.758-1.266-3.395-.07-1.73 1.551-3.219 1.551-5.594C19.97 3.738 16.48 0 12.005 0z"/></svg>',
+            threads: '<svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-white inline-block mr-2"><path d="M12.923 15.688c-.966.574-2.071.89-3.361.89-2.859 0-5.166-2.227-5.166-5.188s2.307-5.188 5.166-5.188c2.615 0 4.814 1.867 5.109 4.398h2.09c-.314-3.664-3.394-6.488-7.199-6.488-3.988 0-7.234 3.246-7.234 7.277s3.246 7.277 7.234 7.277c1.785 0 3.424-.652 4.686-1.734l1.371 1.43c-1.666 1.55-3.873 2.394-6.057 2.394-5.158 0-9.324-4.166-9.324-9.367S4.166 2 9.324 2s9.324 4.166 9.324 9.367c0 1.258-.195 2.477-.557 3.633l-1.996-.582c.287-.961.463-1.977.463-3.051 0-1.504-.371-2.91-1.01-4.148-1.076-.23-2.18-.36-3.307-.36h-.416c-3.065 0-5.551 2.486-5.551 5.551s2.486 5.551 5.551 5.551c1.396 0 2.666-.518 3.648-1.377l1.377 1.484z"/></svg>',
+            twitch: '<svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-purple-500 inline-block mr-2"><path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/></svg>',
+            rumble: '<svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-green-400 inline-block mr-2"><path d="M1.383 17.51h4.912c.706 0 1.282-.576 1.282-1.282v-4.912c0-.706-.576-1.282-1.282-1.282H1.383c-.706 0-1.282.576-1.282 1.282v4.912c0 .706.576 1.282 1.282 1.282zM17.705 6.49h4.912c.706 0 1.282-.576 1.282-1.282V.296c0-.706-.576-1.282-1.282-1.282h-4.912c-.706 0-1.282.576-1.282 1.282v4.912c0 .706.576 1.282 1.282 1.282z"/></svg>',
+            google: '<svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-white inline-block mr-2"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" /></svg>',
+            pinterest: '<svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-red-500 inline-block mr-2"><path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.399.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.951-7.252 4.173 0 7.41 2.967 7.41 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.367 18.62 0 12.017 0z" /></svg>'
+        };
+
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // --- Header Navigation ---
+        const navItems = ['Vision', 'Organizing', 'Financials', 'Data Suite', 'Projects', 'Marketing', 'Fundraising'];
+        const navContainer = document.getElementById('mainNav');
+        let currentTab = 'Marketing';
+
+        navItems.forEach(item => {
+            const btn = document.createElement('button');
+            const isActive = item === currentTab;
+            btn.className = `group flex items-center px-3 py-2 text-xl font-bold tracking-tight transition-all duration-300 font-sans hover:scale-105 nav-btn ${isActive ? 'active' : ''}`;
+            btn.innerText = item;
+            btn.onclick = () => {
+                Array.from(navContainer.children).forEach(c => {
+                    c.className = 'group flex items-center px-3 py-2 text-xl font-bold tracking-tight transition-all duration-300 font-sans hover:scale-105 nav-btn';
+                });
+                btn.className = 'group flex items-center px-3 py-2 text-xl font-bold tracking-tight transition-all duration-300 font-sans scale-105 nav-btn active';
+            };
+            navContainer.appendChild(btn);
+        });
+
+        // Theme Toggle
+        let isDark = true;
+        const themeBtn = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        
+        themeBtn.onclick = () => {
+            isDark = !isDark;
+            if(isDark) {
+                document.body.classList.remove('light-mode');
+                themeIcon.setAttribute('data-lucide', 'sun');
+            } else {
+                document.body.classList.add('light-mode');
+                themeIcon.setAttribute('data-lucide', 'moon');
+            }
+            lucide.createIcons();
+            updateInterestGraph(currentInterestMode); 
+        };
+
+        // --- Chart.js Implementation ---
+        const interestDataSets = {
+            'Overall': [5, 8, 7, 12, 10, 30, 25, 35, 20, 95, 98, 60, 85],
+            'Google': [15, 20, 18, 45, 40, 60, 55, 80, 75, 110, 115, 90, 100],
+            'Pinterest': [5, 5, 6, 8, 12, 15, 18, 25, 30, 40, 42, 38, 45]
+        };
+        
+        let currentInterestMode = 'Google'; // Default to Google
+
+        const ctxInterest = document.getElementById('interestChart').getContext('2d');
+        const interestChart = new Chart(ctxInterest, {
+            type: 'line',
+            data: {
+                labels: ['Nov 18', 'Nov 20', 'Nov 22', 'Nov 24', 'Nov 26', 'Nov 28', 'Nov 29', 'Dec 1', 'Dec 3', 'Dec 5', 'Dec 6', 'Dec 7', 'Dec 8'],
+                datasets: [{
+                    data: interestDataSets['Google'], // Default data to Google
+                    borderColor: '#ffffff', // Default color to Google (white)
+                    backgroundColor: 'transparent',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#fff',
+                    pointRadius: 3,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { color: '#999', font: { size: 10 } }, grid: { display: false } },
+                    y: { ticks: { color: '#999', font: { size: 10 } }, grid: { display: false } }
+                }
+            }
+        });
+
+        const getInterestColors = () => {
+            const isLight = document.body.classList.contains('light-mode');
+            return {
+                'Overall': isLight ? '#16a34a' : '#98fb98',
+                'Google': isLight ? '#1c1c1c' : '#ffffff',
+                'Pinterest': '#ef4444'
+            };
+        };
+
+        window.updateInterestGraph = (mode) => {
+            currentInterestMode = mode;
+            const currentColors = getInterestColors();
+            interestChart.data.datasets[0].data = interestDataSets[mode];
+            interestChart.data.datasets[0].borderColor = currentColors[mode];
+            interestChart.update();
+            
+            const title = document.getElementById('interestTitle');
+            title.innerText = `Interest Over Time ${mode !== 'Overall' ? '(' + mode + ')' : ''}`;
+            title.style.color = currentColors[mode];
+            document.getElementById('interestIndicator').style.backgroundColor = currentColors[mode];
+            
+            const resetBtn = document.getElementById('resetInterest');
+            if(mode !== 'Overall') {
+                resetBtn.classList.remove('hidden');
+                resetBtn.onclick = () => updateInterestGraph('Overall');
+            } else {
+                resetBtn.classList.add('hidden');
+            }
+            
+            if(document.getElementById('view-region').style.opacity === '1') {
+                updateRegionMap(mode);
+            }
+        };
+
+        // Audience Bar Chart
+        const ctxAudience = document.getElementById('audienceChart').getContext('2d');
+        new Chart(ctxAudience, {
+            type: 'bar',
+            data: {
+                labels: ['13-17', '18-24', '25-34', '35-44', '45+'],
+                datasets: [
+                    { label: 'Male', data: [5, 60, 80, 20, 5], backgroundColor: '#0ea5e9' },
+                    { label: 'Female', data: [20, 90, 40, 15, 5], backgroundColor: '#8b5cf6' }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#999', font: { size: 10 } } } },
+                scales: {
+                    x: { ticks: { color: '#666' }, grid: { display: false } },
+                    y: { display: false }
+                }
+            }
+        });
+
+        // --- Populating Stats ---
+        const populateStats = (id, data) => {
+            const container = document.getElementById(id);
+            // Removed onmouseenter and onmouseleave, kept onclick
+            container.innerHTML = data.map(item => `
+                <div class="flex justify-between items-center text-xs md:text-sm py-1 border-b border-inner last:border-0 cursor-help hover:bg-white/5 transition-colors px-1 -mx-1 rounded" 
+                     onclick="toggleTooltip(event, '${item.label}')">
+                    <span class="text-card-base font-semibold flex items-center">${item.icon || ''} ${item.label}</span>
+                    <span class="font-bold ${item.colorClass || 'text-card-base'}">${item.value}</span>
+                </div>
+            `).join('');
+        };
+        
+        const getScoreColor = (val) => val >= 105 ? 'text-green-400' : (val >= 95 ? 'text-yellow-400' : 'text-red-500');
+
+        populateStats('followingStats', [
+            { label: 'YouTube Subscribers', value: '14', colorClass: 'text-green-400', icon: icons.youtube },
+            { label: 'Instagram Followers', value: '814', colorClass: 'text-orange-400', icon: icons.instagram },
+            { label: 'Tiktok Followers', value: '36', colorClass: 'text-yellow-400', icon: icons.tiktok },
+            { label: 'Facebook Friends', value: '25', colorClass: 'text-red-400', icon: icons.facebook },
+            { label: 'Linkedin Followers', value: '637', colorClass: 'text-blue-500', icon: icons.linkedin },
+            { label: 'Linkedin Connections', value: '500+', colorClass: 'text-blue-500', icon: icons.linkedin },
+            { label: 'Twitter Followers', value: '0', colorClass: 'text-blue-400', icon: icons.twitter },
+            { label: 'Reddit Followers', value: '0', colorClass: 'text-orange-500', icon: icons.reddit },
+            { label: 'Substack Followers', value: '0', colorClass: 'text-orange-500', icon: icons.substack },
+            { label: 'Snapchat Followers', value: '0', colorClass: 'text-yellow-400', icon: icons.snapchat },
+            { label: 'Threads Followers', value: '124', colorClass: 'text-card-base', icon: icons.threads },
+            { label: 'Twitch Followers', value: '0', colorClass: 'text-purple-400', icon: icons.twitch },
+            { label: 'Rumble Followers', value: '0', colorClass: 'text-green-400', icon: icons.rumble },
+            { label: 'Pinterest Followers', value: '1.2K', colorClass: 'text-yellow-400', icon: icons.pinterest },
+            { label: 'Google Profile Views', value: '45K', colorClass: 'text-green-400', icon: icons.google },
+        ]);
+
+        populateStats('engagementStats', [
+            { label: 'YouTube Engagement Rate +', value: '110', colorClass: getScoreColor(110), icon: icons.youtube },
+            { label: 'TikTok Engagement Rate +', value: '105', colorClass: getScoreColor(105), icon: icons.tiktok },
+            { label: 'Linkedin Engagement Rate +', value: '85', colorClass: getScoreColor(85), icon: icons.linkedin },
+            { label: 'Facebook Engagement Rate +', value: '92', colorClass: getScoreColor(92), icon: icons.facebook },
+            { label: 'Twitter Engagement Rate +', value: '100', colorClass: getScoreColor(100), icon: icons.twitter },
+            { label: 'Instagram Engagement Rate +', value: '98', colorClass: getScoreColor(98), icon: icons.instagram },
+            { label: 'Reddit Karma +', value: '101', colorClass: getScoreColor(101), icon: icons.reddit },
+            { label: 'Reddit Gold', value: '100', colorClass: getScoreColor(100), icon: icons.reddit },
+            { label: 'Snapscore +', value: '110', colorClass: getScoreColor(110), icon: icons.snapchat },
+            { label: 'Twitch Engagement Rate+', value: '100', colorClass: getScoreColor(100), icon: icons.twitch },
+            { label: 'Rumble Engagement Rate+', value: '75', colorClass: getScoreColor(75), icon: icons.rumble },
+            { label: 'Pinterest Engagement Rate +', value: '102', colorClass: 'text-yellow-400', icon: icons.pinterest },
+            { label: 'Google Interaction Rate +', value: '115', colorClass: 'text-green-400', icon: icons.google },
+        ]);
+
+        populateStats('watchTimeStats', [
+            { label: 'YouTube Watch Time +', value: '115', colorClass: getScoreColor(115), icon: icons.youtube },
+            { label: 'TikTok Watch Time +', value: '99', colorClass: getScoreColor(99), icon: icons.tiktok },
+            { label: 'Instagram Watch Time +', value: '90', colorClass: getScoreColor(90), icon: icons.instagram },
+            { label: 'Twitch Watch Time+', value: '108', colorClass: getScoreColor(108), icon: icons.twitch },
+        ]);
+
+        const sponTable = document.getElementById('sponsorshipTable');
+        const sponData = [
+            { name: 'YOUTUBE', icon: icons.youtube }, { name: 'INSTAGRAM', icon: icons.instagram },
+            { name: 'TIKTOK', icon: icons.tiktok }, { name: 'TWITTER', icon: icons.twitter }
+        ];
+        sponTable.innerHTML = sponData.map(row => `
+            <tr class="border-b border-inner last:border-0 hover:bg-black/5">
+                <td class="py-3 font-bold flex items-center">${row.icon} ${row.name}</td>
+                <td class="text-center">N/A</td><td class="text-center">N/A</td>
+                <td class="text-center">N/A</td><td class="text-center">N/A</td>
+                <td class="text-center">N/A</td><td class="text-center">N/A</td>
+                <td class="text-center">N/A</td><td class="text-center">N/A</td>
+                <td class="text-center">N/A</td>
+            </tr>
+        `).join('');
+
+        // --- Keywords ---
+        const keywords = [
+            { word: "Non-profit innovation", vol: "12K", cpc: "$4.50", comp: "Med" },
+            { word: "Gen Z political engagement", vol: "8.5K", cpc: "$3.20", comp: "Low" },
+            { word: "Sustainable tech policy", vol: "5K", cpc: "$7.10", comp: "High" },
+            { word: "Digital equity initiatives", vol: "3.2K", cpc: "$5.00", comp: "Med" },
+            { word: "Climate justice leadership", vol: "9K", cpc: "$2.80", comp: "Med" },
+            { word: "Progressive fundraising strategies", vol: "1.5K", cpc: "$9.00", comp: "High" },
+            { word: "Youth advocacy organizations", vol: "6K", cpc: "$1.50", comp: "Low" },
+            { word: "Ethical AI governance", vol: "15K", cpc: "$12.00", comp: "High" }
+        ];
+        const keywordList = document.getElementById('keywordList');
+        keywordList.innerHTML = keywords.map(k => `
+            <div class="flex items-center justify-between bg-accent p-3 rounded-lg border border-inner transition-colors group">
+                <div class="flex flex-col">
+                    <span class="text-card-base font-medium group-hover:text-accent transition-colors">${k.word}</span>
+                    <div class="flex gap-3 text-[10px] text-gray-400 mt-1">
+                        <span class="flex items-center gap-1"><i data-lucide="trending-up" class="w-3"></i> ${k.vol}</span>
+                        <span class="flex items-center gap-1"><i data-lucide="dollar-sign" class="w-3"></i> ${k.cpc}</span>
+                    </div>
+                </div>
+                <div class="text-[10px] font-bold px-2 py-1 rounded border ${k.comp === 'High' ? 'bg-red-500/20 text-red-400 border-red-500/30' : k.comp === 'Med' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' : 'bg-green-500/20 text-green-400 border-green-500/30'}">${k.comp.toUpperCase()}</div>
+            </div>
+        `).join('');
+        lucide.createIcons();
+
+        // --- Region Map ---
+        function updateRegionMap(mode) {
+            const list = document.getElementById('regionList');
+            const highlights = document.getElementById('mapHighlights');
+            const title = document.getElementById('regionTitle');
+            const currentColors = getInterestColors();
+            
+            let data = [];
+            let color = currentColors[mode];
+
+            if(mode === 'Google') {
+                data = [
+                    { name: '1. United States', val: '92', x: 200, y: 150 },
+                    { name: '2. United Kingdom', val: '5', x: 490, y: 110 },
+                    { name: '3. Canada', val: '3', x: 200, y: 80 }
+                ];
+            } else if(mode === 'Pinterest') {
+                data = [
+                    { name: '1. United States', val: '85', x: 200, y: 150 },
+                    { name: '2. Germany', val: '9', x: 530, y: 120 },
+                    { name: '3. France', val: '6', x: 505, y: 135 }
+                ];
+            } else {
+                data = [
+                    { name: '1. United States', val: '97', x: 200, y: 150 },
+                    { name: '2. Brazil', val: '2', x: 300, y: 350 },
+                    { name: '3. Israel', val: '1', x: 585, y: 165 }
+                ];
+            }
+
+            title.innerText = `Interest by Region ${mode !== 'Overall' ? '(' + mode + ')' : ''}`;
+            title.style.color = color;
+
+            list.innerHTML = data.map(d => `
+                <div class="flex justify-between items-center" style="color: ${color}">
+                    <span>${d.name}</span><span class="font-bold">${d.val}</span>
+                </div>
+            `).join('');
+
+            highlights.innerHTML = data.map((d, i) => `
+                <circle cx="${d.x}" cy="${d.y}" r="${i === 0 ? 10 : 6}" fill="${color}" class="opacity-80 animate-pulse" />
+            `).join('');
+        }
+        updateRegionMap('Google');
+
+        // --- Tab Switcher ---
+        let networkInitialized = false;
+        window.switchTab = (tab) => {
+            ['view-region', 'view-network', 'view-keywords'].forEach(id => {
+                const el = document.getElementById(id);
+                el.style.opacity = '0';
+                el.style.pointerEvents = 'none';
+                el.style.zIndex = '0';
+            });
+            
+            ['tab-region', 'tab-network', 'tab-keywords'].forEach(id => {
+               document.getElementById(id).className = 'tab-btn hover:text-card-base transition-colors text-gray-400';
+            });
+
+            const target = document.getElementById(`view-${tab}`);
+            const btn = document.getElementById(`tab-${tab}`);
+            
+            target.style.opacity = '1';
+            target.style.pointerEvents = 'auto';
+            target.style.zIndex = '10';
+            btn.className = 'tab-btn text-accent';
+
+            if(tab === 'network' && !networkInitialized) {
+                initNetwork();
+                networkInitialized = true;
+            }
+        };
+
+        // --- Vis.js Network ---
+        function initNetwork() {
+            const nodes = new vis.DataSet([
+                { id: 1, label: 'Cole Holland', shape: 'image', image: 'https://weareypi.com/wp-content/uploads/2024/09/YPI-Site-Images_4.jpg', size: 40, color: { border: '#98fb98', background: '#000' } },
+                { id: 2, label: 'Maya (Ops)', group: 'core' }, { id: 3, label: 'Liam (Tech)', group: 'core' },
+                { id: 4, label: 'Sofia (Outreach)', group: 'core' }, { id: 5, label: 'Marcus (Finance)', group: 'core' },
+                { id: 6, label: 'Senator Hayes', group: 'partner' }, { id: 7, label: 'EcoAction Now', group: 'partner' },
+                { id: 8, label: 'Civic Tech', group: 'partner' }, { id: 9, label: 'Daily Pulse', group: 'media' },
+                { id: 10, label: 'The Guardian', group: 'media' }
+            ]);
+
+            const edges = new vis.DataSet([
+                { from: 1, to: 2 }, { from: 1, to: 3 }, { from: 1, to: 4 }, { from: 1, to: 5 },
+                { from: 1, to: 6 }, { from: 1, to: 7 }, { from: 1, to: 8 },
+                { from: 1, to: 9 }, { from: 1, to: 10 },
+                { from: 2, to: 5, dashes: true }, { from: 3, to: 8, dashes: true },
+                { from: 6, to: 7, dashes: true }, { from: 10, to: 6, dashes: true }
+            ]);
+
+            const container = document.getElementById('mynetwork');
+            const data = { nodes: nodes, edges: edges };
+            
+            const options = {
+                nodes: { 
+                    shape: 'dot', 
+                    size: 15, 
+                    font: { color: '#888', face: 'Atkinson Hyperlegible' },
+                    borderWidth: 2
+                },
+                groups: {
+                    core: { color: { background: '#14b8a6', border: '#fff' } },
+                    partner: { color: { background: '#f97316', border: '#fff' } },
+                    media: { color: { background: '#a855f7', border: '#fff' } }
+                },
+                edges: { color: '#666', width: 1 },
+                physics: { stabilization: false, barnesHut: { gravitationalConstant: -2000 } }
+            };
+            new vis.Network(container, data, options);
+        }
+
+        switchTab('region');
+
+        // --- Google Modal Logic ---
+        const modal = document.getElementById('googleModal');
+        let modalChartInstance = null;
+
+        // Hide modal initially (better than inline style for transition)
+        modal.classList.add('hidden');
+        modal.classList.remove('modal-enter'); // Reset state
+
+        function openGoogleModal() {
+            modal.classList.remove('hidden');
+            // Small timeout to allow display:block to apply before opacity transition
+            setTimeout(() => {
+                modal.classList.add('modal-active');
+            }, 10);
+            
+            // Render chart if not already rendered
+            if (!modalChartInstance) {
+                renderModalChart();
+            }
+        }
+
+        function closeGoogleModal() {
+            modal.classList.remove('modal-active');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200); // Wait for transition
+        }
+
+        // --- Pinterest Modal Logic ---
+        const pinterestModal = document.getElementById('pinterestModal');
+        let pinterestModalChartInstance = null;
+
+        pinterestModal.classList.add('hidden');
+        pinterestModal.classList.remove('modal-enter');
+
+        function openPinterestModal() {
+            pinterestModal.classList.remove('hidden');
+            setTimeout(() => {
+                pinterestModal.classList.add('modal-active');
+            }, 10);
+            
+            if (!pinterestModalChartInstance) {
+                renderPinterestModalChart();
+            }
+        }
+
+        function closePinterestModal() {
+            pinterestModal.classList.remove('modal-active');
+            setTimeout(() => {
+                pinterestModal.classList.add('hidden');
+            }, 200);
+        }
+
+        // --- Sponsorships Modal Logic ---
+        const sponsorshipsModal = document.getElementById('sponsorshipsModal');
+        sponsorshipsModal.classList.add('hidden');
+        sponsorshipsModal.classList.remove('modal-enter');
+
+        function renderSponsorshipsModalTable() {
+            const tbody = document.getElementById('sponsorshipsModalBody');
+            const data = [
+                { platform: 'Instagram', vids: 45, spon: 12, mins: 'N/A', ret: '92%', align: 95, rar: 105, ctar: '4.2%', psar: 98, icon: 'instagram' },
+                { platform: 'YouTube', vids: 120, spon: 8, mins: 185, ret: '98%', align: 99, rar: 112, ctar: '6.5%', psar: 102, icon: 'youtube', highlight: true },
+                { platform: 'TikTok', vids: 210, spon: 25, mins: 'N/A', ret: '88%', align: 90, rar: 100, ctar: '3.1%', psar: 95, icon: 'tiktok' },
+                { platform: 'X', vids: 850, spon: 5, mins: 'N/A', ret: 'N/A', align: 85, rar: 95, ctar: '1.2%', psar: 88, icon: 'twitter' },
+                { platform: 'Facebook', vids: 30, spon: 2, mins: 15, ret: '65%', align: 80, rar: 85, ctar: '0.8%', psar: 82, icon: 'facebook' },
+                { platform: 'Twitch', vids: '1200h', spon: 4, mins: 3200, ret: '99%', align: 92, rar: 108, ctar: '2.5%', psar: 96, icon: 'twitch' },
+                { platform: 'Rumble', vids: 15, spon: 0, mins: 120, ret: '70%', align: 75, rar: 80, ctar: '1.5%', psar: 78, icon: 'rumble' }
+            ];
+
+            const isLight = document.body.classList.contains('light-mode');
+            const highlightClass = isLight ? 'bg-black/10' : 'bg-[#333]';
+            const hoverClass = isLight ? 'hover:bg-black/5' : 'hover:bg-[#333]';
+            const borderClass = isLight ? 'border-gray-200' : 'border-[#222]';
+
+            tbody.innerHTML = data.map(item => {
+                const rowClass = item.highlight 
+                    ? `${highlightClass} border-b ${borderClass}` 
+                    : `group ${hoverClass} transition-colors border-b ${borderClass}`;
+                
+                // Scale up icons slightly for this view
+                let iconHtml = icons[item.icon] || '';
+                iconHtml = iconHtml.replace('w-4 h-4', 'w-6 h-6');
+
+                return `
+                    <tr class="${rowClass}">
+                        <td class="py-4 pl-4 font-bold text-xl italic" style="color: var(--text-primary)">
+                            <div class="flex items-center gap-3">
+                                ${iconHtml}
+                                <span>${item.platform}</span>
+                            </div>
+                        </td>
+                        <td class="text-center">${item.vids}</td>
+                        <td class="text-center">${item.spon}</td>
+                        <td class="text-center">${item.mins}</td>
+                        <td class="text-center">${item.ret}</td>
+                        <td class="text-center">${item.align}</td>
+                        <td class="text-center">${item.rar}</td>
+                        <td class="text-center">${item.ctar}</td>
+                        <td class="text-center">${item.psar}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function openSponsorshipsModal() {
+            renderSponsorshipsModalTable();
+            sponsorshipsModal.classList.remove('hidden');
+            setTimeout(() => {
+                sponsorshipsModal.classList.add('modal-active');
+            }, 10);
+        }
+
+        function closeSponsorshipsModal() {
+            sponsorshipsModal.classList.remove('modal-active');
+            setTimeout(() => {
+                sponsorshipsModal.classList.add('hidden');
+            }, 200);
+        }
+
+        // Add Click Listener to Main Chart Container
+        const chartContainer = document.getElementById('chartContainer');
+        chartContainer.addEventListener('click', () => {
+            if (currentInterestMode === 'Google') {
+                openGoogleModal();
+            } else if (currentInterestMode === 'Pinterest') {
+                openPinterestModal();
+            }
+        });
+
+        function renderModalChart() {
+            const ctx = document.getElementById('googleModalChart').getContext('2d');
+            const isLight = document.body.classList.contains('light-mode');
+            
+            // Mock Data matching the screenshot curve (steady rise, small dips, sharp peak, drop)
+            const labels = ['1 Jun', '1 Jul', '1 Aug', '1 Sep', '1 Oct', '1 Nov', '1 Dec', '1 Jan', '1 Feb', '1 Mar', '1 Apr', '1 May', '1 Jun', '1 Jul', '1 Aug', '1 Sep'];
+            const dataPoints = [5, 8, 12, 15, 14, 18, 22, 28, 35, 38, 45, 50, 65, 85, 95, 25];
+
+            modalChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Interest',
+                        data: dataPoints,
+                        borderColor: '#98fb98', // Green neon
+                        backgroundColor: 'rgba(152, 251, 152, 0.05)',
+                        borderWidth: 2,
+                        pointRadius: 0, // No points usually on these trend lines
+                        pointHoverRadius: 4,
+                        fill: true,
+                        tension: 0.4 // Smooth curve
+                    },
+                    {
+                        // The end point dot
+                        data: dataPoints.map((v, i) => i === dataPoints.length - 1 ? v : null),
+                        pointRadius: 4,
+                        pointBackgroundColor: '#a855f7', // Purple dot at end
+                        borderColor: isLight ? '#fff' : '#333',
+                        showLine: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: { 
+                            mode: 'index', 
+                            intersect: false,
+                            backgroundColor: isLight ? '#fff' : '#333',
+                            titleColor: isLight ? '#000' : '#fff',
+                            bodyColor: isLight ? '#666' : '#ccc',
+                            borderColor: isLight ? '#e5e7eb' : '#333',
+                            borderWidth: 1
+                        } 
+                    },
+                    scales: {
+                        x: { 
+                            grid: { color: isLight ? '#e5e7eb' : '#333', drawBorder: false },
+                            ticks: { color: isLight ? '#666' : '#999', maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } 
+                        },
+                        y: { 
+                            display: true,
+                            grid: { color: isLight ? '#e5e7eb' : '#333', borderDash: [5, 5] },
+                            ticks: { 
+                                color: isLight ? '#666' : '#999',
+                                precision: 0
+                            },
+                            beginAtZero: true
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+        }
+
+        function renderPinterestModalChart() {
+            const ctx = document.getElementById('pinterestModalChart').getContext('2d');
+            const isLight = document.body.classList.contains('light-mode');
+            
+            // Mock Data for Pinterest (More steady growth, less spikes)
+            const labels = ['1 Jun', '1 Jul', '1 Aug', '1 Sep', '1 Oct', '1 Nov', '1 Dec', '1 Jan', '1 Feb', '1 Mar', '1 Apr', '1 May', '1 Jun', '1 Jul', '1 Aug', '1 Sep'];
+            const dataPoints = [10, 12, 15, 18, 20, 25, 30, 32, 35, 40, 42, 45, 48, 50, 55, 60];
+
+            pinterestModalChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Interest',
+                        data: dataPoints,
+                        borderColor: '#ef4444', // Pinterest Red
+                        backgroundColor: 'rgba(239, 68, 68, 0.05)',
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        pointHoverRadius: 4,
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        data: dataPoints.map((v, i) => i === dataPoints.length - 1 ? v : null),
+                        pointRadius: 4,
+                        pointBackgroundColor: '#ef4444',
+                        borderColor: isLight ? '#fff' : '#333',
+                        showLine: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: { 
+                            mode: 'index', 
+                            intersect: false,
+                            backgroundColor: isLight ? '#fff' : '#333',
+                            titleColor: isLight ? '#000' : '#fff',
+                            bodyColor: isLight ? '#666' : '#ccc',
+                            borderColor: isLight ? '#e5e7eb' : '#333',
+                            borderWidth: 1
+                        } 
+                    },
+                    scales: {
+                        x: { 
+                            grid: { color: isLight ? '#e5e7eb' : '#333', drawBorder: false },
+                            ticks: { color: isLight ? '#666' : '#999', maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } 
+                        },
+                        y: { 
+                            display: true,
+                            grid: { color: isLight ? '#e5e7eb' : '#333', borderDash: [5, 5] },
+                            ticks: { 
+                                color: isLight ? '#666' : '#999',
+                                precision: 0
+                            },
+                            beginAtZero: true
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest',
+                        axis: 'x',
+                        intersect: false
+                    }
+                }
+            });
+        }
+        
+        // Ensure UI is synced with Google default state on load
+        updateInterestGraph('Google');
+    </script>
+</body>
+</html>
