@@ -78,7 +78,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Setup Navigation
-            const navItems = ['Vision', 'Organizing', 'Financials', 'Data Suite', 'Projects', 'Marketing', 'Donors'];
+            // Added 'Development' to the list below
+            const navItems = ['Vision', 'Organizing', 'Financials', 'Data Suite', 'Projects', 'Development', 'Marketing', 'Donors'];
             const navContainer = document.getElementById('main-nav');
             let activeTab = 'Financials'; // Default active tab
             
