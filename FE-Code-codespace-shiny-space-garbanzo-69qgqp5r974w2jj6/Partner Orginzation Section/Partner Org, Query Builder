@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Field Hub Query Builder</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Google Fonts (Inter & JetBrains Mono) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Custom Tailwind Configuration & Animation Styles -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1c1c1c; /* Ensuring body bg matches slate-950 override */
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        /* Polyfill for tailwindcss-animate utility classes */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes zoomIn95 {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-1rem); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .animate-in {
+            animation-duration: 0.2s;
+            animation-timing-function: ease-out;
+            animation-fill-mode: forwards;
+        }
+        .fade-in {
+            animation-name: fadeIn;
+        }
+        .zoom-in-95 {
+            animation-name: zoomIn95;
+        }
+        .slide-in-from-left-4 {
+            animation-name: slideInLeft;
+        }
+        
+        /* Custom Scrollbar for the new dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1c1c1c; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2d2d2d; 
+            border-radius: 4px;
+            border: 1px solid #1c1c1c;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3d3d3d; 
+        }
+    </style>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            950: '#1c1c1c', // Custom dark slate
+                            900: '#2d2d2d', // Custom lighter slate
+                            800: '#3d3d3d', // Adjusted for borders
+                        },
+                        gray: {
+                            950: '#1c1c1c', 
+                            900: '#2d2d2d', 
+                            800: '#3d3d3d', 
+                            700: '#525252', 
+                        },
+                        green: {
+                            400: '#9afda7', // Your custom green (Text/Accents)
+                            500: '#9afda7', // Your custom green (Borders/Icons)
+                            600: '#86e092', // Slightly darker for Button BG
+                            900: '#1f3b24', // Dark tint for backgrounds
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-950 text-slate-200">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // --- ICON COMPONENTS ---
+        const IconBase = ({ children, className, ...props }) => (
+            <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="24" 
+                height="24" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className={className} 
+                {...props}
+            >
+                {children}
+            </svg>
+        );
+
+        const Search = (props) => <IconBase {...props}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></IconBase>;
+        const X = (props) => <IconBase {...props}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></IconBase>;
+        const Filter = (props) => <IconBase {...props}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></IconBase>;
+        const Zap = (props) => <IconBase {...props}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></IconBase>;
+        const ChevronRight = (props) => <IconBase {...props}><path d="m9 18 6-6-6-6"/></IconBase>;
+        const Target = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></IconBase>;
+        const Clock = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></IconBase>;
+        const Plus = (props) => <IconBase {...props}><path d="M5 12h14"/><path d="M12 5v14"/></IconBase>;
+        const Trash2 = (props) => <IconBase {...props}><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></IconBase>;
+        const Database = (props) => <IconBase {...props}><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></IconBase>;
+        const GraduationCap = (props) => <IconBase {...props}><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></IconBase>;
+        const Activity = (props) => <IconBase {...props}><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></IconBase>;
+        const Sliders = (props) => <IconBase {...props}><line x1="4" x2="4" y1="21" y2="14"/><line x1="4" x2="4" y1="10" y2="3"/><line x1="12" x2="12" y1="21" y2="12"/><line x1="12" x2="12" y1="8" y2="3"/><line x1="20" x2="20" y1="21" y2="16"/><line x1="20" x2="20" y1="12" y2="3"/><line x1="1" x2="7" y1="14" y2="14"/><line x1="9" x2="15" y1="8" y2="8"/><line x1="17" x2="23" y1="16" y2="16"/></IconBase>;
+        const CheckCircle2 = (props) => <IconBase {...props}><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></IconBase>;
+        const AlertCircle = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></IconBase>;
+
+        // --- MAIN APPLICATION COMPONENT ---
+        function FieldHub() {
+            const [isOpen, setIsOpen] = useState(true);
+            const [activeTab, setActiveTab] = useState('filters'); // 'filters' or 'library'
+            
+            // --- SIDEBAR CORE FILTERS STATE ---
+            const [baseFilters, setBaseFilters] = useState({
+                role: 'Field Organizer',
+                year: 'Junior',
+                availability: 'High'
+            });
+
+            // --- ADVANCED QUERY BUILDER STATE ---
+            // Start with some advanced metrics, since basic ones are now on the left
+            const [queryRows, setQueryRows] = useState([
+                { id: 1, logic: 'AND', field: 'evLPlus', operator: 'is greater than', value: '100' },
+                { id: 2, logic: 'AND', field: 'status', operator: 'is not', value: 'Dormant' }
+            ]);
+
+            // --- MATCH CONFIG STATE ---
+            const [matchConfig, setMatchConfig] = useState({
+                mode: 'ALL', // 'ALL', 'ANY', 'CUSTOM'
+                threshold: queryRows.length
+            });
+
+            const addQueryRow = () => {
+                const newId = Math.max(...queryRows.map(r => r.id), 0) + 1;
+                setQueryRows([...queryRows, { id: newId, logic: 'AND', field: 'gpa', operator: 'is greater than', value: '' }]);
+            };
+
+            const removeQueryRow = (id) => {
+                const newRows = queryRows.filter(r => r.id !== id);
+                setQueryRows(newRows);
+                // Adjust threshold if it exceeds new row count
+                if (matchConfig.threshold > newRows.length) {
+                    setMatchConfig(prev => ({...prev, threshold: newRows.length}));
+                }
+            };
+
+            const updateRow = (id, key, val) => {
+                setQueryRows(queryRows.map(r => r.id === id ? { ...r, [key]: val } : r));
+            };
+
+            // --- CONFIGURATION FOR DROPDOWNS ---
+            const fieldOptions = [
+                { value: 'evLPlus', label: 'evL+ Score', type: 'number' },
+                { value: 'gpa', label: 'GPA', type: 'number' },
+                { value: 'location', label: 'Location', type: 'text' },
+                { value: 'status', label: 'Status', type: 'select', options: ['Active', 'Reactivable', 'Dormant'] },
+                { value: 'major', label: 'Major', type: 'text' },
+                { value: 'role', label: 'Role', type: 'select', options: ['Field Organizer', 'Canvasser', 'Phone Banker', 'Data Captain'] }, // Still allow selecting it in advanced if needed
+            ];
+
+            const operatorOptions = ['is', 'is not', 'contains', 'is greater than', 'is less than'];
+
+            return (
+                <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-green-500/30">
+                
+                {/* Background Placeholder */}
+                <div className="p-8 opacity-20 pointer-events-none absolute inset-0 overflow-hidden flex items-center justify-center">
+                    <h1 className="text-4xl font-black text-gray-800">OPERATIONS CENTER</h1>
+                </div>
+
+                {/* Trigger Button */}
+                {!isOpen && (
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center">
+                    <button 
+                        onClick={() => setIsOpen(true)}
+                        className="group relative px-8 py-4 bg-gray-900 border border-green-500/50 text-green-400 font-mono text-lg hover:bg-green-500/10 transition-all rounded-lg shadow-[0_0_20px_rgba(74,222,128,0.1)]"
+                    >
+                        <span className="absolute inset-0 border border-green-400 rounded-lg opacity-0 group-hover:opacity-100 group-hover:animate-ping"></span>
+                        <Search className="inline-block w-5 h-5 mr-3 mb-1" />
+                        OPEN SEARCH ENGINE
+                    </button>
+                    </div>
+                )}
+
+                {/* SEARCH ENGINE TOOL POPUP */}
+                {isOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 backdrop-blur-sm bg-black/60">
+                    <div className="w-full max-w-7xl h-[85vh] bg-slate-900 border border-gray-800 rounded-lg shadow-2xl flex flex-col overflow-hidden relative animate-in fade-in zoom-in-95 duration-200">
+                        
+                        {/* Header */}
+                        <header className="h-14 border-b border-gray-800 bg-slate-900/50 flex items-center justify-between px-6 shrink-0">
+                        <div className="flex items-center gap-4">
+                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(154,253,167,0.5)]"></div>
+                            <h2 className="text-lg font-bold tracking-widest text-white uppercase flex items-center gap-2">
+                            <Search className="w-4 h-4 text-green-400" />
+                            FIELD ORGANIZING HUB <span className="text-gray-600">///</span> QUERY BUILDER
+                            </h2>
+                        </div>
+                        <button onClick={() => setIsOpen(false)} className="text-gray-500 hover:text-white transition-colors">
+                            <X className="w-6 h-6" />
+                        </button>
+                        </header>
+
+                        <div className="flex flex-1 overflow-hidden">
+                        
+                        {/* LEFT SIDEBAR (Updated with Core Filters) */}
+                        <aside className="hidden md:flex w-64 bg-gray-950 border-r border-gray-800 flex-col overflow-y-auto shrink-0 z-20">
+                            
+                            {/* --- NEW: CORE CRITERIA SECTION --- */}
+                            <div className="p-4 border-b border-gray-800 bg-gray-900/30">
+                                <h3 className="text-xs font-bold text-green-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                                    <Filter className="w-3 h-3" /> Core Criteria
+                                </h3>
+                                
+                                <div className="space-y-4">
+                                    {/* Role Select */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] uppercase text-gray-500 font-bold tracking-wider">Role</label>
+                                        <div className="relative">
+                                            <select 
+                                                value={baseFilters.role}
+                                                onChange={(e) => setBaseFilters({...baseFilters, role: e.target.value})}
+                                                className="w-full bg-gray-900 border border-gray-700 text-white text-xs font-mono rounded px-2 py-1.5 focus:border-green-500 outline-none appearance-none cursor-pointer hover:bg-gray-800 transition-colors"
+                                            >
+                                                <option>All Roles</option>
+                                                <option>Field Organizer</option>
+                                                <option>Canvasser</option>
+                                                <option>Phone Banker</option>
+                                                <option>Data Captain</option>
+                                            </select>
+                                            <ChevronRight className="w-3 h-3 text-gray-500 absolute right-2 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none" />
+                                        </div>
+                                    </div>
+
+                                    {/* Year Select */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] uppercase text-gray-500 font-bold tracking-wider">Class Year</label>
+                                        <div className="relative">
+                                            <select 
+                                                value={baseFilters.year}
+                                                onChange={(e) => setBaseFilters({...baseFilters, year: e.target.value})}
+                                                className="w-full bg-gray-900 border border-gray-700 text-white text-xs font-mono rounded px-2 py-1.5 focus:border-green-500 outline-none appearance-none cursor-pointer hover:bg-gray-800 transition-colors"
+                                            >
+                                                <option>Any Year</option>
+                                                <option>Freshman</option>
+                                                <option>Sophomore</option>
+                                                <option>Junior</option>
+                                                <option>Senior</option>
+                                            </select>
+                                            <ChevronRight className="w-3 h-3 text-gray-500 absolute right-2 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none" />
+                                        </div>
+                                    </div>
+
+                                    {/* Availability Select */}
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] uppercase text-gray-500 font-bold tracking-wider">Availability</label>
+                                        <div className="relative">
+                                            <select 
+                                                value={baseFilters.availability}
+                                                onChange={(e) => setBaseFilters({...baseFilters, availability: e.target.value})}
+                                                className="w-full bg-gray-900 border border-gray-700 text-white text-xs font-mono rounded px-2 py-1.5 focus:border-green-500 outline-none appearance-none cursor-pointer hover:bg-gray-800 transition-colors"
+                                            >
+                                                <option>Any</option>
+                                                <option>High</option>
+                                                <option>Medium</option>
+                                                <option>Low</option>
+                                            </select>
+                                            <ChevronRight className="w-3 h-3 text-gray-500 absolute right-2 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Preset Views */}
+                            <div className="p-4 border-b border-gray-800">
+                                <h3 className="text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Preset Views</h3>
+                                <div className="space-y-1">
+                                    <button className="w-full text-left px-3 py-2 text-xs font-mono text-green-400 bg-green-900/10 border border-green-500/20 rounded hover:bg-green-900/20 transition-colors truncate">
+                                    Active Field Organizers
+                                    </button>
+                                    <button className="w-full text-left px-3 py-2 text-xs font-mono text-gray-400 hover:text-white hover:bg-white/5 rounded transition-colors truncate">
+                                    At-Risk Seniors (GPA)
+                                    </button>
+                                    <button className="w-full text-left px-3 py-2 text-xs font-mono text-gray-400 hover:text-white hover:bg-white/5 rounded transition-colors truncate">
+                                    High Potential Freshmen
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="p-4 flex-1">
+                                <div className="h-full bg-gray-900/50 border border-gray-800 border-dashed rounded flex flex-col items-center justify-center text-center p-4">
+                                    <Database className="w-6 h-6 text-gray-800 mb-2" />
+                                    <span className="text-[10px] text-gray-600 uppercase">Saved Queries<br/>Archive</span>
+                                </div>
+                            </div>
+                        </aside>
+
+                        {/* MAIN SPLIT VIEW */}
+                        <main className="flex-1 flex flex-col bg-slate-900 relative overflow-hidden">
+                            
+                            {/* --- TAB HEADER --- */}
+                            <div className="h-12 border-b border-gray-800 flex items-center justify-between px-6 bg-slate-900/80 backdrop-blur-sm z-10 shrink-0">
+                                <div className="flex gap-4 h-full">
+                                    <button 
+                                        onClick={() => setActiveTab('filters')}
+                                        className={`h-full border-b-2 text-xs font-bold uppercase tracking-wider px-2 transition-all flex items-center gap-2 ${activeTab === 'filters' ? 'border-green-500 text-green-400' : 'border-transparent text-gray-500 hover:text-gray-300'}`}
+                                    >
+                                        <Zap className="w-3 h-3" /> Advanced Filters
+                                        <span className="bg-gray-800 text-gray-300 px-1.5 py-0.5 rounded-full text-[10px]">{queryRows.length}</span>
+                                    </button>
+                                    <button 
+                                        onClick={() => setActiveTab('library')}
+                                        className={`h-full border-b-2 text-xs font-bold uppercase tracking-wider px-2 transition-all flex items-center gap-2 ${activeTab === 'library' ? 'border-purple-500 text-purple-400' : 'border-transparent text-gray-500 hover:text-gray-300'}`}
+                                    >
+                                        <Database className="w-3 h-3" /> Attribute Library
+                                    </button>
+                                </div>
+
+                                {/* --- MATCH LOGIC CONTROL (TOP RIGHT) --- */}
+                                <div className="flex items-center gap-3">
+                                    <div className="text-[10px] text-gray-500 font-mono uppercase">Match Strategy:</div>
+                                    <div className="flex bg-gray-950 rounded border border-gray-800 p-0.5">
+                                        <button 
+                                            onClick={() => setMatchConfig({ mode: 'ALL', threshold: queryRows.length })}
+                                            className={`px-3 py-1 rounded-sm text-[10px] font-bold transition-all ${matchConfig.mode === 'ALL' ? 'bg-green-900/30 text-green-400 shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}
+                                        >
+                                            STRICT (ALL)
+                                        </button>
+                                        <button 
+                                            onClick={() => setMatchConfig({ mode: 'ANY', threshold: 1 })}
+                                            className={`px-3 py-1 rounded-sm text-[10px] font-bold transition-all ${matchConfig.mode === 'ANY' ? 'bg-yellow-900/30 text-yellow-400 shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}
+                                        >
+                                            FLEXIBLE (ANY)
+                                        </button>
+                                        <div className="w-px bg-gray-800 mx-1"></div>
+                                        <div className={`flex items-center gap-2 px-2 py-1 rounded-sm transition-all ${matchConfig.mode === 'CUSTOM' ? 'bg-blue-900/30' : ''}`}>
+                                            <button 
+                                                onClick={() => setMatchConfig(prev => ({ ...prev, mode: 'CUSTOM' }))}
+                                                className={`text-[10px] font-bold ${matchConfig.mode === 'CUSTOM' ? 'text-blue-400' : 'text-gray-500 hover:text-gray-300'}`}
+                                            >
+                                                CUSTOM
+                                            </button>
+                                            {matchConfig.mode === 'CUSTOM' && (
+                                                <div className="flex items-center gap-1 bg-black border border-blue-500/30 rounded px-1">
+                                                    <input 
+                                                        type="number" 
+                                                        min="1" 
+                                                        max={queryRows.length}
+                                                        value={matchConfig.threshold}
+                                                        onChange={(e) => setMatchConfig({ mode: 'CUSTOM', threshold: parseInt(e.target.value) || 1 })}
+                                                        className="w-6 bg-transparent text-center text-[10px] font-mono text-white outline-none"
+                                                    />
+                                                    <span className="text-[9px] text-gray-600">/{queryRows.length}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* --- CONTENT AREA --- */}
+                            <div className="flex-1 overflow-y-auto bg-slate-900 relative p-4 md:p-8">
+                                
+                                {/* TAB 1: ACTIVE FILTERS */}
+                                {activeTab === 'filters' && (
+                                    <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-left-4 duration-300">
+                                        
+                                        {/* Match Status Indicator */}
+                                        <div className={`mb-6 p-3 rounded border flex items-center justify-between ${matchConfig.mode === 'ALL' ? 'bg-green-500/5 border-green-500/20' : matchConfig.mode === 'ANY' ? 'bg-yellow-500/5 border-yellow-500/20' : 'bg-blue-500/5 border-blue-500/20'}`}>
+                                            <div className="flex items-center gap-3">
+                                                {matchConfig.mode === 'ALL' ? <CheckCircle2 className="w-4 h-4 text-green-400"/> : matchConfig.mode === 'ANY' ? <AlertCircle className="w-4 h-4 text-yellow-400"/> : <Sliders className="w-4 h-4 text-blue-400"/>}
+                                                <span className="text-xs text-gray-300">
+                                                    Advanced Filters matching <strong className={matchConfig.mode === 'ALL' ? 'text-green-400' : matchConfig.mode === 'ANY' ? 'text-yellow-400' : 'text-blue-400'}>
+                                                        {matchConfig.mode === 'ALL' ? 'ALL' : matchConfig.mode === 'ANY' ? 'ANY' : `AT LEAST ${matchConfig.threshold}`}
+                                                    </strong> criteria.
+                                                </span>
+                                            </div>
+                                            <div className="text-[10px] font-mono text-gray-500">
+                                                Applies to right-side filters only.
+                                            </div>
+                                        </div>
+
+                                        {/* Query Rows Container */}
+                                        <div className="space-y-4 relative">
+                                            {/* Vertical connection line */}
+                                            <div className="absolute left-[22px] top-4 bottom-8 w-0.5 bg-gray-800 -z-10"></div>
+
+                                            {queryRows.length === 0 && (
+                                                <div className="text-center py-8 border border-gray-800 border-dashed rounded text-gray-600 text-sm">
+                                                    No advanced filters active. Use "Core Criteria" on left or add custom filters below.
+                                                </div>
+                                            )}
+
+                                            {queryRows.map((row, index) => (
+                                                <div key={row.id} className="flex items-center gap-3 group">
+                                                    
+                                                    {/* Logic Operator (AND/OR/WHERE) */}
+                                                    <div className="w-12 shrink-0">
+                                                        {index === 0 ? (
+                                                            <div className="h-8 flex items-center justify-center bg-gray-800 border border-gray-700 rounded text-[10px] font-bold text-gray-400 font-mono">
+                                                                IF
+                                                            </div>
+                                                        ) : (
+                                                            <select 
+                                                                value={row.logic}
+                                                                onChange={(e) => updateRow(row.id, 'logic', e.target.value)}
+                                                                className="h-8 w-full bg-gray-950 border border-gray-700 text-purple-400 text-[10px] font-bold font-mono rounded text-center focus:border-purple-500 outline-none appearance-none cursor-pointer"
+                                                            >
+                                                                <option>AND</option>
+                                                                <option>OR</option>
+                                                                <option>NOT</option>
+                                                            </select>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Main Input Group */}
+                                                    <div className="flex-1 flex items-center gap-2 bg-gray-950 p-2 border border-gray-800 rounded hover:border-gray-600 transition-colors shadow-lg group-hover:shadow-[0_0_15px_rgba(0,0,0,0.5)]">
+                                                        
+                                                        {/* Field Selector */}
+                                                        <div className="relative w-1/3">
+                                                            <div className="text-[9px] uppercase tracking-wider text-gray-600 font-bold mb-0.5 ml-1">Attribute</div>
+                                                            <div className="relative">
+                                                                <select 
+                                                                    value={row.field}
+                                                                    onChange={(e) => updateRow(row.id, 'field', e.target.value)}
+                                                                    className="w-full bg-transparent text-white text-sm font-mono font-bold outline-none pr-2 appearance-none cursor-pointer"
+                                                                >
+                                                                    {fieldOptions.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
+                                                                </select>
+                                                                <ChevronRight className="w-3 h-3 text-gray-500 absolute right-2 top-1/2 -translate-y-1/2 rotate-90 pointer-events-none" />
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Divider */}
+                                                        <div className="w-px h-8 bg-gray-800 mx-2"></div>
+
+                                                        {/* Operator Selector */}
+                                                        <div className="relative w-1/4">
+                                                            <div className="text-[9px] uppercase tracking-wider text-gray-600 font-bold mb-0.5 ml-1">Logic</div>
+                                                            <select 
+                                                                value={row.operator}
+                                                                onChange={(e) => updateRow(row.id, 'operator', e.target.value)}
+                                                                className="w-full bg-transparent text-blue-400 text-xs font-mono outline-none pr-2 appearance-none cursor-pointer"
+                                                            >
+                                                                {operatorOptions.map(op => <option key={op} value={op}>{op}</option>)}
+                                                            </select>
+                                                        </div>
+
+                                                        {/* Divider */}
+                                                        <div className="w-px h-8 bg-gray-800 mx-2"></div>
+
+                                                        {/* Value Input */}
+                                                        <div className="flex-1 relative">
+                                                            <div className="text-[9px] uppercase tracking-wider text-gray-600 font-bold mb-0.5 ml-1">Value</div>
+                                                            <input 
+                                                                type="text" 
+                                                                value={row.value}
+                                                                onChange={(e) => updateRow(row.id, 'value', e.target.value)}
+                                                                className="w-full bg-transparent text-white text-sm font-mono outline-none px-1 placeholder-gray-700"
+                                                                placeholder="Value..."
+                                                            />
+                                                        </div>
+
+                                                    </div>
+
+                                                    {/* Remove Button */}
+                                                    <button 
+                                                        onClick={() => removeQueryRow(row.id)}
+                                                        className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-red-400 hover:bg-red-400/10 rounded transition-colors"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Add Condition Button */}
+                                        <div className="mt-8 ml-12">
+                                            <button 
+                                                onClick={addQueryRow}
+                                                className="flex items-center gap-2 px-4 py-3 bg-gray-800/50 hover:bg-gray-800 text-gray-400 text-xs font-bold uppercase tracking-wider rounded border border-gray-800 border-dashed hover:border-solid hover:border-green-500/50 hover:text-green-400 group w-full justify-center transition-all"
+                                            >
+                                                <div className="w-5 h-5 rounded-full bg-black border border-gray-600 group-hover:border-green-400 flex items-center justify-center">
+                                                    <Plus className="w-3 h-3" />
+                                                </div>
+                                                Add Advanced Filter
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* TAB 2: LIBRARY */}
+                                {activeTab === 'library' && (
+                                    <div className="max-w-6xl mx-auto animate-in fade-in zoom-in-95 duration-200">
+                                        <div className="mb-6">
+                                            <h3 className="text-lg font-bold text-white mb-2">Attribute Library</h3>
+                                            <p className="text-sm text-gray-500">Browse all available data points that can be used to filter your organizing lists.</p>
+                                        </div>
+                                        
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            
+                                            {/* Category: Field Metrics */}
+                                            <div className="space-y-3">
+                                                <div className="flex items-center gap-2 text-xs font-bold text-green-400 mb-2 border-b border-gray-800 pb-2">
+                                                    <Activity className="w-4 h-4" /> Field Metrics
+                                                </div>
+                                                <div className="grid grid-cols-1 gap-2">
+                                                    {['evL+ Score', 'Events Attended (Mo)', 'Turnout Percentage', 'Retention Rate', 'Current Role', 'Active Status'].map(item => (
+                                                        <div key={item} className="bg-gray-950 border border-gray-800 p-3 rounded cursor-pointer hover:border-green-500/50 hover:bg-green-500/5 transition-all group flex items-center justify-between">
+                                                            <div>
+                                                                <div className="text-xs text-gray-300 font-bold group-hover:text-green-400">{item}</div>
+                                                                <div className="text-[9px] text-gray-600 font-mono mt-0.5">Numeric / Select</div>
+                                                            </div>
+                                                            <Plus className="w-3 h-3 text-gray-700 group-hover:text-green-400 opacity-0 group-hover:opacity-100 transition-all"/>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Category: Academic */}
+                                            <div className="space-y-3">
+                                                <div className="flex items-center gap-2 text-xs font-bold text-blue-400 mb-2 border-b border-gray-800 pb-2">
+                                                    <GraduationCap className="w-4 h-4" /> Academic & Bio
+                                                </div>
+                                                <div className="grid grid-cols-1 gap-2">
+                                                    {['GPA', 'High School Year', 'Major / Concentration', 'School Name', 'APS+ Score', 'Credits Earned'].map(item => (
+                                                        <div key={item} className="bg-gray-950 border border-gray-800 p-3 rounded cursor-pointer hover:border-blue-500/50 hover:bg-blue-500/5 transition-all group flex items-center justify-between">
+                                                            <div>
+                                                                <div className="text-xs text-gray-300 font-bold group-hover:text-blue-400">{item}</div>
+                                                                <div className="text-[9px] text-gray-600 font-mono mt-0.5">String / Data Point</div>
+                                                            </div>
+                                                            <Plus className="w-3 h-3 text-gray-700 group-hover:text-blue-400 opacity-0 group-hover:opacity-100 transition-all"/>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Category: Logistics */}
+                                            <div className="space-y-3">
+                                                <div className="flex items-center gap-2 text-xs font-bold text-yellow-400 mb-2 border-b border-gray-800 pb-2">
+                                                    <Clock className="w-4 h-4" /> Logistics
+                                                </div>
+                                                <div className="grid grid-cols-1 gap-2">
+                                                    {['Availability Score', 'Home Location', 'Network Size', 'Last Active Date', 'Transport Access', 'Languages'].map(item => (
+                                                        <div key={item} className="bg-gray-950 border border-gray-800 p-3 rounded cursor-pointer hover:border-yellow-500/50 hover:bg-yellow-500/5 transition-all group flex items-center justify-between">
+                                                            <div>
+                                                                <div className="text-xs text-gray-300 font-bold group-hover:text-yellow-400">{item}</div>
+                                                                <div className="text-[9px] text-gray-600 font-mono mt-0.5">Boolean / Text</div>
+                                                            </div>
+                                                            <Plus className="w-3 h-3 text-gray-700 group-hover:text-yellow-400 opacity-0 group-hover:opacity-100 transition-all"/>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                )}
+
+                            </div>
+
+                            {/* --- FOOTER ACTION BAR --- */}
+                            <div className="h-14 bg-black border-t border-gray-800 px-6 flex items-center justify-between shrink-0">
+                                <div className="text-[10px] text-gray-600 font-mono flex items-center gap-2">
+                                    QUERY COMPLEXITY: <span className="text-green-500">LOW</span>
+                                    <span className="text-gray-700">|</span>
+                                    EST. RESULTS: <span className="text-white">~142</span>
+                                </div>
+                                <div className="flex gap-3">
+                                    <button 
+                                        onClick={() => {
+                                            setQueryRows([
+                                                { id: 1, logic: 'AND', field: 'evLPlus', operator: 'is greater than', value: '100' },
+                                                { id: 2, logic: 'AND', field: 'status', operator: 'is not', value: 'Dormant' }
+                                            ]);
+                                            setMatchConfig({mode: 'ALL', threshold: 2});
+                                            setBaseFilters({ role: 'All Roles', year: 'Any Year', availability: 'Any' });
+                                        }}
+                                        className="px-4 py-2 bg-gray-900 border border-gray-700 text-gray-300 text-xs font-bold rounded hover:bg-gray-800 transition-colors"
+                                    >
+                                        Reset
+                                    </button>
+                                    <button className="px-6 py-2 bg-green-600 hover:bg-green-500 text-slate-950 text-xs font-bold rounded shadow-[0_0_15px_rgba(74,222,128,0.3)] transition-all flex items-center gap-2">
+                                        <Search className="w-3 h-3" />
+                                        RUN QUERY
+                                    </button>
+                                </div>
+                            </div>
+
+                        </main>
+
+                        </div>
+                    </div>
+                    </div>
+                )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<FieldHub />);
+    </script>
+</body>
+</html>
