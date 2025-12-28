@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nonprofit Internship Opportunity</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .glass-panel {
+            background: white;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border-radius: 12px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .glass-panel:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+        }
+
+        .tag {
+            background-color: #f1f5f9;
+            color: #475569;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .section-header {
+            color: #0f172a;
+            font-weight: 600;
+            letter-spacing: -0.025em;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .icon-box {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background-color: #eff6ff;
+            color: #2563eb;
+        }
+    </style>
+</head>
+<body class="text-slate-600 antialiased">
+
+    <!-- Top Navigation / Branding -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center gap-2">
+                        <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white">
+                            <i class="fa-solid fa-heart"></i>
+                        </div>
+                        <span class="font-bold text-slate-900 text-lg">CivicImpact Org</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="#" class="text-sm font-medium text-slate-500 hover:text-slate-900">Our Mission</a>
+                    <button onclick="document.getElementById('apply-section').scrollIntoView({behavior: 'smooth'})" class="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-800 transition-colors">
+                        Apply Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="bg-white border-b border-slate-200 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="lg:flex lg:items-center lg:justify-between">
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="inline-flex items-center rounded-md bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-700/10">Internship</span>
+                        <span class="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">Remote (US)</span>
+                    </div>
+                    <h2 class="text-3xl font-bold leading-7 text-slate-900 sm:truncate sm:text-4xl sm:tracking-tight">Data Engineering Intern</h2>
+                    <p class="mt-2 text-lg text-slate-500 max-w-2xl">
+                        Help us build the infrastructure that powers social change. A fellowship focused on capacity building, not corporate profit.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- LEFT COLUMN: Role Definition & Mission (5/12 width) -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="glass-panel p-6">
+                    <h3 class="section-header">
+                        <div class="icon-box bg-indigo-50 text-indigo-600"><i class="fa-solid fa-bullseye"></i></div>
+                        Role & Mission Alignment
+                    </h3>
+                    
+                    <div class="prose prose-slate prose-sm max-w-none">
+                        <p class="mb-4">
+                            We are looking for a mission-driven individual to help build our data infrastructure. This isn't about profit margins; it's about <strong>capacity building</strong> to support our operational effectiveness and outreach.
+                        </p>
+                        
+                        <h4 class="font-semibold text-slate-900 mt-4 mb-2">Core Responsibilities</h4>
+                        <ul class="space-y-2 list-none pl-0">
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-check mt-1 text-green-500 text-xs"></i>
+                                <span>Create and manage databases tailored to organizational needs.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-check mt-1 text-green-500 text-xs"></i>
+                                <span>Collaborate with communications teams to analyze outreach data.</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i class="fa-solid fa-check mt-1 text-green-500 text-xs"></i>
+                                <span>Develop data-driven insights to improve how we serve our community.</span>
+                            </li>
+                        </ul>
+
+                        <h4 class="font-semibold text-slate-900 mt-6 mb-2">Who You Are</h4>
+                        <p>
+                            You have foundational data skills and a willingness to learn. You thrive in small, fast-moving nonprofit environments and care deeply about social impact.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Position Details Small Card -->
+                <div class="glass-panel p-6">
+                    <h3 class="section-header text-sm uppercase text-slate-400 font-bold tracking-wider mb-4">Position Details</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <span class="block text-xs text-slate-500">Job Title</span>
+                            <span class="block text-sm font-semibold text-slate-900">Data Engineering Intern</span>
+                        </div>
+                        <div>
+                            <span class="block text-xs text-slate-500">Type</span>
+                            <span class="block text-sm font-semibold text-slate-900">Internship / Fellowship</span>
+                        </div>
+                        <div>
+                            <span class="block text-xs text-slate-500">Location</span>
+                            <span class="block text-sm font-semibold text-slate-900">Remote (US Based)</span>
+                        </div>
+                        <div>
+                            <span class="block text-xs text-slate-500">Work-Study</span>
+                            <span class="block text-sm font-semibold text-slate-400">Not Applicable</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CENTER COLUMN: Time & Compensation (4/12 width) -->
+            <div class="lg:col-span-4 space-y-6">
+                <!-- Time Commitment -->
+                <div class="glass-panel p-6 border-t-4 border-t-blue-500">
+                    <h3 class="section-header">
+                        <div class="icon-box bg-blue-50 text-blue-600"><i class="fa-regular fa-clock"></i></div>
+                        Time Commitment
+                    </h3>
+                    
+                    <div class="bg-blue-50/50 rounded-lg p-4 mb-4 border border-blue-100">
+                        <div class="text-center">
+                            <span class="block text-3xl font-bold text-blue-900">10</span>
+                            <span class="text-sm font-medium text-blue-700">Hours Per Week</span>
+                        </div>
+                    </div>
+
+                    <ul class="space-y-3 text-sm">
+                        <li class="flex items-center justify-between border-b border-slate-100 pb-2">
+                            <span>Schedule</span>
+                            <span class="font-medium text-slate-900">Part-time</span>
+                        </li>
+                        <li class="flex items-center justify-between border-b border-slate-100 pb-2">
+                            <span>Duration</span>
+                            <span class="font-medium text-slate-900">Temporary / Seasonal</span>
+                        </li>
+                        <li class="flex items-center justify-between pb-2">
+                            <span>Structure</span>
+                            <span class="font-medium text-slate-900">Cohort-based Dates</span>
+                        </li>
+                    </ul>
+                    <p class="text-xs text-slate-500 mt-2 italic">
+                        We respect your time. This role is scoped strictly for 10 hours to allow for academic balance.
+                    </p>
+                </div>
+
+                <!-- Compensation -->
+                <div class="glass-panel p-6">
+                    <h3 class="section-header">
+                        <div class="icon-box bg-amber-50 text-amber-600"><i class="fa-solid fa-hand-holding-heart"></i></div>
+                        Compensation & Benefits
+                    </h3>
+                    
+                    <div class="mb-4">
+                        <span class="inline-block bg-slate-100 text-slate-600 text-xs font-bold px-2 py-1 rounded uppercase tracking-wide">Status: Unpaid</span>
+                    </div>
+
+                    <p class="text-sm text-slate-600 mb-4">
+                        As a nonprofit, we focus our limited resources on program delivery. While this role is unpaid, we are committed to providing tangible professional value:
+                    </p>
+
+                    <div class="space-y-3">
+                        <div class="flex gap-3">
+                            <div class="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs">
+                                <i class="fa-solid fa-seedling"></i>
+                            </div>
+                            <div class="text-sm">
+                                <strong class="block text-slate-900">Skill Growth</strong>
+                                Hands-on experience building real operational systems used by staff.
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <div class="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs">
+                                <i class="fa-solid fa-user-group"></i>
+                            </div>
+                            <div class="text-sm">
+                                <strong class="block text-slate-900">Mentorship</strong>
+                                Direct access to leadership and career development guidance.
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <div class="flex-shrink-0 w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600 text-xs">
+                                <i class="fa-solid fa-file-invoice"></i>
+                            </div>
+                            <div class="text-sm">
+                                <strong class="block text-slate-900">Resume Building</strong>
+                                Concrete projects and outcomes to showcase for future employment.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Qualifications (3/12 width) -->
+            <div class="lg:col-span-3 space-y-6">
+                <div class="glass-panel p-6 h-full bg-slate-50/50">
+                    <h3 class="section-header">
+                        <div class="icon-box bg-purple-50 text-purple-600"><i class="fa-solid fa-graduation-cap"></i></div>
+                        Qualifications
+                    </h3>
+
+                    <div class="space-y-6">
+                        <!-- Eligibility -->
+                        <div>
+                            <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-2">Legal Eligibility</h4>
+                            <div class="flex items-center gap-2 text-sm text-slate-700">
+                                <i class="fa-solid fa-flag-usa text-slate-400"></i>
+                                <span>US Work Authorization <strong>Required</strong></span>
+                            </div>
+                        </div>
+
+                        <!-- Academic Fit -->
+                        <div>
+                            <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-2">Suggested Majors</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="tag">Computer Science</span>
+                                <span class="tag">Data Science</span>
+                                <span class="tag">Business Analytics</span>
+                                <span class="tag">Info Systems</span>
+                                <span class="tag">Math / Stats</span>
+                            </div>
+                        </div>
+
+                        <!-- Philosophy -->
+                        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+                            <h4 class="text-xs font-bold uppercase text-slate-400 tracking-wider mb-2">Our Hiring Philosophy</h4>
+                            <ul class="space-y-2 text-sm text-slate-600">
+                                <li class="flex items-center gap-2">
+                                    <i class="fa-solid fa-ban text-red-400"></i>
+                                    <span>No Rigid Degree Requirements</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <i class="fa-solid fa-ban text-red-400"></i>
+                                    <span>No Minimum GPA</span>
+                                </li>
+                                <li class="flex items-center gap-2">
+                                    <i class="fa-solid fa-star text-amber-400"></i>
+                                    <span>Skills & Mission First</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM SECTION: Role Categorization -->
+        <div class="mt-8">
+            <div class="glass-panel p-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-sm font-semibold text-slate-900 mb-1">Role Categorization</h3>
+                        <p class="text-xs text-slate-500">This role is part of our technical talent pipeline initiative.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600">
+                            <i class="fa-solid fa-database text-slate-400"></i> Database Administrators
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600">
+                            <i class="fa-solid fa-chart-line text-slate-400"></i> Data Analysts
+                        </span>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600">
+                            <i class="fa-solid fa-microchip text-slate-400"></i> Data Scientists
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sticky Mobile Apply Button -->
+        <div id="apply-section" class="mt-8 text-center pb-12">
+            <button class="bg-slate-900 text-white text-lg font-semibold px-8 py-4 rounded-xl shadow-lg hover:bg-slate-800 hover:shadow-xl transition-all w-full md:w-auto transform hover:-translate-y-1">
+                Apply for Internship
+            </button>
+            <p class="mt-4 text-sm text-slate-500">Applications reviewed on a rolling basis.</p>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 mt-auto py-8">
+        <div class="max-w-7xl mx-auto px-4 text-center text-sm text-slate-400">
+            &copy; 2024 CivicImpact Org. All rights reserved. Equal Opportunity Employer.
+        </div>
+    </footer>
+
+</body>
+</html>
