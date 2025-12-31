@@ -1,1 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civic Impact Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #111;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #22c55e;
+            border-radius: 10px;
+        }
+        .glass-card {
+            background: rgba(24, 24, 27, 0.8);
+            backdrop-filter: blur(8px);
+        }
+    </style>
+</head>
+<body class="text-white min-h-screen">
 
+    <div class="flex h-screen p-4 lg:p-6 gap-8 overflow-hidden">
+        
+        <!-- LEFT COLUMN: Profile & Progress -->
+        <aside class="w-1/4 flex flex-col gap-6 min-w-[340px] max-w-[400px]">
+            
+            <!-- Progress Tracker -->
+            <div class="border-2 border-green-500 rounded-2xl p-6 glass-card flex flex-col items-center text-center shadow-[0_0_15px_rgba(34,197,94,0.1)]">
+                <h2 class="text-lg font-semibold mb-4 leading-tight">
+                    <span class="text-green-400">Alex,</span> you have completed <span class="text-green-400">49.5 hours</span>
+                </h2>
+                
+                <!-- Gauge Container (Right Side Up) -->
+                <div class="relative w-48 h-24 mb-4">
+                    <svg class="w-full h-full" viewBox="0 0 100 55">
+                        <!-- Background Path (Semicircle Arc) -->
+                        <path d="M 10,50 A 40,40 0 0 1 90,50" fill="none" stroke="#27272a" stroke-width="8" stroke-linecap="round" />
+                        <!-- Progress Path (66%) -->
+                        <path d="M 10,50 A 40,40 0 0 1 90,50" fill="none" stroke="#22c55e" stroke-width="8" stroke-linecap="round"
+                              stroke-dasharray="125.6" stroke-dashoffset="42.7" />
+                    </svg>
+                    <!-- Percentage Text -->
+                    <div class="absolute bottom-0 w-full text-2xl font-bold translate-y-1">66%</div>
+                </div>
+
+                <p class="text-sm text-zinc-400">
+                    That is 66% of your goal of <span class="text-white font-medium">75 hours</span>
+                </p>
+                <p class="text-xs text-zinc-500 mt-2">
+                    Target date: <span class="text-zinc-300">5/25/24</span>
+                </p>
+            </div>
+
+            <!-- Profile & Actions -->
+            <div class="flex-1 glass-card rounded-2xl p-6 border border-zinc-800 flex flex-col overflow-y-auto custom-scrollbar">
+                <div class="flex flex-col items-center mb-8">
+                    <div class="w-24 h-24 rounded-full border-2 border-green-500 p-1 mb-4">
+                        <div class="w-full h-full rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden">
+                            <!-- Placeholder Icon -->
+                            <svg class="w-12 h-12 text-zinc-600" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-lg">Alex Johnson</h3>
+                    <p class="text-xs text-green-500 uppercase tracking-widest font-semibold">Active Student</p>
+                </div>
+
+                <!-- Action Grid -->
+                <div class="grid grid-cols-1 gap-3">
+                    <button class="w-full py-3 px-4 bg-green-600 hover:bg-green-500 text-black font-bold rounded-lg transition-all text-sm flex items-center justify-between group">
+                        Edit Your Bio
+                        <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                    <button class="w-full py-3 px-4 bg-zinc-800 hover:bg-zinc-700 text-green-400 font-semibold rounded-lg transition-all text-sm border border-green-900/30">
+                        Network
+                    </button>
+                    <button class="w-full py-3 px-4 bg-zinc-800 hover:bg-zinc-700 text-green-400 font-semibold rounded-lg transition-all text-sm border border-green-900/30">
+                        Resume Help?
+                    </button>
+                    <button class="w-full py-3 px-4 bg-zinc-800 hover:bg-zinc-700 text-green-400 font-semibold rounded-lg transition-all text-sm border border-green-900/30">
+                        Need Paperwork?
+                    </button>
+                    <button class="w-full py-3 px-4 bg-zinc-800 hover:bg-zinc-700 text-green-400 font-semibold rounded-lg transition-all text-sm border border-green-900/30">
+                        Want to Change Your Goals?
+                    </button>
+                    <button class="w-full py-3 px-4 bg-zinc-900/50 hover:bg-zinc-800 text-zinc-500 font-semibold rounded-lg transition-all text-sm mt-4 italic">
+                        Feedback?
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- CENTER/RIGHT: Opportunity Listings -->
+        <section class="flex-1 flex flex-col gap-8 overflow-y-auto custom-scrollbar pr-4">
+            
+            <!-- Recommended -->
+            <div>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                        Recommended For You
+                    </h2>
+                    <button class="text-xs text-zinc-400 hover:text-green-400 underline uppercase tracking-tighter">View All</button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Featured Card -->
+                    <div class="bg-zinc-900/50 border border-green-500/30 rounded-xl p-5 hover:border-green-500 transition-colors group relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-2">
+                            <span class="bg-green-500 text-black text-[10px] font-bold px-2 py-0.5 rounded uppercase">Promoted</span>
+                        </div>
+                        <h4 class="text-lg font-bold text-white group-hover:text-green-400 transition-colors">Canvasser</h4>
+                        <p class="text-green-500 text-sm font-medium">Non-Profit X</p>
+                        <p class="text-zinc-500 text-xs mt-1">Bethesda, MD</p>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <span class="text-[10px] bg-green-900/30 text-green-400 border border-green-800/50 px-2 py-1 rounded">Trying to recruit</span>
+                            <span class="text-[10px] bg-zinc-800 text-zinc-400 px-2 py-1 rounded">SSL Hours</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 hover:border-green-500/50 transition-colors group">
+                        <h4 class="text-lg font-bold text-white group-hover:text-green-400 transition-colors">Food Bank Assistant</h4>
+                        <p class="text-green-500 text-sm font-medium">Community Reach</p>
+                        <p class="text-zinc-500 text-xs mt-1">Silver Spring, MD</p>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <span class="text-[10px] bg-zinc-800 text-zinc-400 px-2 py-1 rounded">Weekly</span>
+                            <span class="text-[10px] bg-zinc-800 text-zinc-400 px-2 py-1 rounded">Indoor</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 hover:border-green-500/50 transition-colors group">
+                        <h4 class="text-lg font-bold text-white group-hover:text-green-400 transition-colors">Social Media Intern</h4>
+                        <p class="text-green-500 text-sm font-medium">EcoAdvocates</p>
+                        <p class="text-zinc-500 text-xs mt-1">Remote / Rockville, MD</p>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <span class="text-[10px] bg-zinc-800 text-zinc-400 px-2 py-1 rounded">Flexible</span>
+                            <span class="text-[10px] bg-zinc-800 text-zinc-400 px-2 py-1 rounded">Tech</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Close to You -->
+            <div>
+                <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    Opportunities Close to You
+                </h2>
+                <div class="space-y-3">
+                    <!-- List Item -->
+                    <div class="flex items-center justify-between p-4 bg-zinc-900/30 border border-zinc-800 rounded-xl hover:bg-zinc-800 transition-all cursor-pointer">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center text-green-500">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-6h2v6zm0-8h-2V7h2v2zm4 8h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-bold">Canvasser</h4>
+                                <p class="text-xs text-zinc-500">Non-Profit X • <span class="text-zinc-400">0.8 miles away</span></p>
+                            </div>
+                        </div>
+                        <button class="px-4 py-2 bg-zinc-800 hover:bg-green-600 hover:text-black transition-colors rounded-lg text-xs font-bold uppercase tracking-wider">Apply</button>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 bg-zinc-900/30 border border-zinc-800 rounded-xl hover:bg-zinc-800 transition-all cursor-pointer">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center text-green-500">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-6h2v6zm0-8h-2V7h2v2zm4 8h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-bold">Neighborhood Liaison</h4>
+                                <p class="text-xs text-zinc-500">Non-Profit X • <span class="text-zinc-400">1.2 miles away</span></p>
+                            </div>
+                        </div>
+                        <button class="px-4 py-2 bg-zinc-800 hover:bg-green-600 hover:text-black transition-colors rounded-lg text-xs font-bold uppercase tracking-wider">Apply</button>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 bg-zinc-900/30 border border-zinc-800 rounded-xl hover:bg-zinc-800 transition-all cursor-pointer">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center text-green-500">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-6h2v6zm0-8h-2V7h2v2zm4 8h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-bold">Event Coordinator</h4>
+                                <p class="text-xs text-zinc-500">Metro Arts • <span class="text-zinc-400">2.5 miles away</span></p>
+                            </div>
+                        </div>
+                        <button class="px-4 py-2 bg-zinc-800 hover:bg-green-600 hover:text-black transition-colors rounded-lg text-xs font-bold uppercase tracking-wider">Apply</button>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 bg-zinc-900/30 border border-zinc-800 rounded-xl hover:bg-zinc-800 transition-all cursor-pointer">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center text-green-500">
+                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-6h2v6zm0-8h-2V7h2v2zm4 8h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-bold">Administrative Support</h4>
+                                <p class="text-xs text-zinc-500">Civic Help • <span class="text-zinc-400">3.0 miles away</span></p>
+                            </div>
+                        </div>
+                        <button class="px-4 py-2 bg-zinc-800 hover:bg-green-600 hover:text-black transition-colors rounded-lg text-xs font-bold uppercase tracking-wider">Apply</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+</body>
+</html>
