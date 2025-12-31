@@ -1,189 +1,487 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Submit a Partner Report - Young Progressives Initiative</title>
-   <!-- Tailwind CSS CDN -->
-   <script src="https://cdn.tailwindcss.com"></script>
-   <!-- Google Fonts -->
-   <link rel="preconnect" href="https://fonts.googleapis.com">
-   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
-  
-   <style>
-       body {
-           font-family: 'Atkinson Hyperlegible', sans-serif;
-           background-color: #1c1c1c;
-           color: #f0f0f0;
-       }
-       ::-webkit-scrollbar { width: 8px; }
-       ::-webkit-scrollbar-track { background: #2a2a2a; }
-       ::-webkit-scrollbar-thumb { background: #37af4b; border-radius: 10px; }
-       ::-webkit-scrollbar-thumb:hover { background: #2d8c3c; }
-      
-       /* Style for date picker icon in dark mode */
-       input[type="date"]::-webkit-calendar-picker-indicator {
-           filter: invert(1);
-           cursor: pointer;
-       }
-      
-       .popup-overlay {
-           background-color: rgba(0,0,0,0.7);
-           backdrop-filter: blur(5px);
-       }
-      
-       #popup-panel {
-           transition: opacity 300ms ease-out, transform 300ms ease-out;
-           opacity: 0;
-           transform: scale(0.95);
-       }
-   </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YPI Dashboard - Partner Report</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Atkinson Hyperlegible -->
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* --- CORE THEME VARIABLES --- */
+        :root {
+            --bg-main: #1c1c1c;
+            --bg-panel: #1b1b1b;
+            --bg-element: #2a2d35;
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+            --border-color: #2a2a2a;
+            --accent-green: #37af4b;
+            --highlight-green: #98fb98;
+            --nav-inactive: #9ca3af;
+            --nav-active: #98fb98;
+            --notification-red: #ef4444;
+            --input-bg: #2a2a2a;
+        }
+
+        /* --- LIGHT MODE OVERRIDES --- */
+        body.light-mode {
+            --bg-main: #f3f4f6;
+            --bg-panel: #ffffff;
+            --bg-element: #e5e7eb;
+            --text-main: #111827;
+            --text-muted: #4b5563;
+            --border-color: #d1d5db;
+            --accent-green: #16a34a;
+            --highlight-green: #15803d;
+            --nav-inactive: #6b7280;
+            --nav-active: #16a34a;
+            --input-bg: #f9fafb;
+        }
+
+        body {
+            font-family: 'Atkinson Hyperlegible', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* --- CUSTOM SCROLLBAR --- */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: var(--accent-green); border-radius: 10px; }
+
+        .font-fm-header { font-family: 'Atkinson Hyperlegible', sans-serif; }
+
+        .logo-img { transition: filter 0.3s ease; }
+        body.light-mode .logo-img { filter: invert(1); }
+
+        /* --- TAB CONTENT STYLES --- */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+            width: 100%;
+        }
+        
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- LAYOUT --- */
+        .trigger-container {
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start; 
+            min-height: calc(100vh - 80px);
+            text-align: center;
+            padding: 0;
+        }
+
+        .content-area {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 40vh;
+            color: var(--text-muted);
+            font-style: italic;
+            padding: 2rem;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Theme-aware utilities */
+        .theme-bg-panel { background-color: var(--bg-panel); }
+        .theme-bg-element { background-color: var(--bg-element); }
+        .theme-border { border-color: var(--border-color); }
+        .theme-text-muted { color: var(--text-muted); }
+        .theme-text-main { color: var(--text-main); }
+
+        /* --- FORM SPECIFIC --- */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            cursor: pointer;
+        }
+        body.light-mode input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(0);
+        }
+        
+        .popup-overlay {
+            background-color: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+        }
+        #popup-panel {
+            transition: opacity 300ms ease-out, transform 300ms ease-out;
+            opacity: 0;
+            transform: scale(0.95);
+        }
+    </style>
 </head>
-<body class="antialiased">
+<body>
 
+    <!-- MAIN HEADER -->
+    <header class="flex flex-col w-full theme-bg-panel border-b theme-border shadow-lg sticky top-0 z-50 transition-colors">
+        <div class="flex items-center h-16 px-6 gap-6">
+            
+            <!-- Navigation Controls -->
+            <div class="flex items-center mr-2 flex-shrink-0">
+                <button id="navBackBtn" class="flex items-center justify-center w-8 h-10 theme-bg-element border border-blue-500/50 rounded-l hover:opacity-80 transition-all group relative opacity-50 cursor-not-allowed">
+                    <div class="absolute inset-0 border border-blue-400/30 rounded-l opacity-50"></div>
+                    <i data-lucide="chevron-left" class="w-5 h-5 theme-text-muted group-hover:theme-text-main"></i>
+                </button>
+                <button id="navForwardBtn" class="flex items-center justify-center w-8 h-10 theme-bg-panel hover:theme-bg-element transition-colors rounded-r border-y border-r theme-border opacity-50 cursor-not-allowed">
+                    <i data-lucide="chevron-right" class="w-5 h-5 theme-text-muted"></i>
+                </button>
+            </div>
 
-   <!-- Header -->
-   <header class="bg-gradient-to-r from-green-800 to-green-600 sticky top-0 z-50 shadow-lg">
-       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-           <div class="flex items-center justify-between h-16">
-               <div class="flex-shrink-0">
-                   <img class="h-8 w-auto" src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Logo" onerror="this.onerror=null;this.src='https://placehold.co/119x32/1c1c1c/fefefe?text=YPI';">
-               </div>
-               <div class="flex items-center space-x-4">
-                   <img src="https://placehold.co/40x40/1c1c1c/ffffff?text=U" alt="Profile Picture" class="h-10 w-10 rounded-full border-2 border-green-300 cursor-pointer">
-               </div>
-           </div>
-       </div>
-   </header>
+            <!-- Logo -->
+            <div class="flex-shrink-0 mr-4">
+                <div class="h-12 w-auto flex items-center justify-center">
+                    <img 
+                      src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" 
+                      alt="Team Logo" 
+                      class="h-full w-auto object-contain drop-shadow-md logo-img"
+                      onerror="this.src='https://placehold.co/150x50/1c1c1c/fefefe?text=YPI';this.onerror=null;"
+                    />
+                </div>
+            </div>
 
+            <!-- Main Navigation Menu (Generated by JS) -->
+            <nav class="flex items-center gap-2 flex-1 overflow-x-auto no-scrollbar" id="main-nav"></nav>
 
-   <!-- Main Content: Report Form -->
-   <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-       <div class="bg-[#252525] border border-green-700/50 rounded-2xl p-8">
-           <div class="text-center mb-8">
-               <h1 class="text-4xl font-bold text-white tracking-tight">Partner Organization Report</h1>
-               <p class="mt-3 text-lg text-neutral-400">Please use this form to report any incidents or concerns you may have.</p>
-           </div>
-          
-           <form id="reportForm" class="space-y-6">
-               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                   <div>
-                       <label for="reportType" class="block mb-2 text-sm font-medium text-neutral-300">I am reporting...</label>
-                       <select id="reportType" name="reportType" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required>
-                           <option value="" disabled selected>-- Please select an option --</option>
-                           <option value="student">A Student Volunteer</option>
-                           <option value="staff" id="staffReportOption" style="display: none;">A YPI Staff Member</option>
-                       </select>
-                   </div>
-                    <div>
-                       <label for="reportedEntity" class="block mb-2 text-sm font-medium text-neutral-300">Name of Person Being Reported</label>
-                       <input type="text" id="reportedEntity" name="reportedEntity" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required>
-                   </div>
-               </div>
-              
-               <div>
-                   <label for="incidentDate" class="block mb-2 text-sm font-medium text-neutral-300">Date of Incident</label>
-                   <input type="date" id="incidentDate" name="incidentDate" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required>
-               </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <!-- Notification Container -->
+                <div class="relative group/notif">
+                    <button id="notifToggle" class="relative flex items-center justify-center p-2 rounded-full theme-bg-element hover:opacity-80 transition-all text-[var(--text-main)]" title="Notifications">
+                        <span id="notifBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-[var(--bg-panel)] flex items-center justify-center min-w-[18px]">3</span>
+                        <i data-lucide="bell" class="w-[18px] h-[18px]"></i>
+                    </button>
+                    <!-- Notifications Dropdown -->
+                    <div class="absolute right-0 top-full pt-2 invisible group-hover/notif:visible opacity-0 group-hover/notif:opacity-100 translate-y-2 group-hover/notif:translate-y-0 transition-all duration-200 z-[60] w-80">
+                        <div class="theme-bg-panel border theme-border shadow-2xl rounded-xl overflow-hidden flex flex-col">
+                            <div class="p-4 border-b theme-border flex justify-between items-center text-sm">
+                                <h3 class="font-bold">Notifications</h3>
+                                <button class="text-xs text-[var(--accent-green)]">Mark all read</button>
+                            </div>
+                            <div class="p-4 theme-text-muted text-xs text-center italic">No new alerts.</div>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- Theme Toggle Button -->
+                <button id="themeToggle" class="flex items-center justify-center p-2 rounded-full theme-bg-element hover:opacity-80 transition-all text-[var(--text-main)]" title="Toggle Theme">
+                    <i data-lucide="sun" id="themeIconSun" class="w-[18px] h-[18px]"></i>
+                    <i data-lucide="moon" id="themeIconMoon" class="w-[18px] h-[18px] hidden"></i>
+                </button>
 
-               <div>
-                   <label for="incidentDescription" class="block mb-2 text-sm font-medium text-neutral-300">Detailed Description of Incident</label>
-                   <textarea id="incidentDescription" name="incidentDescription" rows="6" placeholder="Please provide as much detail as possible, including what happened, where it happened, and any actions taken." class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required></textarea>
-               </div>
-              
-               <div class="border-t border-neutral-700 pt-6 space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                       <div>
-                           <label for="reporterName" class="block mb-2 text-sm font-medium text-neutral-300">Your Name (Contact Person)</label>
-                           <input type="text" id="reporterName" name="reporterName" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required>
-                       </div>
-                       <div>
-                           <label for="organizationName" class="block mb-2 text-sm font-medium text-neutral-300">Your Organization's Name</label>
-                           <input type="text" id="organizationName" name="organizationName" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required>
-                       </div>
-                   </div>
-                   <div>
-                       <label for="reporterEmail" class="block mb-2 text-sm font-medium text-neutral-300">Your Email (For follow-up)</label>
-                       <input type="email" id="reporterEmail" name="reporterEmail" class="bg-neutral-800 border border-neutral-600 text-white text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 transition" required>
-                   </div>
-               </div>
-              
-               <div class="pt-4">
-                   <button type="submit" class="bg-green-600 text-white font-bold py-3 px-6 rounded-full w-full hover:bg-green-500 transition-transform transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-green-500/50">Submit Confidential Report</button>
-               </div>
-           </form>
-       </div>
-   </main>
-   <!-- Success Popup -->
-   <div id="messageBoxOverlay" class="popup-overlay fixed inset-0 z-50 flex items-center justify-center p-4 hidden" aria-labelledby="popup-title" role="dialog" aria-modal="true">
-       <div class="bg-neutral-800 border border-green-600 rounded-2xl shadow-xl w-full max-w-md p-6 text-center" id="popup-panel">
-           <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-200">
-               <svg class="h-6 w-6 text-green-700" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
-           </div>
-           <h3 class="mt-4 text-xl font-bold text-white" id="popup-title">Report Submitted!</h3>
-           <p class="mt-2 text-base text-neutral-400" id="popup-message">Thank you for your submission. We will contact you if more information is needed.</p>
-           <button id="messageBoxCloseButton" class="mt-6 bg-green-600 text-white font-bold py-2 px-8 rounded-full hover:bg-green-500 transition focus:outline-none focus:ring-4 focus:ring-green-500/50">OK</button>
-       </div>
-   </div>
+                <!-- Log Out Button -->
+                <button class="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-all font-medium text-sm ml-1 group" title="Log Out">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                    <span class="hidden lg:inline">Log Out</span>
+                </button>
+            </div>
+        </div>
+    </header>
 
+    <!-- MAIN CONTENT AREA -->
+    <div class="main-content w-full">
+        <!-- Vision Section -->
+        <section id="content-Vision" class="tab-content trigger-container active">
+            <!-- Vision Sub-Nav -->
+            <div class="w-full theme-bg-element border-b theme-border py-3 px-6 mb-6 flex items-center justify-between gap-4 rounded-lg shadow-sm overflow-x-auto no-scrollbar">
+                <div class="flex items-center gap-6 flex-shrink-0">
+                     <nav class="flex gap-5 text-sm font-medium" id="vision-subnav">
+                        <button data-panel="overview" class="subnav-btn theme-text-main border-b-2 border-[var(--accent-green)] pb-0.5 whitespace-nowrap">Overview</button>
+                        <button data-panel="partnerships" class="subnav-btn theme-text-muted hover:theme-text-main transition-colors whitespace-nowrap">Partnerships</button>
+                        <button data-panel="profile" class="subnav-btn theme-text-muted hover:theme-text-main transition-colors whitespace-nowrap">Partner Profile</button>
+                        <button data-panel="report" class="subnav-btn theme-text-muted hover:theme-text-main transition-colors whitespace-nowrap">Report Incident</button>
+                        <button data-panel="impact" class="subnav-btn theme-text-muted hover:theme-text-main transition-colors whitespace-nowrap">Impact Reports</button>
+                     </nav>
+                </div>
+                <div class="flex items-center gap-4 flex-shrink-0">
+                     <div class="text-right hidden sm:block">
+                        <div class="text-xs theme-text-muted">Active Volunteers</div>
+                        <div class="text-sm font-bold text-[var(--highlight-green)]">128</div>
+                     </div>
+                     <div class="h-8 w-[1px] bg-gray-700/30"></div>
+                     <button class="flex items-center gap-2 text-sm font-medium theme-text-muted hover:theme-text-main transition-colors"><i data-lucide="settings" class="w-4 h-4"></i> Settings</button>
+                </div>
+            </div>
 
-   <script>
-       document.addEventListener('DOMContentLoaded', function() {
-           // --- ADMIN FUNCTIONALITY ---
-           // To enable the 'YPI Staff' option, an admin can visit with "?admin=true"
-           try {
-               const urlParams = new URLSearchParams(window.location.search);
-               if (urlParams.get('admin') === 'true') {
-                   const staffOption = document.getElementById('staffReportOption');
-                   if (staffOption) staffOption.style.display = 'block';
-               }
-           } catch(e) { console.error("Could not parse URL params for admin mode.", e); }
+            <!-- Vision Sub-Panels -->
+            <div id="vision-panels-container" class="w-full">
+                <!-- Overview -->
+                <div id="panel-overview" class="vision-panel">
+                    <div class="content-area">Vision Dashboard Overview Content</div>
+                </div>
 
+                <!-- Partnerships -->
+                <div id="panel-partnerships" class="vision-panel hidden">
+                    <div class="content-area">Partnerships Management Area</div>
+                </div>
 
-           // --- MESSAGE BOX FUNCTIONS ---
-           const messageBoxOverlay = document.getElementById('messageBoxOverlay');
-           const popupPanel = document.getElementById('popup-panel');
-           const closeButton = document.getElementById('messageBoxCloseButton');
+                <!-- Partner Profile -->
+                <div id="panel-profile" class="vision-panel hidden">
+                    <div class="content-area">Partner Profile Information</div>
+                </div>
 
+                <!-- Impact Reports -->
+                <div id="panel-impact" class="vision-panel hidden">
+                    <div class="content-area">Impact Analytics & Reports</div>
+                </div>
 
-           function showMessage(title, message) {
-               document.getElementById('popup-title').textContent = title;
-               document.getElementById('popup-message').textContent = message;
-               messageBoxOverlay.classList.remove('hidden');
-               setTimeout(() => {
-                   popupPanel.classList.add('opacity-100', 'scale-100');
-                   popupPanel.classList.remove('opacity-0', 'scale-95');
-               }, 10);
-           }
+                <!-- THE INTEGRATED REPORT FORM -->
+                <div id="panel-report" class="vision-panel hidden px-6 pb-12">
+                    <div class="max-w-4xl mx-auto">
+                        <div class="theme-bg-panel border theme-border rounded-2xl p-8 shadow-2xl text-left">
+                            <div class="text-center mb-8">
+                                <h1 class="text-3xl font-bold theme-text-main tracking-tight">Partner Organization Report</h1>
+                                <p class="mt-2 text-base theme-text-muted">Please use this form to report any incidents or concerns you may have.</p>
+                            </div>
+                            
+                            <form id="reportForm" class="space-y-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label for="reportType" class="block mb-2 text-sm font-medium theme-text-muted">I am reporting...</label>
+                                        <select id="reportType" name="reportType" class="bg-[var(--input-bg)] border theme-border theme-text-main text-sm rounded-lg focus:ring-[var(--accent-green)] focus:border-[var(--accent-green)] block w-full p-2.5 transition" required>
+                                            <option value="" disabled selected>-- Please select an option --</option>
+                                            <option value="student">A Student Volunteer</option>
+                                            <option value="staff" id="staffReportOption" style="display: none;">A YPI Staff Member</option>
+                                        </select>
+                                    </div>
+                                     <div>
+                                        <label for="reportedEntity" class="block mb-2 text-sm font-medium theme-text-muted">Name of Person Being Reported</label>
+                                        <input type="text" id="reportedEntity" name="reportedEntity" class="bg-[var(--input-bg)] border theme-border theme-text-main text-sm rounded-lg focus:ring-[var(--accent-green)] block w-full p-2.5 transition" required>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label for="incidentDate" class="block mb-2 text-sm font-medium theme-text-muted">Date of Incident</label>
+                                    <input type="date" id="incidentDate" name="incidentDate" class="bg-[var(--input-bg)] border theme-border theme-text-main text-sm rounded-lg focus:ring-[var(--accent-green)] block w-full p-2.5 transition" required>
+                                </div>
 
+                                <div>
+                                    <label for="incidentDescription" class="block mb-2 text-sm font-medium theme-text-muted">Detailed Description of Incident</label>
+                                    <textarea id="incidentDescription" name="incidentDescription" rows="5" placeholder="Please provide as much detail as possible..." class="bg-[var(--input-bg)] border theme-border theme-text-main text-sm rounded-lg focus:ring-[var(--accent-green)] block w-full p-2.5 transition" required></textarea>
+                                </div>
+                                
+                                <div class="border-t theme-border pt-6 space-y-6">
+                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label for="reporterName" class="block mb-2 text-sm font-medium theme-text-muted">Your Name (Contact Person)</label>
+                                            <input type="text" id="reporterName" name="reporterName" class="bg-[var(--input-bg)] border theme-border theme-text-main text-sm rounded-lg focus:ring-[var(--accent-green)] block w-full p-2.5 transition" required>
+                                        </div>
+                                        <div>
+                                            <label for="organizationName" class="block mb-2 text-sm font-medium theme-text-muted">Your Organization's Name</label>
+                                            <input type="text" id="organizationName" name="organizationName" class="bg-[var(--input-bg)] border theme-border theme-text-main text-sm rounded-lg focus:ring-[var(--accent-green)] block w-full p-2.5 transition" required>
+                                        </div>
+                                     </div>
+                                    <div>
+                                        <label for="reporterEmail" class="block mb-2 text-sm font-medium theme-text-muted">Your Email (For follow-up)</label>
+                                        <input type="email" id="reporterEmail" name="reporterEmail" class="bg-[var(--input-bg)] border theme-border theme-text-main text-sm rounded-lg focus:ring-[var(--accent-green)] block w-full p-2.5 transition" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="pt-4">
+                                    <button type="submit" class="bg-[var(--accent-green)] text-white font-bold py-3 px-6 rounded-full w-full hover:opacity-90 transition-transform transform hover:scale-[1.02] focus:outline-none shadow-lg">Submit Confidential Report</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-           function hideMessageBox() {
-               popupPanel.classList.add('opacity-0', 'scale-95');
-               popupPanel.classList.remove('opacity-100', 'scale-100');
-               setTimeout(() => messageBoxOverlay.classList.add('hidden'), 300);
-           }
+        <!-- Other main sections -->
+        <section id="content-Organizing" class="tab-content trigger-container">
+            <div class="content-area">Organizing Tools & Calendar</div>
+        </section>
+        <section id="content-Financials" class="tab-content trigger-container">
+            <div class="content-area">Financial Reports & Budgets</div>
+        </section>
+        <section id="content-Data Suite" class="tab-content trigger-container">
+            <div class="content-area">Analytics & Data Management</div>
+        </section>
+        <section id="content-Projects" class="tab-content trigger-container">
+            <div class="content-area">Project Management & Tracking</div>
+        </section>
+        <section id="content-Marketing" class="tab-content trigger-container">
+            <div class="content-area">Marketing Assets & Campaigns</div>
+        </section>
+        <section id="content-Donors" class="tab-content trigger-container">
+            <div class="content-area">Donor Relations & Funding</div>
+        </section>
+    </div>
 
+    <!-- Success Popup -->
+    <div id="messageBoxOverlay" class="popup-overlay fixed inset-0 z-[100] flex items-center justify-center p-4 hidden" role="dialog">
+        <div class="theme-bg-panel border border-[var(--accent-green)] rounded-2xl shadow-2xl w-full max-w-md p-6 text-center" id="popup-panel">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-500/20 text-[var(--accent-green)]">
+                <i data-lucide="check-circle" class="w-8 h-8"></i>
+            </div>
+            <h3 class="mt-4 text-xl font-bold theme-text-main" id="popup-title">Report Submitted!</h3>
+            <p class="mt-2 text-sm theme-text-muted" id="popup-message">Thank you. Your report has been sent to our team for review.</p>
+            <button id="messageBoxCloseButton" class="mt-6 bg-[var(--accent-green)] text-white font-bold py-2 px-8 rounded-full hover:opacity-90 transition">OK</button>
+        </div>
+    </div>
 
-           closeButton.addEventListener('click', hideMessageBox);
-           messageBoxOverlay.addEventListener('click', (e) => {
-               if (e.target === messageBoxOverlay) hideMessageBox();
-           });
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- THEME TOGGLE LOGIC ---
+            const themeToggle = document.getElementById('themeToggle');
+            const sunIcon = document.getElementById('themeIconSun');
+            const moonIcon = document.getElementById('themeIconMoon');
+            const body = document.body;
 
+            themeToggle.addEventListener('click', () => {
+                body.classList.toggle('light-mode');
+                const isLight = body.classList.contains('light-mode');
+                if (isLight) {
+                    sunIcon.classList.add('hidden');
+                    moonIcon.classList.remove('hidden');
+                } else {
+                    sunIcon.classList.remove('hidden');
+                    moonIcon.classList.add('hidden');
+                }
+            });
 
-           // --- FORM SUBMISSION LOGIC ---
-           const reportForm = document.getElementById('reportForm');
-           if (reportForm) {
-               reportForm.addEventListener('submit', function(e) {
-                   e.preventDefault();
-                   // In a real application, you would send this data to a secure server.
-                   console.log('Form submitted!');
-                   showMessage('Report Submitted', 'Thank you for your submission. Your report has been sent to our team for review. We will contact you if more information is needed.');
-                   reportForm.reset();
-               });
-           }
-       });
-   </script>
+            // --- NAVIGATION LOGIC ---
+            const navItems = ['Vision', 'Organizing', 'Financials', 'Data Suite', 'Projects', 'Marketing', 'Donors'];
+            const navContainer = document.getElementById('main-nav');
+            const navHistory = ['Vision'];
+            let historyIndex = 0;
+            const navBackBtn = document.getElementById('navBackBtn');
+            const navForwardBtn = document.getElementById('navForwardBtn');
+
+            function updateNavButtons() {
+                navBackBtn.classList.toggle('opacity-50', historyIndex === 0);
+                navBackBtn.classList.toggle('cursor-not-allowed', historyIndex === 0);
+                navForwardBtn.classList.toggle('opacity-50', historyIndex === navHistory.length - 1);
+                navForwardBtn.classList.toggle('cursor-not-allowed', historyIndex === navHistory.length - 1);
+            }
+
+            function navigateTo(tabName, isHistoryNav = false) {
+                if (!isHistoryNav) {
+                    if (historyIndex < navHistory.length - 1) navHistory.splice(historyIndex + 1);
+                    if (navHistory[historyIndex] !== tabName) {
+                        navHistory.push(tabName);
+                        historyIndex = navHistory.length - 1;
+                    }
+                }
+                showTabContent(tabName);
+                Array.from(navContainer.children).forEach(btn => {
+                    const span = btn.querySelector('span');
+                    const isActive = span && span.innerText === tabName;
+                    btn.style.color = isActive ? 'var(--nav-active)' : 'var(--nav-inactive)';
+                    btn.classList.toggle('scale-105', isActive);
+                    btn.style.textShadow = isActive ? '0 0 8px rgba(152,251,152,0.2)' : 'none';
+                });
+                updateNavButtons();
+            }
+
+            function showTabContent(tabName) {
+                document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active'));
+                const target = document.getElementById(`content-${tabName}`);
+                if (target) target.classList.add('active');
+            }
+
+            navItems.forEach(item => {
+                const btn = document.createElement('button');
+                btn.className = 'group flex items-center px-3 py-2 text-xl font-bold tracking-tight font-fm-header transition-all cursor-pointer hover:scale-105 shrink-0';
+                btn.innerHTML = `<span>${item}</span>`;
+                btn.style.color = item === 'Vision' ? 'var(--nav-active)' : 'var(--nav-inactive)';
+                btn.addEventListener('click', () => navigateTo(item));
+                navContainer.appendChild(btn);
+            });
+
+            // Sub-nav Switching Logic (Vision Tab)
+            const subNavBtns = document.querySelectorAll('#vision-subnav .subnav-btn');
+            subNavBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const panelId = this.getAttribute('data-panel');
+                    
+                    // Reset buttons
+                    subNavBtns.forEach(b => {
+                        b.classList.remove('theme-text-main', 'border-b-2', 'border-[var(--accent-green)]');
+                        b.classList.add('theme-text-muted');
+                        b.style.borderBottom = 'none';
+                    });
+
+                    // Set active button
+                    this.classList.remove('theme-text-muted');
+                    this.classList.add('theme-text-main', 'border-b-2', 'border-[var(--accent-green)]');
+
+                    // Switch panels
+                    document.querySelectorAll('.vision-panel').forEach(p => p.classList.add('hidden'));
+                    const targetPanel = document.getElementById(`panel-${panelId}`);
+                    if (targetPanel) targetPanel.classList.remove('hidden');
+                });
+            });
+
+            navBackBtn.addEventListener('click', () => {
+                if (historyIndex > 0) { historyIndex--; navigateTo(navHistory[historyIndex], true); }
+            });
+            navForwardBtn.addEventListener('click', () => {
+                if (historyIndex < navHistory.length - 1) { historyIndex++; navigateTo(navHistory[historyIndex], true); }
+            });
+
+            // --- FORM & POPUP LOGIC ---
+            const messageBoxOverlay = document.getElementById('messageBoxOverlay');
+            const popupPanel = document.getElementById('popup-panel');
+            const closeButton = document.getElementById('messageBoxCloseButton');
+            const reportForm = document.getElementById('reportForm');
+
+            function showMessage(title, message) {
+                document.getElementById('popup-title').textContent = title;
+                document.getElementById('popup-message').textContent = message;
+                messageBoxOverlay.classList.remove('hidden');
+                setTimeout(() => {
+                    popupPanel.style.opacity = '1';
+                    popupPanel.style.transform = 'scale(1)';
+                }, 10);
+            }
+
+            function hideMessageBox() {
+                popupPanel.style.opacity = '0';
+                popupPanel.style.transform = 'scale(0.95)';
+                setTimeout(() => messageBoxOverlay.classList.add('hidden'), 300);
+            }
+
+            closeButton.addEventListener('click', hideMessageBox);
+            
+            if (reportForm) {
+                reportForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    showMessage('Report Submitted', 'Thank you. Your report has been sent to our team for review. We will follow up via email if necessary.');
+                    reportForm.reset();
+                });
+            }
+
+            // Admin Logic for the form (Triggered by query string ?admin=true)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('admin') === 'true') {
+                const staffOpt = document.getElementById('staffReportOption');
+                if (staffOpt) staffOpt.style.display = 'block';
+            }
+
+            lucide.createIcons();
+        });
+    </script>
 </body>
 </html>
