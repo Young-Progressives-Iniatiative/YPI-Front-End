@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiered Partner Organization Dashboard</title>
+    <!-- Tailwind CSS CDN for utility classes and responsive design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for the line graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Sortable.js CDN for drag and drop functionality -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <!-- jsPDF for PDF exporting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    
+    <!-- Google Fonts: Atkinson Hyperlegible -->
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        window.firebaseApp = null;
+        window.db = null;
+        window.auth = null;
+        window.currentUserId = null;
+        window.appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'; 
+        window.allOverflowInsightsData = []; 
+        window.isPremiumUser = localStorage.getItem('isPremiumUser') === 'true'; 
+
+        window.collection = collection;
+        window.addDoc = addDoc;
+        window.onSnapshot = onSnapshot;
+        window.query = query;
+
+        function initializeCharts() {
+            const roiTrendCtx = document.getElementById('roiTrendChart').getContext('2d');
+            let roiGradient = roiTrendCtx.createLinearGradient(0, 0, 0, 400);
+            roiGradient.addColorStop(0, 'rgba(124, 58, 237, 0.5)'); 
+            roiGradient.addColorStop(1, 'rgba(124, 58, 237, 0.0)');
+
+            new Chart(roiTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'], 
+                    datasets: [{
+                        label: 'ROI Ratio',
+                        data: [2.5, 3.0, 2.8, 3.2, 3.5, 3.1, 3.4], 
+                        borderColor: '#7C3AED', 
+                        backgroundColor: roiGradient,
+                        borderWidth: 3,
+                        tension: 0.4, 
+                        pointRadius: 0,
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                    scales: { x: { display: false }, y: { display: false, min: 2.0, max: 4.0 } }
+                }
+            });
+
+            const hoursByTypeChartCtx = document.getElementById('hoursByTypeChart').getContext('2d');
+            let hoursGradient = hoursByTypeChartCtx.createLinearGradient(0, 0, 0, 400);
+            hoursGradient.addColorStop(0, 'rgba(249, 115, 22, 0.5)'); 
+            hoursGradient.addColorStop(1, 'rgba(249, 115, 22, 0.0)');
+
+            new Chart(hoursByTypeChartCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Community', 'Training', 'Events', 'Mentoring', 'Admin', 'Outreach'],
+                    datasets: [{
+                        label: 'Hours',
+                        data: [300, 250, 400, 200, 350, 500], 
+                        borderColor: '#F97316', 
+                        backgroundColor: hoursGradient,
+                        borderWidth: 3,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { display: false }, y: { display: false, beginAtZero: true } }
+                }
+            });
+        }
+
+        function initializeSortable() {
+            const dashboardGrid = document.getElementById('dashboardGrid');
+            if (dashboardGrid) {
+                new Sortable(dashboardGrid, {
+                    animation: 150, 
+                    ghostClass: 'sortable-ghost', 
+                    handle: '.card-header', 
+                });
+            }
+        }
+
+        function addFinancialContributionEntry(volunteerName, task, value) {
+            const tableBody = document.getElementById('financialContributionTableBody');
+            const newRow = tableBody.insertRow(0); 
+            newRow.classList.add('border-b', 'border-[rgba(255,255,255,0.05)]');
+
+            const volunteerCell = newRow.insertCell(0);
+            volunteerCell.classList.add('py-3', 'text-left', 'text-white');
+            volunteerCell.textContent = volunteerName;
+
+            const taskCell = newRow.insertCell(1);
+            taskCell.classList.add('py-3', 'text-left', 'text-white');
+            taskCell.textContent = task;
+
+            const valueCell = newRow.insertCell(2);
+            valueCell.classList.add('py-3', 'text-left', 'text-white');
+            valueCell.textContent = value;
+        }
+
+        function addInsightToLocalStorage(title, description, category, userId) {
+            const insightsKey = `userInsights_${userId}`;
+            let insights = JSON.parse(localStorage.getItem(insightsKey)) || [];
+            insights.unshift({ title, description, category, timestamp: new Date().toLocaleString() }); 
+            localStorage.setItem(insightsKey, JSON.stringify(insights));
+            loadInsightsFromLocalStorage(userId); 
+        }
+
+        function loadInsightsFromLocalStorage(userId) {
+            const insightsKey = `userInsights_${userId}`;
+            const insights = JSON.parse(localStorage.getItem(insightsKey)) || [];
+            const userInsightsList = document.getElementById('userInsightsList');
+            userInsightsList.innerHTML = ''; 
+            window.allOverflowInsightsData = []; 
+            const displayLimit = 3; 
+
+            if (insights.length === 0) {
+                userInsightsList.innerHTML = '<p class="no-insights-message" id="noInsightsMessage">No insights submitted yet.</p>';
+                const userInsightsToggle = document.querySelector('#userInsightsCard .insights-dropdown-toggle');
+                if (userInsightsToggle) userInsightsToggle.style.display = 'none';
+            } else {
+                const existingNoInsightsMessage = document.getElementById('noInsightsMessage');
+                if (existingNoInsightsMessage) existingNoInsightsMessage.remove();
+
+                insights.forEach((data, index) => {
+                    const insightDiv = document.createElement('div');
+                    insightDiv.classList.add('user-insight-item');
+                    insightDiv.innerHTML = `<p class="font-semibold text-white mb-1">${data.title}</p><p>${data.description}</p><p class="meta-info">Submitted: ${data.timestamp}</p>`;
+
+                    if (index < displayLimit) {
+                        userInsightsList.appendChild(insightDiv);
+                    } else {
+                        window.allOverflowInsightsData.push(data);
+                    }
+                });
+
+                const userInsightsToggle = document.querySelector('#userInsightsCard .insights-dropdown-toggle');
+                if (userInsightsToggle) {
+                    userInsightsToggle.style.display = window.allOverflowInsightsData.length > 0 ? 'block' : 'none';
+                }
+            }
+        }
+
+        async function addInsightToFirestore(title, description, category, userId) {
+            if (!userId) return;
+            try {
+                const insightsCollectionRef = window.collection(window.db, `artifacts/${window.appId}/users/${userId}/insights`);
+                await window.addDoc(insightsCollectionRef, {
+                    title, description, category, timestamp: new Date().toLocaleString(), userId
+                });
+            } catch (e) { console.error("Error adding document to Firestore: ", e); }
+        }
+
+        function getPremiumContentHtml(cardId) {
+            switch(cardId) {
+                case 'retentionCard':
+                    return `<div class="premium-stat-item" data-stat-id="burnoutRisk"><h4 class="premium-stat-title cursor-pointer flex justify-between items-center text-[var(--accent-red)]">Burnout Watchlist <span class="toggle-arrow">&gt;</span></h4><div class="premium-stat-details hidden"><ul class="text-sm"><li class="flex justify-between py-1 border-b border-[rgba(255,255,255,0.05)]"><span>Emily Chen</span><span class="text-[var(--accent-red)] font-bold">High Risk (92%)</span></li><li class="flex justify-between py-1 border-b border-[rgba(255,255,255,0.05)]"><span>Mike Ross</span><span class="text-[var(--accent-orange)] font-bold">Med Risk (65%)</span></li></ul><p class="text-xs text-gray-400 mt-2">Based on: High Hours + Dropping Satisfaction.</p></div></div><div class="premium-stat-item" data-stat-id="churnDetails"><h4 class="premium-stat-title cursor-pointer flex justify-between items-center">Monthly Churn <span class="toggle-arrow">&gt;</span></h4><div class="premium-stat-details hidden"><div class="metric"><span class="value text-2xl font-semibold text-white block mb-1">4.2%</span><span class="label text-sm text-[var(--text-medium)]">Volunteers Lost Last Month</span></div></div></div>`;
+                case 'efficiencyCard':
+                    return `<div class="premium-stat-item" data-stat-id="flakeRate"><h4 class="premium-stat-title cursor-pointer flex justify-between items-center">Flake Rate by Type <span class="toggle-arrow">&gt;</span></h4><div class="premium-stat-details hidden"><table class="w-full text-sm"><tbody><tr><td class="py-1 text-white">Phone Banking</td><td class="text-right text-[var(--accent-red)]">15%</td></tr><tr><td class="py-1 text-white">Event Setup</td><td class="text-right text-[var(--accent-orange)]">8%</td></tr><tr><td class="py-1 text-white">Mentoring</td><td class="text-right text-[var(--accent-green)]">2%</td></tr></tbody></table></div></div>`;
+                case 'totalVolunteerHoursCard':
+                    return `<div class="premium-stat-item" data-stat-id="volunteerHoursTrend"><h4 class="premium-stat-title cursor-pointer flex justify-between items-center">Volunteer Hours Trend <span class="toggle-arrow">&gt;</span></h4><div class="premium-stat-details hidden"><div class="chart-container relative h-48 w-full"><canvas id="dropdownVolunteerHoursTrendChart"></canvas></div></div></div><div class="premium-stat-item" data-stat-id="evPerHour"><h4 class="premium-stat-title cursor-pointer flex justify-between items-center">EV per Hour <span class="toggle-arrow">&gt;</span></h4><div class="premium-stat-details hidden"><div class="metric mb-4"><span class="value text-3xl font-semibold text-white block mb-1">1.15<span class="unit text-base font-normal opacity-80">EV</span></span><span class="label text-sm text-[var(--text-medium)]">Avg. EV per Hour</span></div></div></div>`;
+                case 'volunteerEngagementCard':
+                    return `<div class="premium-stat-item" data-stat-id="volunteerReturnRate"><h4 class="premium-stat-title cursor-pointer flex justify-between items-center">Return Rate <span class="toggle-arrow">&gt;</span></h4><div class="premium-stat-details hidden"><div class="metric mb-4"><span class="value text-3xl font-semibold text-white block mb-1">62%</span><span class="label text-sm text-[var(--text-medium)]">Attended a Second Event</span></div></div></div><div class="premium-stat-item" data-stat-id="newVsReturningRatio"><h4 class="premium-stat-title cursor-pointer flex justify-between items-center">New vs. Returning <span class="toggle-arrow">&gt;</span></h4><div class="premium-stat-details hidden"><div class="chart-container relative h-48 w-full"><canvas id="dropdownNewVsReturningRatioChart"></canvas></div></div></div>`;
+                case 'roiCard':
+                    return `<div class="premium-stat-item" data-stat-id="roiPerHour"><h4 class="premium-stat-title cursor-pointer flex justify-between items-center">ROI per Hour <span class="toggle-arrow">&gt;</span></h4><div class="premium-stat-details hidden"><div class="metric mb-4"><span class="value text-3xl font-bold text-white block mb-1">$28.54<span class="unit text-base font-normal opacity-80">/hr</span></span></div><div class="chart-container relative h-24 w-full"><canvas id="dropdownRoiChart"></canvas></div></div></div>`;
+                case 'projectsCompletedCard':
+                    return `<div class="premium-stat-item" data-stat-id="mostEffectiveOpportunity"><h4 class="premium-stat-title cursor-pointer flex justify-between items-center">Most Effective Opp <span class="toggle-arrow">&gt;</span></h4><div class="premium-stat-details hidden"><div class="metric mb-4"><span class="value text-3xl font-semibold text-white block mb-1">Phone Banking</span></div></div></div>`;
+                case 'hungerScoreCard':
+                    return `<div class="premium-stat-item" data-stat-id="hungerScoreDetails"><h4 class="premium-stat-title cursor-pointer flex justify-between items-center">Ambition Details <span class="toggle-arrow">&gt;</span></h4><div class="premium-stat-details hidden"><div class="metric mb-4"><span class="value text-3xl font-semibold text-white block mb-1">1.58<span class="unit text-base font-normal opacity-80">EV</span></span><span class="label text-sm text-[var(--text-medium)]">Hunger-Adjusted EV</span></div></div></div>`;
+                default:
+                    return `<p class="text-sm text-[var(--text-medium)] text-center py-2">No specific advanced insights for this card.</p>`;
+            }
+        }
+
+        function togglePremiumStatDetails(clickedTitleElement, cardId) {
+            const parentStatItem = clickedTitleElement.closest('.premium-stat-item');
+            const statDetails = parentStatItem.querySelector('.premium-stat-details');
+            const toggleArrow = clickedTitleElement.querySelector('.toggle-arrow');
+
+            parentStatItem.parentNode.querySelectorAll('.premium-stat-details.show').forEach(openDetails => {
+                if (openDetails !== statDetails) {
+                    openDetails.classList.remove('show');
+                    openDetails.classList.add('hidden');
+                    const otherArrow = openDetails.previousElementSibling.querySelector('.toggle-arrow');
+                    if (otherArrow) otherArrow.classList.remove('open');
+                }
+            });
+
+            statDetails.classList.toggle('hidden');
+            statDetails.classList.toggle('show');
+            toggleArrow.classList.toggle('open');
+
+            if (statDetails.classList.contains('show')) {
+                const statId = parentStatItem.dataset.statId;
+                if (statId === 'roiPerHour') {
+                    const canvas = statDetails.querySelector('#dropdownRoiChart');
+                    if (canvas && !Chart.getChart(canvas)) {
+                        new Chart(canvas.getContext('2d'), {
+                             type: 'line',
+                             data: { labels: ['P1','P2','P3','P4'], datasets: [{ label: 'ROI', data: [2.5, 3.0, 2.8, 3.2], borderColor: '#7C3AED', borderWidth: 2, tension: 0.3 }] },
+                             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
+                        });
+                    }
+                }
+            }
+        }
+
+        function populateAndShowDropdown(dropdownContentElement, toggleElement, cardId) {
+            const overflowList = dropdownContentElement.querySelector('.overflow-list');
+            if (!overflowList) return;
+
+            document.querySelectorAll('.card-dropdown-content.show').forEach(openDropdown => {
+                if (openDropdown !== dropdownContentElement) {
+                    openDropdown.classList.remove('show');
+                    const associatedToggle = openDropdown.closest('.card').querySelector('.insights-dropdown-toggle');
+                    if (associatedToggle) associatedToggle.classList.remove('open');
+                }
+            });
+
+            dropdownContentElement.classList.toggle('show');
+            toggleElement.classList.toggle('open');
+
+            if (dropdownContentElement.classList.contains('show')) {
+                overflowList.innerHTML = ''; 
+                const premiumContentHtml = getPremiumContentHtml(cardId);
+                overflowList.innerHTML = premiumContentHtml;
+
+                if (window.isPremiumUser) {
+                    overflowList.querySelectorAll('.premium-stat-title').forEach(titleElement => {
+                        titleElement.addEventListener('click', (event) => {
+                            event.stopPropagation();
+                            togglePremiumStatDetails(titleElement, cardId);
+                        });
+                    });
+                }
+
+                if (window.allOverflowInsightsData.length > 0 && cardId === 'userInsightsCard') {
+                     const insightsByCategory = window.allOverflowInsightsData.reduce((acc, insight) => {
+                        const category = insight.category || 'Uncategorized';
+                        if (!acc[category]) acc[category] = [];
+                        acc[category].push(insight);
+                        return acc;
+                    }, {});
+
+                    for (const category in insightsByCategory) {
+                        const categoryHeader = document.createElement('h4');
+                        categoryHeader.classList.add('category-header');
+                        categoryHeader.textContent = category;
+                        overflowList.appendChild(categoryHeader);
+                        insightsByCategory[category].forEach(data => {
+                            const insightDiv = document.createElement('div');
+                            insightDiv.classList.add('user-insight-item');
+                            insightDiv.innerHTML = `<p class="font-semibold text-white mb-1">${data.title}</p><p>${data.description}</p><p class="meta-info">Submitted: ${data.timestamp}</p>`;
+                            overflowList.appendChild(insightDiv);
+                        });
+                    }
+                }
+            }
+        }
+
+        function updatePremiumToggleBtn() {
+            const toggleButton = document.getElementById('togglePremiumAccessBtn');
+            if (toggleButton) {
+                if (window.isPremiumUser) {
+                    toggleButton.textContent = 'Premium: ON';
+                    toggleButton.classList.remove('bg-gray-500', 'hover:bg-gray-600');
+                    toggleButton.classList.add('bg-[var(--accent-green)]', 'hover:bg-[#5cb85c]');
+                } else {
+                    toggleButton.textContent = 'Premium: OFF';
+                    toggleButton.classList.remove('bg-[var(--accent-green)]', 'hover:bg-[#5cb85c]');
+                    toggleButton.classList.add('bg-gray-500', 'hover:bg-gray-600');
+                }
+            }
+        }
+
+        function makeTableSortable(tableId) {
+            const table = document.getElementById(tableId);
+            if (!table) return;
+            const headers = table.querySelectorAll('th');
+            headers.forEach((header, index) => {
+                header.style.cursor = 'pointer'; 
+                header.setAttribute('data-sort-dir', 'none'); 
+                const sortIndicator = document.createElement('span');
+                sortIndicator.classList.add('sort-indicator');
+                header.appendChild(sortIndicator);
+
+                header.addEventListener('click', () => {
+                    const currentSortDir = header.getAttribute('data-sort-dir');
+                    let newSortDir = currentSortDir === 'asc' ? 'desc' : 'asc';
+                     
+                    headers.forEach(h => {
+                        if (h !== header) {
+                            h.setAttribute('data-sort-dir', 'none');
+                            h.querySelector('.sort-indicator').textContent = '';
+                        }
+                    });
+
+                    header.setAttribute('data-sort-dir', newSortDir);
+                    sortIndicator.textContent = newSortDir === 'asc' ? ' ▲' : ' ▼';
+
+                    const tbody = table.querySelector('tbody');
+                    const rows = Array.from(tbody.querySelectorAll('tr'));
+                    rows.sort((rowA, rowB) => {
+                        const cellA = rowA.children[index].textContent.trim();
+                        const cellB = rowB.children[index].textContent.trim();
+                        let valA = cellA, valB = cellB;
+                        if (!isNaN(parseFloat(cellA)) && !isNaN(parseFloat(cellB))) {
+                            valA = parseFloat(cellA.replace(/[^0-9.-]+/g,""));
+                            valB = parseFloat(cellB.replace(/[^0-9.-]+/g,""));
+                        } else if (cellA.startsWith('$') && cellB.startsWith('$')) {
+                            valA = parseFloat(cellA.replace('$', '').replace(/,/g, ''));
+                            valB = parseFloat(cellB.replace('$', '').replace(/,/g, ''));
+                        }
+                        return newSortDir === 'asc' ? (valA > valB ? 1 : -1) : (valA < valB ? 1 : -1);
+                    });
+                    rows.forEach(row => tbody.appendChild(row));
+                });
+            });
+        }
+        
+        function generateReport() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            doc.text("Volunteer Engagement Report", 20, 20);
+            doc.text(`Date Range: ${document.getElementById('dateRange').value}`, 20, 30);
+            doc.text(`Event Type: ${document.getElementById('eventType').value}`, 20, 40);
+            doc.save("volunteer-report.pdf");
+        }
+
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,Volunteer,Task,Value\r\n";
+            document.querySelectorAll("#financialContributionTableBody tr").forEach(row => {
+                let rowData = [];
+                row.querySelectorAll("td").forEach(cell => rowData.push(cell.textContent));
+                csvContent += rowData.join(",") + "\r\n";
+            });
+            const link = document.createElement("a");
+            link.setAttribute("href", encodeURI(csvContent));
+            link.setAttribute("download", "volunteer_data.csv");
+            document.body.appendChild(link);
+            link.click();
+        }
+
+        // --- NEW HEADER JS ---
+        function openCustomizer() {
+           try {
+               // Removed overly logic as elements are removed
+           } catch (e) {
+               console.error('Error in openCustomizer:', e);
+           }
+       }
+
+       function showProfileMenu() {
+           try {
+               // Removed overly logic as elements are removed
+           } catch (e) {
+               console.error('Error in showProfileMenu:', e);
+           }
+       }
+       // --------------------
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Header Navigation Setup
+                const navItems = ['Vision', 'Organizing', 'Financials', 'Data Suite', 'Projects', 'Development', 'Marketing', 'Donors'];
+                const navContainer = document.getElementById('main-nav');
+                let activeTab = 'Financials'; // Default active tab
+                
+                if(navContainer) {
+                    navItems.forEach(item => {
+                        const btn = document.createElement('button');
+                        const isActive = item === activeTab;
+                        btn.className = `group flex items-center px-3 py-2 text-xl font-bold tracking-tight font-fm-header transition-all ${
+                            isActive 
+                            ? 'text-[#98fb98] drop-shadow-[0_0_8px_rgba(152,251,152,0.25)] scale-105' 
+                            : 'text-gray-400 hover:text-white hover:scale-105'
+                        }`;
+                        btn.innerHTML = `<span>${item}</span>`;
+                        
+                        btn.addEventListener('click', function() {
+                            Array.from(navContainer.children).forEach(c => {
+                                c.className = 'group flex items-center px-3 py-2 text-xl font-bold tracking-tight font-fm-header transition-all text-gray-400 hover:text-white hover:scale-105';
+                            });
+                            this.className = 'group flex items-center px-3 py-2 text-xl font-bold tracking-tight font-fm-header transition-all text-[#98fb98] drop-shadow-[0_0_8px_rgba(152,251,152,0.25)] scale-105';
+                        });
+                        
+                        navContainer.appendChild(btn);
+                    });
+                    
+                    if (window.lucide) {
+                        window.lucide.createIcons();
+                    }
+                }
+
+                // Existing Dashboard Logic
+                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+                const currentUserIdDisplay = document.getElementById('currentUserIdDisplay');
+                if (!firebaseConfig.apiKey) {
+                    console.error("Firebase config is missing or invalid.");
+                    currentUserIdDisplay.textContent = 'Error: Firebase config invalid.';
+                    return;
+                }
+                window.firebaseApp = initializeApp(firebaseConfig);
+                window.db = getFirestore(window.firebaseApp);
+                window.auth = getAuth(window.firebaseApp);
+                
+                onAuthStateChanged(window.auth, (user) => {
+                    if (user) {
+                        window.currentUserId = user.uid;
+                        currentUserIdDisplay.textContent = `User ID: ${window.currentUserId}`;
+                        loadInsightsFromLocalStorage(window.currentUserId);
+                    } else {
+                        window.currentUserId = null;
+                        currentUserIdDisplay.textContent = 'User ID: Not authenticated.';
+                    }
+                });
+
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(window.auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(window.auth);
+                    }
+                } catch (authError) {
+                    window.currentUserId = crypto.randomUUID();
+                    currentUserIdDisplay.textContent = `User ID (Offline): ${window.currentUserId.substring(0,8)}`;
+                    loadInsightsFromLocalStorage(window.currentUserId);
+                }
+
+                initializeCharts();
+                initializeSortable();
+                updatePremiumToggleBtn();
+                makeTableSortable('projectsCompletedTable');
+                makeTableSortable('financialContributionTable');
+                makeTableSortable('individualSatisfactionTable');
+
+                const addFinancialContributionBtn = document.getElementById('addFinancialContributionBtn');
+                const addFinancialContributionModal = document.getElementById('addFinancialContributionModal');
+                const closeFinancialContributionModalBtn = document.getElementById('closeFinancialContributionModalBtn');
+                const newFinancialContributionForm = document.getElementById('newFinancialContributionForm');
+                const submitInsightBtn = document.getElementById('submitInsightBtn');
+                const submitInsightModal = document.getElementById('submitInsightModal');
+                const closeInsightModalBtn = document.getElementById('closeInsightModalBtn');
+                const newInsightForm = document.getElementById('newInsightForm');
+                const togglePremiumAccessBtn = document.getElementById('togglePremiumAccessBtn');
+                const allDropdownToggles = document.querySelectorAll('.insights-dropdown-toggle');
+                
+                document.getElementById('generateReportBtn').addEventListener('click', generateReport);
+                document.getElementById('exportCsvBtn').addEventListener('click', exportToCSV);
+                addFinancialContributionBtn.addEventListener('click', () => addFinancialContributionModal.classList.add('show'));
+                closeFinancialContributionModalBtn.addEventListener('click', () => addFinancialContributionModal.classList.remove('show'));
+
+                newFinancialContributionForm.addEventListener('submit', (event) => {
+                    event.preventDefault();
+                    addFinancialContributionEntry(
+                        document.getElementById('financialContributionVolunteerName').value,
+                        document.getElementById('financialContributionTask').value,
+                        document.getElementById('financialContributionValue').value
+                    );
+                    newFinancialContributionForm.reset();
+                    addFinancialContributionModal.classList.remove('show');
+                });
+
+                submitInsightBtn.addEventListener('click', () => submitInsightModal.classList.add('show'));
+                closeInsightModalBtn.addEventListener('click', () => submitInsightModal.classList.remove('show'));
+
+                newInsightForm.addEventListener('submit', async (event) => {
+                    event.preventDefault();
+                    const title = document.getElementById('insightTitle').value;
+                    const desc = document.getElementById('insightDescription').value;
+                    const cat = document.getElementById('insightCategory').value;
+                    if (window.currentUserId) {
+                        addInsightToLocalStorage(title, desc, cat, window.currentUserId);
+                        await addInsightToFirestore(title, desc, cat, window.currentUserId);
+                    }
+                    newInsightForm.reset();
+                    submitInsightModal.classList.remove('show');
+                });
+
+                togglePremiumAccessBtn.addEventListener('click', () => {
+                    window.isPremiumUser = !window.isPremiumUser;
+                    localStorage.setItem('isPremiumUser', window.isPremiumUser);
+                    updatePremiumToggleBtn();
+                    document.querySelectorAll('.card-dropdown-content.show').forEach(openDropdown => {
+                        openDropdown.classList.remove('show');
+                        const associatedToggle = openDropdown.closest('.card').querySelector('.insights-dropdown-toggle');
+                        if (associatedToggle) associatedToggle.classList.remove('open');
+                    });
+                });
+
+                allDropdownToggles.forEach(toggle => {
+                    toggle.addEventListener('click', (event) => {
+                        event.stopPropagation();
+                        const parentCard = toggle.closest('.card');
+                        const dropdownContent = parentCard.querySelector('.card-dropdown-content');
+                        if (dropdownContent) populateAndShowDropdown(dropdownContent, toggle, parentCard.id);
+                    });
+                });
+
+                document.addEventListener('click', (event) => {
+                    document.querySelectorAll('.card-dropdown-content.show').forEach(openDropdown => {
+                        const parentCard = openDropdown.closest('.card');
+                        if (!parentCard.contains(event.target)) {
+                            openDropdown.classList.remove('show');
+                            const associatedToggle = parentCard.querySelector('.insights-dropdown-toggle');
+                            if (associatedToggle) associatedToggle.classList.remove('open');
+                        }
+                    });
+                });
+
+            } catch (e) {
+                console.error("Fatal Initialization Error:", e);
+                document.getElementById('currentUserIdDisplay').textContent = 'Error: App failed to load.';
+            }
+        });
+    </script>
+    <style>
+        /* --- NEW HEADER CSS --- */
+       :root {
+           --primary-green: #37af4b;
+           --dark-background: #1c1c1c;
+           --member-border: #28a745;
+           --light-gray: #bbb;
+           --theme-body-bg: #1c1c1c;
+           --theme-body-color: #fff;
+           --theme-popup-bg: #bbbbbb;
+           --theme-popup-text: #1c1c1c;
+           --theme-input-bg: #333;
+           --theme-input-border: #444;
+           --theme-input-text: #eee;
+           --theme-navbar-bg: #1c1c1c;
+           --theme-navbar-text: #fff;
+           --theme-navbar-dropdown-bg: #f0f0f0;
+           --theme-navbar-dropdown-text: #1c1c1c;
+           --theme-navbar-dropdown-hover-bg: #ddd;
+           --theme-button-bg: #FEFEFE;
+           --theme-button-text: #1c1c1c;
+           --theme-button-border: #1c1c1c;
+           --theme-button-hover-bg: #1c1c1c;
+           --theme-button-hover-text: #FEFEFE;
+           --mobile-section-bg: #2a2a2a;
+           --logo-color: #FEFEFE;
+           --logo-filter: none;
+           
+           /* Dashboard specific */
+           --bg-primary: #12141D; 
+           --card-bg: #1F2128; 
+           --text-light: #FFFFFF; 
+           --text-medium: #8F92A1; 
+           --accent-blue: #3B82F6; 
+           --accent-green: #10B981; 
+           --accent-orange: #F97316; 
+           --accent-purple: #7C3AED;
+           --accent-red: #EF4444; 
+           --border-color: rgba(255, 255, 255, 0.05); 
+           --chart-bg-subtle: transparent; 
+       }
+
+       html[data-theme='light'] {
+           --theme-body-bg: #FEFEFE;
+           --theme-body-color: #1c1c1c;
+           --theme-popup-bg: #e0e0e0;
+           --theme-popup-text: #1c1c1c;
+           --theme-input-bg: #fff;
+           --theme-input-border: #ccc;
+           --theme-input-text: #1c1c1c;
+           --primary-green: #37af4b;
+           --member-border: #37af4b;
+           --theme-navbar-bg: #FEFEFE;
+           --theme-navbar-text: #1c1c1c;
+           --theme-navbar-dropdown-bg: #1c1c1c;
+           --theme-navbar-dropdown-text: #FEFEFE;
+           --theme-navbar-dropdown-hover-bg: #333;
+           --theme-button-bg: #1c1c1c;
+           --theme-button-text: #FEFEFE;
+           --theme-button-border: #1c1c1c;
+           --theme-button-hover-bg: #FEFEFE;
+           --theme-button-hover-text: #1c1c1c;
+           --mobile-section-bg: #f0f0f0;
+           --logo-color: #1c1c1c;
+       }
+       
+       /* NEW: Header Font Class */
+       .font-fm-header {
+           font-family: 'Atkinson Hyperlegible', sans-serif;
+       }
+
+        /* NEW: Scrollbar override from user snippet (merging with existing) */
+        ::-webkit-scrollbar {
+            height: 4px; /* from user snippet */
+            width: 8px; /* existing */
+        }
+        ::-webkit-scrollbar-track {
+            background: #1c1c1c; /* from user snippet */
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #374151; /* from user snippet */
+            border-radius: 4px;
+        }
+        
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+
+       .desktop-wp-header-container {
+           background: linear-gradient(135deg, rgb(5,114,21) 0%, rgb(55,175,75) 100%);
+           margin: 0;
+           padding: 0;
+           width: 100%;
+           /* Make sure it sits above other content */
+           position: relative;
+           z-index: 50; 
+       }
+
+       .desktop-wp-header-contents {
+           display: flex;
+           flex-wrap: nowrap;
+           justify-content: space-between;
+           align-items: center;
+           width: 100%;
+           background: linear-gradient(135deg, rgb(5,114,21) 0%, rgb(55,175,75) 100%);
+           padding: 0 1.25rem;
+           box-sizing: border-box;
+       }
+
+       .desktop-header-left-group,
+       .desktop-header-right-group {
+           display: flex;
+           flex-wrap: nowrap;
+           gap: 1.25rem;
+           align-items: center;
+       }
+
+       .desktop-header-right-group {
+           justify-content: flex-end;
+       }
+
+       .desktop-header-logo-img {
+           width: 7.4375rem;
+           height: auto;
+           display: block;
+           filter: var(--logo-filter);
+       }
+
+       .theme-button {
+           background-color: transparent;
+           border: none;
+           cursor: pointer;
+           padding: 0.625rem;
+       }
+
+       .palette-icon {
+           width: 1.875rem;
+           height: 1.875rem;
+           fill: none;
+           stroke: var(--logo-color);
+           stroke-width: 2;
+           transition: transform 0.5s ease, stroke 0.3s ease;
+       }
+
+       .profile-pic {
+           width: 50px;
+           height: 50px;
+           border-radius: 50%;
+           object-fit: cover;
+           cursor: pointer;
+           border: 2px solid var(--primary-green);
+           transition: border-color 0.3s ease;
+       }
+
+       .profile-pic:hover {
+           border-color: #2e9b41;
+       }
+
+       .popup-overlay {
+           position: fixed;
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100%;
+           background-color: rgba(0, 0, 0, 0.5); /* Slightly darker for better contrast over dashboard */
+           z-index: 9998;
+           visibility: hidden;
+           opacity: 0;
+           transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+           display: flex;
+           justify-content: center;
+           align-items: center;
+       }
+
+       .customizer-panel {
+           background-color: var(--theme-popup-bg);
+           color: var(--theme-popup-text);
+           padding: 1.25rem;
+           border-radius: 0.5rem;
+           box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.2);
+           width: 15.625rem;
+           visibility: hidden;
+           opacity: 0;
+           z-index: 9999;
+           transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+       }
+
+       .popup-header {
+           display: flex;
+           justify-content: space-between;
+           align-items: center;
+           margin-bottom: 0.9375rem;
+           cursor: move;
+       }
+
+       .popup-title {
+           margin: 0;
+           font-size: 1.125rem;
+           font-weight: bold;
+           color: var(--theme-popup-text);
+       }
+
+       .popup-close-button {
+           font-size: 1.5rem;
+           cursor: pointer;
+           padding: 0 0.3125rem;
+           line-height: 1;
+           color: var(--theme-popup-text);
+       }
+
+       .profile-menu-overlay {
+           position: fixed;
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100%;
+           background-color: rgba(0, 0, 0, 0.5);
+           z-index: 9998;
+           display: flex;
+           justify-content: center;
+           align-items: center;
+           visibility: hidden;
+           opacity: 0;
+           transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+       }
+
+       .profile-menu {
+           background-color: var(--theme-popup-bg);
+           color: var(--theme-popup-text);
+           padding: 1.25rem;
+           border-radius: 0.5rem;
+           box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.2);
+           width: 15.625rem;
+           text-align: center;
+           position: absolute;
+       }
+       /* ------------------- */
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-primary); 
+            color: var(--text-light); 
+            /* Changed from flex to block to allow full width header */
+            display: block; 
+            min-height: 100vh; 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        .dashboard-container { 
+            width: 100%; 
+            max-width: 1400px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 25px; 
+            /* Added auto margin for centering content */
+            margin: 20px auto; 
+            padding: 0 20px;
+        }
+        
+        /* Header Styling */
+        .dashboard-header { background-color: var(--card-bg); padding: 15px 25px; border-radius: 16px; display: flex; items-center; justify-between; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); }
+        .header-search { background-color: var(--bg-primary); border: none; padding: 10px 15px; border-radius: 8px; color: var(--text-light); width: 300px; }
+        .header-search::placeholder { color: var(--text-medium); }
+
+        /* Card Styling */
+        .card { background-color: var(--card-bg); border-radius: 20px; padding: 25px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25); display: flex; flex-direction: column; position: relative; border: 1px solid var(--border-color); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .card-header h3 { margin: 0; font-size: 1.1em; font-weight: 500; color: var(--text-light); }
+        
+        /* Metric Styling */
+        .metric { margin-bottom: 10px; }
+        .metric .value { font-size: 2.5em; font-weight: 700; color: var(--text-light); display: block; margin-bottom: 5px; line-height: 1; }
+        .metric .value .unit { font-size: 0.5em; font-weight: 500; opacity: 0.7; margin-left: 5px; }
+        .metric .label { font-size: 0.9em; color: var(--text-medium); font-weight: 500; }
+        
+        /* CSAT/ROI Card Styling */
+        .csat-card { background: linear-gradient(135deg, #1F2128 0%, #2D2F39 100%); overflow: hidden; }
+        .csat-main { display: flex; justify-content: space-between; align-items: flex-end; flex-grow: 1; }
+        .csat-score .value { font-size: 4em; font-weight: 800; color: var(--text-light); }
+        .csat-score .label { color: var(--text-medium); font-size: 1em; }
+        .csat-chart-container { flex-grow: 1; display: flex; flex-direction: column; align-items: flex-end; position: relative; height: 100px; }
+        .csat-chart-container p { font-size: 0.8em; color: var(--text-medium); margin-bottom: 5px; }
+        .exclamation-mark { position: absolute; top: -10px; right: -10px; bg-white text-[var(--accent-red)] rounded-full w-[30px] h-[30px] flex justify-center items-center text-xl font-bold shadow-md; }
+
+        /* Table Styling */
+        table { width: 100%; border-collapse: collapse; font-size: 0.95em; }
+        table th, table td { padding: 15px 10px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        table th { color: var(--text-medium); font-weight: 500; font-size: 0.85em; text-transform: uppercase; position: relative; padding-right: 20px; letter-spacing: 0.05em; }
+        table td { color: var(--text-light); font-weight: 500; }
+        .status-offline { color: var(--text-medium); }
+        .status-online { color: var(--accent-green); }
+        
+        /* Modal & Form Styling */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; visibility: hidden; opacity: 0; transition: visibility 0s, opacity 0.3s; }
+        .modal.show { visibility: visible; opacity: 1; }
+        .modal-content { background-color: var(--card-bg); padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; position: relative; border: 1px solid var(--border-color); }
+        .close-button { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 1.5em; color: var(--text-medium); cursor: pointer; transition: color 0.2s; }
+        .close-button:hover { color: var(--text-light); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; color: var(--text-light); font-weight: 500; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background-color: var(--bg-primary); color: var(--text-light); box-sizing: border-box; transition: border-color 0.2s; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--accent-blue); outline: none; }
+        
+        /* Dropdown & Insights Styling */
+        .insights-dropdown-toggle { cursor: pointer; font-size: 1.5em; transform: rotate(90deg); transition: transform 0.3s, opacity 0.3s, color 0.2s; opacity: 0; position: absolute; right: 25px; top: 25px; color: var(--text-medium); z-index: 10; }
+        .card:hover .insights-dropdown-toggle { opacity: 1; }
+        .insights-dropdown-toggle:hover { color: var(--text-light); }
+        .insights-dropdown-toggle.open { transform: rotate(270deg); }
+        .card-dropdown-content { position: absolute; top: 100%; left: 0; right: 0; background-color: var(--card-bg); border-radius: 16px; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5); padding: 20px; margin-top: 10px; z-index: 999; display: none; flex-direction: column; max-height: 400px; overflow-y: auto; border: 1px solid var(--border-color); }
+        .card-dropdown-content.show { display: flex; }
+        .premium-stat-item { margin-bottom: 15px; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+        .premium-stat-item:last-of-type { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .premium-stat-title { font-size: 1.05em; font-weight: 600; color: var(--text-light); cursor: pointer; padding: 5px 0; display: flex; justify-content: space-between; align-items: center; transition: color 0.2s; }
+        .premium-stat-title:hover { color: var(--accent-blue); }
+        .premium-stat-title .toggle-arrow { transform: rotate(90deg); transition: transform 0.2s; font-size: 0.9em; }
+        .premium-stat-title .toggle-arrow.open { transform: rotate(270deg); }
+        .premium-stat-details { margin-top: 15px; padding-left: 15px; border-left: 2px solid var(--accent-blue); }
+        .premium-stat-details.hidden { display: none; }
+        .premium-stat-details.show { display: block; }
+        .user-insight-item { background-color: var(--bg-primary); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid var(--border-color); }
+        .user-insight-item p { margin: 0; font-size: 0.95em; color: var(--text-light); line-height: 1.5; }
+        .user-insight-item .meta-info { font-size: 0.8em; color: var(--text-medium); margin-top: 8px; text-align: right; }
+        .no-insights-message { color: var(--text-medium); font-style: italic; text-align: center; padding: 20px; }
+
+        /* Footer Styling */
+        .dashboard-footer { padding-top: 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+
+        /* Button Styling */
+        button { transition: all 0.2s ease-in-out; }
+        button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-medium); }
+    </style>
+</head>
+<body class="bg-[var(--bg-primary)] text-[var(--text-light)] box-border font-sans">
+    
+    <!-- EXTRACTED HEADER -->
+    <header class="flex flex-col w-full bg-[#1b1b1b] border-b border-[#2a2a2a] shadow-lg">
+        <div class="flex items-center h-16 px-6 gap-6 overflow-x-auto no-scrollbar">
+            
+            <!-- Navigation Controls -->
+            <div class="flex items-center mr-2 flex-shrink-0">
+                <button class="flex items-center justify-center w-8 h-10 bg-[#2a2d35] border border-blue-500/50 rounded-l hover:bg-[#353842] transition-colors group relative">
+                    <div class="absolute inset-0 border border-blue-400/30 rounded-l opacity-50"></div>
+                    <i data-lucide="chevron-left" class="w-5 h-5 text-gray-300 group-hover:text-white"></i>
+                </button>
+                <button class="flex items-center justify-center w-8 h-10 bg-[#1f1f1f] hover:bg-[#2a2a2a] transition-colors rounded-r border-y border-r border-[#333]">
+                    <i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i>
+                </button>
+            </div>
+
+            <!-- Logo -->
+            <div class="flex-shrink-0 mr-4">
+                <div class="h-12 w-auto flex items-center justify-center">
+                    <img 
+                      src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" 
+                      alt="Team Logo" 
+                      class="h-full w-auto object-contain drop-shadow-md"
+                      onerror="this.src='https://via.placeholder.com/150x50?text=LOGO';this.onerror=null;"
+                    />
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="flex items-center gap-2" id="main-nav">
+                <!-- Nav items generated by JS -->
+            </nav>
+        </div>
+    </header>
+
+    <div class="dashboard-container w-full max-w-[1600px] mx-auto flex flex-col gap-6">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="flex items-center gap-6">
+                <input type="text" placeholder="Search for volunteers, projects..." class="header-search">
+            </div>
+            <div class="flex items-center gap-4">
+                <select id="dateRange" class="bg-[var(--bg-primary)] text-white p-2 rounded-lg border border-[var(--border-color)] focus:outline-none focus:border-[var(--accent-blue)] transition-colors"><option>Last Quarter</option><option>This Year</option><option>Custom Range</option></select>
+                <select id="eventType" class="bg-[var(--bg-primary)] text-white p-2 rounded-lg border border-[var(--border-color)] focus:outline-none focus:border-[var(--accent-blue)] transition-colors"><option>All Event Types</option><option>Phone Banking</option><option>Community Service</option></select>
+                <button id="generateReportBtn" class="bg-[var(--accent-blue)] hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-all">Generate Report</button>
+                <button id="exportCsvBtn" class="bg-[var(--accent-green)] hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition-all">Export CSV</button>
+            </div>
+        </header>
+
+        <!-- Main Grid -->
+        <main id="dashboardGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- ROI Card (Redesigned) -->
+            <div class="card csat-card col-span-full lg:col-span-2" id="roiCard">
+                <div class="card-header">
+                    <h3>Return on Investment</h3>
+                    <span class="insights-dropdown-toggle" id="roiToggle">&gt;</span>
+                </div>
+                <div class="csat-main">
+                    <div class="csat-score">
+                        <span class="value">3.5:1</span>
+                        <span class="label">ROI Ratio</span>
+                    </div>
+                    <div class="csat-chart-container h-32 w-2/3">
+                        <canvas id="roiTrendChart"></canvas>
+                    </div>
+                </div>
+                <div class="card-dropdown-content" id="roiDropdown"><div class="overflow-list"></div></div>
+            </div>
+
+            <!-- Hours by Project Type Chart -->
+            <div class="card col-span-1" id="hoursByTypeChartCard">
+                <div class="card-header">
+                    <h3>Hours by Project Type</h3>
+                    <span class="insights-dropdown-toggle" id="hoursByTypeChartToggle">&gt;</span>
+                </div>
+                <div class="relative h-64"><canvas id="hoursByTypeChart"></canvas></div>
+                <div class="card-dropdown-content" id="hoursByTypeChartDropdown"><div class="overflow-list"></div></div>
+            </div>
+
+             <!-- Retention & Burnout Card -->
+             <div class="card col-span-1" id="retentionCard">
+                <div class="card-header">
+                    <h3>Retention & Health</h3>
+                    <span class="insights-dropdown-toggle" id="retentionToggle">&gt;</span>
+                </div>
+                <div class="metric mb-6">
+                    <span class="value text-[var(--accent-red)]">2<span class="unit">Vols</span></span>
+                    <span class="label">At High Risk of Burnout</span>
+                </div>
+                <div class="metric">
+                    <span class="value">4.2<span class="unit">%</span></span>
+                    <span class="label">Monthly Churn Rate</span>
+                </div>
+                <div class="card-dropdown-content" id="retentionDropdown"><div class="overflow-list"></div></div>
+            </div>
+
+            <!-- Operational Efficiency Card -->
+            <div class="card col-span-1" id="efficiencyCard">
+                <div class="card-header">
+                    <h3>Operational Efficiency</h3>
+                    <span class="insights-dropdown-toggle" id="efficiencyToggle">&gt;</span>
+                </div>
+                <div class="metric mb-6">
+                    <span class="value">12<span class="unit">%</span></span>
+                    <span class="label">Avg. No-Show Rate</span>
+                </div>
+                <div class="metric">
+                    <span class="value">4.5<span class="unit">Days</span></span>
+                    <span class="label">Time-to-Productivity</span>
+                </div>
+                <div class="card-dropdown-content" id="efficiencyDropdown"><div class="overflow-list"></div></div>
+            </div>
+
+            <!-- Total Volunteer Hours Card -->
+            <div class="card col-span-1" id="totalVolunteerHoursCard">
+                <div class="card-header">
+                    <h3>Total Volunteer Hours</h3>
+                    <span class="insights-dropdown-toggle" id="totalVolunteerHoursToggle">&gt;</span>
+                </div>
+                <div class="metric mb-6"><span class="value">23,450</span><span class="label">Total Hours</span></div>
+                <div class="metric"><span class="value">1,200</span><span class="label">Active Volunteers</span></div>
+                <div class="card-dropdown-content" id="totalVolunteerHoursDropdown"><div class="overflow-list"></div></div>
+            </div>
+
+            <!-- Engagement Card -->
+            <div class="card col-span-1" id="volunteerEngagementCard">
+                <div class="card-header">
+                    <h3>Engagement</h3>
+                    <span class="insights-dropdown-toggle" id="volunteerEngagementToggle">&gt;</span>
+                </div>
+                <div class="metric mb-6"><span class="value">19.5</span><span class="label">Avg. Hours/Vol</span></div>
+                <div class="metric"><span class="value">2.1</span><span class="label">Avg. Projects/Vol</span></div>
+                <div class="card-dropdown-content" id="volunteerEngagementDropdown"><div class="overflow-list"></div></div>
+            </div>
+
+             <!-- Hunger Score -->
+             <div class="card col-span-1 relative" id="hungerScoreCard">
+                <div class="card-header">
+                    <h3>Hunger Score (Ambition)</h3>
+                    <span id="hungerScoreToggle" class="insights-dropdown-toggle">&gt;</span>
+                </div>
+                <div class="metric mb-6"><span class="value">7.5<span class="unit">/10</span></span><span class="label">Avg. Hunger Score</span></div>
+                <div class="metric"><span class="value">1.58<span class="unit">EV</span></span><span class="label">Hunger-Adjusted EV</span></div>
+                <div class="card-dropdown-content" id="hungerScoreDropdown"><div class="overflow-list"></div></div>
+            </div>
+
+             <!-- Projects Completed -->
+             <div class="card col-span-1" id="projectsCompletedCard">
+                <div class="card-header">
+                    <h3>Projects Leaderboard</h3>
+                    <span class="insights-dropdown-toggle" id="projectsCompletedToggle">&gt;</span>
+                </div>
+                <table class="w-full text-sm" id="projectsCompletedTable">
+                    <thead><tr><th>Name</th><th>Proj</th></tr></thead>
+                    <tbody>
+                        <tr><td>Alice Johnson</td><td>12</td></tr>
+                        <tr><td>Bob Williams</td><td>10</td></tr>
+                        <tr><td>Charlie Brown</td><td>8</td></tr>
+                    </tbody>
+                </table>
+                <div class="card-dropdown-content" id="projectsCompletedDropdown"><div class="overflow-list"></div></div>
+            </div>
+
+            <!-- Financial Value -->
+            <div class="card col-span-1" id="financialValueCard">
+                <div class="card-header">
+                    <h3>Financial Value</h3>
+                    <span class="insights-dropdown-toggle" id="financialValueToggle">&gt;</span>
+                </div>
+                <table class="w-full text-sm mb-4" id="financialContributionTable">
+                    <thead><tr><th>Volunteer</th><th>Value</th></tr></thead>
+                    <tbody id="financialContributionTableBody">
+                        <tr><td>Alice Johnson</td><td>$750</td></tr>
+                        <tr><td>Bob Williams</td><td>$1,200</td></tr>
+                        <tr><td>Diana Prince</td><td>$2,500</td></tr>
+                    </tbody>
+                </table>
+                <button id="addFinancialContributionBtn" class="bg-[var(--accent-blue)] hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg w-full transition-all">Add Contribution</button>
+                <div class="card-dropdown-content" id="financialValueDropdown"><div class="overflow-list"></div></div>
+            </div>
+
+            <!-- Individual Satisfaction -->
+            <div class="card col-span-1" id="individualSatisfactionCard">
+                <div class="card-header">
+                    <h3>Satisfaction Scores</h3>
+                    <span class="insights-dropdown-toggle" id="individualSatisfactionToggle">&gt;</span>
+                </div>
+                <table class="w-full text-sm" id="individualSatisfactionTable">
+                    <thead><tr><th>Name</th><th>Score</th></tr></thead>
+                    <tbody>
+                        <tr><td>David Lee</td><td class="status-online font-semibold">9.2</td></tr>
+                        <tr><td>Emily Chen</td><td class="status-online font-semibold">8.8</td></tr>
+                        <tr><td>Sarah Davis</td><td class="status-online font-semibold">8.5</td></tr>
+                    </tbody>
+                </table>
+                <div class="card-dropdown-content" id="individualSatisfactionDropdown"><div class="overflow-list"></div></div>
+            </div>
+
+             <!-- User Insights -->
+             <div class="card col-span-full" id="userInsightsCard">
+                <div class="card-header">
+                    <h3>User Insights</h3>
+                    <span id="userInsightsToggle" class="insights-dropdown-toggle">&gt;</span>
+                </div>
+                <div id="userInsightsList" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <p class="no-insights-message col-span-full" id="noInsightsMessage">No insights submitted yet.</p>
+                </div>
+                <div class="card-dropdown-content" id="userInsightsDropdown"><div id="overflowInsightsList" class="overflow-list"></div></div>
+            </div>
+        </main>
+
+        <!-- Footer (Dashboard Controls) -->
+        <footer class="dashboard-footer">
+            <div class="flex items-center gap-4">
+                <span id="currentUserIdDisplay" class="text-sm text-[var(--text-medium)] font-medium">User ID: Loading...</span>
+                <button id="togglePremiumAccessBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-all">Premium: OFF</button>
+            </div>
+            <button id="submitInsightBtn" class="bg-[var(--accent-green)] hover:bg-green-600 text-white font-medium py-2 px-4 rounded-lg transition-all">Submit New Insight</button>
+        </footer>
+
+        <!-- Add New Financial Contribution Modal -->
+        <div id="addFinancialContributionModal" class="modal">
+            <div class="modal-content">
+                <button class="close-button" id="closeFinancialContributionModalBtn">&times;</button>
+                <h2 class="text-xl font-bold mb-6 text-white">Add New Contribution Entry</h2>
+                <form id="newFinancialContributionForm">
+                    <div class="form-group"><label for="financialContributionVolunteerName">Volunteer Name:</label><input type="text" id="financialContributionVolunteerName" required placeholder="e.g., John Doe"></div>
+                    <div class="form-group"><label for="financialContributionTask">Task Performed:</label><input type="text" id="financialContributionTask" required placeholder="e.g., Event Setup"></div>
+                    <div class="form-group"><label for="financialContributionValue">Calculated Value:</label><input type="text" id="financialContributionValue" required placeholder="e.g., $500"></div>
+                    <button type="submit" class="bg-[var(--accent-blue)] hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg w-full transition-all">Add Entry</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Submit New Insight Modal -->
+        <div id="submitInsightModal" class="modal">
+            <div class="modal-content">
+                <button class="close-button" id="closeInsightModalBtn">&times;</button>
+                <h2 class="text-xl font-bold mb-6 text-white">Submit New Insight</h2>
+                <form id="newInsightForm">
+                    <div class="form-group"><label for="insightTitle">Insight Title:</label><input type="text" id="insightTitle" required placeholder="Short, descriptive title"></div>
+                    <div class="form-group"><label for="insightDescription">Description:</label><textarea id="insightDescription" required placeholder="Detailed explanation of the insight..." rows="4"></textarea></div>
+                    <div class="form-group"><label for="insightCategory">Category:</label><select id="insightCategory"><option>Total Volunteer Hours</option><option>V-WAR Analysis</option><option>Burnout Risk</option><option>Operational Efficiency</option><option>Other</option></select></div>
+                    <button type="submit" class="bg-[var(--accent-green)] hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg w-full transition-all">Submit Insight</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
