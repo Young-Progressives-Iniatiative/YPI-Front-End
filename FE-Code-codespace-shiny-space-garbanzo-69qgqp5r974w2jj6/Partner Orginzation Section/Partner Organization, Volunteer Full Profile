@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Profile - Ricky Castro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Core UI Surfaces */
+            --bg-primary: #1c1c1c;
+            --bg-tertiary: #4C6050;
+
+            /* Accents */
+            --accent-primary: #B3EDBD;
+            --accent-muted: #94A38D;
+            --accent-cyan: #17DAE9;
+            --accent-teal: #59AEB5;
+
+            /* Text System */
+            --text-primary: #FEFEFE;
+            --text-secondary: #C8CFC9;
+            --text-muted: #8A918C;
+
+            /* Status */
+            --status-positive: #F2D94C;
+            --status-negative: #E23B3B;
+            
+            /* UI Constants */
+            --border-width: 2px;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Atkinson Hyperlegible', sans-serif;
+            padding: 2rem;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .cyber-panel {
+            border: var(--border-width) solid var(--accent-muted);
+            border-radius: 4px;
+            padding: 1rem;
+            position: relative;
+            background: transparent;
+            transition: border-color 0.3s ease;
+        }
+
+        .cyber-panel:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .accent-text {
+            color: var(--accent-primary);
+        }
+
+        .secondary-text {
+            color: var(--text-secondary);
+        }
+
+        .muted-text {
+            color: var(--text-muted);
+        }
+
+        .metric-bar-bg {
+            background: rgba(255, 255, 255, 0.05);
+            height: 20px;
+            border: var(--border-width) solid var(--accent-muted);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-bar-fill {
+            background: var(--accent-primary);
+            height: 100%;
+            transition: width 1s ease-in-out;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        .dot-filled { background-color: var(--accent-cyan); }
+        .dot-empty { border: var(--border-width) solid var(--accent-cyan); }
+
+        .header-accent {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            padding: 2px 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            border-radius: 2px;
+        }
+
+        .divider {
+            border-bottom: var(--border-width) solid var(--bg-tertiary);
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-muted); 
+        }
+    </style>
+</head>
+<body class="text-[11px]">
+
+    <div class="max-w-[1400px] mx-auto grid grid-cols-12 gap-3">
+        
+        <!-- TOP HEADER -->
+        <div class="col-span-12 grid grid-cols-12 gap-3 mb-2">
+            <!-- Logo & Photo Area -->
+            <!-- Changed h-48 to aspect-[4/3] to maintain the correct vertical proportions for the percentage-based layout -->
+            <div class="col-span-3 cyber-panel relative aspect-[4/3] overflow-hidden">
+                <!-- Logo: 98% width (2x 98%), 84% height (2x 42%). Centered at (50%, 25%) -->
+                <div class="absolute border-[var(--border-width)] border-[var(--accent-primary)] border-solid flex items-center justify-center overflow-hidden p-1"
+                     style="width: 98%; height: 84%; left: 50%; top: 25%; transform: translate(-50%, -50%); z-index: 1;">
+                    <img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon.png" 
+                         alt="YPI Logo" 
+                         class="w-full h-full object-contain"
+                         onerror="this.style.display='none'; this.parentElement.innerText='YPI'; this.parentElement.classList.add('accent-text', 'font-bold', 'text-xl');">
+                </div>
+                
+                <!-- Profile Image: 36% width, 42% height. Center of head at (65%, 60%) with higher z-index -->
+                <div class="absolute border-[var(--border-width)] border-[var(--accent-muted)] border-solid overflow-hidden rounded"
+                     style="width: 36%; height: 42%; left: 65%; top: 60%; transform: translate(-50%, -50%); z-index: 10;">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Ricky" alt="Profile" class="w-full h-full object-cover opacity-90">
+                </div>
+            </div>
+
+            <!-- Name and Sub-header -->
+            <div class="col-span-9 cyber-panel flex flex-col justify-center">
+                <div class="flex justify-between items-baseline divider pb-1 mb-2">
+                    <h1 class="text-4xl font-bold tracking-tighter italic accent-text">Ricky Castro</h1>
+                    <div class="flex gap-4 secondary-text font-bold">
+                        <span>Walter Johnson High School</span>
+                        <span class="muted-text">|</span>
+                        <span>Class of '26</span>
+                        <span class="muted-text">|</span>
+                        <span>Desired Role: Advocacy Intern</span>
+                        <span class="muted-text">|</span>
+                        <span>Searching: <span class="accent-text">Yes</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LEFT COLUMN: PERSONAL INFO -->
+        <div class="col-span-3 space-y-3">
+            <div class="cyber-panel h-full overflow-y-auto max-h-[600px]">
+                <h2 class="header-accent mb-3 inline-block">Personal Information</h2>
+                <div class="space-y-2 leading-relaxed secondary-text">
+                    <p><span class="accent-text font-bold">Full Name:</span> Ricky Walter Castro</p>
+                    <p><span class="accent-text font-bold">Nickname:</span> N/A</p>
+                    <p><span class="accent-text font-bold">Age:</span> 18 Years of Age</p>
+                    <p><span class="accent-text font-bold">Hometown:</span> Silver Spring, Maryland</p>
+                    <p><span class="accent-text font-bold">Nationality:</span> American 🇺🇸</p>
+                    <p><span class="accent-text font-bold">Morale:</span> Great 😁</p>
+                    <p><span class="accent-text font-bold">Languages:</span> English (Native)</p>
+                    <div class="pt-2 border-t-[var(--border-width)] border-solid border-[var(--bg-tertiary)]">
+                        <p class="accent-text font-bold mb-1">Skills:</p>
+                        <p class="muted-text font-bold">Python, Java, SQL, JavaScript (React), Machine Learning, Statistical Analysis, Feature Engineering, Model Evaluation, Pandas, NumPy, Scikit-learn, Git, Figma, REST APIs.</p>
+                    </div>
+                    <div class="pt-2 border-t-[var(--border-width)] border-solid border-[var(--bg-tertiary)] space-y-1">
+                        <p><span class="accent-text font-bold">SSL Hours Left:</span> 75</p>
+                        <p><span class="accent-text font-bold">National Honors Society:</span> N/A</p>
+                        <p><span class="accent-text font-bold">Committed School:</span> UMBC</p>
+                        <p><span class="accent-text font-bold">Test Scores:</span> ACT 30, SAT 1150, Honor Roll IB MYP (52/56)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTER COLUMN: METRICS -->
+        <div class="col-span-6 space-y-3">
+            <!-- Academic Metrics -->
+            <div class="cyber-panel">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="header-accent">Advanced Academic Metrics</h2>
+                    <span class="text-[9px] muted-text font-bold">Current Rating/Median</span>
+                </div>
+                
+                <div class="space-y-2 font-bold">
+                    <div>
+                        <div class="flex justify-between mb-0.5"><span class="accent-text">MATH+</span><span class="secondary-text">200/100 Med.</span></div>
+                        <div class="metric-bar-bg"><div class="metric-bar-fill w-full"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-0.5"><span class="accent-text">ENG+</span><span class="secondary-text">80/100 Med.</span></div>
+                        <div class="metric-bar-bg"><div class="metric-bar-fill w-[40%] bg-[var(--status-positive)]"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-0.5"><span class="accent-text">HIST+</span><span class="secondary-text">180/100 Med.</span></div>
+                        <div class="metric-bar-bg"><div class="metric-bar-fill w-[90%] bg-[var(--accent-cyan)]"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-0.5"><span class="accent-text">SCI+</span><span class="secondary-text">160/100 Med.</span></div>
+                        <div class="metric-bar-bg"><div class="metric-bar-fill w-[80%] bg-[var(--accent-cyan)]"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-0.5"><span class="accent-text">TECH+</span><span class="secondary-text">200/100 Med.</span></div>
+                        <div class="metric-bar-bg"><div class="metric-bar-fill w-full"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-0.5"><span class="accent-text">ART+</span><span class="secondary-text">200/100 Med.</span></div>
+                        <div class="metric-bar-bg"><div class="metric-bar-fill w-full"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Working Metrics -->
+            <div class="cyber-panel grid grid-cols-2 gap-4">
+                <div class="col-span-2 border-b-[var(--border-width)] border-solid border-[var(--bg-tertiary)] pb-2 flex justify-between items-center">
+                    <h2 class="header-accent">Working Metrics</h2>
+                    <div class="flex gap-2 text-[9px]">
+                        <span class="bg-[var(--bg-tertiary)] px-2 py-0.5 border-[var(--border-width)] border-solid border-[var(--accent-muted)] rounded secondary-text font-bold">Public Policy Intern</span>
+                    </div>
+                </div>
+                
+                <div class="space-y-1 font-bold">
+                    <p class="flex justify-between italic secondary-text">Net Expected Value (60m): <span style="color: var(--status-positive)">$17.06</span></p>
+                    <p class="flex justify-between font-bold secondary-text">Expected Value (60m): <span style="color: var(--status-positive)">$34.12</span></p>
+                    <p class="flex justify-between italic secondary-text">Weighted Expected Value: <span style="color: var(--status-positive)">$34.12</span></p>
+                    <p class="flex justify-between italic secondary-text">Prestige Value Added / p.a.: <span style="color: var(--status-negative)">$107</span></p>
+                </div>
+
+                <div class="space-y-1 border-l-[var(--border-width)] border-solid border-[var(--bg-tertiary)] pl-4 font-bold">
+                    <p class="flex justify-between"><span class="accent-text">GPA:</span> <span style="color: var(--accent-cyan)">3.2</span></p>
+                    <p class="flex justify-between"><span class="accent-text">wGPA:</span> <span style="color: var(--accent-cyan)">3.6</span></p>
+                    <p class="flex justify-between"><span class="accent-text">Env. Adj. GPA:</span> <span style="color: var(--accent-cyan)">3.2</span></p>
+                    <p class="flex justify-between"><span class="accent-text">Env. Adj. wGPA:</span> <span style="color: var(--accent-cyan)">3.6</span></p>
+                    <p class="flex justify-between"><span class="accent-text">Expected Supervision:</span> <span style="color: var(--status-positive)">$17.06</span></p>
+                </div>
+
+                <div class="col-span-2 pt-2 border-t-[var(--border-width)] border-solid border-[var(--bg-tertiary)]">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="mb-1 accent-text font-bold">Digital Competence Index+</p>
+                            <div class="metric-bar-bg h-3"><div class="metric-bar-fill w-full"></div></div>
+                        </div>
+                        <div>
+                            <p class="mb-1 accent-text font-bold">Replace-ability Index</p>
+                            <div class="metric-bar-bg h-3"><div class="metric-bar-fill w-full"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-span-2 pt-2">
+                    <p class="italic mb-1 secondary-text font-bold">Performance Reputation Factor</p>
+                    <div class="flex items-center">
+                        <span class="status-dot dot-filled"></span>
+                        <span class="status-dot dot-filled"></span>
+                        <span class="status-dot dot-filled"></span>
+                        <span class="status-dot dot-filled"></span>
+                        <span class="status-dot dot-empty"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: PROJECTS & BIO -->
+        <div class="col-span-3 space-y-3">
+            <!-- Projects Tabs -->
+            <div class="cyber-panel">
+                <div class="flex gap-2 mb-3">
+                    <button class="header-accent">Personal Projects</button>
+                    <button class="border-[var(--border-width)] border-solid border-[var(--accent-muted)] px-2 py-0.5 rounded muted-text hover:text-white transition-all font-bold">School Projects</button>
+                </div>
+                <ul class="space-y-2 text-[10px] list-disc pl-4 secondary-text font-bold">
+                    <li>Research paper on "Natural Language AI Prototype Retrieval Augmented Generation" (2024)</li>
+                    <li>Built AI prototype delivering personalized educational content using RAG architecture.</li>
+                    <li>Housing Price Prediction (2023)</li>
+                    <li>Conducted comparative study of Random Forest vs Multiple Linear Regression models.</li>
+                </ul>
+            </div>
+
+            <!-- Buttons Grid -->
+            <div class="grid grid-cols-2 gap-2">
+                <div class="cyber-panel text-center py-1 secondary-text cursor-pointer hover:bg-[var(--accent-primary)] hover:text-[var(--bg-primary)] transition-all font-bold">Interview</div>
+                <div class="cyber-panel text-center py-1 secondary-text cursor-pointer hover:bg-[var(--accent-primary)] hover:text-[var(--bg-primary)] transition-all font-bold">CNTP Test</div>
+                <div class="col-span-2 cyber-panel text-center py-1 secondary-text cursor-pointer hover:bg-[var(--accent-primary)] hover:text-[var(--bg-primary)] transition-all font-bold">Academic Skill Set Chart</div>
+            </div>
+
+            <div class="cyber-panel text-center py-4">
+                <div class="flex justify-around mb-2">
+                    <span class="header-accent text-[9px]">Athletics</span>
+                    <span class="header-accent text-[9px]">Technical</span>
+                    <span class="header-accent text-[9px]">Social Media</span>
+                </div>
+                <div class="text-3xl font-bold muted-text italic">N/A</div>
+            </div>
+
+            <div class="cyber-panel flex-grow">
+                <h2 class="italic mb-2 border-b-[var(--border-width)] border-solid border-[var(--bg-tertiary)] secondary-text font-bold">Biography</h2>
+                <div class="h-24 bg-white/5 rounded p-2 italic muted-text font-bold">
+                    [Awaiting encrypted entry...]
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM PANELS -->
+        <div class="col-span-5 cyber-panel h-32">
+            <h2 class="header-accent inline-block mb-2">Volunteering History</h2>
+            <div class="muted-text italic font-bold">System ready for data input...</div>
+        </div>
+        <div class="col-span-7 cyber-panel h-32">
+            <h2 class="header-accent inline-block mb-2">Academic History</h2>
+            <div class="muted-text italic font-bold">System ready for data input...</div>
+        </div>
+
+    </div>
+
+</body>
+</html>
