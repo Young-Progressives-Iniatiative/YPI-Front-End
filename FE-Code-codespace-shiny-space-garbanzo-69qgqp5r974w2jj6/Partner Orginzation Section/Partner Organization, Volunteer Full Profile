@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Volunteer Profile - Ricky Castro</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons (Required for Popup) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -39,6 +44,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
+        /* --- MAIN DASHBOARD STYLES --- */
         .cyber-panel {
             border: var(--border-width) solid var(--accent-muted);
             border-radius: 4px;
@@ -52,17 +58,9 @@
             border-color: var(--accent-primary);
         }
 
-        .accent-text {
-            color: var(--accent-primary);
-        }
-
-        .secondary-text {
-            color: var(--text-secondary);
-        }
-
-        .muted-text {
-            color: var(--text-muted);
-        }
+        .accent-text { color: var(--accent-primary); }
+        .secondary-text { color: var(--text-secondary); }
+        .muted-text { color: var(--text-muted); }
 
         .metric-bar-bg {
             background: rgba(255, 255, 255, 0.05);
@@ -79,13 +77,8 @@
         }
 
         .status-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 4px;
+            width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 4px;
         }
-
         .dot-filled { background-color: var(--accent-cyan); }
         .dot-empty { border: var(--border-width) solid var(--accent-cyan); }
 
@@ -99,11 +92,9 @@
             border-radius: 2px;
         }
 
-        .divider {
-            border-bottom: var(--border-width) solid var(--bg-tertiary);
-        }
+        .divider { border-bottom: var(--border-width) solid var(--bg-tertiary); }
 
-        /* Tab Styles */
+        /* Main Tabs */
         .tab-btn {
             padding: 0.5rem 1rem;
             color: var(--text-secondary);
@@ -112,18 +103,10 @@
             transition: all 0.2s;
             opacity: 0.6;
         }
-        
-        .tab-btn:hover {
-            opacity: 1;
-            color: var(--accent-primary);
-        }
+        .tab-btn:hover { opacity: 1; color: var(--accent-primary); }
+        .tab-btn.active { opacity: 1; color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
 
-        .tab-btn.active {
-            opacity: 1;
-            color: var(--accent-primary);
-            border-bottom-color: var(--accent-primary);
-        }
-
+        /* Sub Tabs */
         .sub-tab-btn {
             padding: 0.25rem 0.75rem;
             margin-right: 0.5rem;
@@ -134,41 +117,30 @@
             transition: all 0.2s;
             background: rgba(255,255,255,0.05);
         }
+        .sub-tab-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+        .sub-tab-btn.active { background: var(--accent-primary); color: var(--bg-primary); border-color: var(--accent-primary); }
 
-        .sub-tab-btn:hover {
-            border-color: var(--accent-primary);
-            color: var(--accent-primary);
-        }
-
-        .sub-tab-btn.active {
-            background: var(--accent-primary);
-            color: var(--bg-primary);
-            border-color: var(--accent-primary);
-        }
-
-        .tab-pane, .sub-tab-pane {
-            display: none;
-            animation: fadeIn 0.3s ease-in-out;
-        }
-        
-        .tab-pane.active, .sub-tab-pane.active {
-            display: block;
-        }
+        .tab-pane, .sub-tab-pane { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-pane.active, .sub-tab-pane.active { display: block; }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        ::-webkit-scrollbar {
-            width: 5px;
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: var(--bg-primary); }
+        ::-webkit-scrollbar-thumb { background: var(--accent-muted); }
+
+        /* --- POPUP SPECIFIC STYLES (ZINC THEME) --- */
+        .popup-zinc-theme {
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #18181b; /* zinc-900 */
+            color: white;
         }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-primary);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: var(--accent-muted);
-        }
+        .popup-tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .popup-tab-content.active { display: grid; }
+        
     </style>
 </head>
 <body class="text-[11px]">
@@ -187,7 +159,6 @@
                          class="w-full h-full object-contain"
                          onerror="this.style.display='none'; this.parentElement.innerText='YPI'; this.parentElement.classList.add('accent-text', 'font-bold', 'text-xl');">
                 </div>
-                
                 <!-- Profile Image -->
                 <div class="absolute border-[var(--border-width)] border-[var(--accent-muted)] border-solid overflow-hidden rounded"
                      style="width: 36%; height: 42%; left: 65%; top: 60%; transform: translate(-50%, -50%); z-index: 10;">
@@ -242,8 +213,14 @@
         <div class="col-span-9 flex flex-col gap-4">
             
             <!-- CUSTOMIZABLE TABS SECTION -->
-            <div class="cyber-panel min-h-[400px]">
+            <div class="cyber-panel min-h-[400px] relative">
                 
+                <!-- FULL DASHBOARD TRIGGER -->
+                <button onclick="openDashboard()" class="absolute top-3 right-3 text-[10px] uppercase font-bold text-[var(--accent-primary)] border border-[var(--accent-primary)] px-3 py-1 rounded hover:bg-[var(--accent-primary)] hover:text-[var(--bg-primary)] transition-all z-20 flex items-center gap-1">
+                    <span>Full Dashboard</span>
+                    <span class="text-xs">↗</span>
+                </button>
+
                 <!-- Main Tab Navigation -->
                 <div class="flex border-b border-[var(--bg-tertiary)] mb-4">
                     <button class="tab-btn active" onclick="switchMainTab('academic-main', this)">Academic Metrics</button>
@@ -299,24 +276,42 @@
                     <div id="gpa-sub" class="sub-tab-pane">
                         <div class="flex justify-between items-center mb-3">
                             <h2 class="header-accent text-sm" style="opacity: 0.8; transform: scale(0.9); transform-origin: left;">GPA Analysis</h2>
-                            <span class="text-[10px] muted-text font-bold">Standard vs. Environmental Adjusted</span>
+                            <span class="text-[10px] muted-text font-bold">Standard vs. Weighted</span>
                         </div>
-                        <div class="space-y-4 font-bold text-[14px] max-w-md">
-                            <div class="flex justify-between border-b border-[var(--bg-tertiary)] pb-2">
-                                <span class="accent-text">GPA:</span> 
-                                <span style="color: var(--accent-cyan)">3.2</span>
+                        
+                        <div class="grid grid-cols-2 gap-8 font-bold text-[12px]">
+                            <!-- Standard GPA Column -->
+                            <div class="space-y-3">
+                                <h3 class="text-[var(--text-secondary)] text-[10px] uppercase tracking-wider border-b border-[var(--bg-tertiary)] pb-1 mb-2">Standard</h3>
+                                <div class="flex justify-between">
+                                    <span class="accent-text">GPA:</span> <span style="color: var(--accent-cyan)">3.80</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="secondary-text">xGPA:</span> <span class="muted-text">3.50</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="secondary-text">dGPA:</span> <span style="color: var(--accent-primary)">+0.3</span>
+                                </div>
+                                <div class="flex justify-between border-t border-[var(--bg-tertiary)] pt-1">
+                                    <span class="accent-text">GPA+:</span> <span style="color: var(--status-positive)">108</span>
+                                </div>
                             </div>
-                            <div class="flex justify-between border-b border-[var(--bg-tertiary)] pb-2">
-                                <span class="accent-text">wGPA:</span> 
-                                <span style="color: var(--accent-cyan)">3.6</span>
-                            </div>
-                            <div class="flex justify-between border-b border-[var(--bg-tertiary)] pb-2">
-                                <span class="accent-text">Env. Adj. GPA:</span> 
-                                <span style="color: var(--accent-cyan)">3.2</span>
-                            </div>
-                            <div class="flex justify-between border-b border-[var(--bg-tertiary)] pb-2">
-                                <span class="accent-text">Env. Adj. wGPA:</span> 
-                                <span style="color: var(--accent-cyan)">3.6</span>
+
+                            <!-- Weighted GPA Column -->
+                            <div class="space-y-3">
+                                <h3 class="text-[var(--text-secondary)] text-[10px] uppercase tracking-wider border-b border-[var(--bg-tertiary)] pb-1 mb-2">Weighted</h3>
+                                <div class="flex justify-between">
+                                    <span class="accent-text">wGPA:</span> <span style="color: var(--accent-cyan)">4.50</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="secondary-text">xwGPA:</span> <span class="muted-text">4.20</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="secondary-text">dwGPA:</span> <span style="color: var(--accent-primary)">+0.3</span>
+                                </div>
+                                <div class="flex justify-between border-t border-[var(--bg-tertiary)] pt-1">
+                                    <span class="accent-text">wGPA+:</span> <span style="color: var(--status-positive)">107</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -383,8 +378,6 @@
 
             <!-- STATIC ROW: Actions, Bio, History -->
             <div class="grid grid-cols-2 gap-4">
-                
-                <!-- Actions & Status -->
                 <div class="col-span-1 space-y-4">
                     <div class="grid grid-cols-2 gap-3">
                         <div class="cyber-panel text-center py-2 secondary-text cursor-pointer hover:bg-[var(--accent-primary)] hover:text-[var(--bg-primary)] transition-all font-bold">Interview</div>
@@ -400,23 +393,18 @@
                         <div class="text-3xl font-bold muted-text italic">N/A</div>
                     </div>
                 </div>
-
-                <!-- Biography -->
                 <div class="col-span-1 cyber-panel flex flex-col">
                     <h2 class="header-accent inline-block mb-2 self-start">Biography</h2>
                     <div class="flex-grow bg-white/5 rounded p-4 italic muted-text font-bold border border-[var(--accent-muted)]">
                         [Awaiting encrypted entry...]
                     </div>
                 </div>
-
-                <!-- History -->
                 <div class="col-span-1 cyber-panel h-32 flex flex-col">
                     <h2 class="header-accent inline-block mb-2 self-start">Volunteering History</h2>
                     <div class="flex-grow flex items-center justify-center muted-text italic font-bold border border-dashed border-[var(--accent-muted)] rounded opacity-50">
                         System ready for data input...
                     </div>
                 </div>
-                
                 <div class="col-span-1 cyber-panel h-32 flex flex-col">
                     <h2 class="header-accent inline-block mb-2 self-start">Academic History</h2>
                      <div class="flex-grow flex items-center justify-center muted-text italic font-bold border border-dashed border-[var(--accent-muted)] rounded opacity-50">
@@ -424,40 +412,391 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- === FULL DASHBOARD MODAL (ZINC STYLE) === -->
+    <div id="dashboard-modal" class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center p-8 backdrop-blur-sm opacity-0 transition-opacity duration-300 popup-zinc-theme">
+        <div class="bg-zinc-900 border border-green-500 w-full max-w-[1600px] h-full max-h-[95vh] rounded p-6 relative flex flex-col shadow-2xl overflow-y-auto" id="modal-content">
+            
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center border-b-4 border-green-400 pb-4 mb-6">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 border-2 border-white flex items-center justify-center bg-black skew-x-[-10deg]">
+                        <span class="text-2xl font-black italic tracking-tighter skew-x-[10deg] text-white">YPI</span>
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-black italic tracking-wide">Ricky Castro</h1>
+                        <span class="text-xs text-zinc-400 font-bold uppercase tracking-widest">Full Metrics View</span>
+                    </div>
+                </div>
+                <div class="flex gap-4 items-center">
+                    <!-- Popup Tabs -->
+                    <nav class="flex gap-4 text-lg font-bold italic tracking-wide mr-8">
+                        <button onclick="switchPopupTab('Academics')" id="popup-tab-Academics" class="popup-tab-btn text-green-400 decoration-green-400 decoration-4 underline-offset-8 underline transition-all">Academics</button>
+                        <button onclick="switchPopupTab('Volunteerism')" id="popup-tab-Volunteerism" class="popup-tab-btn text-white hover:text-green-200 transition-all">Volunteerism</button>
+                        <button onclick="switchPopupTab('Social-Media')" id="popup-tab-Social-Media" class="popup-tab-btn text-white hover:text-green-200 transition-all">Social Media</button>
+                    </nav>
+                    <button onclick="closeDashboard()" class="text-zinc-400 hover:text-white transition-colors">
+                        <i data-lucide="x" class="w-8 h-8"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- POPUP CONTENT AREA -->
+            
+            <!-- VIEW 1: ACADEMICS -->
+            <div id="popup-view-Academics" class="popup-tab-content active grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- LEFT COLUMN (Indices) -->
+                <section class="lg:col-span-3 flex flex-col gap-6">
+                    <div class="grid grid-cols-3 gap-2">
+                        <!-- Stat Tiles -->
+                        <div class="bg-green-600 p-2 rounded flex flex-col items-center justify-center min-h-[80px] shadow-lg relative group">
+                            <span class="text-[10px] font-bold uppercase opacity-80 mb-1 text-white">ADL</span>
+                            <span class="text-2xl font-black text-white">1.8</span>
+                        </div>
+                        <div class="bg-green-700 p-2 rounded flex flex-col items-center justify-center min-h-[80px] shadow-lg relative group">
+                            <span class="text-[10px] font-bold uppercase opacity-80 mb-1 text-white">xADL</span>
+                            <span class="text-2xl font-black text-white">1.5</span>
+                        </div>
+                        <div class="bg-green-600 p-2 rounded flex flex-col items-center justify-center min-h-[80px] shadow-lg relative group">
+                            <span class="text-[10px] font-bold uppercase opacity-80 mb-1 text-white">dADL</span>
+                            <span class="text-2xl font-black text-green-200">+0.3</span>
+                        </div>
+                        <!-- ... (Other tiles simplified for brevity, following pattern) ... -->
+                        <div class="bg-yellow-600 p-2 rounded flex flex-col items-center justify-center min-h-[80px] shadow-lg">
+                            <span class="text-[10px] font-bold uppercase opacity-80 mb-1 text-white">AIV</span><span class="text-2xl font-black text-white">3.2</span>
+                        </div>
+                        <div class="bg-yellow-700 p-2 rounded flex flex-col items-center justify-center min-h-[80px] shadow-lg"><span class="text-[10px] font-bold uppercase opacity-80 mb-1 text-white">xAIV</span><span class="text-2xl font-black text-white">2.0</span></div>
+                        <div class="bg-yellow-600 p-2 rounded flex flex-col items-center justify-center min-h-[80px] shadow-lg"><span class="text-[10px] font-bold uppercase opacity-80 mb-1 text-white">dAIV</span><span class="text-2xl font-black text-yellow-200">+1.2</span></div>
+                        <div class="bg-teal-600 p-2 rounded flex flex-col items-center justify-center min-h-[80px] shadow-lg"><span class="text-[10px] font-bold uppercase opacity-80 mb-1 text-white">TME</span><span class="text-2xl font-black text-white">4.2</span></div>
+                        <div class="bg-teal-700 p-2 rounded flex flex-col items-center justify-center min-h-[80px] shadow-lg"><span class="text-[10px] font-bold uppercase opacity-80 mb-1 text-white">xTME</span><span class="text-2xl font-black text-white">3.5</span></div>
+                        <div class="bg-teal-600 p-2 rounded flex flex-col items-center justify-center min-h-[80px] shadow-lg"><span class="text-[10px] font-bold uppercase opacity-80 mb-1 text-white">dTME</span><span class="text-2xl font-black text-teal-200">+0.7</span></div>
+                    </div>
+
+                    <!-- Indices Table -->
+                    <div class="bg-black border border-zinc-800 rounded-sm overflow-hidden">
+                        <div class="bg-zinc-950 p-3 border-b border-zinc-800 flex justify-between items-center">
+                            <h3 class="text-lg font-bold italic text-white">Indices & Placement</h3>
+                            <span class="text-[10px] text-zinc-500 uppercase font-mono">100 = Median</span>
+                        </div>
+                        <div class="p-2 text-xs">
+                            <div class="grid grid-cols-4 text-zinc-500 font-bold mb-2 text-right border-b border-zinc-800 pb-2">
+                                <div class="text-left pl-2">Metric</div><div>Actual</div><div>Exp</div><div>Diff</div>
+                            </div>
+                            <div class="flex flex-col gap-2">
+                                <div class="grid grid-cols-4 items-center text-right py-1 hover:bg-zinc-900 transition-colors"><div class="text-left pl-2 font-bold text-zinc-300 uppercase">ADL+</div><div class="font-mono text-white font-bold">115</div><div class="font-mono text-zinc-500">100</div><div class="font-mono text-green-400">+15</div></div>
+                                <div class="grid grid-cols-4 items-center text-right py-1 hover:bg-zinc-900 transition-colors"><div class="text-left pl-2 font-bold text-zinc-300 uppercase">AIV+</div><div class="font-mono text-white font-bold">120</div><div class="font-mono text-zinc-500">100</div><div class="font-mono text-green-400">+20</div></div>
+                                <div class="grid grid-cols-4 items-center text-right py-1 hover:bg-zinc-900 transition-colors"><div class="text-left pl-2 font-bold text-zinc-300 uppercase">TME+</div><div class="font-mono text-white font-bold">105</div><div class="font-mono text-zinc-500">100</div><div class="font-mono text-green-400">+5</div></div>
+                                <div class="h-px bg-zinc-800 my-1"></div>
+                                <div class="grid grid-cols-4 items-center text-right py-1 hover:bg-zinc-900 transition-colors"><div class="text-left pl-2 font-bold text-cyan-400 uppercase">EP%</div><div class="font-mono text-white font-bold">92%</div><div class="font-mono text-zinc-500">80%</div><div class="font-mono text-cyan-400">+12%</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- MIDDLE COLUMN (GPA & Proficiency) -->
+                <section class="lg:col-span-5 flex flex-col gap-8">
+                    <!-- Proficiency Bars (Updated to match Main Dashboard Style) -->
+                    <div class="grid grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-6">
+                        <!-- MATH+ -->
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="accent-text text-[10px] font-bold">MATH+</span>
+                                <span class="secondary-text text-[9px] font-bold">200/100 Med.</span>
+                            </div>
+                            <div class="metric-bar-bg">
+                                <div class="metric-bar-fill w-full"></div>
+                            </div>
+                        </div>
+
+                        <!-- ENG+ -->
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="accent-text text-[10px] font-bold">ENG+</span>
+                                <span class="secondary-text text-[9px] font-bold">80/100 Med.</span>
+                            </div>
+                            <div class="metric-bar-bg">
+                                <div class="metric-bar-fill w-[40%] bg-[var(--status-positive)]"></div>
+                            </div>
+                        </div>
+
+                        <!-- HIST+ -->
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="accent-text text-[10px] font-bold">HIST+</span>
+                                <span class="secondary-text text-[9px] font-bold">180/100 Med.</span>
+                            </div>
+                            <div class="metric-bar-bg">
+                                <div class="metric-bar-fill w-[90%] bg-[var(--accent-cyan)]"></div>
+                            </div>
+                        </div>
+
+                        <!-- SCI+ -->
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="accent-text text-[10px] font-bold">SCI+</span>
+                                <span class="secondary-text text-[9px] font-bold">160/100 Med.</span>
+                            </div>
+                            <div class="metric-bar-bg">
+                                <div class="metric-bar-fill w-[80%] bg-[var(--accent-cyan)]"></div>
+                            </div>
+                        </div>
+
+                        <!-- TECH+ -->
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="accent-text text-[10px] font-bold">TECH+</span>
+                                <span class="secondary-text text-[9px] font-bold">200/100 Med.</span>
+                            </div>
+                            <div class="metric-bar-bg">
+                                <div class="metric-bar-fill w-full"></div>
+                            </div>
+                        </div>
+
+                        <!-- ART+ -->
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span class="accent-text text-[10px] font-bold">ART+</span>
+                                <span class="secondary-text text-[9px] font-bold">200/100 Med.</span>
+                            </div>
+                            <div class="metric-bar-bg">
+                                <div class="metric-bar-fill w-full"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GPA Grid -->
+                    <div class="border-4 border-green-300 rounded-xl p-4 bg-zinc-900 relative mt-auto">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                            <!-- 1. Standard GPA Family -->
+                            <div class="flex flex-col gap-1">
+                                <span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">GPA</span>
+                                <div class="h-10 bg-zinc-200 rounded shadow-inner flex items-center justify-center font-black text-black">3.20</div>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">xGPA</span>
+                                <div class="h-10 bg-zinc-800 rounded shadow-inner flex items-center justify-center font-bold text-zinc-400">3.00</div>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">dGPA</span>
+                                <div class="h-10 bg-zinc-800 rounded shadow-inner flex items-center justify-center font-bold text-green-400">+0.2</div>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">GPA+</span>
+                                <div class="h-10 bg-green-500 rounded shadow-inner flex items-center justify-center font-black text-black">106</div>
+                            </div>
+                            
+                            <!-- 2. Weighted GPA Family -->
+                            <div class="flex flex-col gap-1">
+                                <span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">wGPA</span>
+                                <div class="h-10 bg-zinc-200 rounded shadow-inner flex items-center justify-center font-black text-black">3.60</div>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">xwGPA</span>
+                                <div class="h-10 bg-zinc-800 rounded shadow-inner flex items-center justify-center font-bold text-zinc-400">3.40</div>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">dwGPA</span>
+                                <div class="h-10 bg-zinc-800 rounded shadow-inner flex items-center justify-center font-bold text-green-400">+0.2</div>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">wGPA+</span>
+                                <div class="h-10 bg-green-500 rounded shadow-inner flex items-center justify-center font-black text-black">105</div>
+                            </div>
+
+                            <!-- 3. Env. Adj. GPA Family -->
+                            <div class="flex flex-col gap-1">
+                                <span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">eaGPA</span>
+                                <div class="h-10 bg-zinc-200 rounded shadow-inner flex items-center justify-center font-black text-black">3.20</div>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">xeaGPA</span>
+                                <div class="h-10 bg-zinc-800 rounded shadow-inner flex items-center justify-center font-bold text-zinc-400">3.00</div>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">deaGPA</span>
+                                <div class="h-10 bg-zinc-800 rounded shadow-inner flex items-center justify-center font-bold text-green-400">+0.2</div>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">eaGPA+</span>
+                                <div class="h-10 bg-green-500 rounded shadow-inner flex items-center justify-center font-black text-black">106</div>
+                            </div>
+
+                            <!-- 4. Env. Adj. wGPA Family -->
+                            <div class="flex flex-col gap-1">
+                                <span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">eawGPA</span>
+                                <div class="h-10 bg-zinc-200 rounded shadow-inner flex items-center justify-center font-black text-black">3.60</div>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">xeawGPA</span>
+                                <div class="h-10 bg-zinc-800 rounded shadow-inner flex items-center justify-center font-bold text-zinc-400">3.40</div>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">deawGPA</span>
+                                <div class="h-10 bg-zinc-800 rounded shadow-inner flex items-center justify-center font-bold text-green-400">+0.2</div>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">eawGPA+</span>
+                                <div class="h-10 bg-green-500 rounded shadow-inner flex items-center justify-center font-black text-black">105</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- RIGHT COLUMN (Timeline / Quarterly Report) -->
+                <section class="lg:col-span-4 flex flex-col gap-4">
+                    <!-- Header -->
+                    <div class="bg-black border border-zinc-800 rounded-sm overflow-hidden">
+                        <div class="bg-zinc-950 p-3 border-b border-zinc-800 flex justify-between items-center">
+                            <h3 class="text-lg font-bold italic text-white">Quarterly Report</h3>
+                            <span class="text-[10px] text-zinc-500 uppercase font-mono">2023-2025</span>
+                        </div>
+                    </div>
+
+                    <!-- Timeline Wrapper -->
+                    <div class="relative pl-4">
+                        <div class="absolute top-0 right-0 bottom-0 left-28 pointer-events-none flex justify-between text-[10px] text-zinc-600 font-mono">
+                            <div class="h-full border-l border-zinc-800 flex flex-col justify-between pt-1"><span>0</span></div>
+                            <div class="h-full border-l border-zinc-800 flex flex-col justify-between pt-1"><span>20</span></div>
+                            <div class="h-full border-l border-zinc-800 flex flex-col justify-between pt-1"><span>40</span></div>
+                            <div class="h-full border-l border-zinc-800 flex flex-col justify-between pt-1"><span>60</span></div>
+                            <div class="h-full border-l border-zinc-800 flex flex-col justify-between pt-1"><span>80</span></div>
+                            <div class="h-full border-l border-zinc-800 flex flex-col justify-between pt-1"><span>100</span></div>
+                            
+                            <!-- Vertical Scale Labels -->
+                            <div class="h-full flex flex-col justify-between pt-8 pb-4 pl-2 text-zinc-500">
+                                <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                                <span>7</span><span>8</span><span>12</span><span>13</span><span>14</span>
+                            </div>
+                        </div>
+                        <div class="relative z-10 flex flex-col gap-4 mt-8">
+                            <div class="flex items-center h-8"><div class="w-24 text-right pr-4 text-sm font-bold italic text-white shrink-0">Q1 2023</div><div class="flex-grow h-full flex items-center"><div class="flex items-center"><div class="w-2 h-2 rounded-full bg-zinc-700 mr-2"></div><i data-lucide="lock" class="w-4 h-4 text-zinc-600"></i></div></div></div>
+                            <div class="flex items-center h-8"><div class="w-24 text-right pr-4 text-sm font-bold italic text-white shrink-0">Q2 2023</div><div class="flex-grow h-full flex items-center"><div class="flex items-center"><div class="w-2 h-2 rounded-full bg-zinc-700 mr-2"></div><i data-lucide="lock" class="w-4 h-4 text-zinc-600"></i></div></div></div>
+                            <div class="flex items-center h-8"><div class="w-24 text-right pr-4 text-sm font-bold italic text-white shrink-0">Q3 2023</div><div class="flex-grow h-full flex items-center"><div class="flex items-center"><div class="w-2 h-2 rounded-full bg-zinc-700 mr-2"></div><i data-lucide="lock" class="w-4 h-4 text-zinc-600"></i></div></div></div>
+                            <div class="flex items-center h-8"><div class="w-24 text-right pr-4 text-sm font-bold italic text-white shrink-0">Q4 2023</div><div class="flex-grow h-full flex items-center"><div class="flex items-center"><div class="w-2 h-2 rounded-full bg-zinc-700 mr-2"></div><i data-lucide="lock" class="w-4 h-4 text-zinc-600"></i></div></div></div>
+                            
+                            <div class="flex items-center h-8">
+                                <div class="w-24 text-right pr-4 text-sm font-bold italic text-white shrink-0">Q1 2024</div>
+                                <div class="flex-grow h-full flex items-center">
+                                    <div class="h-10 bg-cyan-400 rounded-sm flex items-center px-3 shadow-lg shadow-black/50 min-w-[20px]" style="width: 80%;"><span class="text-black font-black text-xl">8</span></div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center h-8"><div class="w-24 text-right pr-4 text-sm font-bold italic text-white shrink-0">Q2 2024</div><div class="flex-grow h-full flex items-center"><div class="flex items-center"><div class="w-2 h-2 rounded-full bg-zinc-700 mr-2"></div><i data-lucide="lock" class="w-4 h-4 text-zinc-600"></i></div></div></div>
+                            <div class="flex items-center h-8"><div class="w-24 text-right pr-4 text-sm font-bold italic text-white shrink-0">Q3 2024</div><div class="flex-grow h-full flex items-center"><div class="flex items-center"><div class="w-2 h-2 rounded-full bg-zinc-700 mr-2"></div><i data-lucide="lock" class="w-4 h-4 text-zinc-600"></i></div></div></div>
+                            <div class="flex items-center h-8"><div class="w-24 text-right pr-4 text-sm font-bold italic text-white shrink-0">Q4 2024</div><div class="flex-grow h-full flex items-center"><div class="flex items-center"><div class="w-2 h-2 rounded-full bg-zinc-700 mr-2"></div><i data-lucide="lock" class="w-4 h-4 text-zinc-600"></i></div></div></div>
+                            <div class="flex items-center h-8"><div class="w-24 text-right pr-4 text-sm font-bold italic text-white shrink-0">Q1 2025</div><div class="flex-grow h-full flex items-center"><div class="flex items-center"><div class="w-2 h-2 rounded-full bg-zinc-700 mr-2"></div><i data-lucide="lock" class="w-4 h-4 text-zinc-600"></i></div></div></div>
+
+                            <div class="flex items-center h-8">
+                                <div class="w-24 text-right pr-4 text-sm font-bold italic text-white shrink-0">Q2 2025</div>
+                                <div class="flex-grow h-full flex items-center">
+                                    <div class="h-10 bg-yellow-400 rounded-sm flex items-center px-3 shadow-lg shadow-black/50 min-w-[20px]" style="width: 60%;">
+                                        <span class="text-black font-black text-xl">6</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- VIEW 2: VOLUNTEERISM (Restored functionality in Zinc style) -->
+            <div id="popup-view-Volunteerism" class="popup-tab-content grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Left Col -->
+                <section class="lg:col-span-4 flex flex-col gap-6">
+                    <div class="bg-black border border-zinc-800 rounded-sm p-4">
+                        <h3 class="text-lg font-bold italic mb-4 text-green-400">Public Policy Intern</h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center border-b border-zinc-800 pb-2"><span class="text-zinc-400 font-bold text-sm">Net Exp. Value</span><span class="text-white font-mono font-bold">$17.06</span></div>
+                            <div class="flex justify-between items-center border-b border-zinc-800 pb-2"><span class="text-zinc-400 font-bold text-sm">Expected Value</span><span class="text-green-400 font-mono font-bold">$34.12</span></div>
+                        </div>
+                    </div>
+                </section>
+                <!-- Right Col -->
+                <section class="lg:col-span-8 flex flex-col gap-6">
+                    <div class="bg-black border border-green-900/30 p-6 rounded-sm">
+                        <h3 class="text-xl font-black italic mb-4 text-white">Projects & History</h3>
+                        <ul class="space-y-4 text-zinc-300">
+                            <li>• Natural Language AI Prototype</li>
+                            <li>• Housing Price Prediction</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+
+            <!-- VIEW 3: SOCIAL MEDIA -->
+            <div id="popup-view-Social-Media" class="popup-tab-content grid-cols-1 place-items-center h-[400px]">
+                <div class="text-center text-zinc-500"><i data-lucide="share-2" class="w-12 h-12 mx-auto mb-4 opacity-50"></i><p class="font-bold italic text-xl">Social Integration Inactive</p></div>
+            </div>
 
         </div>
-
     </div>
 
     <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Main Dashboard Tab Switching
         function switchMainTab(tabId, btnElement) {
-            // Hide all main tab panes
             document.getElementById('academic-main').classList.remove('active');
             document.getElementById('volunteerism-main').classList.remove('active');
-
-            // Deactivate all main tab buttons
             const mainButtons = btnElement.parentElement.querySelectorAll('.tab-btn');
             mainButtons.forEach(btn => btn.classList.remove('active'));
-
-            // Activate specific tab
             document.getElementById(tabId).classList.add('active');
             btnElement.classList.add('active');
         }
 
         function switchSubTab(subTabId, btnElement) {
-            // Hide all sub tab panes in this container
-            // Find parent container to avoid conflicting if we had other sub tabs elsewhere
             const container = btnElement.parentElement.parentElement;
             const subPanes = container.querySelectorAll('.sub-tab-pane');
             subPanes.forEach(pane => pane.classList.remove('active'));
-
-            // Deactivate sub tab buttons
             const subButtons = btnElement.parentElement.querySelectorAll('.sub-tab-btn');
             subButtons.forEach(btn => btn.classList.remove('active'));
-
-            // Activate specific sub tab
             document.getElementById(subTabId).classList.add('active');
             btnElement.classList.add('active');
+        }
+
+        // Popup Modal Logic
+        function openDashboard() {
+            const modal = document.getElementById('dashboard-modal');
+            const content = document.getElementById('modal-content');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+            }, 10);
+        }
+
+        function closeDashboard() {
+            const modal = document.getElementById('dashboard-modal');
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // Popup Tab Switching (Zinc Style)
+        function switchPopupTab(tabName) {
+            const buttons = document.querySelectorAll('.popup-tab-btn');
+            const activeClasses = ['text-green-400', 'decoration-green-400', 'decoration-4', 'underline-offset-8', 'underline'];
+            const inactiveClasses = ['text-white', 'hover:text-green-200'];
+
+            buttons.forEach(btn => {
+                btn.classList.remove(...activeClasses);
+                btn.classList.add(...inactiveClasses);
+                if (btn.id === `popup-tab-${tabName}`) {
+                    btn.classList.add(...activeClasses);
+                    btn.classList.remove(...inactiveClasses);
+                }
+            });
+
+            const views = document.querySelectorAll('.popup-tab-content');
+            views.forEach(view => {
+                view.classList.remove('active');
+                if (view.id === `popup-view-${tabName}`) {
+                    view.classList.add('active');
+                }
+            });
         }
     </script>
 </body>
