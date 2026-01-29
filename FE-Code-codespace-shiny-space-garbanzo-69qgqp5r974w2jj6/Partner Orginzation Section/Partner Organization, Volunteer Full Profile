@@ -103,6 +103,63 @@
             border-bottom: var(--border-width) solid var(--bg-tertiary);
         }
 
+        /* Tab Styles */
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            color: var(--text-secondary);
+            border-bottom: var(--border-width) solid transparent;
+            font-weight: bold;
+            transition: all 0.2s;
+            opacity: 0.6;
+        }
+        
+        .tab-btn:hover {
+            opacity: 1;
+            color: var(--accent-primary);
+        }
+
+        .tab-btn.active {
+            opacity: 1;
+            color: var(--accent-primary);
+            border-bottom-color: var(--accent-primary);
+        }
+
+        .sub-tab-btn {
+            padding: 0.25rem 0.75rem;
+            margin-right: 0.5rem;
+            font-size: 0.7rem;
+            border: 1px solid var(--accent-muted);
+            border-radius: 20px;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .sub-tab-btn:hover {
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+
+        .sub-tab-btn.active {
+            background: var(--accent-primary);
+            color: var(--bg-primary);
+            border-color: var(--accent-primary);
+        }
+
+        .tab-pane, .sub-tab-pane {
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        .tab-pane.active, .sub-tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         ::-webkit-scrollbar {
             width: 5px;
         }
@@ -110,29 +167,28 @@
             background: var(--bg-primary);
         }
         ::-webkit-scrollbar-thumb {
-            background: var(--accent-muted); 
+            background: var(--accent-muted);
         }
     </style>
 </head>
 <body class="text-[11px]">
 
-    <div class="max-w-[1400px] mx-auto grid grid-cols-12 gap-3">
+    <div class="max-w-[1400px] mx-auto grid grid-cols-12 gap-4">
         
         <!-- TOP HEADER -->
         <div class="col-span-12 grid grid-cols-12 gap-3 mb-2">
             <!-- Logo & Photo Area -->
-            <!-- Changed h-48 to aspect-[4/3] to maintain the correct vertical proportions for the percentage-based layout -->
             <div class="col-span-3 cyber-panel relative aspect-[4/3] overflow-hidden">
-                <!-- Logo: 98% width (2x 98%), 84% height (2x 42%). Centered at (50%, 25%) -->
+                <!-- Logo -->
                 <div class="absolute border-[var(--border-width)] border-[var(--accent-primary)] border-solid flex items-center justify-center overflow-hidden p-1"
-                     style="width: 98%; height: 84%; left: 50%; top: 25%; transform: translate(-50%, -50%); z-index: 1;">
+                     style="width: 196%; height: 84%; left: 50%; top: 25%; transform: translate(-50%, -50%); z-index: 1;">
                     <img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon.png" 
                          alt="YPI Logo" 
                          class="w-full h-full object-contain"
                          onerror="this.style.display='none'; this.parentElement.innerText='YPI'; this.parentElement.classList.add('accent-text', 'font-bold', 'text-xl');">
                 </div>
                 
-                <!-- Profile Image: 36% width, 42% height. Center of head at (65%, 60%) with higher z-index -->
+                <!-- Profile Image -->
                 <div class="absolute border-[var(--border-width)] border-[var(--accent-muted)] border-solid overflow-hidden rounded"
                      style="width: 36%; height: 42%; left: 65%; top: 60%; transform: translate(-50%, -50%); z-index: 10;">
                     <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Ricky" alt="Profile" class="w-full h-full object-cover opacity-90">
@@ -157,8 +213,8 @@
         </div>
 
         <!-- LEFT COLUMN: PERSONAL INFO -->
-        <div class="col-span-3 space-y-3">
-            <div class="cyber-panel h-full overflow-y-auto max-h-[600px]">
+        <div class="col-span-3">
+            <div class="cyber-panel h-full overflow-y-auto max-h-[800px]">
                 <h2 class="header-accent mb-3 inline-block">Personal Information</h2>
                 <div class="space-y-2 leading-relaxed secondary-text">
                     <p><span class="accent-text font-bold">Full Name:</span> Ricky Walter Castro</p>
@@ -182,144 +238,227 @@
             </div>
         </div>
 
-        <!-- CENTER COLUMN: METRICS -->
-        <div class="col-span-6 space-y-3">
-            <!-- Academic Metrics -->
-            <div class="cyber-panel">
-                <div class="flex justify-between items-center mb-3">
-                    <h2 class="header-accent">Advanced Academic Metrics</h2>
-                    <span class="text-[9px] muted-text font-bold">Current Rating/Median</span>
-                </div>
+        <!-- RIGHT COLUMN: TABBED & STATIC CONTENT -->
+        <div class="col-span-9 flex flex-col gap-4">
+            
+            <!-- CUSTOMIZABLE TABS SECTION -->
+            <div class="cyber-panel min-h-[400px]">
                 
-                <div class="space-y-2 font-bold">
-                    <div>
-                        <div class="flex justify-between mb-0.5"><span class="accent-text">MATH+</span><span class="secondary-text">200/100 Med.</span></div>
-                        <div class="metric-bar-bg"><div class="metric-bar-fill w-full"></div></div>
+                <!-- Main Tab Navigation -->
+                <div class="flex border-b border-[var(--bg-tertiary)] mb-4">
+                    <button class="tab-btn active" onclick="switchMainTab('academic-main', this)">Academic Metrics</button>
+                    <button class="tab-btn" onclick="switchMainTab('volunteerism-main', this)">Volunteerism</button>
+                </div>
+
+                <!-- MAIN TAB 1: ACADEMIC METRICS -->
+                <div id="academic-main" class="tab-pane active">
+                    <!-- Master Category Header -->
+                    <h2 class="header-accent mb-3 inline-block">Academic Metrics</h2>
+                    
+                    <!-- Sub Tab Navigation -->
+                    <div class="flex mb-4">
+                        <button class="sub-tab-btn active" onclick="switchSubTab('subject-sub', this)">Subject Matter</button>
+                        <button class="sub-tab-btn" onclick="switchSubTab('gpa-sub', this)">GPA Analysis</button>
                     </div>
-                    <div>
-                        <div class="flex justify-between mb-0.5"><span class="accent-text">ENG+</span><span class="secondary-text">80/100 Med.</span></div>
-                        <div class="metric-bar-bg"><div class="metric-bar-fill w-[40%] bg-[var(--status-positive)]"></div></div>
+
+                    <!-- Sub Tab 1: Subject Matter -->
+                    <div id="subject-sub" class="sub-tab-pane active">
+                        <div class="flex justify-between items-center mb-3">
+                            <h2 class="header-accent text-sm" style="opacity: 0.8; transform: scale(0.9); transform-origin: left;">Subject Matter Metrics</h2>
+                            <span class="text-[10px] muted-text font-bold">Current Rating/Median</span>
+                        </div>
+                        <div class="space-y-3 font-bold text-[12px] max-w-3xl">
+                            <div>
+                                <div class="flex justify-between mb-1"><span class="accent-text">MATH+</span><span class="secondary-text">200/100 Med.</span></div>
+                                <div class="metric-bar-bg"><div class="metric-bar-fill w-full"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1"><span class="accent-text">ENG+</span><span class="secondary-text">80/100 Med.</span></div>
+                                <div class="metric-bar-bg"><div class="metric-bar-fill w-[40%] bg-[var(--status-positive)]"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1"><span class="accent-text">HIST+</span><span class="secondary-text">180/100 Med.</span></div>
+                                <div class="metric-bar-bg"><div class="metric-bar-fill w-[90%] bg-[var(--accent-cyan)]"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1"><span class="accent-text">SCI+</span><span class="secondary-text">160/100 Med.</span></div>
+                                <div class="metric-bar-bg"><div class="metric-bar-fill w-[80%] bg-[var(--accent-cyan)]"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1"><span class="accent-text">TECH+</span><span class="secondary-text">200/100 Med.</span></div>
+                                <div class="metric-bar-bg"><div class="metric-bar-fill w-full"></div></div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1"><span class="accent-text">ART+</span><span class="secondary-text">200/100 Med.</span></div>
+                                <div class="metric-bar-bg"><div class="metric-bar-fill w-full"></div></div>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <div class="flex justify-between mb-0.5"><span class="accent-text">HIST+</span><span class="secondary-text">180/100 Med.</span></div>
-                        <div class="metric-bar-bg"><div class="metric-bar-fill w-[90%] bg-[var(--accent-cyan)]"></div></div>
+
+                    <!-- Sub Tab 2: GPA Analysis -->
+                    <div id="gpa-sub" class="sub-tab-pane">
+                        <div class="flex justify-between items-center mb-3">
+                            <h2 class="header-accent text-sm" style="opacity: 0.8; transform: scale(0.9); transform-origin: left;">GPA Analysis</h2>
+                            <span class="text-[10px] muted-text font-bold">Standard vs. Environmental Adjusted</span>
+                        </div>
+                        <div class="space-y-4 font-bold text-[14px] max-w-md">
+                            <div class="flex justify-between border-b border-[var(--bg-tertiary)] pb-2">
+                                <span class="accent-text">GPA:</span> 
+                                <span style="color: var(--accent-cyan)">3.2</span>
+                            </div>
+                            <div class="flex justify-between border-b border-[var(--bg-tertiary)] pb-2">
+                                <span class="accent-text">wGPA:</span> 
+                                <span style="color: var(--accent-cyan)">3.6</span>
+                            </div>
+                            <div class="flex justify-between border-b border-[var(--bg-tertiary)] pb-2">
+                                <span class="accent-text">Env. Adj. GPA:</span> 
+                                <span style="color: var(--accent-cyan)">3.2</span>
+                            </div>
+                            <div class="flex justify-between border-b border-[var(--bg-tertiary)] pb-2">
+                                <span class="accent-text">Env. Adj. wGPA:</span> 
+                                <span style="color: var(--accent-cyan)">3.6</span>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <div class="flex justify-between mb-0.5"><span class="accent-text">SCI+</span><span class="secondary-text">160/100 Med.</span></div>
-                        <div class="metric-bar-bg"><div class="metric-bar-fill w-[80%] bg-[var(--accent-cyan)]"></div></div>
+                </div>
+
+                <!-- MAIN TAB 2: VOLUNTEERISM -->
+                <div id="volunteerism-main" class="tab-pane">
+                    <!-- Master Category Header -->
+                    <h2 class="header-accent mb-3 inline-block">Volunteerism</h2>
+
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-sm muted-text font-bold italic">Role Designation</span>
+                        <span class="bg-[var(--bg-tertiary)] px-2 py-0.5 border-[var(--border-width)] border-solid border-[var(--accent-muted)] rounded secondary-text font-bold text-[10px]">Public Policy Intern</span>
                     </div>
-                    <div>
-                        <div class="flex justify-between mb-0.5"><span class="accent-text">TECH+</span><span class="secondary-text">200/100 Med.</span></div>
-                        <div class="metric-bar-bg"><div class="metric-bar-fill w-full"></div></div>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="space-y-2 font-bold text-[12px]">
+                            <p class="flex justify-between italic secondary-text">Net Expected Value (60m): <span style="color: var(--status-positive)">$17.06</span></p>
+                            <p class="flex justify-between font-bold secondary-text">Expected Value (60m): <span style="color: var(--status-positive)">$34.12</span></p>
+                            <p class="flex justify-between italic secondary-text">Weighted Expected Value: <span style="color: var(--status-positive)">$34.12</span></p>
+                            <p class="flex justify-between italic secondary-text">Prestige Value Added / p.a.: <span style="color: var(--status-negative)">$107</span></p>
+                            <div class="mt-4 pt-4 border-t divider">
+                                <p class="mb-1 accent-text font-bold">Digital Competence Index+</p>
+                                <div class="metric-bar-bg h-3"><div class="metric-bar-fill w-full"></div></div>
+                            </div>
+                        </div>
+                        <div class="space-y-2 border-l-[var(--border-width)] border-solid border-[var(--bg-tertiary)] pl-4 font-bold text-[12px]">
+                            <p class="flex justify-between"><span class="accent-text">Expected Supervision:</span> <span style="color: var(--status-positive)">$17.06</span></p>
+                             <div class="mt-4 pt-4 border-t divider">
+                                <p class="mb-1 accent-text font-bold">Replace-ability Index</p>
+                                <div class="metric-bar-bg h-3"><div class="metric-bar-fill w-full"></div></div>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <div class="flex justify-between mb-0.5"><span class="accent-text">ART+</span><span class="secondary-text">200/100 Med.</span></div>
-                        <div class="metric-bar-bg"><div class="metric-bar-fill w-full"></div></div>
+                    <div class="mt-4">
+                        <p class="italic mb-1 secondary-text font-bold">Performance Reputation Factor</p>
+                        <div class="flex items-center">
+                            <span class="status-dot dot-filled"></span>
+                            <span class="status-dot dot-filled"></span>
+                            <span class="status-dot dot-filled"></span>
+                            <span class="status-dot dot-filled"></span>
+                            <span class="status-dot dot-empty"></span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Working Metrics -->
-            <div class="cyber-panel grid grid-cols-2 gap-4">
-                <div class="col-span-2 border-b-[var(--border-width)] border-solid border-[var(--bg-tertiary)] pb-2 flex justify-between items-center">
-                    <h2 class="header-accent">Working Metrics</h2>
-                    <div class="flex gap-2 text-[9px]">
-                        <span class="bg-[var(--bg-tertiary)] px-2 py-0.5 border-[var(--border-width)] border-solid border-[var(--accent-muted)] rounded secondary-text font-bold">Public Policy Intern</span>
-                    </div>
-                </div>
-                
-                <div class="space-y-1 font-bold">
-                    <p class="flex justify-between italic secondary-text">Net Expected Value (60m): <span style="color: var(--status-positive)">$17.06</span></p>
-                    <p class="flex justify-between font-bold secondary-text">Expected Value (60m): <span style="color: var(--status-positive)">$34.12</span></p>
-                    <p class="flex justify-between italic secondary-text">Weighted Expected Value: <span style="color: var(--status-positive)">$34.12</span></p>
-                    <p class="flex justify-between italic secondary-text">Prestige Value Added / p.a.: <span style="color: var(--status-negative)">$107</span></p>
-                </div>
-
-                <div class="space-y-1 border-l-[var(--border-width)] border-solid border-[var(--bg-tertiary)] pl-4 font-bold">
-                    <p class="flex justify-between"><span class="accent-text">GPA:</span> <span style="color: var(--accent-cyan)">3.2</span></p>
-                    <p class="flex justify-between"><span class="accent-text">wGPA:</span> <span style="color: var(--accent-cyan)">3.6</span></p>
-                    <p class="flex justify-between"><span class="accent-text">Env. Adj. GPA:</span> <span style="color: var(--accent-cyan)">3.2</span></p>
-                    <p class="flex justify-between"><span class="accent-text">Env. Adj. wGPA:</span> <span style="color: var(--accent-cyan)">3.6</span></p>
-                    <p class="flex justify-between"><span class="accent-text">Expected Supervision:</span> <span style="color: var(--status-positive)">$17.06</span></p>
-                </div>
-
-                <div class="col-span-2 pt-2 border-t-[var(--border-width)] border-solid border-[var(--bg-tertiary)]">
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <p class="mb-1 accent-text font-bold">Digital Competence Index+</p>
-                            <div class="metric-bar-bg h-3"><div class="metric-bar-fill w-full"></div></div>
-                        </div>
-                        <div>
-                            <p class="mb-1 accent-text font-bold">Replace-ability Index</p>
-                            <div class="metric-bar-bg h-3"><div class="metric-bar-fill w-full"></div></div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-span-2 pt-2">
-                    <p class="italic mb-1 secondary-text font-bold">Performance Reputation Factor</p>
-                    <div class="flex items-center">
-                        <span class="status-dot dot-filled"></span>
-                        <span class="status-dot dot-filled"></span>
-                        <span class="status-dot dot-filled"></span>
-                        <span class="status-dot dot-filled"></span>
-                        <span class="status-dot dot-empty"></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- RIGHT COLUMN: PROJECTS & BIO -->
-        <div class="col-span-3 space-y-3">
-            <!-- Projects Tabs -->
+            <!-- PROJECTS SECTION -->
             <div class="cyber-panel">
                 <div class="flex gap-2 mb-3">
                     <button class="header-accent">Personal Projects</button>
                     <button class="border-[var(--border-width)] border-solid border-[var(--accent-muted)] px-2 py-0.5 rounded muted-text hover:text-white transition-all font-bold">School Projects</button>
                 </div>
-                <ul class="space-y-2 text-[10px] list-disc pl-4 secondary-text font-bold">
-                    <li>Research paper on "Natural Language AI Prototype Retrieval Augmented Generation" (2024)</li>
-                    <li>Built AI prototype delivering personalized educational content using RAG architecture.</li>
-                    <li>Housing Price Prediction (2023)</li>
-                    <li>Conducted comparative study of Random Forest vs Multiple Linear Regression models.</li>
+                <ul class="space-y-4 text-[12px] list-disc pl-4 secondary-text font-bold">
+                    <li>
+                        <span class="accent-text">Research paper on "Natural Language AI Prototype Retrieval Augmented Generation" (2024)</span>
+                        <p class="mt-1 muted-text font-normal">Built AI prototype delivering personalized educational content using RAG architecture.</p>
+                    </li>
+                    <li>
+                        <span class="accent-text">Housing Price Prediction (2023)</span>
+                        <p class="mt-1 muted-text font-normal">Conducted comparative study of Random Forest vs Multiple Linear Regression models.</p>
+                    </li>
                 </ul>
             </div>
 
-            <!-- Buttons Grid -->
-            <div class="grid grid-cols-2 gap-2">
-                <div class="cyber-panel text-center py-1 secondary-text cursor-pointer hover:bg-[var(--accent-primary)] hover:text-[var(--bg-primary)] transition-all font-bold">Interview</div>
-                <div class="cyber-panel text-center py-1 secondary-text cursor-pointer hover:bg-[var(--accent-primary)] hover:text-[var(--bg-primary)] transition-all font-bold">CNTP Test</div>
-                <div class="col-span-2 cyber-panel text-center py-1 secondary-text cursor-pointer hover:bg-[var(--accent-primary)] hover:text-[var(--bg-primary)] transition-all font-bold">Academic Skill Set Chart</div>
-            </div>
-
-            <div class="cyber-panel text-center py-4">
-                <div class="flex justify-around mb-2">
-                    <span class="header-accent text-[9px]">Athletics</span>
-                    <span class="header-accent text-[9px]">Technical</span>
-                    <span class="header-accent text-[9px]">Social Media</span>
+            <!-- STATIC ROW: Actions, Bio, History -->
+            <div class="grid grid-cols-2 gap-4">
+                
+                <!-- Actions & Status -->
+                <div class="col-span-1 space-y-4">
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="cyber-panel text-center py-2 secondary-text cursor-pointer hover:bg-[var(--accent-primary)] hover:text-[var(--bg-primary)] transition-all font-bold">Interview</div>
+                        <div class="cyber-panel text-center py-2 secondary-text cursor-pointer hover:bg-[var(--accent-primary)] hover:text-[var(--bg-primary)] transition-all font-bold">CNTP Test</div>
+                        <div class="col-span-2 cyber-panel text-center py-2 secondary-text cursor-pointer hover:bg-[var(--accent-primary)] hover:text-[var(--bg-primary)] transition-all font-bold">Academic Skill Set Chart</div>
+                    </div>
+                    <div class="cyber-panel text-center py-4">
+                        <div class="flex justify-around mb-2">
+                            <span class="header-accent text-[9px]">Athletics</span>
+                            <span class="header-accent text-[9px]">Technical</span>
+                            <span class="header-accent text-[9px]">Social Media</span>
+                        </div>
+                        <div class="text-3xl font-bold muted-text italic">N/A</div>
+                    </div>
                 </div>
-                <div class="text-3xl font-bold muted-text italic">N/A</div>
-            </div>
 
-            <div class="cyber-panel flex-grow">
-                <h2 class="italic mb-2 border-b-[var(--border-width)] border-solid border-[var(--bg-tertiary)] secondary-text font-bold">Biography</h2>
-                <div class="h-24 bg-white/5 rounded p-2 italic muted-text font-bold">
-                    [Awaiting encrypted entry...]
+                <!-- Biography -->
+                <div class="col-span-1 cyber-panel flex flex-col">
+                    <h2 class="header-accent inline-block mb-2 self-start">Biography</h2>
+                    <div class="flex-grow bg-white/5 rounded p-4 italic muted-text font-bold border border-[var(--accent-muted)]">
+                        [Awaiting encrypted entry...]
+                    </div>
+                </div>
+
+                <!-- History -->
+                <div class="col-span-1 cyber-panel h-32 flex flex-col">
+                    <h2 class="header-accent inline-block mb-2 self-start">Volunteering History</h2>
+                    <div class="flex-grow flex items-center justify-center muted-text italic font-bold border border-dashed border-[var(--accent-muted)] rounded opacity-50">
+                        System ready for data input...
+                    </div>
+                </div>
+                
+                <div class="col-span-1 cyber-panel h-32 flex flex-col">
+                    <h2 class="header-accent inline-block mb-2 self-start">Academic History</h2>
+                     <div class="flex-grow flex items-center justify-center muted-text italic font-bold border border-dashed border-[var(--accent-muted)] rounded opacity-50">
+                        System ready for data input...
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- BOTTOM PANELS -->
-        <div class="col-span-5 cyber-panel h-32">
-            <h2 class="header-accent inline-block mb-2">Volunteering History</h2>
-            <div class="muted-text italic font-bold">System ready for data input...</div>
-        </div>
-        <div class="col-span-7 cyber-panel h-32">
-            <h2 class="header-accent inline-block mb-2">Academic History</h2>
-            <div class="muted-text italic font-bold">System ready for data input...</div>
         </div>
 
     </div>
 
+    <script>
+        function switchMainTab(tabId, btnElement) {
+            // Hide all main tab panes
+            document.getElementById('academic-main').classList.remove('active');
+            document.getElementById('volunteerism-main').classList.remove('active');
+
+            // Deactivate all main tab buttons
+            const mainButtons = btnElement.parentElement.querySelectorAll('.tab-btn');
+            mainButtons.forEach(btn => btn.classList.remove('active'));
+
+            // Activate specific tab
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+
+        function switchSubTab(subTabId, btnElement) {
+            // Hide all sub tab panes in this container
+            // Find parent container to avoid conflicting if we had other sub tabs elsewhere
+            const container = btnElement.parentElement.parentElement;
+            const subPanes = container.querySelectorAll('.sub-tab-pane');
+            subPanes.forEach(pane => pane.classList.remove('active'));
+
+            // Deactivate sub tab buttons
+            const subButtons = btnElement.parentElement.querySelectorAll('.sub-tab-btn');
+            subButtons.forEach(btn => btn.classList.remove('active'));
+
+            // Activate specific sub tab
+            document.getElementById(subTabId).classList.add('active');
+            btnElement.classList.add('active');
+        }
+    </script>
 </body>
 </html>
