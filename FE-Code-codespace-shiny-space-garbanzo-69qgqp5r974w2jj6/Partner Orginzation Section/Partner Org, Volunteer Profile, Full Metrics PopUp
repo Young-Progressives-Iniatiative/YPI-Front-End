@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YPI Dashboard - Ricky Castro</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* Custom scrollbar to match the dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #18181b; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3f3f46; 
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-zinc-900 text-white font-sans selection:bg-green-400 selection:text-black">
+
+    <!-- HEADER -->
+    <header class="pt-6 pb-2 px-6 bg-zinc-900 border-b-4 border-green-400">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-6">
+                <!-- Logo -->
+                <div class="w-16 h-16 border-2 border-white flex items-center justify-center bg-black skew-x-[-10deg]">
+                    <span class="text-3xl font-black italic tracking-tighter skew-x-[10deg]">YPI</span>
+                </div>
+                
+                <!-- User Info -->
+                <div class="flex items-center gap-4">
+                    <div class="relative">
+                        <div class="w-12 h-12 rounded-full bg-zinc-700 overflow-hidden border-2 border-zinc-500 flex items-center justify-center">
+                            <i data-lucide="user" class="w-6 h-6 text-zinc-400"></i>
+                        </div>
+                    </div>
+                    <h1 class="text-4xl font-black italic tracking-wide">Ricky Castro</h1>
+                </div>
+            </div>
+            <button class="text-zinc-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex gap-8 text-xl font-bold italic tracking-wide">
+            <button onclick="switchTab('Academics')" id="tab-Academics" class="tab-btn text-green-400 decoration-green-400 decoration-4 underline-offset-8 underline transition-all">Academics</button>
+            <button onclick="switchTab('Volunteerism')" id="tab-Volunteerism" class="tab-btn text-white hover:text-green-200 transition-all">Volunteerism</button>
+            <button onclick="switchTab('Social Media')" id="tab-Social Media" class="tab-btn text-white hover:text-green-200 transition-all">Social Media</button>
+        </nav>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 max-w-[1600px] mx-auto">
+
+        <!-- LEFT COLUMN (Behavioral & Indices) -->
+        <section class="lg:col-span-3 flex flex-col gap-6">
+            
+            <!-- 3x3 Stat Grid: Behavioral Metrics (ADL, AIV, TME) -->
+            <!-- Columns: Actual, Expected, Differential -->
+            <div class="grid grid-cols-3 gap-2">
+                <!-- Row 1: ADL (Rigor) -->
+                <div class="bg-green-600 p-2 rounded flex flex-col items-center justify-center min-h-[80px] shadow-lg relative group">
+                    <span class="text-[10px] font-bold uppercase opacity-80 mb-1">ADL</span>
+                    <span class="text-2xl font-black">1.8</span>
+                    <div class="absolute inset-0 bg-black/90 text-white text-xs p-2 hidden group-hover:flex items-center justify-center text-center z-10">Academic Demand Level</div>
+                </div>
+                <div class="bg-green-700 p-2 rounded flex flex-col items-center justify-center min-h-[80px] shadow-lg relative group">
+                    <span class="text-[10px] font-bold uppercase opacity-80 mb-1">xADL</span>
+                    <span class="text-2xl font-black">1.5</span>
+                    <div class="absolute inset-0 bg-black/90 text-white text-xs p-2 hidden group-hover:flex items-center justify-center text-center z-10">Expected ADL</div>
+                </div>
+                <div class="bg-green-600 p-2 rounded flex flex-col items-center justify-center min-h-[80px] shadow-lg relative group">
+                    <span class="text-[10px] font-bold uppercase opacity-80 mb-1">dADL</span>
+                    <span class="text-2xl font-black text-green-200">+0.3</span>
+                    <div class="absolute inset-0 bg-black/90 text-white text-xs p-2 hidden group-hover:flex items-center justify-center text-center z-10">The "Striver" Metric</div>
+                </div>
+
+                <!-- Row 2: AIV (Velocity) -->
+                <div class="bg-yellow-600 p-2 rounded flex flex-col items-center justify-center min-h-[80px] shadow-lg relative group">
+                    <span class="text-[10px] font-bold uppercase opacity-80 mb-1">AIV</span>
+                    <span class="text-2xl font-black">3.2</span>
+                    <div class="absolute inset-0 bg-black/90 text-white text-xs p-2 hidden group-hover:flex items-center justify-center text-center z-10">Academic Improvement Velocity</div>
+                </div>
+                <div class="bg-yellow-700 p-2 rounded flex flex-col items-center justify-center min-h-[80px] shadow-lg relative group">
+                    <span class="text-[10px] font-bold uppercase opacity-80 mb-1">xAIV</span>
+                    <span class="text-2xl font-black">2.0</span>
+                    <div class="absolute inset-0 bg-black/90 text-white text-xs p-2 hidden group-hover:flex items-center justify-center text-center z-10">Expected Velocity</div>
+                </div>
+                <div class="bg-yellow-600 p-2 rounded flex flex-col items-center justify-center min-h-[80px] shadow-lg relative group">
+                    <span class="text-[10px] font-bold uppercase opacity-80 mb-1">dAIV</span>
+                    <span class="text-2xl font-black text-yellow-200">+1.2</span>
+                    <div class="absolute inset-0 bg-black/90 text-white text-xs p-2 hidden group-hover:flex items-center justify-center text-center z-10">Trajectory Breakout</div>
+                </div>
+
+                <!-- Row 3: TME (Time Management) -->
+                <div class="bg-teal-600 p-2 rounded flex flex-col items-center justify-center min-h-[80px] shadow-lg relative group">
+                    <span class="text-[10px] font-bold uppercase opacity-80 mb-1">TME</span>
+                    <span class="text-2xl font-black">4.2</span>
+                    <div class="absolute inset-0 bg-black/90 text-white text-xs p-2 hidden group-hover:flex items-center justify-center text-center z-10">Time Mgmt Efficiency</div>
+                </div>
+                <div class="bg-teal-700 p-2 rounded flex flex-col items-center justify-center min-h-[80px] shadow-lg relative group">
+                    <span class="text-[10px] font-bold uppercase opacity-80 mb-1">xTME</span>
+                    <span class="text-2xl font-black">3.5</span>
+                    <div class="absolute inset-0 bg-black/90 text-white text-xs p-2 hidden group-hover:flex items-center justify-center text-center z-10">Expected Efficiency</div>
+                </div>
+                <div class="bg-teal-600 p-2 rounded flex flex-col items-center justify-center min-h-[80px] shadow-lg relative group">
+                    <span class="text-[10px] font-bold uppercase opacity-80 mb-1">dTME</span>
+                    <span class="text-2xl font-black text-teal-200">+0.7</span>
+                    <div class="absolute inset-0 bg-black/90 text-white text-xs p-2 hidden group-hover:flex items-center justify-center text-center z-10">"Hustler" Surplus</div>
+                </div>
+            </div>
+
+            <!-- Normalized Indices & Placement Table -->
+            <div class="bg-black border border-zinc-800 rounded-sm overflow-hidden">
+                <div class="bg-zinc-950 p-3 border-b border-zinc-800 flex justify-between items-center">
+                    <h3 class="text-lg font-bold italic">Indices & Placement</h3>
+                    <span class="text-[10px] text-zinc-500 uppercase font-mono">100 = Median</span>
+                </div>
+                <div class="p-2 text-xs">
+                    <!-- Table Header -->
+                    <div class="grid grid-cols-4 text-zinc-500 font-bold mb-2 text-right border-b border-zinc-800 pb-2">
+                        <div class="text-left pl-2">Metric</div>
+                        <div>Actual</div>
+                        <div>Exp</div>
+                        <div>Diff</div>
+                    </div>
+                    
+                    <!-- Table Rows -->
+                    <div class="flex flex-col gap-2">
+                        <!-- ADL+ -->
+                        <div class="grid grid-cols-4 items-center text-right py-1 hover:bg-zinc-900 transition-colors">
+                            <div class="text-left pl-2 font-bold text-zinc-300 uppercase tracking-tight" title="Academic Demand Level Plus">ADL+</div>
+                            <div class="font-mono text-white font-bold">115</div>
+                            <div class="font-mono text-zinc-500">100</div>
+                            <div class="font-mono text-green-400">+15</div>
+                        </div>
+                        <!-- AIV+ -->
+                        <div class="grid grid-cols-4 items-center text-right py-1 hover:bg-zinc-900 transition-colors">
+                            <div class="text-left pl-2 font-bold text-zinc-300 uppercase tracking-tight" title="Academic Improvement Velocity Plus">AIV+</div>
+                            <div class="font-mono text-white font-bold">120</div>
+                            <div class="font-mono text-zinc-500">100</div>
+                            <div class="font-mono text-green-400">+20</div>
+                        </div>
+                        <!-- TME+ -->
+                        <div class="grid grid-cols-4 items-center text-right py-1 hover:bg-zinc-900 transition-colors">
+                            <div class="text-left pl-2 font-bold text-zinc-300 uppercase tracking-tight" title="Time Management Efficiency Plus">TME+</div>
+                            <div class="font-mono text-white font-bold">105</div>
+                            <div class="font-mono text-zinc-500">100</div>
+                            <div class="font-mono text-green-400">+5</div>
+                        </div>
+                        
+                        <div class="h-px bg-zinc-800 my-1"></div>
+
+                        <!-- Exit Placement (EP%) -->
+                        <div class="grid grid-cols-4 items-center text-right py-1 hover:bg-zinc-900 transition-colors">
+                            <div class="text-left pl-2 font-bold text-cyan-400 uppercase tracking-tight" title="Exit Placement %">EP%</div>
+                            <div class="font-mono text-white font-bold">92%</div>
+                            <div class="font-mono text-zinc-500">80%</div>
+                            <div class="font-mono text-cyan-400">+12%</div>
+                        </div>
+                        <!-- xEP -->
+                         <div class="grid grid-cols-4 items-center text-right py-1 hover:bg-zinc-900 transition-colors">
+                            <div class="text-left pl-2 font-bold text-zinc-400 uppercase tracking-tight" title="Expected Placement">xEP</div>
+                            <div class="font-mono text-zinc-400">80%</div>
+                            <div class="font-mono text-zinc-600">—</div>
+                            <div class="font-mono text-zinc-600">—</div>
+                        </div>
+                        <!-- dEP -->
+                        <div class="grid grid-cols-4 items-center text-right py-1 hover:bg-zinc-900 transition-colors">
+                            <div class="text-left pl-2 font-bold text-zinc-300 uppercase tracking-tight" title="Differential Exit Placement">dEP</div>
+                            <div class="font-mono text-cyan-400 font-bold">+12</div>
+                            <div class="font-mono text-zinc-600">—</div>
+                            <div class="font-mono text-zinc-300 text-[10px] italic">Impact</div>
+                        </div>
+                         <!-- EP+ -->
+                         <div class="grid grid-cols-4 items-center text-right py-1 hover:bg-zinc-900 transition-colors">
+                            <div class="text-left pl-2 font-bold text-zinc-300 uppercase tracking-tight" title="Exit Placement Plus">EP+</div>
+                            <div class="font-mono text-white font-bold">115</div>
+                            <div class="font-mono text-zinc-500">100</div>
+                            <div class="font-mono text-green-400">+15</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MIDDLE COLUMN (Core GPA Grid) -->
+        <section class="lg:col-span-5 flex flex-col gap-8">
+            
+            <!-- Subject Proficiency Bars (Adaptive Grid) -->
+            <div class="grid grid-cols-2 xl:grid-cols-3 gap-3">
+                <!-- MATH+ -->
+                <div class="h-8 bg-zinc-800 rounded-md relative overflow-hidden shadow-inner group">
+                    <div class="absolute top-0 left-0 h-full bg-gradient-to-r from-green-500 to-green-300" style="width: 100%"></div>
+                    <div class="absolute inset-0 flex justify-between items-center px-2 z-10">
+                        <span class="text-[10px] font-black text-black">MATH+</span>
+                        <span class="text-[9px] font-bold text-black opacity-80">200/100 Med.</span>
+                    </div>
+                </div>
+                <!-- ENG+ -->
+                <div class="h-8 bg-zinc-800 rounded-md relative overflow-hidden shadow-inner group">
+                    <div class="absolute top-0 left-0 h-full bg-gradient-to-r from-yellow-500 to-yellow-300" style="width: 40%"></div>
+                    <div class="absolute inset-0 flex justify-between items-center px-2 z-10">
+                        <span class="text-[10px] font-black text-white mix-blend-difference">ENG+</span>
+                        <span class="text-[9px] font-bold text-white mix-blend-difference">80/100 Med.</span>
+                    </div>
+                </div>
+                <!-- HIST+ -->
+                 <div class="h-8 bg-zinc-800 rounded-md relative overflow-hidden shadow-inner group">
+                    <div class="absolute top-0 left-0 h-full bg-gradient-to-r from-cyan-500 to-cyan-300" style="width: 90%"></div>
+                    <div class="absolute inset-0 flex justify-between items-center px-2 z-10">
+                        <span class="text-[10px] font-black text-black">HIST+</span>
+                        <span class="text-[9px] font-bold text-black opacity-80">180/100 Med.</span>
+                    </div>
+                </div>
+                <!-- SCI+ -->
+                <div class="h-8 bg-zinc-800 rounded-md relative overflow-hidden shadow-inner group">
+                    <div class="absolute top-0 left-0 h-full bg-gradient-to-r from-teal-500 to-teal-300" style="width: 80%"></div>
+                    <div class="absolute inset-0 flex justify-between items-center px-2 z-10">
+                         <span class="text-[10px] font-black text-black">SCI+</span>
+                        <span class="text-[9px] font-bold text-black opacity-80">160/100 Med.</span>
+                    </div>
+                </div>
+                <!-- TECH+ -->
+                <div class="h-8 bg-zinc-800 rounded-md relative overflow-hidden shadow-inner group">
+                    <div class="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-purple-300" style="width: 100%"></div>
+                     <div class="absolute inset-0 flex justify-between items-center px-2 z-10">
+                        <span class="text-[10px] font-black text-black">TECH+</span>
+                        <span class="text-[9px] font-bold text-black opacity-80">200/100 Med.</span>
+                    </div>
+                </div>
+                <!-- ART+ -->
+                <div class="h-8 bg-zinc-800 rounded-md relative overflow-hidden shadow-inner group">
+                    <div class="absolute top-0 left-0 h-full bg-gradient-to-r from-pink-500 to-pink-300" style="width: 100%"></div>
+                     <div class="absolute inset-0 flex justify-between items-center px-2 z-10">
+                        <span class="text-[10px] font-black text-black">ART+</span>
+                        <span class="text-[9px] font-bold text-black opacity-80">200/100 Med.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced GPA Grid (Green Border) -->
+            <!-- 4x4 Grid for 16 Core Metrics -->
+            <div class="border-4 border-green-300 rounded-xl p-4 bg-zinc-900 relative mt-auto">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    
+                    <!-- 1. Standard GPA Family -->
+                    <div class="flex flex-col gap-1"><span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">GPA</span><div class="h-10 bg-zinc-200 rounded shadow-inner flex items-center justify-center font-black text-black">3.80</div></div>
+                    <div class="flex flex-col gap-1"><span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">xGPA</span><div class="h-10 bg-zinc-800 rounded shadow-inner flex items-center justify-center font-bold text-zinc-400">3.50</div></div>
+                    <div class="flex flex-col gap-1"><span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">dGPA</span><div class="h-10 bg-zinc-800 rounded shadow-inner flex items-center justify-center font-bold text-green-400">+0.3</div></div>
+                    <div class="flex flex-col gap-1"><span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">GPA+</span><div class="h-10 bg-green-500 rounded shadow-inner flex items-center justify-center font-black text-black">108</div></div>
+
+                    <!-- 2. Weighted GPA Family -->
+                    <div class="flex flex-col gap-1"><span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">wGPA</span><div class="h-10 bg-zinc-200 rounded shadow-inner flex items-center justify-center font-black text-black">4.50</div></div>
+                    <div class="flex flex-col gap-1"><span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">xwGPA</span><div class="h-10 bg-zinc-800 rounded shadow-inner flex items-center justify-center font-bold text-zinc-400">4.20</div></div>
+                    <div class="flex flex-col gap-1"><span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">dwGPA</span><div class="h-10 bg-zinc-800 rounded shadow-inner flex items-center justify-center font-bold text-green-400">+0.3</div></div>
+                    <div class="flex flex-col gap-1"><span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">wGPA+</span><div class="h-10 bg-green-500 rounded shadow-inner flex items-center justify-center font-black text-black">107</div></div>
+
+                    <!-- 3. Specialized Mastery Family -->
+                    <div class="flex flex-col gap-1"><span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">smGPA</span><div class="h-10 bg-zinc-200 rounded shadow-inner flex items-center justify-center font-black text-black">3.9</div></div>
+                    <div class="flex flex-col gap-1"><span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">xsmGPA</span><div class="h-10 bg-zinc-800 rounded shadow-inner flex items-center justify-center font-bold text-zinc-400">3.2</div></div>
+                    <div class="flex flex-col gap-1"><span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">dsmGPA</span><div class="h-10 bg-zinc-800 rounded shadow-inner flex items-center justify-center font-bold text-green-400">+0.7</div></div>
+                    <div class="flex flex-col gap-1"><span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">smGPA+</span><div class="h-10 bg-green-500 rounded shadow-inner flex items-center justify-center font-black text-black">121</div></div>
+
+                    <!-- 4. Environment Adjusted Family -->
+                    <div class="flex flex-col gap-1"><span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">eaGPA</span><div class="h-10 bg-zinc-200 rounded shadow-inner flex items-center justify-center font-black text-black">75</div></div>
+                    <div class="flex flex-col gap-1"><span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">xeaGPA</span><div class="h-10 bg-zinc-800 rounded shadow-inner flex items-center justify-center font-bold text-zinc-400">50</div></div>
+                    <div class="flex flex-col gap-1"><span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">deaGPA</span><div class="h-10 bg-zinc-800 rounded shadow-inner flex items-center justify-center font-bold text-green-400">+25</div></div>
+                    <div class="flex flex-col gap-1"><span class="font-bold text-xs text-zinc-400 uppercase tracking-widest">eaGPA+</span><div class="h-10 bg-green-500 rounded shadow-inner flex items-center justify-center font-black text-black">150</div></div>
+
+                </div>
+                <!-- Dots Decoration -->
+                <div class="absolute bottom-2 right-4 flex gap-1 opacity-50">
+                    <div class="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                    <div class="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                    <div class="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN (Timeline) -->
+        <section class="lg:col-span-4 relative pl-4">
+            
+            <!-- Grid Background -->
+            <div class="absolute top-0 right-0 bottom-0 left-28 pointer-events-none flex justify-between text-[10px] text-zinc-600 font-mono">
+                <div class="h-full border-l border-zinc-800 flex flex-col justify-between pt-1"><span>0</span></div>
+                <div class="h-full border-l border-zinc-800 flex flex-col justify-between pt-1"><span>20</span></div>
+                <div class="h-full border-l border-zinc-800 flex flex-col justify-between pt-1"><span>40</span></div>
+                <div class="h-full border-l border-zinc-800 flex flex-col justify-between pt-1"><span>60</span></div>
+                <div class="h-full border-l border-zinc-800 flex flex-col justify-between pt-1"><span>80</span></div>
+                <div class="h-full border-l border-zinc-800 flex flex-col justify-between pt-1"><span>100</span></div>
+                
+                <!-- Vertical Scale Labels -->
+                <div class="h-full flex flex-col justify-between pt-8 pb-4 pl-2 text-zinc-500">
+                    <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                    <span>7</span><span>8</span><span>12</span><span>13</span><span>14</span>
+                </div>
+            </div>
+
+            <!-- Timeline Content -->
+            <div class="relative z-10 flex flex-col gap-4 mt-8">
+                <!-- Locked Item -->
+                <div class="flex items-center h-8">
+                    <div class="w-24 text-right pr-4 text-sm font-bold italic text-white shrink-0">Q1 2023</div>
+                    <div class="flex-grow h-full flex items-center"><div class="flex items-center"><div class="w-2 h-2 rounded-full bg-zinc-700 mr-2"></div><i data-lucide="lock" class="w-4 h-4 text-zinc-600"></i></div></div>
+                </div>
+                
+                <div class="flex items-center h-8">
+                    <div class="w-24 text-right pr-4 text-sm font-bold italic text-white shrink-0">Q2 2023</div>
+                    <div class="flex-grow h-full flex items-center"><div class="flex items-center"><div class="w-2 h-2 rounded-full bg-zinc-700 mr-2"></div><i data-lucide="lock" class="w-4 h-4 text-zinc-600"></i></div></div>
+                </div>
+
+                <div class="flex items-center h-8">
+                    <div class="w-24 text-right pr-4 text-sm font-bold italic text-white shrink-0">Q3 2023</div>
+                    <div class="flex-grow h-full flex items-center"><div class="flex items-center"><div class="w-2 h-2 rounded-full bg-zinc-700 mr-2"></div><i data-lucide="lock" class="w-4 h-4 text-zinc-600"></i></div></div>
+                </div>
+
+                <div class="flex items-center h-8">
+                    <div class="w-24 text-right pr-4 text-sm font-bold italic text-white shrink-0">Q4 2023</div>
+                    <div class="flex-grow h-full flex items-center"><div class="flex items-center"><div class="w-2 h-2 rounded-full bg-zinc-700 mr-2"></div><i data-lucide="lock" class="w-4 h-4 text-zinc-600"></i></div></div>
+                </div>
+
+                <!-- Unlocked Item (Active) -->
+                <div class="flex items-center h-8">
+                    <div class="w-24 text-right pr-4 text-sm font-bold italic text-white shrink-0">Q1 2024</div>
+                    <div class="flex-grow h-full flex items-center">
+                        <div class="h-10 bg-cyan-400 rounded-sm flex items-center px-3 shadow-lg shadow-black/50 min-w-[20px]" style="width: 80%;">
+                            <span class="text-black font-black text-xl">8</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center h-8">
+                    <div class="w-24 text-right pr-4 text-sm font-bold italic text-white shrink-0">Q2 2024</div>
+                    <div class="flex-grow h-full flex items-center"><div class="flex items-center"><div class="w-2 h-2 rounded-full bg-zinc-700 mr-2"></div><i data-lucide="lock" class="w-4 h-4 text-zinc-600"></i></div></div>
+                </div>
+
+                <div class="flex items-center h-8">
+                    <div class="w-24 text-right pr-4 text-sm font-bold italic text-white shrink-0">Q3 2024</div>
+                    <div class="flex-grow h-full flex items-center"><div class="flex items-center"><div class="w-2 h-2 rounded-full bg-zinc-700 mr-2"></div><i data-lucide="lock" class="w-4 h-4 text-zinc-600"></i></div></div>
+                </div>
+                
+                <div class="flex items-center h-8">
+                    <div class="w-24 text-right pr-4 text-sm font-bold italic text-white shrink-0">Q4 2024</div>
+                    <div class="flex-grow h-full flex items-center"><div class="flex items-center"><div class="w-2 h-2 rounded-full bg-zinc-700 mr-2"></div><i data-lucide="lock" class="w-4 h-4 text-zinc-600"></i></div></div>
+                </div>
+
+                <div class="flex items-center h-8">
+                    <div class="w-24 text-right pr-4 text-sm font-bold italic text-white shrink-0">Q1 2025</div>
+                    <div class="flex-grow h-full flex items-center"><div class="flex items-center"><div class="w-2 h-2 rounded-full bg-zinc-700 mr-2"></div><i data-lucide="lock" class="w-4 h-4 text-zinc-600"></i></div></div>
+                </div>
+
+                <!-- Unlocked Item (Yellow) -->
+                <div class="flex items-center h-8">
+                    <div class="w-24 text-right pr-4 text-sm font-bold italic text-white shrink-0">Q2 2025</div>
+                    <div class="flex-grow h-full flex items-center">
+                        <div class="h-10 bg-yellow-400 rounded-sm flex items-center px-3 shadow-lg shadow-black/50 min-w-[20px]" style="width: 60%;">
+                            <span class="text-black font-black text-xl">6</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Tab Switching Logic
+        function switchTab(tabName) {
+            const buttons = document.querySelectorAll('.tab-btn');
+            const activeClasses = ['text-green-400', 'decoration-green-400', 'decoration-4', 'underline-offset-8', 'underline'];
+            const inactiveClasses = ['text-white', 'hover:text-green-200'];
+
+            buttons.forEach(btn => {
+                if (btn.id === `tab-${tabName}`) {
+                    btn.classList.add(...activeClasses);
+                    btn.classList.remove(...inactiveClasses);
+                } else {
+                    btn.classList.remove(...activeClasses);
+                    btn.classList.add(...inactiveClasses);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
