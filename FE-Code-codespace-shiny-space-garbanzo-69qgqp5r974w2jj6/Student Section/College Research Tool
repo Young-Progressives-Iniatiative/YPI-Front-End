@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>School List — College Research Tool</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          bg: '#0f1117',
+          surface: '#181c27',
+          surface2: '#1f2435',
+          accent: '#bf5700',
+        },
+        fontFamily: {
+          sans: ['Atkinson Hyperlegible', 'sans-serif'],
+        }
+      }
+    }
+  }
+</script>
+<style>
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-up { animation: fadeUp 0.4s ease forwards; }
+  .delay-100 { animation-delay: 0.1s; }
+  .delay-200 { animation-delay: 0.2s; }
+
+  /* Hide scrollbar for tabs/sidebar on mobile but keep functionality */
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+</head>
+<body class="bg-bg text-gray-200 font-sans h-screen flex flex-col overflow-hidden">
+
+<!-- TOP HEADER -->
+<header class="h-24 bg-surface border-b border-white/10 flex items-center justify-between px-6 md:px-8 shrink-0 z-30">
+  <div class="flex items-center gap-4">
+    <div class="w-12 h-12 bg-accent text-white rounded-lg flex items-center justify-center font-bold text-2xl">🎓</div>
+    <h1 class="font-bold text-2xl tracking-wide text-gray-100 hidden sm:block">College Research Tool</h1>
+  </div>
+  
+  <div class="flex items-center gap-6">
+    <div class="relative hidden md:block">
+      <input type="text" placeholder="Search schools..." class="bg-surface2 border border-white/10 rounded-lg px-5 py-2.5 text-base text-gray-200 focus:outline-none focus:border-accent w-80 transition-colors placeholder:text-gray-500" />
+      <span class="absolute right-4 top-2.5 text-gray-500 text-lg">🔍</span>
+    </div>
+    <button class="text-base font-semibold text-gray-400 hover:text-white transition-colors">Compare</button>
+    <div class="w-px h-8 bg-white/10 mx-1"></div>
+    <button class="w-12 h-12 text-xl rounded-full bg-surface2 border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors">
+      👤
+    </button>
+  </div>
+</header>
+
+<!-- MAIN LAYOUT WRAPPER -->
+<div class="flex-1 flex flex-col md:flex-row overflow-hidden">
+  
+  <!-- SIDEBAR -->
+  <aside class="w-full md:w-1/4 bg-surface border-b md:border-b-0 md:border-r border-white/10 flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto shrink-0 p-3 gap-3 no-scrollbar z-20">
+    <button class="md:w-full flex-shrink-0 flex items-center justify-center gap-2 p-3 border-2 border-dashed border-white/15 rounded-xl text-gray-400 font-bold tracking-wide hover:border-white hover:text-white hover:bg-white/5 transition-all mb-1">
+      + Add School
+    </button>
+
+    <!-- School cards -->
+    <div class="school-card active flex-shrink-0 flex items-center gap-3 p-2 md:p-3 rounded-xl cursor-pointer border-2 bg-white border-[#b45a38] opacity-100 shadow-lg transition-all w-48 md:w-auto" 
+         onclick="selectSchool(this, 'texas', '#b45a38', '🤘', 'University of Texas', 'at Austin', 'Longhorns', 'white')">
+      <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0 bg-white text-[#b45a38] shadow-sm">🤘</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-bold truncate text-[#b45a38]">University of Texas</div>
+      </div>
+      <div class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded border border-green-300 shrink-0">8.0</div>
+    </div>
+
+    <!-- GEORGETOWN CARD (Inverted Theme: Gray BG, Navy Text, Navy Border) -->
+    <div class="school-card flex-shrink-0 flex items-center gap-3 p-2 md:p-3 rounded-xl cursor-pointer border-2 bg-[#a2aaad] border-[#002147] opacity-60 hover:opacity-100 transition-all w-48 md:w-auto" 
+         onclick="selectSchool(this, 'georgetown', '#002147', 'G', 'Georgetown', 'University', 'Hoyas', '#a2aaad')">
+      <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0 bg-transparent text-[#002147] font-serif font-bold shadow-none">G</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-bold truncate text-[#002147]">Georgetown Univ.</div>
+      </div>
+      <div class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded border border-green-300 shrink-0">8.0</div>
+    </div>
+
+    <!-- FORDHAM CARD (Inverted Theme: Gray BG, Maroon Text, Black Border) -->
+    <div class="school-card flex-shrink-0 flex items-center gap-3 p-2 md:p-3 rounded-xl cursor-pointer border-2 bg-[#bcc0c2] border-[#000000] opacity-60 hover:opacity-100 transition-all w-48 md:w-auto" 
+         onclick="selectSchool(this, 'fordham', '#7a112c', 'F', 'Fordham', 'University', 'Rams', '#bcc0c2')">
+      <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0 bg-transparent text-[#7a112c] font-serif font-bold shadow-none">F</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-bold truncate text-[#7a112c]">Fordham University</div>
+      </div>
+      <div class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded border border-green-300 shrink-0">8.0</div>
+    </div>
+
+    <!-- DELAWARE CARD (Inverted Theme: Yellow BG, Blue Text, Blue Border) -->
+    <div class="school-card flex-shrink-0 flex items-center gap-3 p-2 md:p-3 rounded-xl cursor-pointer border-2 bg-[#f8d000] border-[#004a98] opacity-60 hover:opacity-100 transition-all w-48 md:w-auto" 
+         onclick="selectSchool(this, 'delaware', '#004a98', '🦆', 'University of Delaware', '', 'Blue Hens', '#f8d000')">
+      <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0 bg-transparent text-[#004a98] shadow-none">🦆</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-bold truncate text-[#004a98]">Univ. of Delaware</div>
+      </div>
+      <div class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded border border-green-300 shrink-0">8.0</div>
+    </div>
+
+    <!-- UCLA CARD (Inverted Theme: Yellow BG, Blue Text, Blue Border) -->
+    <div class="school-card flex-shrink-0 flex items-center gap-3 p-2 md:p-3 rounded-xl cursor-pointer border-2 bg-[#ffb71b] border-[#0971ce] opacity-60 hover:opacity-100 transition-all w-48 md:w-auto" 
+         onclick="selectSchool(this, 'ucla', '#0971ce', 'UCLA', 'University of California,', 'Los Angeles', 'Bruins', '#ffb71b')">
+      <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xs shrink-0 bg-transparent text-[#0971ce] font-bold shadow-none">UCLA</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-bold truncate text-[#0971ce]">University of California, Los Angeles</div>
+      </div>
+      <div class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded border border-green-300 shrink-0">8.0</div>
+    </div>
+
+    <!-- STANFORD CARD (Primary Red: #8c1515) -->
+    <div class="school-card flex-shrink-0 flex items-center gap-3 p-2 md:p-3 rounded-xl cursor-pointer border-2 bg-white border-[#8c1515] opacity-60 hover:opacity-100 transition-all w-48 md:w-auto" 
+         onclick="selectSchool(this, 'stanford', '#8c1515', '🌲', 'Stanford', 'University', 'Cardinal', 'white')">
+      <div class="w-10 h-10 rounded-lg flex items-center justify-center text-xl shrink-0 bg-transparent text-[#8c1515] shadow-none">🌲</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-bold truncate text-[#8c1515]">Stanford University</div>
+      </div>
+      <div class="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded border border-green-300 shrink-0">8.0</div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-bg relative">
+
+    <!-- Scrollable Inner Content -->
+    <div class="flex-1 overflow-y-auto">
+      <!-- Header Area Wrapper -->
+      <div class="p-4 md:p-6 lg:p-8">
+        
+        <!-- Responsive Header Card -->
+        <div id="schoolHeaderBg" class="p-6 md:p-8 rounded-2xl border-2 border-white shadow-[0_8px_40px_rgba(0,0,0,0.4)] relative overflow-hidden flex flex-col xl:flex-row gap-8 items-start xl:items-stretch transition-all duration-500" style="background-color: #b45a38;">
+            
+            <!-- Left Column: Branding & Badges -->
+            <div class="flex flex-col flex-1 z-10 w-full xl:w-auto">
+              
+              <!-- Top Row: Logo & Text -->
+              <div class="flex flex-col md:flex-row items-start gap-6 relative">
+                <!-- Logo Box -->
+                <div id="headerLogo" class="w-48 h-48 md:w-64 md:h-64 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center text-[6rem] md:text-[9rem] shadow-lg border border-white/20 shrink-0 transition-colors">
+                  🤘
+                </div>
+                
+                <!-- Text Info -->
+                <div class="flex flex-col items-start text-left pt-2">
+                  <h1 id="headerMainTitle" class="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight transition-colors">
+                    <span id="headerTitle1">University of Texas</span><br/>
+                    <span id="headerTitle2">at Austin</span>
+                  </h1>
+                  <div id="headerSubtitle" class="text-xs md:text-sm font-bold tracking-widest text-white/70 uppercase mt-2">Longhorns</div>
+                </div>
+              </div>
+
+              <!-- Bottom Row: Actions & Badges -->
+              <div class="flex flex-wrap items-center gap-2 mt-6 justify-start">
+                <button id="headerStatusBtn" class="flex items-center justify-center gap-2.5 bg-white/10 hover:bg-white/20 border border-white text-white rounded-xl px-5 py-2 text-lg md:text-xl font-bold transition-colors backdrop-blur-md">
+                  ✏️ Insert Status Here
+                </button>
+                
+                <div class="hidden sm:block w-px h-6 bg-white/20 mx-2"></div>
+
+                <!-- Dynamic Badges Container -->
+                <div id="dynamicBadges" class="flex flex-wrap items-center gap-2">
+                  <div class="flex items-center gap-1 bg-green-500/20 text-green-400 border border-green-500/30 px-2.5 py-1 rounded text-xs font-bold">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                    A+ Niche
+                  </div>
+                  <div class="bg-white/10 text-white/90 border border-white/20 px-2.5 py-1 rounded text-xs font-semibold tracking-wide">#12 in US</div>
+                  <div class="bg-white/10 text-white/90 border border-white/20 px-2.5 py-1 rounded text-xs font-semibold tracking-wide">#18 in World</div>
+                  <div class="bg-white/10 text-white/90 border border-white/20 px-2.5 py-1 rounded text-xs font-semibold tracking-wide">🏈 SEC</div>
+                  <div class="bg-white/10 text-white/90 border border-white/20 px-2.5 py-1 rounded text-xs font-semibold tracking-wide">🇺🇸 Texas</div>
+                </div>
+              </div>
+            </div>
+
+          <!-- Middle Column: Stats Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 z-10 w-full xl:w-auto xl:my-auto">
+            <div class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20" viewBox="0 0 48 48" class="opacity-80 shrink-0">
+                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAMKADAAQAAAABAAAAMAAAAADbN2wMAAAFEUlEQVRoBe2Zz2sVVxTHzXvRxNaCxk0o1lVRuyq0tS2NoUXopivpotZuWlyJy67URTe6yE6qVSEu/A/EqKULwV0XBQtFRNriDwTBgHEnEpP3o5/vOGc4b+bOmzsvL4o0Fw733HO+53vOvTNz59e6dWttbQX+3yswMozpd7vdBjy7O53O3kaj8RHjnYwnkbdS/qf088i/+P4Ecx39j5GRkXbqfzUdxUwixyn8AdKtI8Q9RGaQbS+9epJuRk5S8LM6RZdgF9vt9ln4tr6UiZDoawqZDxRzj0JO49+PvI9MIBtSmVhaWpLtG+RnYu8E4hdardZ3qzYJEo+qwFziDvY5ZBqJvp6ERT6D6yLS9pzkmMW3fqgTgXAjSS77ROi3sE+vNBEcn8L1l+fG9hvy5kq5k3iIRpErPgGrdB7bxqEkgASuMTjP+BzYNImVHwmIzzniDuOjwyo8z0PBP5JLLdnRyDWbx9Qac1F9a2TqITxSi2AAcDqJbEse+MKGaCtFP7YJDLIacLwtqTsPcvnTaUG11OXQeZmRoN9ExuuSEPOTZIC4MRYuu7CZ0NlaHCTdBsFiuvraKqdqEQAmZpT4hxLpA8Rrd7ItdlE1RXMAnkmL17l4KTrQAeHQDS85l6U7V7RKvO4TxjETFUiyJqKVs8Daq69EcFxzHNeikudAcOhmZ3XoSDZzkOLQBxF8l3H0HdbYiNlJrFqSPFFePKEaJKpXbmKzxw7Vlg/UY3BPI2CvGXjc/RXp2rhGfwisn7h02Wo15VYNFuRrM1thAgR8aE6u/t9Nj+1ZpTeQ7/N42eTL2yPGWQ2+NosrTADHDnM2m82/TY/tmfQBsFsC+C2pL+AqNy0vL//jvFltztarcpieIHbhTPR6q0fE3rD4QH+jmqEXwVGbcDxPer2BEeDnFkDwhgCk1AT+Y4st64UpJQg4VIPjep6HhE6hPCZ6TKLDVeAYTBVHXz8JFmzGzD76FAKrZ6eYV8xnwvYtwjlVg9Wj2pwrUUNHYN6B3nF6lfoDgJh3BGGEjW2+Bl9bEl+YAFtVdtWza7wXk4VVaiDR+7ywionhBrPLcL42sxVIOEzZTkHAHgNW9F/if7cC493CKqayUU9Wg6+tNJCV+QSgPQLcZ+zvqME48HMuxmLVP03F20yfC5I5o3ITfw9JYlSbc4dVQA0Csg9V3Eg+DyNfWMFvB9+yJGn/CPsxRJ9WJMewP8phWti3V3BPu5gH4AtnTDAeoL622UpdDYJSI9gThkXXl4qDyFg+RrbUd8vhT+Rxfgw+O7Lox72vrw54kiS2JXY4Cl+EAsDpJqOVvY7+FVJ5ugkjrGIUix68WWLX6qtpIbX16ltrfGMH0qdDOwq3ISg8iGHbhHwQz9qLVKw4eq3Ju4S+Q/kjdTKPqRxDrO+f2XmLfqEyaEgAFu+8W7x51TIQNYH7IFKzXaD2C3rdxBR/1PKppw30OprlhcCfSiJctUlQ/BGtFi1ZMMans0IGVSi4CWH2ci1y2gWkcE2sIMc4xc5a4Wl/mRy1v2YEa4BoPD8JxrfLdqcgSYkR7inkpi+e8RUk5rmqhDVghlBfK3Q6qdnuJP2qbnb4KrdQoxUWmSL2kghoxqfPl+fwDWflLaHvId+HZLuTS36f5L/oeyr+wg8O2fDp58cpYu66OCv+sWJ9rlXTKWIzxQ7tFxN8Z5Dod4ShTYykr/wnX/R522/WTEQPWa/fb9Z+k1rzra3Aa7IC/wHLX8a+SGH1owAAAABJRU5ErkJggg==" x="0" y="0" width="48" height="48"/>
+              </svg>
+              <span class="text-sm text-white/70">Location</span> <span class="text-white/30 px-1">·</span> <span id="statLocation" class="text-sm font-bold text-white">Austin, TX</span>
+            </div>
+            <div class="flex items-center gap-2"><span class="text-lg opacity-80">🏛️</span> <span class="text-sm text-white/70">Type</span> <span class="text-white/30 px-1">·</span> <span id="statType" class="text-sm font-bold text-white">Public Research</span></div>
+            <div class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20" viewBox="0 0 20 20" class="opacity-80 shrink-0">
+                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAFKADAAQAAAABAAAAFAAAAACy3fD9AAABF0lEQVQ4Ee2SQUrDUBCG85IU9RS9QlfuegAv4MIjuDTixguUSigNogcIKN7CW7gQggvBIxQXyev307wQ+pJSQ9114GfmzfzzT96bBMHR/uUFrLUnYF5V1Y+gWLnBw2qxEsuJc0RL5QYL1l+VOwEJK+fOu3zYV0SgKYVhL63huCB2QdsbY/R1CdcMJIy/Ipe2OX+KETjsUvadzmADFrxx0tlDcQQuIbxx1QKswC/nbLtBYuSX1C3e/wMgTCkWIoBvSK9gBu6pnYEJeAYxkFgmLt4X03SKX+AD8gXw1krjtQSwF+LHPrH2lsds8h3tc4FG3MYQ+Iyi6IncKUjhafMP5O4cx/OauAuI3qgJoVvi7mt6qsfEkBdYA8BbI8z4OJn7AAAAAElFTkSuQmCC" x="0" y="0" width="20" height="20"/>
+              </svg>
+              <span class="text-sm text-white/70">Acceptance</span> <span class="text-white/30 px-1">·</span> <span id="statAcceptance" class="text-sm font-bold text-white">18%</span>
+            </div>
+            <div class="flex items-center gap-2"><span class="text-lg opacity-80">🧑‍🎓</span> <span class="text-sm text-white/70">Students</span> <span class="text-white/30 px-1">·</span> <span id="statStudents" class="text-sm font-bold text-white">52,384</span></div>
+            <div class="flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="20" height="20" viewBox="0 0 20 20" class="opacity-80 shrink-0">
+                <image xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAFKADAAQAAAABAAAAFAAAAACy3fD9AAABCElEQVQ4Ee1Tyw2CQBQE40FulkIJSxsWoXagHWgnlgBnSzDxCHcLgHUGdww8gxC9ssnw3pudN/vJEkXzsDfgvXdAHuDs/ORaRk3TeKAKAN2aTzc2RmVd1ztwCcEcxiUXwciBYWNOUkQxm5BvgZU9EjnOfTXGysdgRLMrGtbWyNbUUKs+1HlPA+KfHV5o3DNUAeOTVkUcvENqqGWfTsh8wU93QPhgHcdxBtyAMxrvBPPAZdRIy1xjqcRGNBbgChg5xAPAsQk8zV6M+Q4aSidj1WPx48hqwL3ssbtEtSI5zqkejWhIAb3HSsYywlH516BsH3Y6aigBGrrP6PdfT4aKMg47cuLn+L6BJ4G9h+xmmd4+AAAAAElFTkSuQmCC" x="0" y="0" width="20" height="20"/>
+              </svg>
+              <span class="text-sm text-white/70">Grad Rate</span> <span class="text-white/30 px-1">·</span> <span id="statGradRate" class="text-sm font-bold text-white">88%</span>
+            </div>
+            <div class="flex items-center gap-2"><span class="text-lg opacity-80">💼</span> <span class="text-sm text-white/70">Internships</span> <span class="text-white/30 px-1">·</span> <span id="statInternships" class="text-sm font-bold text-white">97%</span></div>
+            <div class="flex items-center gap-2"><span class="text-lg opacity-80">🎓</span> <span class="text-sm text-white/70">Career Place.</span> <span class="text-white/30 px-1">·</span> <span id="statCareer" class="text-sm font-bold text-white">90%</span></div>
+            <div class="flex items-center gap-2"><span class="text-lg opacity-80">📚</span> <span class="text-sm text-white/70">Adv. Degree</span> <span class="text-white/30 px-1">·</span> <span id="statAdvDegree" class="text-sm font-bold text-white">75%</span></div>
+            <div class="flex items-center gap-2 sm:col-span-2"><span class="text-lg opacity-80">🏦</span> <span class="text-sm text-white/70">Endowment</span> <span class="text-white/30 px-1">·</span> <span id="statEndowment" class="text-sm font-bold text-white">$20.85 Billion</span></div>
+          </div>
+
+          <!-- Right Column: Score Panel -->
+          <div class="flex flex-col gap-3 w-full xl:w-56 shrink-0 bg-black/25 backdrop-blur-md p-4 rounded-xl border border-white/10 z-10">
+            
+            <div>
+              <div class="flex justify-between items-end mb-1">
+                <div class="text-[10px] font-bold tracking-wider text-white/60 uppercase">Interest Rating</div>
+                <div class="text-[10px] font-bold text-white/80">8,200/10k</div>
+              </div>
+              <div class="h-1.5 w-full bg-black/40 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-green-400 to-blue-500 rounded-full" style="width: 82%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between items-end mb-1">
+                <div class="text-[10px] font-bold tracking-wider text-white/60 uppercase">Admittance Score</div>
+                <div class="text-[10px] font-bold text-white/80">6,500/10k</div>
+              </div>
+              <div class="h-1.5 w-full bg-black/40 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full" style="width: 65%"></div>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex justify-between items-end mb-1">
+                <div class="text-[10px] font-bold tracking-wider text-white/60 uppercase">Fin. Aid Likelihood</div>
+                <div class="text-[10px] font-bold text-white/80">5,000/10k</div>
+              </div>
+              <div class="h-1.5 w-full bg-black/40 rounded-full overflow-hidden">
+                <div class="h-full bg-gradient-to-r from-red-500 to-orange-600 rounded-full" style="width: 50%"></div>
+              </div>
+            </div>
+
+            <div class="mt-2 bg-black/30 border border-green-400/30 rounded-lg p-3 text-center">
+              <div class="text-3xl font-bold text-green-400 leading-none">8.0</div>
+              <div class="text-[10px] text-white/50 uppercase tracking-wider font-bold mt-1">Total Match Score</div>
+              <div class="text-[9px] text-white/40 mt-1.5 leading-snug">This school appears to be an excellent match given your preferences.</div>
+            </div>
+
+          </div>
+        </div>
+      </div> <!-- /Header Wrapper -->
+
+      <!-- Tabs Container -->
+      <div class="flex overflow-x-auto border-b border-white/10 bg-surface px-4 md:px-8 shrink-0 no-scrollbar">
+        <button class="tab-btn px-4 md:px-6 py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-gray-500 hover:text-gray-200 border-b-2 border-transparent whitespace-nowrap transition-colors" onclick="switchTab('economics', this)">Economics</button>
+        <button class="tab-btn px-4 md:px-6 py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-gray-500 hover:text-gray-200 border-b-2 border-transparent whitespace-nowrap transition-colors" onclick="switchTab('academics', this)">Academic Standards</button>
+        <button class="tab-btn px-4 md:px-6 py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-gray-500 hover:text-gray-200 border-b-2 border-transparent whitespace-nowrap transition-colors" onclick="switchTab('safety', this)">Safety</button>
+        <button class="tab-btn active px-4 md:px-6 py-3 text-xs md:text-sm font-bold uppercase tracking-wider text-accent border-b-2 border-accent whitespace-nowrap transition-colors" onclick="switchTab('social', this)">Social &amp; Political Culture</button>
+      </div>
+
+      <!-- TABS CONTENT AREA -->
+      <div class="p-4 md:p-6 lg:p-8 relative">
+        
+        <!-- Hidden div to pre-load dynamic Tailwind color classes -->
+        <div class="hidden bg-green-500/20 text-green-400 bg-yellow-500/20 text-yellow-500 bg-red-500/20 text-red-400 bg-blue-500/20 text-blue-400"></div>
+
+        <!-- TAB: SOCIAL (Active Default) -->
+        <div id="tab-social" class="tab-pane grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          
+          <!-- Political Treemap -->
+          <div class="bg-surface border border-white/10 p-5 rounded-2xl animate-fade-up">
+            <h3 class="text-base font-bold text-gray-100 mb-4 flex items-center gap-2"><span class="text-xl">🗳️</span> Student Political Self-ID</h3>
+            
+            <div id="politicsChartContainer">
+              <!-- Default chart loaded manually, will be overwritten by JS -->
+              <div class="flex flex-col md:flex-row gap-1 h-40 md:h-32 text-white font-bold text-sm">
+                <div class="bg-gradient-to-br from-[#1a3a6e] to-[#2455b0] rounded-lg p-3 flex flex-col justify-end relative overflow-hidden group hover:brightness-110 transition-all" style="flex-basis: 65%;">
+                  <span class="z-10">65%</span>
+                  <span class="text-[10px] font-medium opacity-70 z-10">Liberal</span>
+                </div>
+                <div class="flex flex-row md:flex-col gap-1 h-full" style="flex-basis: 35%;">
+                  <div class="bg-gradient-to-br from-[#4a3080] to-[#7046bf] rounded-lg p-2 flex flex-col justify-end flex-1 hover:brightness-110 transition-all">
+                    <span>15%</span><span class="text-[9px] font-medium opacity-70 leading-none">Moderate</span>
+                  </div>
+                  <div class="flex gap-1 flex-1">
+                    <div class="bg-gradient-to-br from-[#305050] to-[#3d7070] rounded-lg p-2 flex flex-col justify-end hover:brightness-110 transition-all" style="flex-basis: 52%;">
+                      <span>11%</span><span class="text-[9px] font-medium opacity-70 leading-none">Other</span>
+                    </div>
+                    <div class="bg-gradient-to-br from-[#6e2020] to-[#b03030] rounded-lg p-2 flex flex-col justify-end hover:brightness-110 transition-all" style="flex-basis: 48%;">
+                      <span>10%</span><span class="text-[9px] font-medium opacity-70 leading-none">Conserv.</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 text-xs text-gray-500">Data From: <span class="font-bold text-gray-300">NICHE</span></div>
+          </div>
+
+          <!-- Niche Grades -->
+          <div class="bg-surface border border-white/10 p-5 rounded-2xl animate-fade-up delay-100">
+            <h3 class="text-base font-bold text-gray-100 mb-4 flex items-center gap-2"><span class="text-xl">⭐</span> Campus Life Ratings</h3>
+            
+            <div class="flex flex-col gap-3">
+              <div class="flex items-center gap-4 pb-3 border-b border-white/5">
+                <div id="ratingPartyGrade" class="w-10 h-10 rounded-lg bg-green-500/20 text-green-400 flex items-center justify-center font-bold text-sm shrink-0">A+</div>
+                <div class="text-sm text-gray-200 flex-1">Party Scene <span class="text-gray-500 text-xs cursor-help ml-1" title="Based on student reviews and nightlife access.">ⓘ</span></div>
+              </div>
+              <div class="flex items-center gap-4 pb-3 border-b border-white/5">
+                <div id="ratingSafetyGrade" class="w-10 h-10 rounded-lg bg-yellow-500/20 text-yellow-500 flex items-center justify-center font-bold text-sm shrink-0">C+</div>
+                <div class="text-sm text-gray-200 flex-1">Safety <span class="text-gray-500 text-xs cursor-help ml-1" title="Campus crime rates and local area safety.">ⓘ</span></div>
+              </div>
+              <div class="flex items-center gap-4 pb-3 border-b border-white/5">
+                <div id="ratingFoodGrade" class="w-10 h-10 rounded-lg bg-green-500/20 text-green-400 flex items-center justify-center font-bold text-sm shrink-0">A</div>
+                <div class="text-sm text-gray-200 flex-1">Campus Food <span class="text-gray-500 text-xs cursor-help ml-1" title="Dining hall quality and meal plan options.">ⓘ</span></div>
+              </div>
+              <div class="flex items-center gap-4">
+                <div id="ratingDormsGrade" class="w-10 h-10 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-sm shrink-0">B−</div>
+                <div class="text-sm text-gray-200 flex-1">Dorms <span class="text-gray-500 text-xs cursor-help ml-1" title="Housing quality and availability.">ⓘ</span></div>
+              </div>
+            </div>
+
+            <div class="flex gap-6 mt-4 pt-4 border-t border-white/10">
+              <div class="text-center">
+                <div id="greekMen" class="text-2xl font-bold text-gray-100">15%</div>
+                <div class="text-[10px] text-gray-500 mt-1 uppercase tracking-wide">Men in Frats</div>
+              </div>
+              <div class="text-center">
+                <div id="greekWomen" class="text-2xl font-bold text-gray-100">17%</div>
+                <div class="text-[10px] text-gray-500 mt-1 uppercase tracking-wide">Women in Sororities</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sentiment Analysis -->
+          <div class="bg-surface border border-white/10 p-5 rounded-2xl animate-fade-up delay-200">
+            <h3 class="text-base font-bold text-gray-100 mb-4 flex items-center gap-2"><span class="text-xl">💬</span> Student Life Sentiment</h3>
+            
+            <div id="sentimentDesc" class="text-sm text-gray-400 leading-relaxed h-[180px] overflow-y-auto pr-2 custom-scrollbar">
+              The core of student emotion is captured by words like "wonderful," "rewarding," and "incredibly positive." Students express a strong sense of belonging, describing the community as "warm" and "welcoming." They frequently use language that conveys pride and opportunity, viewing the campus culture as supportive with "world-class faculty."
+              <br/><br/>
+              <strong class="text-gray-200">Key Positive Themes:</strong> Community & belonging, "great people," "great opportunities." Academics described as intellectually stimulating.
+              <br/><br/>
+              <strong class="text-gray-200">Key Concerns:</strong> Safety scores are average. Affordability — high cost of living in Austin is a recurring theme.
+            </div>
+            
+            <div class="flex items-center justify-between mt-4 pt-4 border-t border-white/10">
+              <div>
+                <div class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Sentiment Score</div>
+                <div id="sentimentScore" class="text-3xl font-bold text-green-400">8.0</div>
+              </div>
+              <div class="bg-black/30 border border-white/10 p-2.5 rounded-lg w-32 text-center">
+                <div id="sentimentMatch" class="text-[10px] text-gray-400 leading-snug">Excellent match given preferences.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Student Clubs (Spans 2 columns on desktop) -->
+          <div class="bg-surface border border-white/10 p-5 rounded-2xl md:col-span-2 animate-fade-up">
+            <h3 class="text-base font-bold text-gray-100 mb-4 flex items-center gap-2"><span class="text-xl">🏫</span> Student Clubs</h3>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <!-- Col 1 -->
+              <div>
+                <div class="text-xs font-bold uppercase tracking-wider text-green-400 mb-3">Allied Organizations</div>
+                <ul id="clubsAllied" class="space-y-2">
+                  <li class="flex items-center gap-2 bg-surface2 px-3 py-2 rounded-lg text-sm text-gray-200"><div class="w-2 h-2 rounded-full bg-green-400 shrink-0"></div> College Texans</li>
+                  <li class="flex items-center gap-2 bg-surface2 px-3 py-2 rounded-lg text-sm text-gray-200"><div class="w-2 h-2 rounded-full bg-green-400 shrink-0"></div> Univ. Democrats</li>
+                  <li class="flex items-center gap-2 bg-surface2 px-3 py-2 rounded-lg text-sm text-gray-200"><div class="w-2 h-2 rounded-full bg-green-400 shrink-0"></div> Feminist Policy Alliance</li>
+                  <li class="flex items-center gap-2 bg-surface2 px-3 py-2 rounded-lg text-sm text-gray-200"><div class="w-2 h-2 rounded-full bg-green-400 shrink-0"></div> Longhorn Urbanists</li>
+                </ul>
+              </div>
+              <!-- Col 2 -->
+              <div>
+                <div class="text-xs font-bold uppercase tracking-wider text-yellow-400 mb-3">Unaligned Organizations</div>
+                <ul id="clubsUnaligned" class="space-y-2">
+                  <li class="flex items-center gap-2 bg-surface2 px-3 py-2 rounded-lg text-sm text-gray-200"><div class="w-2 h-2 rounded-full bg-yellow-400 shrink-0"></div> Students Supporting Excel</li>
+                  <li class="flex items-center gap-2 bg-surface2 px-3 py-2 rounded-lg text-sm text-gray-200"><div class="w-2 h-2 rounded-full bg-yellow-400 shrink-0"></div> Alexander Hamilton Soc.</li>
+                  <li class="flex items-center gap-2 bg-surface2 px-3 py-2 rounded-lg text-sm text-gray-200"><div class="w-2 h-2 rounded-full bg-yellow-400 shrink-0"></div> UT Law Review</li>
+                </ul>
+              </div>
+              <!-- Col 3 -->
+              <div>
+                <div class="text-xs font-bold uppercase tracking-wider text-red-400 mb-3">Hostile Organizations</div>
+                <ul id="clubsHostile" class="space-y-2">
+                  <li class="flex items-center gap-2 bg-surface2 px-3 py-2 rounded-lg text-sm text-gray-200"><div class="w-2 h-2 rounded-full bg-red-400 shrink-0"></div> College Republicans</li>
+                  <li class="flex items-center gap-2 bg-surface2 px-3 py-2 rounded-lg text-sm text-gray-200"><div class="w-2 h-2 rounded-full bg-red-400 shrink-0"></div> TX Review of Law & Pol.</li>
+                </ul>
+              </div>
+            </div>
+            
+            <button class="mt-5 text-xs text-gray-400 border border-white/10 hover:bg-white/5 rounded-lg px-4 py-2 transition-colors">
+              ▼ Load More Clubs
+            </button>
+          </div>
+
+          <!-- Professors -->
+          <div class="bg-surface border border-white/10 p-5 rounded-2xl animate-fade-up delay-100">
+            <h3 class="text-base font-bold text-gray-100 mb-4 flex items-center gap-2"><span class="text-xl">🎓</span> Notable Professors</h3>
+            
+            <div id="professorsList" class="flex flex-col gap-2">
+              <div class="flex items-center gap-3 bg-surface2 p-3 rounded-xl">
+                <div class="w-10 h-10 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center text-lg shrink-0">👔</div>
+                <div>
+                  <div class="text-sm font-bold text-gray-200">Prof. James Baker</div>
+                  <div class="text-xs text-gray-500">Former US Sec. of State</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-3 bg-surface2 p-3 rounded-xl">
+                <div class="w-10 h-10 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center text-lg shrink-0">🏛️</div>
+                <div>
+                  <div class="text-sm font-bold text-gray-200">Prof. Kay Granger</div>
+                  <div class="text-xs text-gray-500">Former US Representative</div>
+                </div>
+              </div>
+              <div class="flex items-center gap-3 bg-surface2 p-3 rounded-xl">
+                <div class="w-10 h-10 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center text-lg shrink-0">⚖️</div>
+                <div>
+                  <div class="text-sm font-bold text-gray-200">Prof. Lino Graglia</div>
+                  <div class="text-xs text-gray-500">Constitutional Law Scholar</div>
+                </div>
+              </div>
+            </div>
+            <button class="mt-4 w-full text-xs text-gray-400 border border-white/10 hover:bg-white/5 rounded-lg px-4 py-2 transition-colors">
+              View All Faculty →
+            </button>
+          </div>
+
+        </div> <!-- /Tab Pane: Social -->
+
+        <!-- TAB: ECONOMICS -->
+        <div id="tab-economics" class="tab-pane hidden">
+          <div class="bg-surface border border-white/10 p-6 rounded-2xl min-h-[400px] flex flex-col items-center justify-center text-center">
+            <span class="text-5xl mb-4">💰</span>
+            <h3 class="text-xl font-bold text-gray-100 mb-2">Economics Data</h3>
+            <p class="text-gray-500 max-w-md text-sm">Economics data for this institution will appear here — including tuition costs, financial aid statistics, average student debt, return on investment, and alumni salary data.</p>
+          </div>
+        </div>
+
+        <!-- TAB: ACADEMICS -->
+        <div id="tab-academics" class="tab-pane hidden">
+          <div class="bg-surface border border-white/10 p-6 rounded-2xl min-h-[400px] flex flex-col items-center justify-center text-center">
+            <span class="text-5xl mb-4">📖</span>
+            <h3 class="text-xl font-bold text-gray-100 mb-2">Academic Standards</h3>
+            <p class="text-gray-500 max-w-md text-sm">Academic standards data will appear here — including average GPA, test scores, class sizes, student-to-faculty ratio, graduation rates, and available majors.</p>
+          </div>
+        </div>
+
+        <!-- TAB: SAFETY -->
+        <div id="tab-safety" class="tab-pane hidden">
+          <div class="bg-surface border border-white/10 p-6 rounded-2xl min-h-[400px] flex flex-col items-center justify-center text-center">
+            <span class="text-5xl mb-4">🛡️</span>
+            <h3 class="text-xl font-bold text-gray-100 mb-2">Campus Safety</h3>
+            <p class="text-gray-500 max-w-md text-sm">Campus safety data will appear here — including crime statistics, campus police resources, emergency response times, and student safety ratings.</p>
+          </div>
+        </div>
+
+      </div> <!-- /Tabs Content Area -->
+    </div> <!-- /Scrollable Inner Content -->
+  </div> <!-- /MAIN CONTENT -->
+
+</div> <!-- /MAIN LAYOUT WRAPPER -->
+
+<script>
+  // MOCK DATABASE FOR ALL SCHOOLS
+  const schoolDatabase = {
+    texas: {
+      badges: [
+        { text: 'A+ Niche', type: 'green' }, { text: '#12 in US', type: 'outline' }, { text: '#18 in World', type: 'outline' }, { text: '🏈 SEC', type: 'outline' }, { text: '🇺🇸 Texas', type: 'outline' }
+      ],
+      stats: { location: "Austin, TX", type: "Public Research", students: "52,384", gradRate: "88%", acceptance: "18%", internships: "97%", career: "90%", advDegree: "75%", endowment: "$20.85 Billion" },
+      politics: { lib: 65, mod: 15, oth: 11, con: 10 },
+      ratings: { party: "A+", safety: "C+", food: "A", dorms: "B-", frats: "15%", sororities: "17%" },
+      sentiment: {
+        score: "8.0", match: "Excellent match given preferences.",
+        desc: "The core of student emotion is captured by words like \"wonderful,\" \"rewarding,\" and \"incredibly positive.\" Students express a strong sense of belonging, describing the community as \"warm\" and \"welcoming.\" They frequently use language that conveys pride and opportunity, viewing the campus culture as supportive with \"world-class faculty.\"",
+        pos: "Community & belonging, \"great people,\" \"great opportunities.\" Academics described as intellectually stimulating.",
+        neg: "Safety scores are average. Affordability — high cost of living in Austin is a recurring theme."
+      },
+      clubs: {
+        allied: ["College Texans", "Univ. Democrats", "Feminist Policy Alliance", "Longhorn Urbanists"],
+        unaligned: ["Students Supporting Excel", "Alexander Hamilton Soc.", "UT Law Review"],
+        hostile: ["College Republicans", "TX Review of Law & Pol."]
+      },
+      professors: [
+        { icon: "👔", name: "Prof. James Baker", title: "Former US Sec. of State" },
+        { icon: "🏛️", name: "Prof. Kay Granger", title: "Former US Representative" },
+        { icon: "⚖️", name: "Prof. Lino Graglia", title: "Constitutional Law Scholar" }
+      ]
+    },
+    georgetown: {
+      badges: [
+        { text: '⭐ A+ Niche', type: 'green' }, { text: '#22 in US', type: 'outline' }, { text: '🏀 Big East', type: 'outline' }, { text: '🏛️ Washington D.C.', type: 'outline' }
+      ],
+      stats: { location: "Washington, D.C.", type: "Private Catholic", students: "20,935", gradRate: "94%", acceptance: "12%", internships: "95%", career: "92%", advDegree: "80%", endowment: "$3.3 Billion" },
+      politics: { lib: 60, mod: 25, oth: 5, con: 10 },
+      ratings: { party: "B+", safety: "B", food: "B-", dorms: "C+", frats: "0%", sororities: "0%" },
+      sentiment: {
+        score: "7.5", match: "Strong match for political science.",
+        desc: "Georgetown students are heavily focused on networking, politics, and international affairs. The culture is pre-professional and driven.",
+        pos: "Incredible access to D.C. internships, top-tier international relations programs, strong alumni network.",
+        neg: "Dorm quality is frequently criticized. Lack of traditional Greek life limits some social scenes."
+      },
+      clubs: {
+        allied: ["College Democrats", "Georgetown IRC", "GU Pride"],
+        unaligned: ["The Hoya (Newspaper)", "Corp", "Blue & Gray Tour Guides"],
+        hostile: ["College Republicans", "Right to Life"]
+      },
+      professors: [
+        { icon: "🌍", name: "Prof. Madeleine Albright", title: "Former US Sec. of State (Late)" },
+        { icon: "📰", name: "Prof. E.J. Dionne", title: "Political Journalist" }
+      ]
+    },
+    fordham: {
+      badges: [
+        { text: 'B+ Niche', type: 'green' }, { text: '#89 in US', type: 'outline' }, { text: '🏀 Atlantic 10', type: 'outline' }, { text: '🗽 New York', type: 'outline' }
+      ],
+      stats: { location: "Bronx, NY", type: "Private Jesuit", students: "16,364", gradRate: "83%", acceptance: "54%", internships: "85%", career: "88%", advDegree: "60%", endowment: "$1.1 Billion" },
+      politics: { lib: 55, mod: 25, oth: 10, con: 10 },
+      ratings: { party: "A", safety: "B", food: "C+", dorms: "B-", frats: "0%", sororities: "0%" },
+      sentiment: {
+        score: "6.8", match: "Good match for NYC access.",
+        desc: "Fordham students love the access to Manhattan and the tightly-knit community on the Bronx campus. Religion plays a background role.",
+        pos: "New York City is a massive playground and internship hub. Beautiful gothic campus.",
+        neg: "Administration can be bureaucratic. Cost of living off-campus is very high."
+      },
+      clubs: {
+        allied: ["College Democrats", "PRIDE Alliance", "Mock Trial"],
+        unaligned: ["The Ram", "Campus Activities Board", "Fordham Finance Society"],
+        hostile: ["College Republicans", "Respect for Life"]
+      },
+      professors: [
+        { icon: "📺", name: "Prof. Alice Rhee", title: "Emmy-Winning Producer" },
+        { icon: "⚖️", name: "Prof. Zephyr Teachout", title: "Law Scholar & Politician" }
+      ]
+    },
+    delaware: {
+      badges: [
+        { text: 'A- Niche', type: 'green' }, { text: '#76 in US', type: 'outline' }, { text: '🏈 CAA', type: 'outline' }, { text: '🦆 Delaware', type: 'outline' }
+      ],
+      stats: { location: "Newark, DE", type: "Public Research", students: "23,774", gradRate: "82%", acceptance: "72%", internships: "90%", career: "91%", advDegree: "50%", endowment: "$1.8 Billion" },
+      politics: { lib: 45, mod: 30, oth: 10, con: 15 },
+      ratings: { party: "A", safety: "B", food: "B", dorms: "B", frats: "22%", sororities: "25%" },
+      sentiment: {
+        score: "7.2", match: "Solid overall match.",
+        desc: "UD provides a classic, quintessential college experience. Newark is a legendary college town, and the student body is socially active and balanced.",
+        pos: "Amazing Main Street, strong school spirit, very good engineering and business programs.",
+        neg: "Can feel overly focused on Greek life and partying for some students."
+      },
+      clubs: {
+        allied: ["College Democrats", "Haven", "Engineers Without Borders"],
+        unaligned: ["Student Centers Board", "The Review", "UD Dance Marathon"],
+        hostile: ["College Republicans", "Turning Point USA"]
+      },
+      professors: [
+        { icon: "🏛️", name: "Joe Biden (Alumnus)", title: "46th US President" },
+        { icon: "🔬", name: "Prof. Richard Heck", title: "Nobel Laureate (Late)" }
+      ]
+    },
+    ucla: {
+      badges: [
+        { text: '⭐ A+ Niche', type: 'green' }, { text: '#15 in US', type: 'outline' }, { text: '🏈 Big Ten', type: 'outline' }, { text: '☀️ California', type: 'outline' }
+      ],
+      stats: { location: "Los Angeles, CA", type: "Public Research", students: "46,430", gradRate: "92%", acceptance: "9%", internships: "95%", career: "89%", advDegree: "70%", endowment: "$7.7 Billion" },
+      politics: { lib: 70, mod: 15, oth: 5, con: 10 },
+      ratings: { party: "A", safety: "B-", food: "A+", dorms: "B+", frats: "13%", sororities: "14%" },
+      sentiment: {
+        score: "8.5", match: "Excellent academic match.",
+        desc: "UCLA is celebrated for its perfect weather, unbeatable dining hall food, and an incredibly diverse, driven student body. Highly competitive.",
+        pos: "Best campus food in the country, prime LA location, exceptional academics and athletics.",
+        neg: "Housing can be cramped, classes are enormous, and it can be hard to get required courses."
+      },
+      clubs: {
+        allied: ["Bruin Democrats", "Queer Alliance", "USAC"],
+        unaligned: ["Daily Bruin", "Alumni Scholars Club", "Bruin Consulting"],
+        hostile: ["Bruin Republicans", "Bruins for Israel"]
+      },
+      professors: [
+        { icon: "🔭", name: "Prof. Andrea Ghez", title: "Nobel Laureate in Physics" },
+        { icon: "🧠", name: "Prof. Jared Diamond", title: "Pulitzer Prize Winner" }
+      ]
+    },
+    stanford: {
+      badges: [
+        { text: '⭐ A+ Niche', type: 'green' }, { text: '#3 in US', type: 'outline' }, { text: '🏈 ACC', type: 'outline' }, { text: '☀️ California', type: 'outline' }
+      ],
+      stats: { location: "Stanford, CA", type: "Private Research", students: "17,326", gradRate: "95%", acceptance: "4%", internships: "99%", career: "95%", advDegree: "85%", endowment: "$36.5 Billion" },
+      politics: { lib: 75, mod: 10, oth: 10, con: 5 },
+      ratings: { party: "B+", safety: "A", food: "A", dorms: "A-", frats: "20%", sororities: "20%" },
+      sentiment: {
+        score: "9.5", match: "Elite dream match.",
+        desc: "Stanford students embody 'Duck Syndrome'—gliding effortlessly on the surface while paddling furiously underneath. Silicon Valley culture dominates.",
+        pos: "Unparalleled access to tech and VC, gorgeous campus, brilliant peers.",
+        neg: "High stress culture, expensive surrounding area, 'tech-bro' vibe can be overwhelming."
+      },
+      clubs: {
+        allied: ["Stanford Democrats", "Stanford FLI", "Stanford NAACP"],
+        unaligned: ["Stanford Daily", "BASES (Entrepreneurship)", "Stanford Consulting"],
+        hostile: ["Stanford Republicans", "Stanford Review"]
+      },
+      professors: [
+        { icon: "🧬", name: "Prof. Carolyn Bertozzi", title: "Nobel Laureate in Chem" },
+        { icon: "💡", name: "Prof. Andrew Ng", title: "AI Pioneer" }
+      ]
+    }
+  };
+
+  // Tab Switching Logic
+  function switchTab(tabId, element) {
+    // Hide all tab panes
+    document.querySelectorAll('.tab-pane').forEach(pane => {
+      pane.classList.add('hidden');
+    });
+    
+    // Show selected pane
+    const targetPane = document.getElementById('tab-' + tabId);
+    if (targetPane) targetPane.classList.remove('hidden');
+    
+    // Update button states
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.classList.remove('active', 'text-accent', 'border-accent');
+      btn.classList.add('text-gray-500', 'border-transparent');
+    });
+    
+    // Set active button
+    element.classList.remove('text-gray-500', 'border-transparent');
+    element.classList.add('active', 'text-accent', 'border-accent');
+  }
+
+  // School Selection Logic
+  function selectSchool(card, schoolKey, bgColor, icon, name1, name2, subtitle, accentColor = 'white') {
+    // Update sidebar active state
+    document.querySelectorAll('.school-card').forEach(c => {
+      c.classList.remove('active', 'shadow-lg', 'opacity-100');
+      c.classList.add('opacity-60');
+    });
+    card.classList.remove('opacity-60');
+    card.classList.add('active', 'shadow-lg', 'opacity-100');
+    
+    // Update Main Header Visuals
+    const headerBg = document.getElementById('schoolHeaderBg');
+    headerBg.style.backgroundImage = 'none';
+    headerBg.style.backgroundColor = bgColor;
+    
+    // Update Colors (Stroke & Text)
+    headerBg.style.borderColor = accentColor;
+    document.getElementById('headerLogo').style.color = accentColor;
+    document.getElementById('headerLogo').style.borderColor = accentColor === 'white' ? 'rgba(255, 255, 255, 0.2)' : accentColor;
+    document.getElementById('headerMainTitle').style.color = accentColor;
+    
+    const statusBtn = document.getElementById('headerStatusBtn');
+    if (statusBtn) {
+      statusBtn.style.color = accentColor;
+      statusBtn.style.borderColor = accentColor;
+    }
+    
+    // Update Header Text Content
+    document.getElementById('headerLogo').textContent = icon;
+    document.getElementById('headerTitle1').textContent = name1;
+    document.getElementById('headerTitle2').textContent = name2;
+    document.getElementById('headerSubtitle').textContent = subtitle;
+
+    // --- DYNAMIC DATA BINDING ---
+    const data = schoolDatabase[schoolKey];
+    if (!data) return; // Fallback
+
+    // Update Badges
+    const badgesContainer = document.getElementById('dynamicBadges');
+    if (badgesContainer) {
+      badgesContainer.innerHTML = data.badges.map(b => {
+        if (b.type === 'green') {
+          return `<div class="flex items-center gap-1 bg-green-500/20 text-green-400 border border-green-500/30 px-2.5 py-1 rounded text-xs font-bold">
+            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+            ${b.text}
+          </div>`;
+        }
+        return `<div class="bg-white/10 text-white/90 border border-white/20 px-2.5 py-1 rounded text-xs font-semibold tracking-wide">${b.text}</div>`;
+      }).join('');
+    }
+
+    // Update Stats Grid
+    document.getElementById('statLocation').textContent = data.stats.location;
+    document.getElementById('statType').textContent = data.stats.type;
+    document.getElementById('statAcceptance').textContent = data.stats.acceptance;
+    document.getElementById('statStudents').textContent = data.stats.students;
+    document.getElementById('statGradRate').textContent = data.stats.gradRate;
+    document.getElementById('statInternships').textContent = data.stats.internships;
+    document.getElementById('statCareer').textContent = data.stats.career;
+    document.getElementById('statAdvDegree').textContent = data.stats.advDegree;
+    document.getElementById('statEndowment').textContent = data.stats.endowment;
+
+    // Update Political Treemap
+    const totalConSide = data.politics.oth + data.politics.con;
+    const othBasis = totalConSide > 0 ? (data.politics.oth / totalConSide) * 100 : 50;
+    const conBasis = totalConSide > 0 ? (data.politics.con / totalConSide) * 100 : 50;
+    
+    document.getElementById('politicsChartContainer').innerHTML = `
+      <div class="flex flex-col md:flex-row gap-1 h-40 md:h-32 text-white font-bold text-sm">
+        <div class="bg-gradient-to-br from-[#1a3a6e] to-[#2455b0] rounded-lg p-3 flex flex-col justify-end relative overflow-hidden group hover:brightness-110 transition-all" style="flex-basis: ${data.politics.lib}%;">
+          <span class="z-10">${data.politics.lib}%</span>
+          <span class="text-[10px] font-medium opacity-70 z-10">Liberal</span>
+        </div>
+        <div class="flex flex-row md:flex-col gap-1 h-full" style="flex-basis: ${100 - data.politics.lib}%;">
+          <div class="bg-gradient-to-br from-[#4a3080] to-[#7046bf] rounded-lg p-2 flex flex-col justify-end flex-1 hover:brightness-110 transition-all">
+            <span>${data.politics.mod}%</span><span class="text-[9px] font-medium opacity-70 leading-none">Moderate</span>
+          </div>
+          <div class="flex gap-1 flex-1">
+            <div class="bg-gradient-to-br from-[#305050] to-[#3d7070] rounded-lg p-2 flex flex-col justify-end hover:brightness-110 transition-all" style="flex-basis: ${othBasis}%;">
+              <span>${data.politics.oth}%</span><span class="text-[9px] font-medium opacity-70 leading-none">Other</span>
+            </div>
+            <div class="bg-gradient-to-br from-[#6e2020] to-[#b03030] rounded-lg p-2 flex flex-col justify-end hover:brightness-110 transition-all" style="flex-basis: ${conBasis}%;">
+              <span>${data.politics.con}%</span><span class="text-[9px] font-medium opacity-70 leading-none">Conserv.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Update Ratings
+    const getGradeClass = (grade) => {
+      if(grade.includes('A')) return 'bg-green-500/20 text-green-400';
+      if(grade.includes('B')) return 'bg-blue-500/20 text-blue-400';
+      if(grade.includes('C')) return 'bg-yellow-500/20 text-yellow-500';
+      return 'bg-red-500/20 text-red-400';
+    };
+
+    const applyGrade = (id, grade) => {
+      const el = document.getElementById(id);
+      el.textContent = grade;
+      el.className = `w-10 h-10 rounded-lg flex items-center justify-center font-bold text-sm shrink-0 ${getGradeClass(grade)}`;
+    };
+
+    applyGrade('ratingPartyGrade', data.ratings.party);
+    applyGrade('ratingSafetyGrade', data.ratings.safety);
+    applyGrade('ratingFoodGrade', data.ratings.food);
+    applyGrade('ratingDormsGrade', data.ratings.dorms);
+
+    document.getElementById('greekMen').textContent = data.ratings.frats;
+    document.getElementById('greekWomen').textContent = data.ratings.sororities;
+
+    // Update Sentiment
+    document.getElementById('sentimentScore').textContent = data.sentiment.score;
+    document.getElementById('sentimentMatch').textContent = data.sentiment.match;
+    document.getElementById('sentimentDesc').innerHTML = `
+      ${data.sentiment.desc}
+      <br/><br/>
+      <strong class="text-gray-200">Key Positive Themes:</strong> ${data.sentiment.pos}
+      <br/><br/>
+      <strong class="text-gray-200">Key Concerns:</strong> ${data.sentiment.neg}
+    `;
+
+    // Update Clubs
+    const buildClubs = (list, color) => list.map(c => `<li class="flex items-center gap-2 bg-surface2 px-3 py-2 rounded-lg text-sm text-gray-200"><div class="w-2 h-2 rounded-full bg-${color}-400 shrink-0"></div> ${c}</li>`).join('');
+    document.getElementById('clubsAllied').innerHTML = buildClubs(data.clubs.allied, 'green');
+    document.getElementById('clubsUnaligned').innerHTML = buildClubs(data.clubs.unaligned, 'yellow');
+    document.getElementById('clubsHostile').innerHTML = buildClubs(data.clubs.hostile, 'red');
+
+    // Update Professors
+    document.getElementById('professorsList').innerHTML = data.professors.map(p => `
+      <div class="flex items-center gap-3 bg-surface2 p-3 rounded-xl">
+        <div class="w-10 h-10 rounded-full bg-accent/20 border border-accent/40 flex items-center justify-center text-lg shrink-0">${p.icon}</div>
+        <div>
+          <div class="text-sm font-bold text-gray-200">${p.name}</div>
+          <div class="text-xs text-gray-500">${p.title}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+</script>
+</body>
+</html>
