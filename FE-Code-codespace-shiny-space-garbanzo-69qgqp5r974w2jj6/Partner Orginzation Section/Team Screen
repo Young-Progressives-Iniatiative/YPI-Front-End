@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Squad View</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/atkinson-hyperlegible@5.0.19/400.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/atkinson-hyperlegible@5.0.19/500.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/atkinson-hyperlegible@5.0.19/700.css">
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #0e0e12;
+    color: #c8c8d0;
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    font-size: 12px;
+    overflow-x: hidden;
+}
+
+.top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: #181820;
+    border-bottom: 1px solid #2a2a35;
+}
+
+.top-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.nav-arrows {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.nav-arrows button {
+    background: none;
+    border: none;
+    color: #6a6a7a;
+    cursor: pointer;
+    font-size: 10px;
+    padding: 1px 6px;
+    line-height: 1;
+    font-family: inherit;
+}
+
+.nav-arrows button:hover {
+    color: #fff;
+}
+
+.view-selector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #1a1a24;
+    border: 1px solid #3a3a4a;
+    border-radius: 6px;
+    padding: 4px 12px;
+    cursor: pointer;
+    color: #e0e0e8;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.view-selector .eye-icon {
+    font-size: 10px;
+}
+
+.view-selector select {
+    background: transparent;
+    border: none;
+    color: #e0e0e8;
+    font-size: 12px;
+    font-weight: 500;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    font-family: inherit;
+}
+
+.top-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.top-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #1a1a24;
+    border: 1px solid #3a3a4a;
+    border-radius: 6px;
+    padding: 5px 12px;
+    color: #b0b0bc;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+}
+
+.top-btn:hover {
+    background: #252535;
+    color: #e0e0e8;
+    border-color: #5a5a6a;
+}
+
+.top-btn .dropdown-arrow {
+    font-size: 8px;
+    opacity: 0.6;
+}
+
+.table-container {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: calc(100vh - 48px);
+    position: relative;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1400px;
+}
+
+thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+thead th {
+    background: #1e1e2a;
+    padding: 6px 8px;
+    text-align: left;
+    font-weight: 500;
+    font-size: 11px;
+    color: #8888a0;
+    white-space: nowrap;
+    border-bottom: 1px solid #2a2a35;
+    border-right: 1px solid #252530;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    font-family: inherit;
+}
+
+thead th:hover {
+    color: #c8c8d0;
+    background: #252535;
+}
+
+thead th.sort-active {
+    color: #e0e0e8;
+}
+
+thead th .sort-icon {
+    display: inline-block;
+    margin-left: 4px;
+    font-size: 8px;
+    opacity: 0.5;
+}
+
+thead th.sort-active .sort-icon {
+    opacity: 1;
+    color: #7b8aff;
+}
+
+thead th:last-child {
+    border-right: none;
+}
+
+tbody tr {
+    border-bottom: 1px solid #1a1a24;
+    transition: background 0.1s;
+}
+
+tbody tr:hover {
+    background: #1e1e2e;
+}
+
+tbody tr:nth-child(even) {
+    background: #13131a;
+}
+
+tbody tr:nth-child(even):hover {
+    background: #1e1e2e;
+}
+
+tbody td {
+    padding: 4px 8px;
+    white-space: nowrap;
+    border-right: 1px solid #1a1a22;
+    font-size: 12px;
+    vertical-align: middle;
+    font-family: inherit;
+}
+
+tbody td:last-child {
+    border-right: none;
+}
+
+.checkbox-cell {
+    text-align: center;
+    padding: 4px 6px;
+}
+
+.checkbox-cell input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: #7b8aff;
+    cursor: pointer;
+}
+
+.inf-cell {
+    text-align: center;
+    min-width: 40px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    font-family: inherit;
+}
+
+.badge-unr {
+    background: #ff6b6b;
+    color: #fff;
+}
+
+.badge-wnt {
+    background: #4ade80;
+    color: #fff;
+}
+
+.badge-sus {
+    background: #f97316;
+    color: #fff;
+}
+
+.player-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 160px;
+}
+
+.player-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #2a2a3a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+    color: #6a6a7a;
+}
+
+.player-avatar svg {
+    width: 14px;
+    height: 14px;
+    fill: #6a6a7a;
+}
+
+.flag {
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.player-name {
+    color: #7b8aff;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.player-name:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.position-cell {
+    color: #a0a0b0;
+    font-size: 11px;
+    min-width: 140px;
+}
+
+.position-cell.role-leadership {
+    color: #f59e0b;
+}
+
+.position-cell.role-program {
+    color: #34d399;
+}
+
+.position-cell.role-dev {
+    color: #60a5fa;
+}
+
+.position-cell.role-ops {
+    color: #a78bfa;
+}
+
+.position-cell.role-comms {
+    color: #f472b6;
+}
+
+.position-cell.role-finance {
+    color: #fb923c;
+}
+
+.position-cell.role-volunteer {
+    color: #2dd4bf;
+}
+
+.position-cell.role-grant {
+    color: #c084fc;
+}
+
+.education-cell {
+    color: #c8c8d0;
+    text-align: center;
+    min-width: 80px;
+    font-size: 11px;
+}
+
+.education-cell.blank {
+    color: #555;
+}
+
+.education-year-badge {
+    display: inline-block;
+    padding: 1px 8px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 500;
+    background: #2a2a40;
+    color: #9b9bff;
+    border: 1px solid #3a3a55;
+}
+
+.club-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 130px;
+}
+
+.club-badge {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.club-badge svg {
+    width: 18px;
+    height: 18px;
+}
+
+.club-name {
+    color: #a0a0b0;
+    font-size: 11px;
+}
+
+.club-name.dash {
+    color: #555;
+}
+
+.expires-cell {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 100px;
+}
+
+.expires-icon {
+    color: #ff6b6b;
+    font-size: 11px;
+}
+
+.expires-date {
+    color: #c8c8d0;
+    font-size: 11px;
+}
+
+.contract-cell {
+    color: #a0a0b0;
+    font-size: 11px;
+    min-width: 80px;
+}
+
+.salary-cell {
+    color: #c8c8d0;
+    font-size: 11px;
+    min-width: 90px;
+}
+
+.due-date-cell {
+    color: #555;
+    text-align: center;
+    min-width: 60px;
+}
+
+.promises-cell {
+    color: #c8c8d0;
+    text-align: center;
+    min-width: 60px;
+}
+
+.release-cell {
+    color: #c8c8d0;
+    min-width: 60px;
+}
+
+.workload-cell {
+    color: #a0a0b0;
+    font-size: 11px;
+    min-width: 80px;
+}
+
+.plans-cell {
+    color: #8888a0;
+    font-size: 11px;
+    min-width: 160px;
+}
+
+.happiness-cell {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 110px;
+}
+
+.happy-emoji {
+    font-size: 14px;
+}
+
+.happy-text {
+    color: #a0a0b0;
+    font-size: 11px;
+}
+
+/* Scrollbar styling */
+.table-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #0e0e12;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #2a2a3a;
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: #3a3a4a;
+}
+
+.table-container::-webkit-scrollbar-corner {
+    background: #0e0e12;
+}
+
+/* Filter bar */
+.filter-bar {
+    display: none;
+    padding: 8px 16px;
+    background: #181820;
+    border-bottom: 1px solid #2a2a35;
+    gap: 12px;
+    align-items: center;
+}
+
+.filter-bar.show {
+    display: flex;
+}
+
+.filter-bar input {
+    background: #1a1a24;
+    border: 1px solid #3a3a4a;
+    border-radius: 4px;
+    padding: 4px 10px;
+    color: #c8c8d0;
+    font-size: 12px;
+    outline: none;
+    font-family: inherit;
+    width: 200px;
+}
+
+.filter-bar input:focus {
+    border-color: #7b8aff;
+}
+
+.filter-bar label {
+    color: #8888a0;
+    font-size: 11px;
+    font-family: inherit;
+}
+
+.filter-bar select {
+    background: #1a1a24;
+    border: 1px solid #3a3a4a;
+    border-radius: 4px;
+    padding: 4px 8px;
+    color: #c8c8d0;
+    font-size: 12px;
+    outline: none;
+    font-family: inherit;
+    width: 160px;
+}
+
+.filter-bar select:focus {
+    border-color: #7b8aff;
+}
+
+/* Row selected */
+tbody tr.selected {
+    background: #1a1a35 !important;
+}
+
+tbody tr.selected td {
+    border-color: #2a2a45;
+}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+    <div class="top-bar-left">
+        <div class="nav-arrows">
+            <button>▲</button>
+            <button>▼</button>
+        </div>
+        <div class="view-selector">
+            <span class="eye-icon"></span>
+            <select id="viewSelect">
+                <option>Main View</option>
+                <option>Alternative View</option>
+                <option>Squad Planner</option>
+            </select>
+        </div>
+    </div>
+    <div class="top-bar-right">
+        <button class="top-btn">
+            Quick Pick <span class="dropdown-arrow">▼</span>
+        </button>
+        <button class="top-btn" onclick="toggleActions()">
+            <span>👤</span> Actions <span class="dropdown-arrow">▼</span>
+        </button>
+        <button class="top-btn" onclick="toggleFilter()">
+            Filter <span class="dropdown-arrow">▼</span>
+        </button>
+    </div>
+</div>
+
+<div class="filter-bar" id="filterBar">
+    <label>Search:</label>
+    <input type="text" id="searchInput" placeholder="Filter staff..." oninput="filterTable()">
+    <label>Department:</label>
+    <input type="text" id="posFilter" placeholder="e.g. Development" oninput="filterTable()">
+    <label>Education:</label>
+    <select id="eduFilter" onchange="filterTable()">
+        <option value="">All</option>
+        <option value="in">In School</option>
+        <option value="out">Out of School</option>
+    </select>
+</div>
+
+<div class="table-container" id="tableContainer">
+    <table id="squadTable">
+        <thead>
+            <tr>
+                <th style="width:30px" class="checkbox-cell">✓</th>
+                <th style="width:50px" onclick="sortTable('inf')">Inf <span class="sort-icon">▼</span></th>
+                <th onclick="sortTable('player')">Staff <span class="sort-icon">▼</span></th>
+                <th onclick="sortTable('position')">Position <span class="sort-icon">▼</span></th>
+                <th onclick="sortTable('education')" style="width:90px">Education <span class="sort-icon">▼</span></th>
+                <th onclick="sortTable('club')">Last Org <span class="sort-icon">▼</span></th>
+                <th onclick="sortTable('expires')">Expires <span class="sort-icon">▼</span></th>
+                <th onclick="sortTable('contract')">Contract Status <span class="sort-icon">▼</span></th>
+                <th onclick="sortTable('salary')">Salary <span class="sort-icon">▼</span></th>
+                <th onclick="sortTable('dueDate')">Due Date <span class="sort-icon">▼</span></th>
+                <th onclick="sortTable('promises')">Promises <span class="sort-icon">▼</span></th>
+                <th onclick="sortTable('release')">Set For Release <span class="sort-icon">▼</span></th>
+                <th onclick="sortTable('workload')" class="sort-active">Workload <span class="sort-icon">▲</span></th>
+                <th onclick="sortTable('plans')">Short-term Plans <span class="sort-icon">▼</span></th>
+                <th onclick="sortTable('happiness')">Happiness <span class="sort-icon">▼</span></th>
+            </tr>
+        </thead>
+        <tbody id="squadBody">
+        </tbody>
+    </table>
+</div>
+
+<script>
+const positionColors = {
+    'Executive Director': 'role-leadership',
+    'Development Director': 'role-dev',
+    'Program Manager': 'role-program',
+    'Communications Manager': 'role-comms',
+    'Finance Director': 'role-finance',
+    'Volunteer Coordinator': 'role-volunteer',
+    'Grant Writer': 'role-grant',
+    'Fundraising Manager': 'role-dev',
+    'Outreach Coordinator': 'role-program',
+    'Community Organizer': 'role-program',
+    'HR Manager': 'role-ops',
+    'Operations Manager': 'role-ops',
+    'Board Chair': 'role-leadership',
+    'Admin Assistant': 'role-ops',
+    'Program Assistant': 'role-program',
+    'Development Associate': 'role-dev',
+    'Marketing Coordinator': 'role-comms',
+    'Events Coordinator': 'role-comms',
+    'Donor Relations Manager': 'role-dev',
+    'Research Analyst': 'role-grant',
+    'Partnerships Manager': 'role-dev',
+    'Advocacy Director': 'role-leadership',
+    'Impact Analyst': 'role-grant',
+};
+
+const players = [
+    { id: 1, picked: true, inf: '-', player: 'Fran Castillo', pos: 'Executive Director', education: '', age: 29, club: 'Torremolinos', clubColor: '#e67e22', expires: '6/30/2026', contract: 'Full Time', salary: '$87K p/a', dueDate: '-', promises: 0, release: 'No', workload: 'Very Light', plans: 'No plans for the future', happiness: 'Happy', happyEmoji: '😊', nationality: '🇪🇸' },
+    { id: 2, picked: false, inf: 'Unr', player: 'David Astals', pos: 'Development Director', education: '', age: 24, club: 'Sabadell', clubColor: '#8e44ad', expires: '6/30/2027', contract: 'Full Time', salary: '$161K p/a', dueDate: '-', promises: 0, release: 'No', workload: 'Medium', plans: 'No plans for the future', happiness: 'Happy', happyEmoji: '😊', nationality: '🇪' },
+    { id: 3, picked: false, inf: 'Unr', player: 'Tamir Glazer', pos: 'Program Manager', education: '', age: 25, club: '-', clubColor: '#333', expires: '6/30/2027', contract: 'Full Time', salary: '$67.5K p/a', dueDate: '-', promises: 0, release: 'No', workload: 'Light', plans: 'No plans for the future', happiness: 'Happy', happyEmoji: '😊', nationality: '🇮🇱' },
+    { id: 4, picked: false, inf: 'Wnt', player: 'José Albert', pos: 'Communications Manager', education: 'Year 12', age: 22, club: 'Castellón B', clubColor: '#e67e22', expires: '6/30/2026', contract: 'Full Time', salary: '$35K p/a', dueDate: '-', promises: 0, release: 'No', workload: 'Light', plans: 'No plans for the future', happiness: 'Happy', happyEmoji: '😊', nationality: '🇪' },
+    { id: 5, picked: false, inf: '-', player: 'Gabriel Fersura', pos: 'Fundraising Manager', education: 'Year 11', age: 20, club: 'Porto de Caruaru', clubColor: '#2980b9', expires: '6/30/2029', contract: 'Full Time', salary: 'N/A', dueDate: '-', promises: 0, release: 'No', workload: 'Light', plans: 'No plans for the future', happiness: 'Happy', happyEmoji: '😊', nationality: '🇧🇷' },
+    { id: 6, picked: false, inf: '-', player: 'Max Svensson', pos: 'Outreach Coordinator', education: '', age: 24, club: 'Espanyol B', clubColor: '#3498db', expires: '6/30/2027', contract: 'Full Time', salary: '$97K p/a', dueDate: '-', promises: 0, release: 'No', workload: 'Light', plans: 'No plans for the future', happiness: 'Happy', happyEmoji: '😊', nationality: '🇸🇪' },
+    { id: 7, picked: false, inf: 'Unr', player: 'Yann Kembo', pos: 'Volunteer Coordinator', education: 'College - 2nd Year', age: 23, club: 'S. Gijón B', clubColor: '#e74c3c', expires: '6/30/2028', contract: 'Full Time', salary: 'N/A', dueDate: '-', promises: 0, release: 'No', workload: 'Light', plans: 'No plans for the future', happiness: 'Slightly Happy', happyEmoji: '🙂', nationality: '🇨🇩' },
+    { id: 8, picked: false, inf: '-', player: 'Javi Eslava', pos: 'Grant Writer', education: '', age: 29, club: 'Zamora', clubColor: '#2c3e50', expires: '6/30/2027', contract: 'Full Time', salary: '$77K p/a', dueDate: '-', promises: 0, release: 'No', workload: 'Light', plans: 'No plans for the future', happiness: 'Slightly Happy', happyEmoji: '🙂', nationality: '🇪🇸' },
+    { id: 9, picked: false, inf: '-', player: 'Tao Paradowski', pos: 'Finance Director', education: 'College - 1st Year', age: 21, club: 'Pau FC', clubColor: '#3498db', expires: '6/30/2027', contract: 'Full Time', salary: '$53K p/a', dueDate: '-', promises: 0, release: 'No', workload: 'Light', plans: 'No plans for the future', happiness: 'Slightly Happy', happyEmoji: '🙂', nationality: '🇫🇷' },
+    { id: 10, picked: false, inf: 'Unr', player: 'Iván Del Olmo', pos: 'HR Manager', education: 'College - 2nd Year', age: 22, club: 'Ourense', clubColor: '#2980b9', expires: '6/30/2027', contract: 'Full Time', salary: '$62.5K p/a', dueDate: '-', promises: 0, release: 'No', workload: 'Light', plans: 'No plans for the future', happiness: 'Slightly Happy', happyEmoji: '🙂', nationality: '🇪🇸' },
+    { id: 11, picked: false, inf: '-', player: 'Georges', pos: 'Operations Manager', education: 'College - 3rd Year', age: 23, club: 'Burgos', clubColor: '#e74c3c', expires: '6/30/2029', contract: 'Full Time', salary: '$48K p/a', dueDate: '-', promises: 0, release: 'No', workload: 'Light', plans: 'No plans for the future', happiness: 'Happy', happyEmoji: '😊', nationality: '🇨🇲' },
+    { id: 12, picked: false, inf: '-', player: 'Sergio Diez', pos: 'Marketing Coordinator', education: 'College - 1st Year', age: 22, club: 'Vigo B', clubColor: '#27ae60', expires: '6/30/2027', contract: 'Full Time', salary: '$126K p/a', dueDate: '-', promises: 0, release: 'No', workload: 'Light', plans: 'No plans for the future', happiness: 'Happy', happyEmoji: '😊', nationality: '🇪🇸' },
+    { id: 13, picked: false, inf: '-', player: 'Manu Pedreño', pos: 'Community Organizer', education: '', age: 25, club: 'Olimpija', clubColor: '#2c3e50', expires: '6/30/2027', contract: 'Full Time', salary: '$87K p/a', dueDate: '-', promises: 0, release: 'No', workload: 'Light', plans: 'No plans for the future', happiness: 'Very Happy', happyEmoji: '', nationality: '🇪🇸' },
+    { id: 14, picked: false, inf: '-', player: 'Izan Yurrieta', pos: 'Development Associate', education: 'Year 12', age: 23, club: 'R. Santander', clubColor: '#e74c3c', expires: '6/30/2027', contract: 'Full Time', salary: '$48K p/a', dueDate: '-', promises: 0, release: 'No', workload: 'Light', plans: 'No plans for the future', happiness: 'Delighted', happyEmoji: '😃', nationality: '🇪🇸' },
+    { id: 15, picked: false, inf: '-', player: 'Èric Monjonell', pos: 'Board Chair', education: '', age: 24, club: 'Girona B', clubColor: '#e74c3c', expires: '6/30/2027', contract: 'Full Time', salary: '$178K p/a', dueDate: '-', promises: 0, release: 'No', workload: 'Light', plans: 'No plans for the future', happiness: 'Slightly Happy', happyEmoji: '🙂', nationality: '🇪🇸' },
+    { id: 16, picked: false, inf: 'Unr', player: 'Mounir Errahaly', pos: 'Admin Assistant', education: '', age: 26, club: '-', clubColor: '#333', expires: '6/30/2027', contract: 'Full Time', salary: '$37K p/a', dueDate: '-', promises: 0, release: 'No', workload: 'Light', plans: 'No plans for the future', happiness: 'Happy', happyEmoji: '😊', nationality: '🇲🇦' },
+    { id: 17, picked: false, inf: 'Wnt', player: 'Davo', pos: 'Events Coordinator', education: '', age: 25, club: 'Segoviana', clubColor: '#e74c3c', expires: '6/30/2027', contract: 'Full Time', salary: '$126K p/a', dueDate: '-', promises: 0, release: 'No', workload: 'Light', plans: 'No plans for the future', happiness: 'Slightly Happy', happyEmoji: '🙂', nationality: '🇪🇸' },
+    { id: 18, picked: false, inf: '-', player: 'Ramón Juan', pos: 'Donor Relations Manager', education: '', age: 26, club: 'Mirandés', clubColor: '#27ae60', expires: '6/30/2026', contract: 'Full Time', salary: '$265K p/a', dueDate: '-', promises: 0, release: 'No', workload: 'Light', plans: 'No plans for the future', happiness: 'Happy', happyEmoji: '😊', nationality: '🇪🇸' },
+    { id: 19, picked: false, inf: '-', player: 'Nacho', pos: 'Research Analyst', education: '', age: 31, club: '-', clubColor: '#333', expires: '6/30/2026', contract: 'Full Time', salary: '$109K p/a', dueDate: '-', promises: 0, release: 'No', workload: 'Light', plans: 'No plans for the future', happiness: 'Delighted', happyEmoji: '😃', nationality: '🇪🇸' },
+    { id: 20, picked: false, inf: 'Unr', player: 'David Del Pozo', pos: 'Program Assistant', education: '', age: 28, club: '-', clubColor: '#333', expires: '6/30/2026', contract: 'Full Time', salary: '$230K p/a', dueDate: '-', promises: 0, release: 'No', workload: 'Light', plans: 'No plans for the future', happiness: 'Happy', happyEmoji: '😊', nationality: '🇪🇸' },
+    { id: 21, picked: false, inf: 'Sus', player: 'Iago Indias', pos: 'Partnerships Manager', education: '', age: 30, club: 'Castellón', clubColor: '#e67e22', expires: '6/30/2026', contract: 'Full Time', salary: '$230K p/a', dueDate: '-', promises: 0, release: 'No', workload: 'Light', plans: 'No plans for the future', happiness: 'Delighted', happyEmoji: '😃', nationality: '🇪🇸' },
+    { id: 22, picked: false, inf: '-', player: 'Unai Medina', pos: 'Advocacy Director', education: '', age: 36, club: 'R. Santander', clubColor: '#e74c3c', expires: '6/30/2026', contract: 'Full Time', salary: '$196K p/a', dueDate: '-', promises: 0, release: 'No', workload: 'Light', plans: 'No plans for the future', happiness: 'Delighted', happyEmoji: '😃', nationality: '🇪🇸' },
+    { id: 23, picked: false, inf: 'Wnt', player: 'Rata', pos: 'Impact Analyst', education: 'Year 11', age: 25, club: 'Fuenla', clubColor: '#2980b9', expires: '6/30/2026', contract: 'Full Time', salary: '$220K p/a', dueDate: '-', promises: 0, release: 'No', workload: 'Light', plans: 'No plans for the future', happiness: 'Delighted', happyEmoji: '😃', nationality: '🇪🇸' },
+];
+
+const clubColors = {
+    'Torremolinos': '#e67e22',
+    'Sabadell': '#8e44ad',
+    'Castellón B': '#e67e22',
+    'Porto de Caruaru': '#2980b9',
+    'Espanyol B': '#3498db',
+    'S. Gijón B': '#e74c3c',
+    'Zamora': '#2c3e50',
+    'Pau FC': '#3498db',
+    'Ourense': '#2980b9',
+    'Burgos': '#e74c3c',
+    'Vigo B': '#27ae60',
+    'Olimpija': '#1a1a2e',
+    'R. Santander': '#e74c3c',
+    'Girona B': '#e74c3c',
+    'Segoviana': '#e74c3c',
+    'Mirandés': '#27ae60',
+    'Castellón': '#e67e22',
+    'Fuenla': '#2980b9',
+};
+
+function getClubInitials(name) {
+    if (name === '-') return '';
+    const parts = name.split(' ');
+    if (parts.length >= 2) return parts[0][0] + parts[1][0];
+    return name.substring(0, 2).toUpperCase();
+}
+
+function createClubBadge(color, name) {
+    const initials = getClubInitials(name);
+    return `<div class="club-badge" style="background:${color};">
+        <svg viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+            ${initials ? `<text x="50%" y="54%" dominant-baseline="middle" text-anchor="middle" fill="white" font-size="7" font-weight="700" font-family="Atkinson Hyperlegible, sans-serif">${initials}</text>` : ''}
+        </svg>
+    </div>`;
+}
+
+function createPlayerAvatar() {
+    return `<div class="player-avatar">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+        </svg>
+    </div>`;
+}
+
+function renderTable(data) {
+    const tbody = document.getElementById('squadBody');
+    tbody.innerHTML = '';
+    
+    data.forEach(p => {
+        const infBadge = p.inf === 'Unr' ? '<span class="badge badge-unr">Unr</span>' :
+                         p.inf === 'Wnt' ? '<span class="badge badge-wnt">Wnt</span>' :
+                         p.inf === 'Sus' ? '<span class="badge badge-sus">Sus</span>' : '-';
+        
+        const isClubDash = p.club === '-';
+        const clubBadge = isClubDash ? '' : createClubBadge(clubColors[p.club] || '#555', p.club);
+        const clubClass = isClubDash ? 'dash' : '';
+        
+        const hasEducation = p.education !== '';
+        const educationHtml = hasEducation 
+            ? `<span class="education-year-badge">${p.education}</span>` 
+            : '';
+        const educationCellClass = hasEducation ? '' : 'blank';
+        
+        const roleColor = positionColors[p.pos] || '';
+        
+        const tr = document.createElement('tr');
+        tr.dataset.id = p.id;
+        if (p.picked) tr.classList.add('selected');
+        
+        tr.innerHTML = `
+            <td class="checkbox-cell"><input type="checkbox" ${p.picked ? 'checked' : ''} onchange="togglePick(${p.id}, this)"></td>
+            <td class="inf-cell">${infBadge}</td>
+            <td>
+                <div class="player-cell">
+                    ${createPlayerAvatar()}
+                    <span class="flag">${p.nationality}</span>
+                    <span class="player-name">${p.player}</span>
+                </div>
+            </td>
+            <td class="position-cell ${roleColor}">${p.pos}</td>
+            <td class="education-cell ${educationCellClass}">${educationHtml}</td>
+            <td>
+                <div class="club-cell">
+                    ${isClubDash ? '<span class="club-badge" style="background:#333;"></span>' : clubBadge}
+                    <span class="club-name ${clubClass}">${isClubDash ? '-' : p.club}</span>
+                </div>
+            </td>
+            <td class="expires-cell">
+                <span class="expires-icon">⏰</span>
+                <span class="expires-date">${p.expires}</span>
+            </td>
+            <td class="contract-cell">${p.contract}</td>
+            <td class="salary-cell">${p.salary}</td>
+            <td class="due-date-cell">${p.dueDate}</td>
+            <td class="promises-cell">${p.promises}</td>
+            <td class="release-cell">${p.release}</td>
+            <td class="workload-cell">${p.workload}</td>
+            <td class="plans-cell">${p.plans}</td>
+            <td class="happiness-cell">
+                <span class="happy-emoji">${p.happyEmoji}</span>
+                <span class="happy-text">${p.happiness}</span>
+            </td>
+        `;
+        
+        tbody.appendChild(tr);
+    });
+}
+
+function togglePick(id, checkbox) {
+    const player = players.find(p => p.id === id);
+    if (player) {
+        player.picked = checkbox.checked;
+        const tr = checkbox.closest('tr');
+        if (checkbox.checked) {
+            tr.classList.add('selected');
+        } else {
+            tr.classList.remove('selected');
+        }
+    }
+}
+
+let currentSort = { column: 'workload', asc: false };
+
+function sortTable(column) {
+    const headers = document.querySelectorAll('thead th');
+    headers.forEach(h => h.classList.remove('sort-active'));
+    
+    if (currentSort.column === column) {
+        currentSort.asc = !currentSort.asc;
+    } else {
+        currentSort.column = column;
+        currentSort.asc = true;
+    }
+    
+    const activeHeader = headers[getColumnIndex(column)];
+    if (activeHeader) {
+        activeHeader.classList.add('sort-active');
+        activeHeader.querySelector('.sort-icon').textContent = currentSort.asc ? '▲' : '▼';
+    }
+    
+    const sorted = [...players].sort((a, b) => {
+        let valA, valB;
+        
+        switch(column) {
+            case 'inf': valA = a.inf; valB = b.inf; break;
+            case 'player': valA = a.player.toLowerCase(); valB = b.player.toLowerCase(); break;
+            case 'position': valA = a.pos; valB = b.pos; break;
+            case 'education': valA = a.education || 'zzz'; valB = b.education || 'zzz'; break;
+            case 'club': valA = a.club; valB = b.club; break;
+            case 'expires': valA = a.expires; valB = b.expires; break;
+            case 'contract': valA = a.contract; valB = b.contract; break;
+            case 'salary': valA = a.salary; valB = b.salary; break;
+            case 'dueDate': valA = a.dueDate; valB = b.dueDate; break;
+            case 'promises': valA = a.promises; valB = b.promises; break;
+            case 'release': valA = a.release; valB = b.release; break;
+            case 'workload': valA = a.workload; valB = b.workload; break;
+            case 'plans': valA = a.plans; valB = b.plans; break;
+            case 'happiness': valA = a.happiness; valB = b.happiness; break;
+            default: return 0;
+        }
+        
+        if (typeof valA === 'number') {
+            return currentSort.asc ? valA - valB : valB - valA;
+        }
+        
+        return currentSort.asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+    });
+    
+    renderTable(sorted);
+}
+
+function getColumnIndex(column) {
+    const map = {
+        'inf': 1, 'player': 2, 'position': 3, 'education': 4, 'club': 5,
+        'expires': 6, 'contract': 7, 'salary': 8, 'dueDate': 9,
+        'promises': 10, 'release': 11, 'workload': 12, 'plans': 13, 'happiness': 14
+    };
+    return map[column];
+}
+
+function toggleFilter() {
+    const bar = document.getElementById('filterBar');
+    bar.classList.toggle('show');
+    if (bar.classList.contains('show')) {
+        document.getElementById('searchInput').focus();
+    }
+}
+
+function toggleActions() {
+}
+
+function filterTable() {
+    const search = document.getElementById('searchInput').value.toLowerCase();
+    const posFilter = document.getElementById('posFilter').value.toLowerCase();
+    const eduFilter = document.getElementById('eduFilter').value;
+    
+    const filtered = players.filter(p => {
+        const matchSearch = !search || p.player.toLowerCase().includes(search) || p.club.toLowerCase().includes(search);
+        const matchPos = !posFilter || p.pos.toLowerCase().includes(posFilter);
+        
+        let matchEdu = true;
+        if (eduFilter === 'in') {
+            matchEdu = p.education !== '';
+        } else if (eduFilter === 'out') {
+            matchEdu = p.education === '';
+        }
+        
+        return matchSearch && matchPos && matchEdu;
+    });
+    
+    renderTable(filtered);
+}
+
+// Initialize
+renderTable(players);
+
+document.getElementById('squadBody').addEventListener('dblclick', function(e) {
+    const tr = e.target.closest('tr');
+    if (tr) {
+        const id = parseInt(tr.dataset.id);
+        const player = players.find(p => p.id === id);
+        if (player) {
+            alert(`Opening staff profile: ${player.player}`);
+        }
+    }
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        document.getElementById('filterBar').classList.remove('show');
+    }
+});
+</script>
+
+</body>
+</html>
+
