@@ -146,6 +146,72 @@
             pointer-events: none;
             transform: translateY(10px);
         }
+
+        /* --- New helpers for expandable sections (preserve existing aesthetic) --- */
+        .expand-hint {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            z-index: 25;
+            opacity: 0.6;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            pointer-events: none;
+        }
+        .expandable-card:hover .expand-hint {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+        .expandable-card {
+            cursor: pointer;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+        .expandable-card:hover {
+            border-color: rgba(96, 165, 250, 0.6); /* blue-400/60 hint */
+        }
+        /* Keyword chip hover */
+        .keyword-chip {
+            transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+        }
+        .keyword-chip:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-color);
+        }
+        /* Country card hover */
+        .country-card {
+            transition: transform 0.15s ease, border-color 0.15s ease;
+        }
+        .country-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-color);
+        }
+        /* Recent content card hover */
+        .content-card {
+            transition: transform 0.15s ease, border-color 0.15s ease;
+        }
+        .content-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-color);
+        }
+        /* Map highlight pulse */
+        .map-pulse {
+            animation: mapPulse 2s ease-in-out infinite;
+            transform-origin: center;
+            transform-box: fill-box;
+        }
+        @keyframes mapPulse {
+            0%, 100% { opacity: 0.85; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.15); }
+        }
+        /* Audience insight tile */
+        .insight-tile {
+            background-color: var(--bg-header);
+            border: 1px solid var(--border-inner);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+        }
+        /* Custom scrollbar inside modals */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: var(--border-inner); border-radius: 3px; }
     </style>
 </head>
 <body class="min-h-screen">
@@ -301,19 +367,24 @@
 
             <!-- Multi-Tab Section -->
             <div class="analytics-card p-0 flex flex-col h-full overflow-hidden relative min-h-[300px]">
-                <!-- Tabs Header -->
+                <!-- Tabs Header (now each tab opens its expansion modal in addition to switching view) -->
                 <div class="absolute top-0 left-0 right-0 z-20 flex flex-wrap gap-2 text-[10px] uppercase font-bold text-gray-400 mb-4 border-b pb-2 bg-black/80 backdrop-blur-sm rounded-t px-3 pt-3" style="border-color: var(--border-inner);">
                     <button onclick="switchTab('network')" class="tab-btn hover:text-white transition-colors" id="tab-network">Creator Network Node</button>
                     <button onclick="switchTab('keywords')" class="tab-btn hover:text-white transition-colors" id="tab-keywords">Advertising Keywords</button>
                     <button onclick="switchTab('region')" class="tab-btn text-accent" id="tab-region">Interest By Region</button>
-                    <button class="hover:text-white cursor-not-allowed opacity-50">Audience by Age</button>
-                    <button class="hover:text-white cursor-not-allowed opacity-50">Recent Content</button>
+                    <button onclick="switchTab('audience')" class="tab-btn hover:text-white transition-colors" id="tab-audience">Audience by Age</button>
+                    <button onclick="switchTab('content')" class="tab-btn hover:text-white transition-colors" id="tab-content">Recent Content</button>
                 </div>
+
+                <!-- Expand hint (top-right of card) -->
+                <button id="expandActiveTabBtn" class="absolute top-2 right-3 z-30 text-gray-400 hover:text-accent transition-colors" title="Expand">
+                    <i data-lucide="maximize-2" class="w-4 h-4"></i>
+                </button>
 
                 <!-- Tab Content -->
                 <div class="flex-grow relative mt-10">
                     <!-- 1. Region Map -->
-                    <div id="view-region" class="w-full h-full absolute inset-0 transition-opacity duration-300">
+                    <div id="view-region" class="w-full h-full absolute inset-0 transition-opacity duration-300 cursor-pointer" onclick="openRegionModal()">
                         <div class="absolute inset-0 flex items-center justify-center">
                             <svg viewBox="0 0 1010 500" class="w-full h-full" style="background-color: transparent;">
                                 <g id="worldMapGroup" fill="currentColor" stroke="none" class="text-gray-600 dark:text-gray-800" style="opacity: 0.4;">
@@ -333,7 +404,7 @@
                     </div>
 
                     <!-- 2. Creator Network -->
-                    <div id="view-network" class="w-full h-full absolute inset-0 opacity-0 pointer-events-none transition-opacity duration-300">
+                    <div id="view-network" class="w-full h-full absolute inset-0 opacity-0 pointer-events-none transition-opacity duration-300 cursor-pointer" onclick="openNetworkModal()">
                         <div id="mynetwork" class="w-full h-full" style="background-color: var(--card-bg);"></div>
                         <div class="absolute bottom-2 right-2 bg-black/80 p-2 rounded border border-[#98fb98]/30 text-[9px] text-gray-300 pointer-events-none">
                             <div class="flex items-center gap-1 mb-1"><div class="w-2 h-2 bg-white"></div> Hub</div>
@@ -345,8 +416,20 @@
                     </div>
 
                     <!-- 3. Advertising Keywords -->
-                    <div id="view-keywords" class="w-full h-full absolute inset-0 opacity-0 pointer-events-none transition-opacity duration-300 p-4 overflow-y-auto">
+                    <div id="view-keywords" class="w-full h-full absolute inset-0 opacity-0 pointer-events-none transition-opacity duration-300 p-4 overflow-y-auto cursor-pointer" onclick="openKeywordsModal()">
                         <div class="grid grid-cols-1 gap-2" id="keywordList"></div>
+                    </div>
+
+                    <!-- 4. Audience by Age (preview) -->
+                    <div id="view-audience" class="w-full h-full absolute inset-0 opacity-0 pointer-events-none transition-opacity duration-300 p-4 cursor-pointer" onclick="openAudienceModal()">
+                        <div class="h-full w-full relative">
+                            <canvas id="audiencePreviewChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- 5. Recent Content (preview) -->
+                    <div id="view-content" class="w-full h-full absolute inset-0 opacity-0 pointer-events-none transition-opacity duration-300 p-3 overflow-y-auto cursor-pointer" onclick="openContentModal()">
+                        <div class="grid grid-cols-1 gap-2" id="contentPreviewList"></div>
                     </div>
                 </div>
             </div>
@@ -356,18 +439,16 @@
         <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
             
             <!-- Sponsorships -->
-            <!-- Added id="sponsorshipsCard" and onclick event -->
             <div id="sponsorshipsCard" class="analytics-card xl:col-span-1 p-3 cursor-pointer hover:border-green-400/50 transition-colors" onclick="openSponsorshipsModal()">
                 <div class="flex justify-between items-center mb-2 border-b border-inner pb-1">
                     <h3 class="text-accent font-bold italic uppercase tracking-wide text-sm">SPONSORSHIPS</h3>
                     <i data-lucide="maximize-2" class="w-3 h-3 text-gray-500"></i>
                 </div>
-                <div class="overflow-x-auto pointer-events-none"> <!-- pointer-events-none prevents table interactions from blocking card click -->
+                <div class="overflow-x-auto pointer-events-none">
                     <table class="w-full text-left text-xs">
                         <thead>
                             <tr class="text-gray-400 border-b border-gray-800">
                                 <th class="pb-2"></th>
-                                <!-- Removed onmouseenter/onmouseleave, kept onclick. Added pointer-events-auto to allow click through parent container -->
                                 <th class="pb-2 text-center cursor-help hover:text-white transition-colors pointer-events-auto" onclick="event.stopPropagation(); toggleTooltip(event, 'VIDS')">VIDS</th>
                                 <th class="pb-2 text-center cursor-help hover:text-white transition-colors pointer-events-auto" onclick="event.stopPropagation(); toggleTooltip(event, 'SPON')">SPON</th>
                                 <th class="pb-2 text-center cursor-help hover:text-white transition-colors pointer-events-auto" onclick="event.stopPropagation(); toggleTooltip(event, 'MINS')">MINS</th>
@@ -413,15 +494,20 @@
                 </div>
             </div>
 
-            <!-- Audience Chart -->
-            <div class="analytics-card xl:col-span-1 p-3 flex flex-col">
-                <h3 class="text-accent font-bold italic mb-2 uppercase tracking-wide text-sm border-b border-inner pb-1">Audience by age and gender</h3>
-                <div class="h-48 w-full mt-2 relative">
+            <!-- Audience Chart (now expandable) -->
+            <div id="audienceCard" class="analytics-card xl:col-span-1 p-3 flex flex-col expandable-card relative" onclick="openAudienceModal()">
+                <div class="flex justify-between items-center mb-2 border-b border-inner pb-1">
+                    <h3 class="text-accent font-bold italic uppercase tracking-wide text-sm">Audience by age and gender</h3>
+                    <i data-lucide="maximize-2" class="w-3 h-3 text-gray-500"></i>
+                </div>
+                <div class="h-48 w-full mt-2 relative pointer-events-none">
                     <canvas id="audienceChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- ===================== EXISTING MODALS (UNCHANGED) ===================== -->
 
     <!-- Google Trends Modal -->
     <div id="googleModal" class="modal-enter fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-10 modal-transition">
@@ -472,8 +558,8 @@
                             <!-- Simple SVG Map Placeholder -->
                              <div class="w-1/2 h-full opacity-60">
                                 <svg viewBox="0 0 100 60" class="w-full h-full text-[#98fb98]" fill="currentColor">
-                                     <path d="M10,10 L40,10 L35,30 L15,35 Z" opacity="0.8"/> <!-- US-ish -->
-                                     <path d="M45,5 L60,5 L55,20 L45,15 Z" opacity="0.3"/> <!-- UK-ish -->
+                                     <path d="M10,10 L40,10 L35,30 L15,35 Z" opacity="0.8"/>
+                                     <path d="M45,5 L60,5 L55,20 L45,15 Z" opacity="0.3"/>
                                 </svg>
                              </div>
                              <div class="w-1/2 text-xs space-y-2" style="color: var(--text-secondary)">
@@ -523,7 +609,6 @@
                              <span class="text-[10px]" style="color: var(--text-secondary)">Co-Accuracy Rating</span>
                         </div>
                         <div class="space-y-3 overflow-y-auto pr-1 custom-scroll">
-                            <!-- Item 1 -->
                             <div class="flex gap-2 items-start group cursor-pointer">
                                 <div class="mt-0.5 text-orange-500">
                                     <i data-lucide="play-circle" class="w-4 h-4 fill-orange-500/20"></i>
@@ -534,7 +619,6 @@
                                 </div>
                                 <div class="w-5 h-5 rounded-full border border-[#98fb98] flex items-center justify-center text-[#98fb98] text-[9px] font-bold">A</div>
                             </div>
-                             <!-- Item 2 -->
                             <div class="flex gap-2 items-start group cursor-pointer">
                                 <div class="mt-0.5 text-orange-500">
                                     <i data-lucide="play-circle" class="w-4 h-4 fill-orange-500/20"></i>
@@ -545,7 +629,6 @@
                                 </div>
                                 <div class="w-5 h-5 rounded-full border border-[#98fb98] flex items-center justify-center text-[#98fb98] text-[9px] font-bold">A</div>
                             </div>
-                             <!-- Item 3 -->
                             <div class="flex gap-2 items-start group cursor-pointer">
                                 <div class="mt-0.5 text-orange-500">
                                     <i data-lucide="play-circle" class="w-4 h-4 fill-orange-500/20"></i>
@@ -582,12 +665,9 @@
 
     <!-- Pinterest Trends Modal -->
     <div id="pinterestModal" class="modal-enter fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-10 modal-transition">
-        <!-- Backdrop -->
         <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closePinterestModal()"></div>
         
-        <!-- Modal Content -->
         <div class="relative w-full h-full max-w-7xl border rounded-xl flex flex-col overflow-hidden shadow-2xl z-[70] transition-colors duration-300" style="background-color: var(--card-bg); border-color: var(--border-inner);">
-            <!-- Modal Header -->
             <div class="flex items-center justify-between p-4 border-b" style="border-color: var(--border-inner);">
                 <div class="flex items-center gap-4">
                     <button onclick="closePinterestModal()" class="w-8 h-8 flex items-center justify-center rounded transition-colors" style="background-color: var(--btn-bg); color: var(--text-secondary);">
@@ -595,7 +675,6 @@
                     </button>
                     <div class="flex flex-col">
                         <div class="flex items-center gap-2">
-                             <!-- Pinterest Logo -->
                              <svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-[#e60023]">
                                 <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.162-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.399.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.951-7.252 4.173 0 7.41 2.967 7.41 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.354-.629-2.758-1.379l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.607 0 11.985-5.365 11.985-11.987C23.97 5.367 18.62 0 12.017 0z" />
                              </svg>
@@ -613,28 +692,23 @@
                 </button>
             </div>
 
-            <!-- Modal Body -->
             <div class="flex-grow p-6 flex flex-col gap-6 overflow-hidden">
-                <!-- Large Chart Area -->
                 <div class="flex-grow w-full relative min-h-[300px] border-b pb-4" style="border-color: var(--border-inner);">
                     <canvas id="pinterestModalChart"></canvas>
                 </div>
 
-                <!-- Bottom Panels -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-1/3 min-h-[180px]">
                     
-                    <!-- Panel 1: Region -->
                     <div class="rounded-lg border p-4 flex flex-col relative overflow-hidden" style="background-color: var(--bg-header); border-color: var(--border-inner);">
                          <div class="flex items-center justify-between mb-2 z-10">
                             <h4 class="text-[#ef4444] font-bold italic text-sm">Interest by Region</h4>
                          </div>
                          <div class="flex-grow flex items-center gap-4 z-10">
-                            <!-- Simple SVG Map Placeholder -->
                              <div class="w-1/2 h-full opacity-60">
                                 <svg viewBox="0 0 100 60" class="w-full h-full text-[#ef4444]" fill="currentColor">
-                                     <path d="M10,10 L40,10 L35,30 L15,35 Z" opacity="0.8"/> <!-- US -->
-                                     <path d="M60,10 L70,10 L70,20 L60,20 Z" opacity="0.4"/> <!-- Germany-ish -->
-                                     <path d="M50,15 L58,15 L58,25 L50,25 Z" opacity="0.3"/> <!-- France-ish -->
+                                     <path d="M10,10 L40,10 L35,30 L15,35 Z" opacity="0.8"/>
+                                     <path d="M60,10 L70,10 L70,20 L60,20 Z" opacity="0.4"/>
+                                     <path d="M50,15 L58,15 L58,25 L50,25 Z" opacity="0.3"/>
                                 </svg>
                              </div>
                              <div class="w-1/2 text-xs space-y-2" style="color: var(--text-secondary)">
@@ -650,67 +724,41 @@
                          </div>
                     </div>
 
-                    <!-- Panel 2: Related Topics -->
                     <div class="rounded-lg border p-4 flex flex-col" style="background-color: var(--bg-header); border-color: var(--border-inner);">
                         <h4 class="font-bold italic text-sm mb-3" style="color: var(--text-primary)">Related Boards & Topics</h4>
                         <div class="space-y-2 text-xs overflow-y-auto pr-1 custom-scroll" style="color: var(--text-secondary)">
-                            <div class="flex justify-between items-center hover:bg-black/5 p-1 rounded">
-                                <span>non profit infographic design</span>
-                                <i data-lucide="more-horizontal" class="w-3 h-3"></i>
-                            </div>
-                            <div class="flex justify-between items-center hover:bg-black/5 p-1 rounded">
-                                <span>cole holland aesthetic</span>
-                                <i data-lucide="more-horizontal" class="w-3 h-3"></i>
-                            </div>
-                            <div class="flex justify-between items-center hover:bg-black/5 p-1 rounded">
-                                <span>campaign poster ideas</span>
-                                <i data-lucide="more-horizontal" class="w-3 h-3"></i>
-                            </div>
-                            <div class="flex justify-between items-center hover:bg-black/5 p-1 rounded">
-                                <span>gen z activism quotes</span>
-                                <i data-lucide="more-horizontal" class="w-3 h-3"></i>
-                            </div>
-                             <div class="flex justify-between items-center hover:bg-black/5 p-1 rounded">
-                                <span>sustainable tech graphics</span>
-                                <i data-lucide="more-horizontal" class="w-3 h-3"></i>
-                            </div>
+                            <div class="flex justify-between items-center hover:bg-black/5 p-1 rounded"><span>non profit infographic design</span><i data-lucide="more-horizontal" class="w-3 h-3"></i></div>
+                            <div class="flex justify-between items-center hover:bg-black/5 p-1 rounded"><span>cole holland aesthetic</span><i data-lucide="more-horizontal" class="w-3 h-3"></i></div>
+                            <div class="flex justify-between items-center hover:bg-black/5 p-1 rounded"><span>campaign poster ideas</span><i data-lucide="more-horizontal" class="w-3 h-3"></i></div>
+                            <div class="flex justify-between items-center hover:bg-black/5 p-1 rounded"><span>gen z activism quotes</span><i data-lucide="more-horizontal" class="w-3 h-3"></i></div>
+                            <div class="flex justify-between items-center hover:bg-black/5 p-1 rounded"><span>sustainable tech graphics</span><i data-lucide="more-horizontal" class="w-3 h-3"></i></div>
                         </div>
                     </div>
 
-                    <!-- Panel 3: Popular Pins -->
                     <div class="rounded-lg border p-4 flex flex-col" style="background-color: var(--bg-header); border-color: var(--border-inner);">
                         <div class="flex justify-between items-center mb-3">
                              <h4 class="font-bold italic text-sm" style="color: var(--text-primary)">Popular Pins</h4>
                              <span class="text-[10px]" style="color: var(--text-secondary)">Visual Impact</span>
                         </div>
                         <div class="space-y-3 overflow-y-auto pr-1 custom-scroll">
-                            <!-- Item 1 -->
                             <div class="flex gap-2 items-start group cursor-pointer">
-                                <div class="mt-0.5 text-red-500">
-                                    <i data-lucide="pin" class="w-4 h-4 fill-red-500/20"></i>
-                                </div>
+                                <div class="mt-0.5 text-red-500"><i data-lucide="pin" class="w-4 h-4 fill-red-500/20"></i></div>
                                 <div class="flex-grow">
                                     <p class="text-[10px] leading-tight group-hover:underline" style="color: var(--text-primary)">"The Future is Now" - Campaign Poster Mockup...</p>
                                     <p class="text-[9px] mt-0.5 italic" style="color: var(--text-secondary)">Saved to 'Political Design' 12k times</p>
                                 </div>
                                 <div class="w-5 h-5 rounded-full border border-red-500 flex items-center justify-center text-red-500 text-[9px] font-bold">A+</div>
                             </div>
-                             <!-- Item 2 -->
                             <div class="flex gap-2 items-start group cursor-pointer">
-                                <div class="mt-0.5 text-red-500">
-                                    <i data-lucide="pin" class="w-4 h-4 fill-red-500/20"></i>
-                                </div>
+                                <div class="mt-0.5 text-red-500"><i data-lucide="pin" class="w-4 h-4 fill-red-500/20"></i></div>
                                 <div class="flex-grow">
                                     <p class="text-[10px] leading-tight group-hover:underline" style="color: var(--text-primary)">YPI Annual Report Data Visualization...</p>
                                     <p class="text-[9px] mt-0.5 italic" style="color: var(--text-secondary)">Trending in 'Data Viz Inspiration'</p>
                                 </div>
                                 <div class="w-5 h-5 rounded-full border border-red-500 flex items-center justify-center text-red-500 text-[9px] font-bold">A</div>
                             </div>
-                             <!-- Item 3 -->
                             <div class="flex gap-2 items-start group cursor-pointer">
-                                <div class="mt-0.5 text-red-500">
-                                    <i data-lucide="pin" class="w-4 h-4 fill-red-500/20"></i>
-                                </div>
+                                <div class="mt-0.5 text-red-500"><i data-lucide="pin" class="w-4 h-4 fill-red-500/20"></i></div>
                                 <div class="flex-grow">
                                     <p class="text-[10px] leading-tight group-hover:underline" style="color: var(--text-primary)">Cole Holland at Tech Summit 2025...</p>
                                     <p class="text-[9px] mt-0.5 italic" style="color: var(--text-secondary)">Featured in 'Men's Professional Style'</p>
@@ -725,12 +773,11 @@
         </div>
     </div>
 
-    <!-- Sponsorships Modal (New) -->
+    <!-- Sponsorships Modal -->
     <div id="sponsorshipsModal" class="modal-enter fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-10 modal-transition">
         <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeSponsorshipsModal()"></div>
         
         <div class="relative w-full h-full max-w-7xl border rounded-xl flex flex-col overflow-hidden shadow-2xl z-[70] transition-colors duration-300" style="background-color: var(--card-bg); border-color: var(--border-inner);">
-            <!-- Header -->
             <div class="p-6 pb-2">
                 <div class="flex justify-between items-start">
                     <div>
@@ -746,7 +793,6 @@
                 </div>
             </div>
 
-            <!-- Content -->
             <div class="flex-grow p-6 overflow-y-auto">
                 <div class="w-full">
                     <table class="w-full text-left text-sm">
@@ -764,10 +810,365 @@
                             </tr>
                         </thead>
                         <tbody class="text-base" id="sponsorshipsModalBody" style="color: var(--text-secondary)">
-                            <!-- Rows generated by JS -->
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== NEW MODALS (FOLLOWING EXISTING DESIGN PATTERN) ===================== -->
+
+    <!-- 1. Creator Network Modal -->
+    <div id="networkModal" class="modal-enter fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-10 modal-transition">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeNetworkModal()"></div>
+        
+        <div class="relative w-full h-full max-w-7xl border rounded-xl flex flex-col overflow-hidden shadow-2xl z-[70] transition-colors duration-300" style="background-color: var(--card-bg); border-color: var(--border-inner);">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-4 border-b" style="border-color: var(--border-inner);">
+                <div class="flex items-center gap-4">
+                    <button onclick="closeNetworkModal()" class="w-8 h-8 flex items-center justify-center rounded transition-colors" style="background-color: var(--btn-bg); color: var(--text-secondary);">
+                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    </button>
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="share-2" class="w-6 h-6 text-accent"></i>
+                            <h2 class="text-2xl font-bold tracking-tight" style="color: var(--text-primary)">Creator Network Node</h2>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs font-medium" style="color: var(--text-secondary)">
+                            <span>Relationship Graph</span>
+                            <span>•</span>
+                            <span>Cole Holland</span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="closeNetworkModal()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-red-500/20 hover:text-red-500 transition-colors" style="color: var(--text-secondary)">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex-grow p-6 flex flex-col md:flex-row gap-6 overflow-hidden">
+                <!-- Large Network Canvas -->
+                <div class="flex-grow w-full relative min-h-[400px] rounded-lg border" style="background-color: var(--bg-header); border-color: var(--border-inner);">
+                    <div id="mynetworkLarge" class="w-full h-full rounded-lg"></div>
+                </div>
+
+                <!-- Side Information Panel -->
+                <div class="w-full md:w-80 flex-shrink-0 flex flex-col gap-4 overflow-y-auto custom-scroll">
+                    <!-- Legend -->
+                    <div class="rounded-lg border p-4" style="background-color: var(--bg-header); border-color: var(--border-inner);">
+                        <h4 class="text-accent font-bold italic text-sm mb-3">Legend</h4>
+                        <div class="space-y-2 text-xs" style="color: var(--text-secondary)">
+                            <div class="flex items-center gap-2"><div class="w-3 h-3 bg-white rounded-sm"></div><span>Hub (Cole Holland)</span></div>
+                            <div class="flex items-center gap-2"><div class="w-3 h-3 bg-blue-400 rounded-full"></div><span>Featured Collaborators</span></div>
+                            <div class="flex items-center gap-2"><div class="w-3 h-3 bg-teal-500 rounded-full"></div><span>Core Team</span></div>
+                            <div class="flex items-center gap-2"><div class="w-3 h-3 bg-orange-500 rounded-full"></div><span>Partner Organizations</span></div>
+                            <div class="flex items-center gap-2"><div class="w-3 h-3 bg-purple-500 rounded-full"></div><span>Media & Podcasts</span></div>
+                            <div class="pt-2 mt-2 border-t text-[10px] italic" style="border-color: var(--border-inner);">Dashed lines indicate indirect or peer-to-peer relationships.</div>
+                        </div>
+                    </div>
+
+                    <!-- Selected Node Info -->
+                    <div class="rounded-lg border p-4" style="background-color: var(--bg-header); border-color: var(--border-inner);">
+                        <h4 class="text-accent font-bold italic text-sm mb-3">Node Detail</h4>
+                        <div id="networkNodeDetail" class="text-xs leading-relaxed" style="color: var(--text-secondary)">
+                            <p class="italic">Click any node to see relationship details.</p>
+                        </div>
+                    </div>
+
+                    <!-- Network Stats -->
+                    <div class="rounded-lg border p-4" style="background-color: var(--bg-header); border-color: var(--border-inner);">
+                        <h4 class="text-accent font-bold italic text-sm mb-3">Network Stats</h4>
+                        <div class="space-y-2 text-xs" style="color: var(--text-secondary)">
+                            <div class="flex justify-between"><span>Total Nodes</span><span class="font-bold" style="color: var(--text-primary)">10</span></div>
+                            <div class="flex justify-between"><span>Core Team</span><span class="font-bold" style="color: var(--text-primary)">4</span></div>
+                            <div class="flex justify-between"><span>Partners</span><span class="font-bold" style="color: var(--text-primary)">3</span></div>
+                            <div class="flex justify-between"><span>Media Connections</span><span class="font-bold" style="color: var(--text-primary)">2</span></div>
+                            <div class="flex justify-between"><span>Network Density</span><span class="font-bold text-accent">High</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Advertising Keywords Modal -->
+    <div id="keywordsModal" class="modal-enter fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-10 modal-transition">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeKeywordsModal()"></div>
+        
+        <div class="relative w-full h-full max-w-7xl border rounded-xl flex flex-col overflow-hidden shadow-2xl z-[70] transition-colors duration-300" style="background-color: var(--card-bg); border-color: var(--border-inner);">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-4 border-b" style="border-color: var(--border-inner);">
+                <div class="flex items-center gap-4">
+                    <button onclick="closeKeywordsModal()" class="w-8 h-8 flex items-center justify-center rounded transition-colors" style="background-color: var(--btn-bg); color: var(--text-secondary);">
+                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    </button>
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="tag" class="w-6 h-6 text-accent"></i>
+                            <h2 class="text-2xl font-bold tracking-tight" style="color: var(--text-primary)">Advertising Keywords</h2>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs font-medium" style="color: var(--text-secondary)">
+                            <span>Search & Targeting Terms</span>
+                            <span>•</span>
+                            <span>Cole Holland</span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="closeKeywordsModal()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-red-500/20 hover:text-red-500 transition-colors" style="color: var(--text-secondary)">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex-grow p-6 flex flex-col gap-6 overflow-y-auto custom-scroll">
+                <!-- Search Bar -->
+                <div class="flex items-center gap-3 rounded-lg border p-3" style="background-color: var(--bg-header); border-color: var(--border-inner);">
+                    <i data-lucide="search" class="w-4 h-4" style="color: var(--text-secondary)"></i>
+                    <input id="keywordSearch" type="text" placeholder="Search keywords..." class="flex-grow bg-transparent outline-none text-sm" style="color: var(--text-primary)">
+                    <span id="keywordSearchCount" class="text-[10px]" style="color: var(--text-secondary)">8 keywords</span>
+                </div>
+
+                <!-- Top Section: Tag Cloud + Top Performers -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Tag Cloud -->
+                    <div class="md:col-span-2 rounded-lg border p-4" style="background-color: var(--bg-header); border-color: var(--border-inner);">
+                        <h4 class="text-accent font-bold italic text-sm mb-3">Keyword Cloud</h4>
+                        <div id="keywordCloud" class="flex flex-wrap gap-2"></div>
+                    </div>
+                    <!-- Top Ranked -->
+                    <div class="rounded-lg border p-4" style="background-color: var(--bg-header); border-color: var(--border-inner);">
+                        <h4 class="text-accent font-bold italic text-sm mb-3">Top Performers</h4>
+                        <div id="keywordTopList" class="space-y-2 text-xs"></div>
+                    </div>
+                </div>
+
+                <!-- Categorized Keyword Grid -->
+                <div class="rounded-lg border p-4" style="background-color: var(--bg-header); border-color: var(--border-inner);">
+                    <h4 class="text-accent font-bold italic text-sm mb-3">All Keywords by Category</h4>
+                    <div id="keywordCategoryGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Interest By Region Modal -->
+    <div id="regionModal" class="modal-enter fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-10 modal-transition">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeRegionModal()"></div>
+        
+        <div class="relative w-full h-full max-w-7xl border rounded-xl flex flex-col overflow-hidden shadow-2xl z-[70] transition-colors duration-300" style="background-color: var(--card-bg); border-color: var(--border-inner);">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-4 border-b" style="border-color: var(--border-inner);">
+                <div class="flex items-center gap-4">
+                    <button onclick="closeRegionModal()" class="w-8 h-8 flex items-center justify-center rounded transition-colors" style="background-color: var(--btn-bg); color: var(--text-secondary);">
+                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    </button>
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="globe" class="w-6 h-6 text-accent"></i>
+                            <h2 class="text-2xl font-bold tracking-tight" style="color: var(--text-primary)">Interest by Region</h2>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs font-medium" style="color: var(--text-secondary)">
+                            <span id="regionModalSubtitle">Geographic Distribution</span>
+                            <span>•</span>
+                            <span>Cole Holland</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Source switcher -->
+                <div class="flex items-center gap-2 mr-4">
+                    <button onclick="setRegionSource('Google')" id="regionSrcGoogle" class="text-[10px] px-3 py-1 rounded border transition-colors" style="border-color: var(--border-inner); color: var(--text-secondary)">Google</button>
+                    <button onclick="setRegionSource('Pinterest')" id="regionSrcPinterest" class="text-[10px] px-3 py-1 rounded border transition-colors" style="border-color: var(--border-inner); color: var(--text-secondary)">Pinterest</button>
+                    <button onclick="setRegionSource('Overall')" id="regionSrcOverall" class="text-[10px] px-3 py-1 rounded border transition-colors" style="border-color: var(--border-inner); color: var(--text-secondary)">Overall</button>
+                </div>
+                <button onclick="closeRegionModal()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-red-500/20 hover:text-red-500 transition-colors" style="color: var(--text-secondary)">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex-grow p-6 flex flex-col gap-6 overflow-y-auto custom-scroll">
+                <!-- Large Map Area -->
+                <div class="rounded-lg border p-4 min-h-[340px] relative" style="background-color: var(--bg-header); border-color: var(--border-inner);">
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="text-accent font-bold italic text-sm" id="regionModalMapTitle">Interest by Region (Google)</h4>
+                        <span class="text-[10px]" style="color: var(--text-secondary)">Animated highlights show top markets</span>
+                    </div>
+                    <div class="w-full h-[300px] flex items-center justify-center">
+                        <svg viewBox="0 0 1010 500" class="w-full h-full" style="background-color: transparent;">
+                            <g fill="currentColor" stroke="none" class="text-gray-600 dark:text-gray-800" style="opacity: 0.35;">
+                                <path d="M50,30 L350,30 L300,150 L200,200 L100,250 L50,150 Z" />
+                                <path d="M220,250 L320,250 L300,480 L200,400 Z" />
+                                <path d="M400,30 L950,30 L900,250 L750,300 L600,200 L450,150 Z" />
+                                <path d="M450,200 L600,200 L550,420 L450,350 Z" />
+                                <path d="M780,350 L920,350 L900,450 L750,450 Z" />
+                            </g>
+                            <g id="mapHighlightsLarge"></g>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Bottom Panels: Ranking Table + Country Detail Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Ranking Table -->
+                    <div class="rounded-lg border p-4 flex flex-col" style="background-color: var(--bg-header); border-color: var(--border-inner);">
+                        <h4 class="text-accent font-bold italic text-sm mb-3">Region Ranking</h4>
+                        <table class="w-full text-xs">
+                            <thead>
+                                <tr class="border-b" style="border-color: var(--border-inner); color: var(--text-secondary)">
+                                    <th class="text-left pb-2">Region</th>
+                                    <th class="text-right pb-2">Score</th>
+                                    <th class="text-right pb-2">Trend</th>
+                                </tr>
+                            </thead>
+                            <tbody id="regionRankTable" style="color: var(--text-primary)"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- Country Detail Cards -->
+                    <div class="md:col-span-2 rounded-lg border p-4" style="background-color: var(--bg-header); border-color: var(--border-inner);">
+                        <h4 class="text-accent font-bold italic text-sm mb-3">Country Detail Cards</h4>
+                        <div id="regionCountryCards" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Audience by Age Modal -->
+    <div id="audienceModal" class="modal-enter fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-10 modal-transition">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeAudienceModal()"></div>
+        
+        <div class="relative w-full h-full max-w-7xl border rounded-xl flex flex-col overflow-hidden shadow-2xl z-[70] transition-colors duration-300" style="background-color: var(--card-bg); border-color: var(--border-inner);">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-4 border-b" style="border-color: var(--border-inner);">
+                <div class="flex items-center gap-4">
+                    <button onclick="closeAudienceModal()" class="w-8 h-8 flex items-center justify-center rounded transition-colors" style="background-color: var(--btn-bg); color: var(--text-secondary);">
+                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    </button>
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="users" class="w-6 h-6 text-accent"></i>
+                            <h2 class="text-2xl font-bold tracking-tight" style="color: var(--text-primary)">Audience by Age & Gender</h2>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs font-medium" style="color: var(--text-secondary)">
+                            <span>Demographics Breakdown</span>
+                            <span>•</span>
+                            <span>Cole Holland</span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="closeAudienceModal()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-red-500/20 hover:text-red-500 transition-colors" style="color: var(--text-secondary)">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex-grow p-6 flex flex-col gap-6 overflow-y-auto custom-scroll">
+                <!-- Expanded Chart -->
+                <div class="rounded-lg border p-4 min-h-[340px]" style="background-color: var(--bg-header); border-color: var(--border-inner);">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="text-accent font-bold italic text-sm">Distribution by Age Bracket</h4>
+                        <span class="text-[10px]" style="color: var(--text-secondary)">% of total audience</span>
+                    </div>
+                    <div class="w-full h-[300px] relative">
+                        <canvas id="audienceModalChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Insights Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div class="insight-tile">
+                        <div class="text-[10px] uppercase tracking-widest" style="color: var(--text-secondary)">Largest Bracket</div>
+                        <div class="font-bold text-lg" style="color: var(--text-primary)">25-34 M</div>
+                        <div class="text-xs text-accent">80% share</div>
+                    </div>
+                    <div class="insight-tile">
+                        <div class="text-[10px] uppercase tracking-widest" style="color: var(--text-secondary)">Most Engaged</div>
+                        <div class="font-bold text-lg" style="color: var(--text-primary)">18-24 F</div>
+                        <div class="text-xs text-accent">+ER 112</div>
+                    </div>
+                    <div class="insight-tile">
+                        <div class="text-[10px] uppercase tracking-widest" style="color: var(--text-secondary)">Gender Skew</div>
+                        <div class="font-bold text-lg" style="color: var(--text-primary)">52% F / 48% M</div>
+                        <div class="text-xs text-accent">Balanced</div>
+                    </div>
+                    <div class="insight-tile">
+                        <div class="text-[10px] uppercase tracking-widest" style="color: var(--text-secondary)">Growth (90d)</div>
+                        <div class="font-bold text-lg" style="color: var(--text-primary)">+14.2%</div>
+                        <div class="text-xs text-accent">▲ accelerating</div>
+                    </div>
+                </div>
+
+                <!-- Detail tables -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="rounded-lg border p-4" style="background-color: var(--bg-header); border-color: var(--border-inner);">
+                        <h4 class="text-accent font-bold italic text-sm mb-3">Engagement Overlay</h4>
+                        <table class="w-full text-xs">
+                            <thead>
+                                <tr class="border-b" style="border-color: var(--border-inner); color: var(--text-secondary)">
+                                    <th class="text-left pb-2">Bracket</th>
+                                    <th class="text-right pb-2">Reach</th>
+                                    <th class="text-right pb-2">ER+</th>
+                                    <th class="text-right pb-2">Growth</th>
+                                </tr>
+                            </thead>
+                            <tbody id="audienceEngagementTable" style="color: var(--text-primary)"></tbody>
+                        </table>
+                    </div>
+                    <div class="rounded-lg border p-4" style="background-color: var(--bg-header); border-color: var(--border-inner);">
+                        <h4 class="text-accent font-bold italic text-sm mb-3">Notes</h4>
+                        <p class="text-xs leading-relaxed" style="color: var(--text-secondary)">
+                            The 25-34 male bracket forms the bulk of the audience, but the 18-24 female bracket out-engages every other group, driving most comments and shares. Growth in the 35-44 bracket has accelerated over the last 90 days, signaling broadening cross-generational reach.
+                        </p>
+                        <p class="text-xs leading-relaxed mt-3" style="color: var(--text-secondary)">
+                            Recommended: shape sponsored content toward the 18-24 F cohort while protecting the 25-34 M base. Avoid format changes that historically have suppressed mid-funnel engagement.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Recent Content Modal -->
+    <div id="contentModal" class="modal-enter fixed inset-0 z-[60] flex items-center justify-center p-4 md:p-10 modal-transition">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeContentModal()"></div>
+        
+        <div class="relative w-full h-full max-w-7xl border rounded-xl flex flex-col overflow-hidden shadow-2xl z-[70] transition-colors duration-300" style="background-color: var(--card-bg); border-color: var(--border-inner);">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-4 border-b" style="border-color: var(--border-inner);">
+                <div class="flex items-center gap-4">
+                    <button onclick="closeContentModal()" class="w-8 h-8 flex items-center justify-center rounded transition-colors" style="background-color: var(--btn-bg); color: var(--text-secondary);">
+                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    </button>
+                    <div class="flex flex-col">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="play-square" class="w-6 h-6 text-accent"></i>
+                            <h2 class="text-2xl font-bold tracking-tight" style="color: var(--text-primary)">Recent Content</h2>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs font-medium" style="color: var(--text-secondary)">
+                            <span>Last 30 days</span>
+                            <span>•</span>
+                            <span>Cole Holland</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 mr-4">
+                    <button onclick="filterContent('all')" id="contentFilterAll" class="text-[10px] px-3 py-1 rounded border transition-colors" style="border-color: var(--border-inner)">All</button>
+                    <button onclick="filterContent('youtube')" id="contentFilterYoutube" class="text-[10px] px-3 py-1 rounded border transition-colors" style="border-color: var(--border-inner)">YouTube</button>
+                    <button onclick="filterContent('instagram')" id="contentFilterInstagram" class="text-[10px] px-3 py-1 rounded border transition-colors" style="border-color: var(--border-inner)">Instagram</button>
+                    <button onclick="filterContent('tiktok')" id="contentFilterTiktok" class="text-[10px] px-3 py-1 rounded border transition-colors" style="border-color: var(--border-inner)">TikTok</button>
+                    <button onclick="filterContent('linkedin')" id="contentFilterLinkedin" class="text-[10px] px-3 py-1 rounded border transition-colors" style="border-color: var(--border-inner)">LinkedIn</button>
+                </div>
+                <button onclick="closeContentModal()" class="w-8 h-8 flex items-center justify-center rounded hover:bg-red-500/20 hover:text-red-500 transition-colors" style="color: var(--text-secondary)">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex-grow p-6 overflow-y-auto custom-scroll">
+                <div id="contentGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </div>
         </div>
     </div>
@@ -784,177 +1185,49 @@
     <!-- JS Logic -->
     <script>
         // --- Tooltip Definitions ---
-        // Helper string for the dynamic update note
         const dynamicNote = "\n\n(Note: Each update will lead to the metric being different due to your and the creator's situations being dynamic; factors like earnings and estimated incoming work are ever-changing.)";
 
         const statDefinitions = {
-            // Social Media Stats
-            "YouTube Subscribers": {
-                short: "Total number of unique accounts subscribed to the channel. Indicates core audience size." + dynamicNote,
-                long: "Total number of unique accounts subscribed to the channel. This metric indicates the core audience size and long-term interest in the creator's content." + dynamicNote
-            },
-            "Instagram Followers": {
-                short: "Total number of accounts following the profile. A key metric for brand reach." + dynamicNote,
-                long: "Total number of accounts following the profile. A key metric for brand reach and visual impact." + dynamicNote
-            },
-            "Tiktok Followers": {
-                short: "Total follower count. High volatility but potential for massive viral reach." + dynamicNote,
-                long: "Total follower count on TikTok. While this metric implies potential reach, it is characterized by high volatility compared to other platforms." + dynamicNote
-            },
-            "Facebook Friends": {
-                short: "Personal connections on Facebook. Less relevant for public influence but indicates personal network." + dynamicNote,
-                long: "Personal connections on Facebook. This is less relevant for broad public influence but indicates the strength of the creator's personal network." + dynamicNote
-            },
-            "Linkedin Followers": {
-                short: "Professional audience following the page. Crucial for B2B and non-profit partnerships." + dynamicNote,
-                long: "Professional audience following the page. This metric is crucial for B2B relationships and non-profit partnerships where professional credibility is key." + dynamicNote
-            },
-            "Linkedin Connections": {
-                short: "Direct professional network size. Indicates personal outreach capability." + dynamicNote,
-                long: "Direct professional network size. Indicates personal outreach capability and the depth of professional relationships." + dynamicNote
-            },
-            "Twitter Followers": {
-                short: "Total followers. Key for real-time engagement and political discourse." + dynamicNote,
-                long: "Total followers on Twitter/X. Key for real-time engagement, news dissemination, and political discourse." + dynamicNote
-            },
-            "Reddit Followers": {
-                short: "Users following the personal profile. Rare on Reddit; indicates high individual authority." + dynamicNote,
-                long: "Users following the personal profile directly. This is rare on Reddit and indicates high individual authority and superfan interest." + dynamicNote
-            },
-            "Substack Followers": {
-                short: "Email newsletter subscribers. Represents high-intent, owned audience." + dynamicNote,
-                long: "Email newsletter subscribers. This represents a high-intent, owned audience that is not subject to platform algorithm changes." + dynamicNote
-            },
-            "Snapchat Followers": {
-                short: "Subscribers to public stories. Skews younger demographic." + dynamicNote,
-                long: "Subscribers to public stories. This audience heavily skews towards younger demographics (Gen Z)." + dynamicNote
-            },
-            "Threads Followers": {
-                short: "Followers on Meta's text-based app. Emerging platform metric." + dynamicNote,
-                long: "Followers on Meta's text-based app. As an emerging platform, this metric indicates early adoption and cross-platform influence." + dynamicNote
-            },
-            "Twitch Followers": {
-                short: "Users notified when going live. Critical for live streaming retention." + dynamicNote,
-                long: "Users notified when going live. Critical for live streaming retention and recurring viewership." + dynamicNote
-            },
-            "Rumble Followers": {
-                short: "Alternative video platform subscribers. Indicates reach in specific political niches." + dynamicNote,
-                long: "Alternative video platform subscribers. Indicates reach in specific political niches and alternative media ecosystems." + dynamicNote
-            },
-            "Pinterest Followers": {
-                short: "Users following boards/profile. High intent for visual inspiration and planning." + dynamicNote,
-                long: "Users following boards or the main profile. Indicates high intent for visual inspiration, planning, and purchasing." + dynamicNote
-            },
-            "Google Profile Views": {
-                short: "Impressions on the Google Knowledge Panel. Indicates general search interest." + dynamicNote,
-                long: "Impressions on the Google Knowledge Panel. This indicates general search interest and broader fame beyond social media." + dynamicNote
-            },
-
-            // Engagement Metrics
-            "YouTube Engagement Rate +": {
-                short: "Composite score of Likes + Comments + Shares divided by Views, normalized against industry average." + dynamicNote,
-                long: "A composite score calculated by (Likes + Comments + Shares) / Views, normalized against the industry average for this category." + dynamicNote
-            },
-            "TikTok Engagement Rate +": {
-                short: "Viral efficiency score based on Shares and Watch Time completion relative to Followers." + dynamicNote,
-                long: "Viral efficiency score based on Shares and Watch Time completion relative to Followers. High scores indicate algorithmic favorability." + dynamicNote
-            },
-            "Linkedin Engagement Rate +": {
-                short: "Interaction rate (Likes + Comments) per impression on professional posts." + dynamicNote,
-                long: "Interaction rate (Likes + Comments) per impression on professional posts. Measures professional relevance." + dynamicNote
-            },
-            "Facebook Engagement Rate +": {
-                short: "Activity score based on Reactions and Shares." + dynamicNote,
-                long: "Activity score based on Reactions and Shares. Shares are weighted heavier as they indicate network amplification." + dynamicNote
-            },
-            "Twitter Engagement Rate +": {
-                short: "Retweets and Replies per 1k impressions." + dynamicNote,
-                long: "Retweets and Replies per 1,000 impressions. Indicates how sparky or controversial the content is." + dynamicNote
-            },
-            "Instagram Engagement Rate +": {
-                short: "Likes and Comments relative to follower count." + dynamicNote,
-                long: "Likes and Comments relative to follower count. Standard industry measure for influencer impact." + dynamicNote
-            },
-            "Reddit Karma +": {
-                short: "Net upvotes across all posts and comments. Measure of community contribution value." + dynamicNote,
-                long: "Net upvotes across all posts and comments. A cumulative measure of community contribution value and respect." + dynamicNote
-            },
-            "Reddit Gold": {
-                short: "Premium awards received. Indicates high-quality, high-impact content." + dynamicNote,
-                long: "Premium awards received from other users. Indicates specific pieces of content were deemed high-quality or high-impact." + dynamicNote
-            },
-            "Snapscore +": {
-                short: "Activity index based on snaps sent/received and story engagement." + dynamicNote,
-                long: "Activity index based on snaps sent/received and story engagement. Indicates daily active usage." + dynamicNote
-            },
-            "Twitch Engagement Rate+": {
-                short: "Chat activity and emote usage per live viewer." + dynamicNote,
-                long: "Chat activity volume and emote usage per live viewer. Measures community vibrancy during streams." + dynamicNote
-            },
-            "Rumble Engagement Rate+": {
-                short: "Rumbles (likes) and comments relative to video views." + dynamicNote,
-                long: "Rumbles (likes) and comments relative to video views. Specific to the Rumble ecosystem." + dynamicNote
-            },
-            "Pinterest Engagement Rate +": {
-                short: "Saves (repins) and clicks relative to total impressions." + dynamicNote,
-                long: "Saves (repins) and clicks relative to total impressions. Saves are the highest value metric here." + dynamicNote
-            },
-            "Google Interaction Rate +": {
-                short: "Clicks on Knowledge Panel links relative to search impressions." + dynamicNote,
-                long: "Clicks on Knowledge Panel links relative to search impressions. Shows how many searchers want to learn more." + dynamicNote
-            },
-
-            // Watch Time
-            "YouTube Watch Time +": {
-                short: "Average view duration relative to video length. Key algorithm ranking factor." + dynamicNote,
-                long: "Average view duration relative to video length. This is the primary factor for YouTube's recommendation algorithm." + dynamicNote
-            },
-            "TikTok Watch Time +": {
-                short: "Percentage of viewers watching until the end (Retention Rate)." + dynamicNote,
-                long: "Percentage of viewers watching until the end (Retention Rate). Crucial for short-form content success." + dynamicNote
-            },
-            "Instagram Watch Time +": {
-                short: "Average view time on Reels and IGTV content." + dynamicNote,
-                long: "Average view time on Reels and IGTV content. Estimates how long the user holds attention." + dynamicNote
-            },
-            "Twitch Watch Time+": {
-                short: "Average concurrent viewership duration per stream session." + dynamicNote,
-                long: "Average concurrent viewership duration per stream session. Indicates 'stickiness' of the live broadcast." + dynamicNote
-            },
-
-            // Sponsorship Table Headers
-            "VIDS": {
-                short: "Videos Published: The number of sponsored videos released in the period." + dynamicNote,
-                long: "Videos Published: The total count of sponsored videos released within the specified date range." + dynamicNote
-            },
-            "SPON": {
-                short: "Sponsorship Count: Total number of individual brand deals." + dynamicNote,
-                long: "Sponsorship Count: The total number of individual brand deals or partnerships executed." + dynamicNote
-            },
-            "MINS": {
-                short: "Minutes Watched: Total minutes of sponsored content consumed by audience." + dynamicNote,
-                long: "Minutes Watched: The aggregate number of minutes audiences spent watching the sponsored segments." + dynamicNote
-            },
-            "RET+": {
-                short: "Retention Rate Plus: Audience retention during the sponsored segment specifically." + dynamicNote,
-                long: "Retention Rate Plus: A specialized metric measuring audience drop-off specifically during the sponsored integration, compared to the rest of the video." + dynamicNote
-            },
-            "ALIGN": {
-                short: "Brand Alignment Score: Algorithmic score (0-100) of how well the brand fits the creator's niche." + dynamicNote,
-                long: "Brand Alignment Score: An algorithmic score (0-100) determining how naturally the brand fits into the creator's existing content niche." + dynamicNote
-            },
-            "wexRAR+": {
-                short: "wexRAR+ is a composite index (where 100 represents average compared to what is available to you based on your budget and needs) that estimates the expected audience retention of a creator’s sponsored content above a readily available alternative, adjusted for niche and brand alignment, production and aesthetic compatibility, audience demographics, audience authenticity, and the financial and operational constraints of the sponsoring organization. The metric discounts inflated reach driven by bots, paid views, or low-quality traffic that does not generate sustained attention, prioritizing organic retention as the primary indicator of real impact and value." + dynamicNote,
-                long: "wexRAR+ is an index-based metric (where 100 represents average compared to what is available to you based on your budget and needs) that estimates the expected audience retention of a creator’s sponsored content above or below a readily available alternative, adjusted for niche alignment, production and aesthetic compatibility, audience demographics, financial feasibility, negotiating context, and audience authenticity.\n\nThe metric is designed to evaluate not who is largest, but who is most likely to sustain attention and deliver meaningful impact given the specific constraints and objectives of a nonprofit or mission-driven organization.\n\nwexRAR+ accounts for the degree of niche correlation between the creator and the organization, reducing expected retention when audiences are weakly correlated or when collaborations are likely to feel generic or inauthentic. It incorporates visual and production alignment, including color palette, cinematography, and stylistic appeal to the organization’s primary demographics, recognizing that mismatched aesthetic language can materially reduce retention even when reach is high.\n\nThe metric integrates audience demographic composition, including age distribution and psychographic compatibility, to better estimate whether viewers are likely to meaningfully engage with and remain attentive to the content. It further adjusts for organizational fiscal context, weighing creator affordability, demand, travel and production costs, time requirements, and relative negotiating power to prevent overvaluing creators whose costs scale faster than expected retention.\n\nwexRAR+ also includes an audience authenticity and retention-quality adjustment, discounting expected performance when follower behavior suggests a significant presence of bots, automated traffic, or low-intent audiences. Because inauthentic followers do not generate organic retention, the metric distinguishes between paid or inflated views and genuine, sustained watch time, ensuring that apparent scale does not outweigh real attention.\n\nIn aggregate, wexRAR+ provides a context-aware estimate of how much retention a creator is expected to generate relative to a replacement-level option, enabling more efficient, realistic, and impact-driven creator selection under real-world budgetary and operational constraints.\n\nImportant: wexRAR+ is not a standard formula; it has a base formula that we are collecting data on to improve its accuracy relating to its different modifiers, so please do not use that statistic as an end-all-be-all." + dynamicNote
-            },
-            "exCTAR": {
-                short: "External Click-Through Action Rate: The percentage of viewers who clicked an external link (conversion potential)." + dynamicNote,
-                long: "External Click-Through Action Rate: Measures the percentage of unique viewers who took action by clicking an external link provided in the content (e.g., bio link, description link)." + dynamicNote
-            },
-            "wexPSAR": {
-                short: "Weighted Psycho-Social Alignment Rating: A brand safety and values-match score based on audience sentiment analysis." + dynamicNote,
-                long: "Weighted Psycho-Social Alignment Rating: A composite score evaluating brand safety and values alignment based on deep sentiment analysis of audience comments and creator history." + dynamicNote
-            }
+            "YouTube Subscribers": { short: "Total number of unique accounts subscribed to the channel. Indicates core audience size." + dynamicNote, long: "Total number of unique accounts subscribed to the channel. This metric indicates the core audience size and long-term interest in the creator's content." + dynamicNote },
+            "Instagram Followers": { short: "Total number of accounts following the profile. A key metric for brand reach." + dynamicNote, long: "Total number of accounts following the profile. A key metric for brand reach and visual impact." + dynamicNote },
+            "Tiktok Followers": { short: "Total follower count. High volatility but potential for massive viral reach." + dynamicNote, long: "Total follower count on TikTok. While this metric implies potential reach, it is characterized by high volatility compared to other platforms." + dynamicNote },
+            "Facebook Friends": { short: "Personal connections on Facebook. Less relevant for public influence but indicates personal network." + dynamicNote, long: "Personal connections on Facebook. This is less relevant for broad public influence but indicates the strength of the creator's personal network." + dynamicNote },
+            "Linkedin Followers": { short: "Professional audience following the page. Crucial for B2B and non-profit partnerships." + dynamicNote, long: "Professional audience following the page. This metric is crucial for B2B relationships and non-profit partnerships where professional credibility is key." + dynamicNote },
+            "Linkedin Connections": { short: "Direct professional network size. Indicates personal outreach capability." + dynamicNote, long: "Direct professional network size. Indicates personal outreach capability and the depth of professional relationships." + dynamicNote },
+            "Twitter Followers": { short: "Total followers. Key for real-time engagement and political discourse." + dynamicNote, long: "Total followers on Twitter/X. Key for real-time engagement, news dissemination, and political discourse." + dynamicNote },
+            "Reddit Followers": { short: "Users following the personal profile. Rare on Reddit; indicates high individual authority." + dynamicNote, long: "Users following the personal profile directly. This is rare on Reddit and indicates high individual authority and superfan interest." + dynamicNote },
+            "Substack Followers": { short: "Email newsletter subscribers. Represents high-intent, owned audience." + dynamicNote, long: "Email newsletter subscribers. This represents a high-intent, owned audience that is not subject to platform algorithm changes." + dynamicNote },
+            "Snapchat Followers": { short: "Subscribers to public stories. Skews younger demographic." + dynamicNote, long: "Subscribers to public stories. This audience heavily skews towards younger demographics (Gen Z)." + dynamicNote },
+            "Threads Followers": { short: "Followers on Meta's text-based app. Emerging platform metric." + dynamicNote, long: "Followers on Meta's text-based app. As an emerging platform, this metric indicates early adoption and cross-platform influence." + dynamicNote },
+            "Twitch Followers": { short: "Users notified when going live. Critical for live streaming retention." + dynamicNote, long: "Users notified when going live. Critical for live streaming retention and recurring viewership." + dynamicNote },
+            "Rumble Followers": { short: "Alternative video platform subscribers. Indicates reach in specific political niches." + dynamicNote, long: "Alternative video platform subscribers. Indicates reach in specific political niches and alternative media ecosystems." + dynamicNote },
+            "Pinterest Followers": { short: "Users following boards/profile. High intent for visual inspiration and planning." + dynamicNote, long: "Users following boards or the main profile. Indicates high intent for visual inspiration, planning, and purchasing." + dynamicNote },
+            "Google Profile Views": { short: "Impressions on the Google Knowledge Panel. Indicates general search interest." + dynamicNote, long: "Impressions on the Google Knowledge Panel. This indicates general search interest and broader fame beyond social media." + dynamicNote },
+            "YouTube Engagement Rate +": { short: "Composite score of Likes + Comments + Shares divided by Views, normalized against industry average." + dynamicNote, long: "A composite score calculated by (Likes + Comments + Shares) / Views, normalized against the industry average for this category." + dynamicNote },
+            "TikTok Engagement Rate +": { short: "Viral efficiency score based on Shares and Watch Time completion relative to Followers." + dynamicNote, long: "Viral efficiency score based on Shares and Watch Time completion relative to Followers. High scores indicate algorithmic favorability." + dynamicNote },
+            "Linkedin Engagement Rate +": { short: "Interaction rate (Likes + Comments) per impression on professional posts." + dynamicNote, long: "Interaction rate (Likes + Comments) per impression on professional posts. Measures professional relevance." + dynamicNote },
+            "Facebook Engagement Rate +": { short: "Activity score based on Reactions and Shares." + dynamicNote, long: "Activity score based on Reactions and Shares. Shares are weighted heavier as they indicate network amplification." + dynamicNote },
+            "Twitter Engagement Rate +": { short: "Retweets and Replies per 1k impressions." + dynamicNote, long: "Retweets and Replies per 1,000 impressions. Indicates how sparky or controversial the content is." + dynamicNote },
+            "Instagram Engagement Rate +": { short: "Likes and Comments relative to follower count." + dynamicNote, long: "Likes and Comments relative to follower count. Standard industry measure for influencer impact." + dynamicNote },
+            "Reddit Karma +": { short: "Net upvotes across all posts and comments. Measure of community contribution value." + dynamicNote, long: "Net upvotes across all posts and comments. A cumulative measure of community contribution value and respect." + dynamicNote },
+            "Reddit Gold": { short: "Premium awards received. Indicates high-quality, high-impact content." + dynamicNote, long: "Premium awards received from other users. Indicates specific pieces of content were deemed high-quality or high-impact." + dynamicNote },
+            "Snapscore +": { short: "Activity index based on snaps sent/received and story engagement." + dynamicNote, long: "Activity index based on snaps sent/received and story engagement. Indicates daily active usage." + dynamicNote },
+            "Twitch Engagement Rate+": { short: "Chat activity and emote usage per live viewer." + dynamicNote, long: "Chat activity volume and emote usage per live viewer. Measures community vibrancy during streams." + dynamicNote },
+            "Rumble Engagement Rate+": { short: "Rumbles (likes) and comments relative to video views." + dynamicNote, long: "Rumbles (likes) and comments relative to video views. Specific to the Rumble ecosystem." + dynamicNote },
+            "Pinterest Engagement Rate +": { short: "Saves (repins) and clicks relative to total impressions." + dynamicNote, long: "Saves (repins) and clicks relative to total impressions. Saves are the highest value metric here." + dynamicNote },
+            "Google Interaction Rate +": { short: "Clicks on Knowledge Panel links relative to search impressions." + dynamicNote, long: "Clicks on Knowledge Panel links relative to search impressions. Shows how many searchers want to learn more." + dynamicNote },
+            "YouTube Watch Time +": { short: "Average view duration relative to video length. Key algorithm ranking factor." + dynamicNote, long: "Average view duration relative to video length. This is the primary factor for YouTube's recommendation algorithm." + dynamicNote },
+            "TikTok Watch Time +": { short: "Percentage of viewers watching until the end (Retention Rate)." + dynamicNote, long: "Percentage of viewers watching until the end (Retention Rate). Crucial for short-form content success." + dynamicNote },
+            "Instagram Watch Time +": { short: "Average view time on Reels and IGTV content." + dynamicNote, long: "Average view time on Reels and IGTV content. Estimates how long the user holds attention." + dynamicNote },
+            "Twitch Watch Time+": { short: "Average concurrent viewership duration per stream session." + dynamicNote, long: "Average concurrent viewership duration per stream session. Indicates 'stickiness' of the live broadcast." + dynamicNote },
+            "VIDS": { short: "Videos Published: The number of sponsored videos released in the period." + dynamicNote, long: "Videos Published: The total count of sponsored videos released within the specified date range." + dynamicNote },
+            "SPON": { short: "Sponsorship Count: Total number of individual brand deals." + dynamicNote, long: "Sponsorship Count: The total number of individual brand deals or partnerships executed." + dynamicNote },
+            "MINS": { short: "Minutes Watched: Total minutes of sponsored content consumed by audience." + dynamicNote, long: "Minutes Watched: The aggregate number of minutes audiences spent watching the sponsored segments." + dynamicNote },
+            "RET+": { short: "Retention Rate Plus: Audience retention during the sponsored segment specifically." + dynamicNote, long: "Retention Rate Plus: A specialized metric measuring audience drop-off specifically during the sponsored integration, compared to the rest of the video." + dynamicNote },
+            "ALIGN": { short: "Brand Alignment Score: Algorithmic score (0-100) of how well the brand fits the creator's niche." + dynamicNote, long: "Brand Alignment Score: An algorithmic score (0-100) determining how naturally the brand fits into the creator's existing content niche." + dynamicNote },
+            "wexRAR+": { short: "wexRAR+ is a composite index (where 100 represents average compared to what is available to you based on your budget and needs) that estimates the expected audience retention of a creator’s sponsored content above a readily available alternative, adjusted for niche and brand alignment, production and aesthetic compatibility, audience demographics, audience authenticity, and the financial and operational constraints of the sponsoring organization. The metric discounts inflated reach driven by bots, paid views, or low-quality traffic that does not generate sustained attention, prioritizing organic retention as the primary indicator of real impact and value." + dynamicNote, long: "wexRAR+ is an index-based metric (where 100 represents average compared to what is available to you based on your budget and needs) that estimates the expected audience retention of a creator’s sponsored content above or below a readily available alternative, adjusted for niche alignment, production and aesthetic compatibility, audience demographics, financial feasibility, negotiating context, and audience authenticity.\n\nThe metric is designed to evaluate not who is largest, but who is most likely to sustain attention and deliver meaningful impact given the specific constraints and objectives of a nonprofit or mission-driven organization.\n\nwexRAR+ accounts for the degree of niche correlation between the creator and the organization, reducing expected retention when audiences are weakly correlated or when collaborations are likely to feel generic or inauthentic. It incorporates visual and production alignment, including color palette, cinematography, and stylistic appeal to the organization’s primary demographics, recognizing that mismatched aesthetic language can materially reduce retention even when reach is high.\n\nThe metric integrates audience demographic composition, including age distribution and psychographic compatibility, to better estimate whether viewers are likely to meaningfully engage with and remain attentive to the content. It further adjusts for organizational fiscal context, weighing creator affordability, demand, travel and production costs, time requirements, and relative negotiating power to prevent overvaluing creators whose costs scale faster than expected retention.\n\nwexRAR+ also includes an audience authenticity and retention-quality adjustment, discounting expected performance when follower behavior suggests a significant presence of bots, automated traffic, or low-intent audiences. Because inauthentic followers do not generate organic retention, the metric distinguishes between paid or inflated views and genuine, sustained watch time, ensuring that apparent scale does not outweigh real attention.\n\nIn aggregate, wexRAR+ provides a context-aware estimate of how much retention a creator is expected to generate relative to a replacement-level option, enabling more efficient, realistic, and impact-driven creator selection under real-world budgetary and operational constraints.\n\nImportant: wexRAR+ is not a standard formula; it has a base formula that we are collecting data on to improve its accuracy relating to its different modifiers, so please do not use that statistic as an end-all-be-all." + dynamicNote },
+            "exCTAR": { short: "External Click-Through Action Rate: The percentage of viewers who clicked an external link (conversion potential)." + dynamicNote, long: "External Click-Through Action Rate: Measures the percentage of unique viewers who took action by clicking an external link provided in the content (e.g., bio link, description link)." + dynamicNote },
+            "wexPSAR": { short: "Weighted Psycho-Social Alignment Rating: A brand safety and values-match score based on audience sentiment analysis." + dynamicNote, long: "Weighted Psycho-Social Alignment Rating: A composite score evaluating brand safety and values alignment based on deep sentiment analysis of audience comments and creator history." + dynamicNote }
         };
 
         const globalTooltip = document.getElementById('globalTooltip');
@@ -962,91 +1235,63 @@
         const tooltipDesc = document.getElementById('tooltipDesc');
         const tooltipBtn = document.getElementById('tooltipBtn');
         
-        let lockedTooltipKey = null; // Track if a tooltip is locked by click
+        let lockedTooltipKey = null;
 
         function toggleTooltip(e, key) {
-            e.stopPropagation(); // Prevent the body click from firing
-            
-            // If clicking the currently locked item, unlock and hide
+            e.stopPropagation();
             if (lockedTooltipKey === key) {
                 lockedTooltipKey = null;
-                hideTooltip(true); // force hide
+                hideTooltip(true);
             } else {
-                // Lock the new one
                 lockedTooltipKey = key;
                 showTooltip(e, key);
             }
         }
 
         function showTooltip(e, key) {
-            // If another tooltip is locked and we are just hovering (not clicking), ignore
-            if (lockedTooltipKey && lockedTooltipKey !== key) {
-                return;
-            }
-
+            if (lockedTooltipKey && lockedTooltipKey !== key) return;
             const def = statDefinitions[key] || { short: "No definition available.", long: "" };
             tooltipTitle.textContent = key;
             tooltipDesc.textContent = def.short;
-            
             if (def.long && def.long !== def.short) {
                 tooltipBtn.style.display = 'flex';
-                tooltipBtn.onclick = (evt) => {
-                    evt.stopPropagation(); 
-                    openDefinitionModal(key);
-                };
+                tooltipBtn.onclick = (evt) => { evt.stopPropagation(); openDefinitionModal(key); };
             } else {
                 tooltipBtn.style.display = 'none';
             }
-            
             globalTooltip.classList.remove('hidden-tooltip');
             moveTooltip(e);
         }
 
         function hideTooltip(force = false) {
-            // If tooltip is locked, do not hide on mouseleave unless forced
             if (lockedTooltipKey && !force) return;
-            
             globalTooltip.classList.add('hidden-tooltip');
         }
 
         function moveTooltip(e) {
-            // Position tooltip near cursor but prevent overflow
-            // We use clientX/Y for viewport boundary checks
             const x = e.clientX + 15;
             const y = e.clientY + 15;
-            
             const rect = globalTooltip.getBoundingClientRect();
             const winWidth = window.innerWidth;
             const winHeight = window.innerHeight;
-
             let finalX = x;
             let finalY = y;
-
-            // Check viewport overflow (shift left/up if needed)
             if (x + rect.width > winWidth) finalX = e.clientX - rect.width - 10;
             if (y + rect.height > winHeight) finalY = e.clientY - rect.height - 10;
-
-            // Apply scroll offset because position is absolute
             globalTooltip.style.left = `${finalX + window.scrollX}px`;
             globalTooltip.style.top = `${finalY + window.scrollY}px`;
         }
 
-        // Close locked tooltip when clicking anywhere else
         document.addEventListener('click', (e) => {
-            // If clicking inside the tooltip itself, don't close
             if (globalTooltip.contains(e.target)) return;
-
             if (lockedTooltipKey) {
                 lockedTooltipKey = null;
                 hideTooltip(true);
             }
         });
         
-        // Global mouse tracker to ensure tooltip appears at correct location
         document.addEventListener('mousemove', (e) => {
-            // If tooltip is locked, DO NOT update position on mousemove
             if (lockedTooltipKey) return;
-
             if (!globalTooltip.classList.contains('hidden-tooltip')) {
                 moveTooltip(e);
             }
@@ -1061,28 +1306,19 @@
         definitionModal.classList.remove('modal-enter');
 
         function openDefinitionModal(key) {
-            // Hide tooltip first
             hideTooltip(true);
-
             const def = statDefinitions[key];
             if (!def) return;
-
             defModalTitle.textContent = key;
             defModalContent.textContent = def.long || def.short;
-
             definitionModal.classList.remove('hidden');
-            setTimeout(() => {
-                definitionModal.classList.add('modal-active');
-            }, 10);
+            setTimeout(() => { definitionModal.classList.add('modal-active'); }, 10);
         }
 
         function closeDefinitionModal() {
             definitionModal.classList.remove('modal-active');
-            setTimeout(() => {
-                definitionModal.classList.add('hidden');
-            }, 200);
+            setTimeout(() => { definitionModal.classList.add('hidden'); }, 200);
         }
-
 
         // Icons Dictionary
         const icons = {
@@ -1149,7 +1385,7 @@
             'Pinterest': [5, 5, 6, 8, 12, 15, 18, 25, 30, 40, 42, 38, 45]
         };
         
-        let currentInterestMode = 'Google'; // Default to Google
+        let currentInterestMode = 'Google';
 
         const ctxInterest = document.getElementById('interestChart').getContext('2d');
         const interestChart = new Chart(ctxInterest, {
@@ -1157,8 +1393,8 @@
             data: {
                 labels: ['Nov 18', 'Nov 20', 'Nov 22', 'Nov 24', 'Nov 26', 'Nov 28', 'Nov 29', 'Dec 1', 'Dec 3', 'Dec 5', 'Dec 6', 'Dec 7', 'Dec 8'],
                 datasets: [{
-                    data: interestDataSets['Google'], // Default data to Google
-                    borderColor: '#ffffff', // Default color to Google (white)
+                    data: interestDataSets['Google'],
+                    borderColor: '#ffffff',
                     backgroundColor: 'transparent',
                     borderWidth: 3,
                     pointBackgroundColor: '#fff',
@@ -1211,17 +1447,19 @@
             }
         };
 
-        // Audience Bar Chart
+        // Audience Bar Chart (existing card)
+        const audienceDataConfig = {
+            labels: ['13-17', '18-24', '25-34', '35-44', '45+'],
+            datasets: [
+                { label: 'Male', data: [5, 60, 80, 20, 5], backgroundColor: '#0ea5e9' },
+                { label: 'Female', data: [20, 90, 40, 15, 5], backgroundColor: '#8b5cf6' }
+            ]
+        };
+
         const ctxAudience = document.getElementById('audienceChart').getContext('2d');
         new Chart(ctxAudience, {
             type: 'bar',
-            data: {
-                labels: ['13-17', '18-24', '25-34', '35-44', '45+'],
-                datasets: [
-                    { label: 'Male', data: [5, 60, 80, 20, 5], backgroundColor: '#0ea5e9' },
-                    { label: 'Female', data: [20, 90, 40, 15, 5], backgroundColor: '#8b5cf6' }
-                ]
-            },
+            data: audienceDataConfig,
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
@@ -1236,7 +1474,6 @@
         // --- Populating Stats ---
         const populateStats = (id, data) => {
             const container = document.getElementById(id);
-            // Removed onmouseenter and onmouseleave, kept onclick
             container.innerHTML = data.map(item => `
                 <div class="flex justify-between items-center text-xs md:text-sm py-1 border-b border-inner last:border-0 cursor-help hover:bg-white/5 transition-colors px-1 -mx-1 rounded" 
                      onclick="toggleTooltip(event, '${item.label}')">
@@ -1307,14 +1544,14 @@
 
         // --- Keywords ---
         const keywords = [
-            { word: "Non-profit innovation", vol: "12K", cpc: "$4.50", comp: "Med" },
-            { word: "Gen Z political engagement", vol: "8.5K", cpc: "$3.20", comp: "Low" },
-            { word: "Sustainable tech policy", vol: "5K", cpc: "$7.10", comp: "High" },
-            { word: "Digital equity initiatives", vol: "3.2K", cpc: "$5.00", comp: "Med" },
-            { word: "Climate justice leadership", vol: "9K", cpc: "$2.80", comp: "Med" },
-            { word: "Progressive fundraising strategies", vol: "1.5K", cpc: "$9.00", comp: "High" },
-            { word: "Youth advocacy organizations", vol: "6K", cpc: "$1.50", comp: "Low" },
-            { word: "Ethical AI governance", vol: "15K", cpc: "$12.00", comp: "High" }
+            { word: "Non-profit innovation", vol: "12K", cpc: "$4.50", comp: "Med", category: "Mission" },
+            { word: "Gen Z political engagement", vol: "8.5K", cpc: "$3.20", comp: "Low", category: "Audience" },
+            { word: "Sustainable tech policy", vol: "5K", cpc: "$7.10", comp: "High", category: "Issue" },
+            { word: "Digital equity initiatives", vol: "3.2K", cpc: "$5.00", comp: "Med", category: "Mission" },
+            { word: "Climate justice leadership", vol: "9K", cpc: "$2.80", comp: "Med", category: "Issue" },
+            { word: "Progressive fundraising strategies", vol: "1.5K", cpc: "$9.00", comp: "High", category: "Operations" },
+            { word: "Youth advocacy organizations", vol: "6K", cpc: "$1.50", comp: "Low", category: "Audience" },
+            { word: "Ethical AI governance", vol: "15K", cpc: "$12.00", comp: "High", category: "Issue" }
         ];
         const keywordList = document.getElementById('keywordList');
         keywordList.innerHTML = keywords.map(k => `
@@ -1378,43 +1615,75 @@
 
         // --- Tab Switcher ---
         let networkInitialized = false;
+        let audiencePreviewInitialized = false;
+        let currentInnerTab = 'region';
+
         window.switchTab = (tab) => {
-            ['view-region', 'view-network', 'view-keywords'].forEach(id => {
+            currentInnerTab = tab;
+            ['view-region', 'view-network', 'view-keywords', 'view-audience', 'view-content'].forEach(id => {
                 const el = document.getElementById(id);
+                if (!el) return;
                 el.style.opacity = '0';
                 el.style.pointerEvents = 'none';
                 el.style.zIndex = '0';
             });
             
-            ['tab-region', 'tab-network', 'tab-keywords'].forEach(id => {
-               document.getElementById(id).className = 'tab-btn hover:text-card-base transition-colors text-gray-400';
+            ['tab-region', 'tab-network', 'tab-keywords', 'tab-audience', 'tab-content'].forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.className = 'tab-btn hover:text-card-base transition-colors text-gray-400';
             });
 
             const target = document.getElementById(`view-${tab}`);
             const btn = document.getElementById(`tab-${tab}`);
             
-            target.style.opacity = '1';
-            target.style.pointerEvents = 'auto';
-            target.style.zIndex = '10';
-            btn.className = 'tab-btn text-accent';
+            if (target) {
+                target.style.opacity = '1';
+                target.style.pointerEvents = 'auto';
+                target.style.zIndex = '10';
+            }
+            if (btn) btn.className = 'tab-btn text-accent';
 
             if(tab === 'network' && !networkInitialized) {
-                initNetwork();
+                initNetwork('mynetwork', false);
                 networkInitialized = true;
+            }
+            if(tab === 'audience' && !audiencePreviewInitialized) {
+                initAudiencePreview();
+                audiencePreviewInitialized = true;
+            }
+            if(tab === 'content') {
+                renderContentPreview();
             }
         };
 
-        // --- Vis.js Network ---
-        function initNetwork() {
-            const nodes = new vis.DataSet([
-                { id: 1, label: 'Cole Holland', shape: 'image', image: 'https://weareypi.com/wp-content/uploads/2024/09/YPI-Site-Images_4.jpg', size: 40, color: { border: '#98fb98', background: '#000' } },
-                { id: 2, label: 'Maya (Ops)', group: 'core' }, { id: 3, label: 'Liam (Tech)', group: 'core' },
-                { id: 4, label: 'Sofia (Outreach)', group: 'core' }, { id: 5, label: 'Marcus (Finance)', group: 'core' },
-                { id: 6, label: 'Senator Hayes', group: 'partner' }, { id: 7, label: 'EcoAction Now', group: 'partner' },
-                { id: 8, label: 'Civic Tech', group: 'partner' }, { id: 9, label: 'Daily Pulse', group: 'media' },
-                { id: 10, label: 'The Guardian', group: 'media' }
-            ]);
+        // Expand button on the multi-tab card
+        document.getElementById('expandActiveTabBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const tabToModal = {
+                region: openRegionModal,
+                network: openNetworkModal,
+                keywords: openKeywordsModal,
+                audience: openAudienceModal,
+                content: openContentModal
+            };
+            (tabToModal[currentInnerTab] || openRegionModal)();
+        });
 
+        // --- Vis.js Network (small preview) ---
+        function buildNetworkData() {
+            const nodes = new vis.DataSet([
+                { id: 1, label: 'Cole Holland', shape: 'image', image: 'https://weareypi.com/wp-content/uploads/2024/09/YPI-Site-Images_4.jpg', size: 40, color: { border: '#98fb98', background: '#000' }, role: 'Hub', desc: 'Central node — Cole Holland, founder and CEO.' },
+                { id: 2, label: 'Maya (Ops)', group: 'core', role: 'Core Team', desc: 'Head of Operations. Coordinates field campaigns and logistics.' },
+                { id: 3, label: 'Liam (Tech)', group: 'core', role: 'Core Team', desc: 'Lead engineer. Owns the YPI data platform.' },
+                { id: 4, label: 'Sofia (Outreach)', group: 'core', role: 'Core Team', desc: 'Outreach lead. Builds community and donor relationships.' },
+                { id: 5, label: 'Marcus (Finance)', group: 'core', role: 'Core Team', desc: 'CFO. Owns budgeting and grant management.' },
+                { id: 6, label: 'Senator Hayes', group: 'partner', role: 'Partner', desc: 'Political partner — joint campaign for County Executive.' },
+                { id: 7, label: 'EcoAction Now', group: 'partner', role: 'Partner', desc: 'Climate-focused NGO. Cross-promotion on policy.' },
+                { id: 8, label: 'Civic Tech', group: 'partner', role: 'Partner', desc: 'Civic tech consultancy. Joint product builds.' },
+                { id: 9, label: 'Daily Pulse', group: 'media', role: 'Media', desc: 'Podcast network — recurring guest appearances.' },
+                { id: 10, label: 'The Guardian', group: 'media', role: 'Media', desc: 'Coverage in the international press.' }
+            ]);
             const edges = new vis.DataSet([
                 { from: 1, to: 2 }, { from: 1, to: 3 }, { from: 1, to: 4 }, { from: 1, to: 5 },
                 { from: 1, to: 6 }, { from: 1, to: 7 }, { from: 1, to: 8 },
@@ -1422,15 +1691,18 @@
                 { from: 2, to: 5, dashes: true }, { from: 3, to: 8, dashes: true },
                 { from: 6, to: 7, dashes: true }, { from: 10, to: 6, dashes: true }
             ]);
+            return { nodes, edges };
+        }
 
-            const container = document.getElementById('mynetwork');
+        function initNetwork(containerId, large) {
+            const { nodes, edges } = buildNetworkData();
+            const container = document.getElementById(containerId);
             const data = { nodes: nodes, edges: edges };
-            
             const options = {
                 nodes: { 
                     shape: 'dot', 
-                    size: 15, 
-                    font: { color: '#888', face: 'Atkinson Hyperlegible' },
+                    size: large ? 20 : 15, 
+                    font: { color: '#888', face: 'Atkinson Hyperlegible', size: large ? 14 : 12 },
                     borderWidth: 2
                 },
                 groups: {
@@ -1438,68 +1710,69 @@
                     partner: { color: { background: '#f97316', border: '#fff' } },
                     media: { color: { background: '#a855f7', border: '#fff' } }
                 },
-                edges: { color: '#666', width: 1 },
-                physics: { stabilization: false, barnesHut: { gravitationalConstant: -2000 } }
+                edges: { color: '#666', width: 1, smooth: { type: 'continuous' } },
+                physics: { stabilization: false, barnesHut: { gravitationalConstant: large ? -3500 : -2000 } },
+                interaction: { hover: true, tooltipDelay: 200 }
             };
-            new vis.Network(container, data, options);
+            const network = new vis.Network(container, data, options);
+
+            if (large) {
+                network.on('selectNode', (params) => {
+                    const id = params.nodes[0];
+                    const node = nodes.get(id);
+                    const detail = document.getElementById('networkNodeDetail');
+                    detail.innerHTML = `
+                        <div class="font-bold mb-1" style="color: var(--text-primary)">${node.label}</div>
+                        <div class="text-accent text-[10px] uppercase tracking-widest mb-2">${node.role || 'Node'}</div>
+                        <p>${node.desc || 'No additional information available.'}</p>
+                    `;
+                });
+                network.on('deselectNode', () => {
+                    document.getElementById('networkNodeDetail').innerHTML = `<p class="italic">Click any node to see relationship details.</p>`;
+                });
+            }
+            return network;
         }
 
         switchTab('region');
 
-        // --- Google Modal Logic ---
+        // ===================== Modal helpers (shared open/close pattern) =====================
+        function openModalById(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('modal-active'), 10);
+        }
+        function closeModalById(id) {
+            const modal = document.getElementById(id);
+            modal.classList.remove('modal-active');
+            setTimeout(() => modal.classList.add('hidden'), 200);
+        }
+
+        // --- Google Modal Logic (existing) ---
         const modal = document.getElementById('googleModal');
         let modalChartInstance = null;
-
-        // Hide modal initially (better than inline style for transition)
         modal.classList.add('hidden');
-        modal.classList.remove('modal-enter'); // Reset state
+        modal.classList.remove('modal-enter');
 
         function openGoogleModal() {
-            modal.classList.remove('hidden');
-            // Small timeout to allow display:block to apply before opacity transition
-            setTimeout(() => {
-                modal.classList.add('modal-active');
-            }, 10);
-            
-            // Render chart if not already rendered
-            if (!modalChartInstance) {
-                renderModalChart();
-            }
+            openModalById('googleModal');
+            if (!modalChartInstance) renderModalChart();
         }
+        function closeGoogleModal() { closeModalById('googleModal'); }
 
-        function closeGoogleModal() {
-            modal.classList.remove('modal-active');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-            }, 200); // Wait for transition
-        }
-
-        // --- Pinterest Modal Logic ---
+        // --- Pinterest Modal Logic (existing) ---
         const pinterestModal = document.getElementById('pinterestModal');
         let pinterestModalChartInstance = null;
-
         pinterestModal.classList.add('hidden');
         pinterestModal.classList.remove('modal-enter');
 
         function openPinterestModal() {
-            pinterestModal.classList.remove('hidden');
-            setTimeout(() => {
-                pinterestModal.classList.add('modal-active');
-            }, 10);
-            
-            if (!pinterestModalChartInstance) {
-                renderPinterestModalChart();
-            }
+            openModalById('pinterestModal');
+            if (!pinterestModalChartInstance) renderPinterestModalChart();
         }
+        function closePinterestModal() { closeModalById('pinterestModal'); }
 
-        function closePinterestModal() {
-            pinterestModal.classList.remove('modal-active');
-            setTimeout(() => {
-                pinterestModal.classList.add('hidden');
-            }, 200);
-        }
-
-        // --- Sponsorships Modal Logic ---
+        // --- Sponsorships Modal Logic (existing) ---
         const sponsorshipsModal = document.getElementById('sponsorshipsModal');
         sponsorshipsModal.classList.add('hidden');
         sponsorshipsModal.classList.remove('modal-enter');
@@ -1515,7 +1788,6 @@
                 { platform: 'Twitch', vids: '1200h', spon: 4, mins: 3200, ret: '99%', align: 92, rar: 108, ctar: '2.5%', psar: 96, icon: 'twitch' },
                 { platform: 'Rumble', vids: 15, spon: 0, mins: 120, ret: '70%', align: 75, rar: 80, ctar: '1.5%', psar: 78, icon: 'rumble' }
             ];
-
             const isLight = document.body.classList.contains('light-mode');
             const highlightClass = isLight ? 'bg-black/10' : 'bg-[#333]';
             const hoverClass = isLight ? 'hover:bg-black/5' : 'hover:bg-[#333]';
@@ -1525,18 +1797,12 @@
                 const rowClass = item.highlight 
                     ? `${highlightClass} border-b ${borderClass}` 
                     : `group ${hoverClass} transition-colors border-b ${borderClass}`;
-                
-                // Scale up icons slightly for this view
                 let iconHtml = icons[item.icon] || '';
                 iconHtml = iconHtml.replace('w-4 h-4', 'w-6 h-6');
-
                 return `
                     <tr class="${rowClass}">
                         <td class="py-4 pl-4 font-bold text-xl italic" style="color: var(--text-primary)">
-                            <div class="flex items-center gap-3">
-                                ${iconHtml}
-                                <span>${item.platform}</span>
-                            </div>
+                            <div class="flex items-center gap-3">${iconHtml}<span>${item.platform}</span></div>
                         </td>
                         <td class="text-center">${item.vids}</td>
                         <td class="text-center">${item.spon}</td>
@@ -1553,96 +1819,44 @@
 
         function openSponsorshipsModal() {
             renderSponsorshipsModalTable();
-            sponsorshipsModal.classList.remove('hidden');
-            setTimeout(() => {
-                sponsorshipsModal.classList.add('modal-active');
-            }, 10);
+            openModalById('sponsorshipsModal');
         }
+        function closeSponsorshipsModal() { closeModalById('sponsorshipsModal'); }
 
-        function closeSponsorshipsModal() {
-            sponsorshipsModal.classList.remove('modal-active');
-            setTimeout(() => {
-                sponsorshipsModal.classList.add('hidden');
-            }, 200);
-        }
-
-        // Add Click Listener to Main Chart Container
+        // Click on main interest chart -> Google/Pinterest modal
         const chartContainer = document.getElementById('chartContainer');
         chartContainer.addEventListener('click', () => {
-            if (currentInterestMode === 'Google') {
-                openGoogleModal();
-            } else if (currentInterestMode === 'Pinterest') {
-                openPinterestModal();
-            }
+            if (currentInterestMode === 'Google') openGoogleModal();
+            else if (currentInterestMode === 'Pinterest') openPinterestModal();
         });
 
         function renderModalChart() {
             const ctx = document.getElementById('googleModalChart').getContext('2d');
             const isLight = document.body.classList.contains('light-mode');
-            
-            // Mock Data matching the screenshot curve (steady rise, small dips, sharp peak, drop)
             const labels = ['1 Jun', '1 Jul', '1 Aug', '1 Sep', '1 Oct', '1 Nov', '1 Dec', '1 Jan', '1 Feb', '1 Mar', '1 Apr', '1 May', '1 Jun', '1 Jul', '1 Aug', '1 Sep'];
             const dataPoints = [5, 8, 12, 15, 14, 18, 22, 28, 35, 38, 45, 50, 65, 85, 95, 25];
-
             modalChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Interest',
-                        data: dataPoints,
-                        borderColor: '#98fb98', // Green neon
-                        backgroundColor: 'rgba(152, 251, 152, 0.05)',
-                        borderWidth: 2,
-                        pointRadius: 0, // No points usually on these trend lines
-                        pointHoverRadius: 4,
-                        fill: true,
-                        tension: 0.4 // Smooth curve
-                    },
-                    {
-                        // The end point dot
+                        label: 'Interest', data: dataPoints,
+                        borderColor: '#98fb98', backgroundColor: 'rgba(152, 251, 152, 0.05)',
+                        borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, fill: true, tension: 0.4
+                    },{
                         data: dataPoints.map((v, i) => i === dataPoints.length - 1 ? v : null),
-                        pointRadius: 4,
-                        pointBackgroundColor: '#a855f7', // Purple dot at end
-                        borderColor: isLight ? '#fff' : '#333',
-                        showLine: false
+                        pointRadius: 4, pointBackgroundColor: '#a855f7',
+                        borderColor: isLight ? '#fff' : '#333', showLine: false
                     }]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { display: false },
-                        tooltip: { 
-                            mode: 'index', 
-                            intersect: false,
-                            backgroundColor: isLight ? '#fff' : '#333',
-                            titleColor: isLight ? '#000' : '#fff',
-                            bodyColor: isLight ? '#666' : '#ccc',
-                            borderColor: isLight ? '#e5e7eb' : '#333',
-                            borderWidth: 1
-                        } 
-                    },
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false, backgroundColor: isLight ? '#fff' : '#333', titleColor: isLight ? '#000' : '#fff', bodyColor: isLight ? '#666' : '#ccc', borderColor: isLight ? '#e5e7eb' : '#333', borderWidth: 1 } },
                     scales: {
-                        x: { 
-                            grid: { color: isLight ? '#e5e7eb' : '#333', drawBorder: false },
-                            ticks: { color: isLight ? '#666' : '#999', maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } 
-                        },
-                        y: { 
-                            display: true,
-                            grid: { color: isLight ? '#e5e7eb' : '#333', borderDash: [5, 5] },
-                            ticks: { 
-                                color: isLight ? '#666' : '#999',
-                                precision: 0
-                            },
-                            beginAtZero: true
-                        }
+                        x: { grid: { color: isLight ? '#e5e7eb' : '#333', drawBorder: false }, ticks: { color: isLight ? '#666' : '#999', maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } },
+                        y: { display: true, grid: { color: isLight ? '#e5e7eb' : '#333', borderDash: [5, 5] }, ticks: { color: isLight ? '#666' : '#999', precision: 0 }, beginAtZero: true }
                     },
-                    interaction: {
-                        mode: 'nearest',
-                        axis: 'x',
-                        intersect: false
-                    }
+                    interaction: { mode: 'nearest', axis: 'x', intersect: false }
                 }
             });
         }
@@ -1650,75 +1864,464 @@
         function renderPinterestModalChart() {
             const ctx = document.getElementById('pinterestModalChart').getContext('2d');
             const isLight = document.body.classList.contains('light-mode');
-            
-            // Mock Data for Pinterest (More steady growth, less spikes)
             const labels = ['1 Jun', '1 Jul', '1 Aug', '1 Sep', '1 Oct', '1 Nov', '1 Dec', '1 Jan', '1 Feb', '1 Mar', '1 Apr', '1 May', '1 Jun', '1 Jul', '1 Aug', '1 Sep'];
             const dataPoints = [10, 12, 15, 18, 20, 25, 30, 32, 35, 40, 42, 45, 48, 50, 55, 60];
-
             pinterestModalChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Interest',
-                        data: dataPoints,
-                        borderColor: '#ef4444', // Pinterest Red
-                        backgroundColor: 'rgba(239, 68, 68, 0.05)',
-                        borderWidth: 2,
-                        pointRadius: 0,
-                        pointHoverRadius: 4,
-                        fill: true,
-                        tension: 0.4
-                    },
-                    {
+                        label: 'Interest', data: dataPoints,
+                        borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.05)',
+                        borderWidth: 2, pointRadius: 0, pointHoverRadius: 4, fill: true, tension: 0.4
+                    },{
                         data: dataPoints.map((v, i) => i === dataPoints.length - 1 ? v : null),
-                        pointRadius: 4,
-                        pointBackgroundColor: '#ef4444',
-                        borderColor: isLight ? '#fff' : '#333',
-                        showLine: false
+                        pointRadius: 4, pointBackgroundColor: '#ef4444',
+                        borderColor: isLight ? '#fff' : '#333', showLine: false
                     }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false, backgroundColor: isLight ? '#fff' : '#333', titleColor: isLight ? '#000' : '#fff', bodyColor: isLight ? '#666' : '#ccc', borderColor: isLight ? '#e5e7eb' : '#333', borderWidth: 1 } },
+                    scales: {
+                        x: { grid: { color: isLight ? '#e5e7eb' : '#333', drawBorder: false }, ticks: { color: isLight ? '#666' : '#999', maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } },
+                        y: { display: true, grid: { color: isLight ? '#e5e7eb' : '#333', borderDash: [5, 5] }, ticks: { color: isLight ? '#666' : '#999', precision: 0 }, beginAtZero: true }
+                    },
+                    interaction: { mode: 'nearest', axis: 'x', intersect: false }
+                }
+            });
+        }
+
+        // ===================== NEW MODAL LOGIC =====================
+
+        // ---- 1. Creator Network Modal ----
+        const networkModal = document.getElementById('networkModal');
+        networkModal.classList.add('hidden');
+        networkModal.classList.remove('modal-enter');
+        let networkLargeInitialized = false;
+        let networkLargeInstance = null;
+
+        function openNetworkModal() {
+            openModalById('networkModal');
+            if (!networkLargeInitialized) {
+                // Allow modal to lay out first
+                setTimeout(() => {
+                    networkLargeInstance = initNetwork('mynetworkLarge', true);
+                    networkLargeInitialized = true;
+                }, 50);
+            } else if (networkLargeInstance) {
+                setTimeout(() => networkLargeInstance.fit(), 60);
+            }
+        }
+        function closeNetworkModal() { closeModalById('networkModal'); }
+
+        // ---- 2. Keywords Modal ----
+        const keywordsModal = document.getElementById('keywordsModal');
+        keywordsModal.classList.add('hidden');
+        keywordsModal.classList.remove('modal-enter');
+        let keywordsRendered = false;
+
+        function compClass(comp) {
+            return comp === 'High' ? 'bg-red-500/20 text-red-400 border-red-500/30'
+                : comp === 'Med' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+                : 'bg-green-500/20 text-green-400 border-green-500/30';
+        }
+
+        function renderKeywordsModal() {
+            // Tag cloud — size by volume
+            const cloud = document.getElementById('keywordCloud');
+            cloud.innerHTML = keywords.map((k, i) => {
+                const vol = parseFloat(k.vol);
+                const fontSize = 12 + Math.min(14, Math.round(vol * 0.8));
+                return `
+                <div class="keyword-chip rounded-full border px-3 py-1 cursor-default" style="border-color: var(--border-inner); background-color: var(--card-bg); font-size: ${fontSize}px; color: var(--text-primary)">
+                    <span class="text-accent">#</span>${k.word}
+                </div>`;
+            }).join('');
+
+            // Top performers (sorted by approx volume desc)
+            const top = [...keywords].sort((a,b) => parseFloat(b.vol) - parseFloat(a.vol)).slice(0, 5);
+            const topList = document.getElementById('keywordTopList');
+            topList.innerHTML = top.map((k, i) => `
+                <div class="flex justify-between items-center py-1 border-b last:border-0" style="border-color: var(--border-inner)">
+                    <div class="flex items-center gap-2">
+                        <span class="text-accent font-bold w-5">#${i+1}</span>
+                        <span style="color: var(--text-primary)">${k.word}</span>
+                    </div>
+                    <span class="text-[10px] font-bold" style="color: var(--text-secondary)">${k.vol}</span>
+                </div>
+            `).join('');
+
+            // Category grid
+            const grouped = {};
+            keywords.forEach(k => {
+                if (!grouped[k.category]) grouped[k.category] = [];
+                grouped[k.category].push(k);
+            });
+            const grid = document.getElementById('keywordCategoryGrid');
+            grid.innerHTML = Object.keys(grouped).map(cat => `
+                <div class="rounded-lg border p-3" style="background-color: var(--card-bg); border-color: var(--border-inner)">
+                    <div class="text-accent font-bold italic text-[11px] uppercase tracking-wider mb-2">${cat}</div>
+                    <div class="space-y-2">
+                        ${grouped[cat].map(k => `
+                            <div class="keyword-chip flex items-center justify-between p-2 rounded border keyword-row" style="border-color: var(--border-inner)" data-keyword="${k.word.toLowerCase()}">
+                                <div class="flex flex-col">
+                                    <span class="text-xs font-medium" style="color: var(--text-primary)">${k.word}</span>
+                                    <div class="flex gap-3 text-[10px] mt-1" style="color: var(--text-secondary)">
+                                        <span class="flex items-center gap-1"><i data-lucide="trending-up" class="w-3"></i> ${k.vol}</span>
+                                        <span class="flex items-center gap-1"><i data-lucide="dollar-sign" class="w-3"></i> ${k.cpc}</span>
+                                    </div>
+                                </div>
+                                <div class="text-[10px] font-bold px-2 py-1 rounded border ${compClass(k.comp)}">${k.comp.toUpperCase()}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            // Re-create icons inside modal
+            lucide.createIcons();
+            document.getElementById('keywordSearchCount').textContent = `${keywords.length} keywords`;
+        }
+
+        function openKeywordsModal() {
+            if (!keywordsRendered) {
+                renderKeywordsModal();
+                keywordsRendered = true;
+            }
+            openModalById('keywordsModal');
+        }
+        function closeKeywordsModal() { closeModalById('keywordsModal'); }
+
+        // Search filter
+        document.getElementById('keywordSearch').addEventListener('input', (e) => {
+            const q = e.target.value.toLowerCase().trim();
+            const rows = document.querySelectorAll('.keyword-row');
+            let visible = 0;
+            rows.forEach(r => {
+                const k = r.getAttribute('data-keyword') || '';
+                const match = !q || k.includes(q);
+                r.style.display = match ? '' : 'none';
+                if (match) visible++;
+            });
+            document.getElementById('keywordSearchCount').textContent = `${visible} keyword${visible === 1 ? '' : 's'}`;
+        });
+
+        // ---- 3. Region Modal ----
+        const regionModal = document.getElementById('regionModal');
+        regionModal.classList.add('hidden');
+        regionModal.classList.remove('modal-enter');
+
+        const regionData = {
+            Google: [
+                { name: 'United States', code: 'us', val: 92, x: 200, y: 150, trend: '+12%' },
+                { name: 'United Kingdom', code: 'gb', val: 5, x: 490, y: 110, trend: '+3%' },
+                { name: 'Canada', code: 'ca', val: 3, x: 200, y: 80, trend: '0%' },
+                { name: 'Australia', code: 'au', val: 2, x: 870, y: 380, trend: '+1%' }
+            ],
+            Pinterest: [
+                { name: 'United States', code: 'us', val: 85, x: 200, y: 150, trend: '+18%' },
+                { name: 'Germany', code: 'de', val: 9, x: 530, y: 120, trend: '+4%' },
+                { name: 'France', code: 'fr', val: 6, x: 505, y: 135, trend: '+2%' }
+            ],
+            Overall: [
+                { name: 'United States', code: 'us', val: 97, x: 200, y: 150, trend: '+15%' },
+                { name: 'Brazil', code: 'br', val: 2, x: 300, y: 350, trend: '+1%' },
+                { name: 'Israel', code: 'il', val: 1, x: 585, y: 165, trend: '0%' }
+            ]
+        };
+
+        let currentRegionSource = 'Google';
+
+        function setRegionSource(src) {
+            currentRegionSource = src;
+            // toggle button highlight
+            ['Google','Pinterest','Overall'].forEach(s => {
+                const el = document.getElementById('regionSrc' + s);
+                if (s === src) {
+                    el.style.borderColor = 'var(--accent-color)';
+                    el.style.color = 'var(--accent-color)';
+                } else {
+                    el.style.borderColor = 'var(--border-inner)';
+                    el.style.color = 'var(--text-secondary)';
+                }
+            });
+            renderRegionModal();
+        }
+
+        function getRegionColor(src) {
+            const isLight = document.body.classList.contains('light-mode');
+            if (src === 'Pinterest') return '#ef4444';
+            if (src === 'Google') return isLight ? '#1c1c1c' : '#ffffff';
+            return isLight ? '#16a34a' : '#98fb98';
+        }
+
+        function renderRegionModal() {
+            const data = regionData[currentRegionSource];
+            const color = getRegionColor(currentRegionSource);
+
+            document.getElementById('regionModalSubtitle').textContent = `Geographic Distribution (${currentRegionSource})`;
+            document.getElementById('regionModalMapTitle').textContent = `Interest by Region (${currentRegionSource})`;
+
+            // Map highlights
+            const highlights = document.getElementById('mapHighlightsLarge');
+            highlights.innerHTML = data.map((d, i) => {
+                const r = i === 0 ? 14 : (i === 1 ? 10 : 7);
+                return `<circle cx="${d.x}" cy="${d.y}" r="${r}" fill="${color}" class="map-pulse" style="opacity:0.9"/>`;
+            }).join('');
+
+            // Ranking table
+            const table = document.getElementById('regionRankTable');
+            table.innerHTML = data.map((d, i) => `
+                <tr class="border-b last:border-0" style="border-color: var(--border-inner)">
+                    <td class="py-2 flex items-center gap-2">
+                        <span class="text-accent font-bold w-4">${i+1}</span>
+                        <img src="https://flagcdn.com/w20/${d.code}.png" class="h-3 rounded-sm" onerror="this.style.display='none'">
+                        <span>${d.name}</span>
+                    </td>
+                    <td class="text-right font-bold">${d.val}</td>
+                    <td class="text-right text-accent">${d.trend}</td>
+                </tr>
+            `).join('');
+
+            // Country detail cards
+            const cards = document.getElementById('regionCountryCards');
+            cards.innerHTML = data.map((d, i) => `
+                <div class="country-card rounded-lg border p-3" style="background-color: var(--card-bg); border-color: var(--border-inner)">
+                    <div class="flex items-center gap-2 mb-2">
+                        <img src="https://flagcdn.com/w40/${d.code}.png" class="h-4 rounded-sm" onerror="this.style.display='none'">
+                        <span class="font-bold" style="color: var(--text-primary)">${d.name}</span>
+                    </div>
+                    <div class="text-[10px] uppercase tracking-widest mb-1" style="color: var(--text-secondary)">Interest Score</div>
+                    <div class="font-extrabold text-2xl" style="color: ${color}">${d.val}</div>
+                    <div class="flex justify-between items-center mt-2 text-[11px]" style="color: var(--text-secondary)">
+                        <span>Trend (90d)</span>
+                        <span class="text-accent font-bold">${d.trend}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openRegionModal() {
+            renderRegionModal();
+            openModalById('regionModal');
+        }
+        function closeRegionModal() { closeModalById('regionModal'); }
+        // initial highlight on the source switcher
+        setRegionSource('Google');
+
+        // ---- 4. Audience Modal ----
+        const audienceModal = document.getElementById('audienceModal');
+        audienceModal.classList.add('hidden');
+        audienceModal.classList.remove('modal-enter');
+        let audienceModalChart = null;
+        let audiencePreviewChart = null;
+
+        function audienceEngagement() {
+            return [
+                { bracket: '13-17', reach: '25K', er: 80, growth: '+1.2%' },
+                { bracket: '18-24', reach: '150K', er: 112, growth: '+18.4%' },
+                { bracket: '25-34', reach: '220K', er: 98, growth: '+12.0%' },
+                { bracket: '35-44', reach: '60K', er: 92, growth: '+8.5%' },
+                { bracket: '45+', reach: '15K', er: 70, growth: '+2.1%' }
+            ];
+        }
+
+        function renderAudienceEngagementTable() {
+            const tbody = document.getElementById('audienceEngagementTable');
+            tbody.innerHTML = audienceEngagement().map(r => `
+                <tr class="border-b last:border-0" style="border-color: var(--border-inner)">
+                    <td class="py-2 font-bold">${r.bracket}</td>
+                    <td class="text-right">${r.reach}</td>
+                    <td class="text-right ${r.er >= 100 ? 'text-accent' : ''}">${r.er}</td>
+                    <td class="text-right text-accent">${r.growth}</td>
+                </tr>
+            `).join('');
+        }
+
+        function buildAudienceModalChart() {
+            const ctx = document.getElementById('audienceModalChart').getContext('2d');
+            const isLight = document.body.classList.contains('light-mode');
+            if (audienceModalChart) { audienceModalChart.destroy(); audienceModalChart = null; }
+            audienceModalChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['13-17', '18-24', '25-34', '35-44', '45+'],
+                    datasets: [
+                        { label: 'Male', data: [5, 60, 80, 20, 5], backgroundColor: '#0ea5e9' },
+                        { label: 'Female', data: [20, 90, 40, 15, 5], backgroundColor: '#8b5cf6' },
+                        { label: 'Engagement Overlay', type: 'line', data: [80, 112, 98, 92, 70], borderColor: '#98fb98', backgroundColor: 'transparent', borderWidth: 2, tension: 0.3, pointRadius: 3, yAxisID: 'y1' }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { 
-                        legend: { display: false },
-                        tooltip: { 
-                            mode: 'index', 
-                            intersect: false,
-                            backgroundColor: isLight ? '#fff' : '#333',
-                            titleColor: isLight ? '#000' : '#fff',
-                            bodyColor: isLight ? '#666' : '#ccc',
-                            borderColor: isLight ? '#e5e7eb' : '#333',
-                            borderWidth: 1
-                        } 
-                    },
+                    plugins: { legend: { labels: { color: isLight ? '#444' : '#ccc', font: { size: 11 } } } },
                     scales: {
-                        x: { 
-                            grid: { color: isLight ? '#e5e7eb' : '#333', drawBorder: false },
-                            ticks: { color: isLight ? '#666' : '#999', maxRotation: 0, autoSkip: true, maxTicksLimit: 8 } 
-                        },
-                        y: { 
-                            display: true,
-                            grid: { color: isLight ? '#e5e7eb' : '#333', borderDash: [5, 5] },
-                            ticks: { 
-                                color: isLight ? '#666' : '#999',
-                                precision: 0
-                            },
-                            beginAtZero: true
-                        }
-                    },
-                    interaction: {
-                        mode: 'nearest',
-                        axis: 'x',
-                        intersect: false
+                        x: { ticks: { color: isLight ? '#444' : '#aaa' }, grid: { display: false } },
+                        y: { ticks: { color: isLight ? '#444' : '#aaa' }, grid: { color: isLight ? '#e5e7eb' : '#333', borderDash: [5,5] } },
+                        y1: { position: 'right', ticks: { color: '#98fb98' }, grid: { display: false }, beginAtZero: true }
                     }
                 }
             });
         }
+
+        function initAudiencePreview() {
+            const ctx = document.getElementById('audiencePreviewChart').getContext('2d');
+            audiencePreviewChart = new Chart(ctx, {
+                type: 'bar',
+                data: audienceDataConfig,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#999', font: { size: 10 } } } },
+                    scales: {
+                        x: { ticks: { color: '#666' }, grid: { display: false } },
+                        y: { display: false }
+                    }
+                }
+            });
+        }
+
+        function openAudienceModal() {
+            renderAudienceEngagementTable();
+            openModalById('audienceModal');
+            // Build chart after modal is visible
+            setTimeout(buildAudienceModalChart, 60);
+        }
+        function closeAudienceModal() { closeModalById('audienceModal'); }
+
+        // ---- 5. Recent Content Modal ----
+        const contentModal = document.getElementById('contentModal');
+        contentModal.classList.add('hidden');
+        contentModal.classList.remove('modal-enter');
+
+        const recentContent = [
+            { platform: 'youtube', title: 'Project Rudy: What Maryland Stands to Lose', date: '2 days ago', views: '128K', likes: '8.2K', comments: '742', thumb: 'https://placehold.co/400x225/1c1c1c/98fb98?text=YT+%E2%96%B6', preview: 'A 14-minute breakdown of the proposed legislation and its potential impact on community programs across Maryland.' },
+            { platform: 'instagram', title: 'On the road: organizing in Montgomery County', date: '4 days ago', views: '54K', likes: '5.1K', comments: '210', thumb: 'https://placehold.co/400x400/1c1c1c/98fb98?text=IG', preview: 'Carousel post from the latest field tour — six stops, hundreds of new volunteers signed up.' },
+            { platform: 'tiktok', title: 'Three things every young progressive should know', date: '6 days ago', views: '410K', likes: '38K', comments: '1.4K', thumb: 'https://placehold.co/400x600/1c1c1c/98fb98?text=TT', preview: 'Short-form explainer that went viral overnight, peaking at #3 in the politics tag.' },
+            { platform: 'linkedin', title: 'Why nonprofits need to rethink digital infrastructure', date: '1 week ago', views: '22K', likes: '1.3K', comments: '186', thumb: 'https://placehold.co/400x300/1c1c1c/98fb98?text=LI', preview: 'A long-form essay arguing for shared, open data platforms across nonprofit coalitions.' },
+            { platform: 'youtube', title: 'Live Q&A: County Executive Campaign with Senator Hayes', date: '1 week ago', views: '88K', likes: '6.4K', comments: '530', thumb: 'https://placehold.co/400x225/1c1c1c/98fb98?text=YT+LIVE', preview: 'Live-streamed conversation answering community questions about the joint endorsement.' },
+            { platform: 'instagram', title: 'Behind the scenes: YPI annual report shoot', date: '2 weeks ago', views: '38K', likes: '3.9K', comments: '154', thumb: 'https://placehold.co/400x400/1c1c1c/98fb98?text=IG', preview: 'A peek behind the visuals for the upcoming report — design-forward, data-driven.' },
+            { platform: 'tiktok', title: 'Town hall reaction: the moment that broke the internet', date: '2 weeks ago', views: '720K', likes: '64K', comments: '3.1K', thumb: 'https://placehold.co/400x600/1c1c1c/98fb98?text=TT', preview: 'Twelve-second clip from the Tuesday town hall that boosted week-over-week reach by 4x.' },
+            { platform: 'linkedin', title: 'Cole Holland named one of "30 Under 30" in civic tech', date: '3 weeks ago', views: '14K', likes: '1.1K', comments: '92', thumb: 'https://placehold.co/400x300/1c1c1c/98fb98?text=LI', preview: 'Recognition for sustained work building community-first technology infrastructure.' }
+        ];
+
+        const platformBadge = {
+            youtube: { label: 'YouTube', color: 'text-red-500', icon: 'youtube' },
+            instagram: { label: 'Instagram', color: 'text-pink-500', icon: 'instagram' },
+            tiktok: { label: 'TikTok', color: 'text-card-base', icon: 'tiktok' },
+            linkedin: { label: 'LinkedIn', color: 'text-blue-500', icon: 'linkedin' }
+        };
+
+        let contentFilter = 'all';
+
+        function renderContentGrid() {
+            const grid = document.getElementById('contentGrid');
+            const filtered = contentFilter === 'all' ? recentContent : recentContent.filter(c => c.platform === contentFilter);
+            grid.innerHTML = filtered.map((c, i) => {
+                const p = platformBadge[c.platform];
+                return `
+                <div class="content-card rounded-lg border overflow-hidden flex flex-col" style="background-color: var(--bg-header); border-color: var(--border-inner)">
+                    <div class="relative">
+                        <img src="${c.thumb}" alt="${c.title}" class="w-full h-40 object-cover" onerror="this.src='https://placehold.co/400x225/1c1c1c/98fb98?text=Preview'">
+                        <div class="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 rounded bg-black/70 text-[10px] font-bold ${p.color}">
+                            ${(icons[p.icon] || '').replace('w-4 h-4', 'w-3 h-3').replace('mr-2','mr-1')}
+                            <span>${p.label}</span>
+                        </div>
+                        <div class="absolute bottom-2 right-2 text-[10px] bg-black/70 text-white px-2 py-0.5 rounded">${c.date}</div>
+                    </div>
+                    <div class="p-3 flex flex-col flex-grow">
+                        <div class="font-bold text-sm leading-tight mb-2" style="color: var(--text-primary)">${c.title}</div>
+                        <div class="grid grid-cols-3 gap-1 text-[10px] mt-auto mb-2" style="color: var(--text-secondary)">
+                            <div class="flex flex-col items-center"><span class="text-accent font-bold">${c.views}</span><span>Views</span></div>
+                            <div class="flex flex-col items-center"><span class="text-accent font-bold">${c.likes}</span><span>Likes</span></div>
+                            <div class="flex flex-col items-center"><span class="text-accent font-bold">${c.comments}</span><span>Comments</span></div>
+                        </div>
+                        <button class="text-[11px] text-accent hover:underline flex items-center gap-1" onclick="toggleContentPreview(this)">
+                            <i data-lucide="chevron-down" class="w-3 h-3"></i> Preview
+                        </button>
+                        <div class="content-preview hidden mt-2 text-[11px] leading-relaxed pt-2 border-t" style="color: var(--text-secondary); border-color: var(--border-inner)">
+                            ${c.preview}
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function toggleContentPreview(btn) {
+            const preview = btn.parentElement.querySelector('.content-preview');
+            preview.classList.toggle('hidden');
+        }
+
+        function filterContent(p) {
+            contentFilter = p;
+            ['all','youtube','instagram','tiktok','linkedin'].forEach(k => {
+                const el = document.getElementById('contentFilter' + k.charAt(0).toUpperCase() + k.slice(1));
+                if (!el) return;
+                if (k === p) {
+                    el.style.borderColor = 'var(--accent-color)';
+                    el.style.color = 'var(--accent-color)';
+                } else {
+                    el.style.borderColor = 'var(--border-inner)';
+                    el.style.color = 'var(--text-secondary)';
+                }
+            });
+            renderContentGrid();
+        }
+
+        function openContentModal() {
+            renderContentGrid();
+            openModalById('contentModal');
+        }
+        function closeContentModal() { closeModalById('contentModal'); }
+
+        // Initial filter highlight
+        filterContent('all');
+
+        // Render preview list inside the multi-tab card (smaller version of content)
+        function renderContentPreview() {
+            const target = document.getElementById('contentPreviewList');
+            const preview = recentContent.slice(0, 3);
+            target.innerHTML = preview.map(c => {
+                const p = platformBadge[c.platform];
+                return `
+                <div class="flex gap-2 p-2 rounded border content-card" style="border-color: var(--border-inner); background-color: var(--card-bg)">
+                    <img src="${c.thumb}" class="w-16 h-16 object-cover rounded" onerror="this.src='https://placehold.co/64x64/1c1c1c/98fb98?text=•'">
+                    <div class="flex-grow min-w-0">
+                        <div class="flex items-center gap-1 text-[10px] mb-1 ${p.color}">
+                            ${(icons[p.icon] || '').replace('w-4 h-4', 'w-3 h-3').replace('mr-2','mr-1')}
+                            <span>${p.label}</span>
+                            <span class="ml-auto" style="color: var(--text-secondary)">${c.date}</span>
+                        </div>
+                        <div class="text-xs font-bold leading-tight truncate" style="color: var(--text-primary)">${c.title}</div>
+                        <div class="flex gap-2 text-[9px] mt-1" style="color: var(--text-secondary)">
+                            <span>${c.views} views</span>
+                            <span>${c.likes} likes</span>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        // Close any open modal on Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Escape') return;
+            ['googleModal','pinterestModal','sponsorshipsModal','definitionModal','networkModal','keywordsModal','regionModal','audienceModal','contentModal'].forEach(id => {
+                const m = document.getElementById(id);
+                if (m && !m.classList.contains('hidden') && m.classList.contains('modal-active')) {
+                    closeModalById(id);
+                }
+            });
+        });
         
         // Ensure UI is synced with Google default state on load
         updateInterestGraph('Google');
+
+        // Re-build icons after dynamic insertions
+        setTimeout(() => lucide.createIcons(), 100);
     </script>
 </body>
 </html>
