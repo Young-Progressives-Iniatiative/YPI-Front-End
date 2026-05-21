@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aesthetic Heat Map Generator v13</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --bg-main: #1c1c1c;
+            --bg-card: #2d2d2d;
+            --text-main: #ffffff;
+            --border-color: #404040;
+            --accent: #ff3842; /* Heat map max intensity */
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+        }
+
+        .bg-card { background-color: var(--bg-card); }
+        .border-theme { border-color: var(--border-color); }
+        
+        .text-accent { color: var(--accent); }
+        .bg-accent { background-color: var(--accent); }
+        .border-accent { border-color: var(--accent); }
+        
+        .heatmap-cell {
+            transition: all 0.2s;
+        }
+        .heatmap-cell:hover {
+            transform: scale(1.1);
+            border: 1px solid white;
+            z-index: 10;
+        }
+
+        .results-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .results-scroll::-webkit-scrollbar-track {
+            background: var(--bg-main); 
+        }
+        .results-scroll::-webkit-scrollbar-thumb {
+            background: var(--border-color); 
+            border-radius: 4px;
+        }
+        .results-scroll::-webkit-scrollbar-thumb:hover {
+            background: #505050; 
+        }
+
+        /* Modal Transitions */
+        .modal {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            transform: scale(0.95);
+            transition: all 0.3s ease-in-out;
+        }
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 lg:p-8 font-sans">
+
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-0">
+        
+        <!-- Header -->
+        <div class="col-span-1 lg:col-span-12 mb-2">
+            <h1 class="text-4xl font-extrabold text-white">
+                Aesthetic Heat Map Generator
+            </h1>
+            <p class="text-slate-400 mt-2 text-lg">Mass-analyze your video script against 400+ aesthetic categories instantly.</p>
+        </div>
+
+        <!-- LEFT COLUMN: Inputs -->
+        <div class="col-span-1 lg:col-span-4 space-y-6">
+            
+            <!-- 1. Source Input (With Toggle) -->
+            <div class="bg-card p-5 rounded-2xl shadow-xl border border-theme">
+                
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold flex items-center text-white">
+                        <span class="bg-white w-1.5 h-6 mr-3 rounded-full"></span> 1. Source
+                    </h2>
+                    
+                    <!-- Toggle Switch -->
+                    <div class="flex bg-[var(--bg-main)] rounded-lg p-1 border border-theme">
+                        <button onclick="toggleInputMode('script')" id="btnModeScript" class="px-3 py-1 rounded text-xs font-bold bg-[#404040] text-white transition-all">Script</button>
+                        <button onclick="toggleInputMode('video')" id="btnModeVideo" class="px-3 py-1 rounded text-xs font-bold text-slate-400 hover:text-white transition-all">Video Link</button>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    
+                    <!-- MODE: SCRIPT INPUTS -->
+                    <div id="modeScriptInputs">
+                        <div class="mb-4">
+                            <label class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-1 block">Video Title</label>
+                            <input type="text" id="videoTitle" class="w-full bg-[var(--bg-main)] border border-theme rounded-lg p-3 text-sm focus:border-white focus:ring-1 focus:ring-white outline-none transition-colors text-slate-200" placeholder="e.g. The Rise of Y2K Futurism">
+                        </div>
+                        <div class="mb-4">
+                            <label class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-1 block">Description</label>
+                            <textarea id="videoDesc" class="w-full bg-[var(--bg-main)] border border-theme rounded-lg p-3 text-sm h-20 focus:border-white focus:ring-1 focus:ring-white outline-none transition-colors resize-none text-slate-200" placeholder="Paste description here..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- MODE: VIDEO INPUT -->
+                    <div id="modeVideoInputs" class="hidden mb-4">
+                        <label class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-1 block">YouTube URL</label>
+                        <div class="flex">
+                            <input type="text" id="videoUrl" class="w-full bg-[var(--bg-main)] border border-theme rounded-l-lg p-3 text-sm focus:border-white outline-none text-slate-200" placeholder="https://www.youtube.com/watch?v=...">
+                            <div class="bg-[#404040] px-3 flex items-center justify-center rounded-r-lg border-y border-r border-theme">
+                                <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/></svg>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-slate-500 mt-2 italic">*Note: Due to YouTube privacy restrictions, we cannot auto-fetch transcripts. Please paste the text below manually.</p>
+                    </div>
+
+                    <!-- SHARED: SCRIPT BODY -->
+                    <div>
+                        <label class="text-xs uppercase tracking-wider text-slate-500 font-bold mb-1 block">Transcript / Script Content</label>
+                        <textarea id="videoScript" class="w-full bg-[var(--bg-main)] border border-theme rounded-lg p-3 text-sm h-48 focus:border-white focus:ring-1 focus:ring-white outline-none transition-colors text-slate-200" placeholder="Paste the full transcript here..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Custom Aesthetic Input -->
+            <div class="bg-card p-5 rounded-2xl shadow-xl border border-theme">
+                <h2 class="text-xl font-bold mb-4 flex items-center text-white">
+                    <span class="bg-white w-1.5 h-6 mr-3 rounded-full"></span> 2. Add Custom
+                </h2>
+                
+                <div class="space-y-3">
+                    <input type="text" id="customName" class="w-full bg-[var(--bg-main)] border border-theme rounded p-2 text-sm outline-none focus:border-white text-slate-200" placeholder="Name (e.g. MyCore)">
+                    <textarea id="customKeywords" class="w-full bg-[var(--bg-main)] border border-theme rounded p-2 text-sm h-20 outline-none focus:border-white resize-none text-slate-200" placeholder="Keywords (comma separated): neon, cool, vibe..."></textarea>
+                    <button onclick="addCustomAesthetic()" class="w-full py-2 bg-[var(--bg-main)] border border-white text-white hover:bg-white hover:text-black font-bold rounded-lg text-sm transition-colors">Add to Scanner</button>
+                </div>
+            </div>
+
+            <!-- 3. Gradient Customization (Triggers Modal) -->
+            <div class="bg-card p-5 rounded-2xl shadow-xl border border-theme group hover:border-white transition-colors duration-300 cursor-pointer" onclick="openColorModal()">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xl font-bold flex items-center text-white">
+                        <svg class="w-5 h-5 mr-2 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
+                        Heat Map Palette
+                    </h2>
+                    <span class="text-xs bg-[var(--bg-main)] px-2 py-1 rounded text-slate-400 group-hover:text-white transition-colors">Customize &rarr;</span>
+                </div>
+                
+                <div class="mt-4 flex items-center space-x-2">
+                    <!-- Current Palette Preview -->
+                    <div class="h-2 flex-1 rounded-full overflow-hidden flex" id="sidebarGradientPreview">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <button onclick="generateHeatMap()" class="w-full py-4 bg-white hover:bg-slate-200 text-black font-bold rounded-2xl shadow-lg transform active:scale-95 transition-all text-xl tracking-wide">
+                GENERATE HEAT MAP
+            </button>
+        </div>
+
+        <!-- RIGHT COLUMN: Visualization -->
+        <div class="col-span-1 lg:col-span-8 flex flex-col h-full min-h-[600px]">
+            
+            <div class="bg-card p-6 rounded-2xl shadow-xl border border-theme flex-1 flex flex-col">
+                <div class="flex justify-between items-end mb-6">
+                    <h2 class="text-2xl font-bold flex items-center text-white">
+                        <span class="bg-white w-1.5 h-8 mr-3 rounded-full"></span> Results
+                    </h2>
+                    
+                    <!-- Controls -->
+                    <div class="flex items-center space-x-4 text-sm">
+                        <label class="flex items-center space-x-2 cursor-pointer text-slate-400 hover:text-white">
+                            <input type="checkbox" id="showZeroMatches" class="rounded bg-[var(--bg-main)] border-theme text-white focus:ring-white" onchange="renderGrid()">
+                            <span>Show 0-match rows</span>
+                        </label>
+                        <div class="bg-[var(--bg-main)] px-3 py-1 rounded border border-theme text-slate-400">
+                            X-Axis: Time (0% &rarr; 100%)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video Embed Container (Hidden by default) -->
+                <div id="videoEmbedContainer" class="hidden mb-6 rounded-xl overflow-hidden shadow-lg border border-theme bg-black aspect-video relative">
+                    <!-- IFrame injected here -->
+                </div>
+
+                <!-- Heat Map Container -->
+                <div class="flex-1 bg-[var(--bg-main)] rounded-xl border border-theme p-4 results-scroll overflow-y-auto relative min-h-[400px]">
+                    
+                    <!-- Loading / Empty State -->
+                    <div id="emptyState" class="absolute inset-0 flex flex-col items-center justify-center text-slate-500">
+                        <svg class="w-16 h-16 mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                        <p class="text-lg">Waiting for data...</p>
+                        <p class="text-sm opacity-60">Select Source & click Generate</p>
+                    </div>
+
+                    <!-- The Grid -->
+                    <div id="heatmapGrid" class="hidden w-full grid gap-1"></div>
+                </div>
+
+                <!-- Tile-Based Legend Key (No Numbers) -->
+                <div id="legendKey" class="hidden mt-6 border-t border-theme pt-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-center text-xs text-slate-400">
+                        <span class="font-bold uppercase tracking-wider mb-2 sm:mb-0">Intensity Key</span>
+                        
+                        <!-- Tile Row -->
+                        <div class="flex items-center space-x-1" onclick="openColorModal()" class="cursor-pointer hover:opacity-80">
+                            
+                            <!-- 0 hits -->
+                            <div class="flex flex-col items-center group relative">
+                                <div class="w-10 h-10 rounded border border-theme bg-[rgba(100,100,100,0.1)] mb-1"></div>
+                                <span>None</span>
+                            </div>
+
+                            <!-- 20% -->
+                            <div class="flex flex-col items-center group relative">
+                                <div id="legendTile20" class="w-10 h-10 rounded border border-theme mb-1 transition-colors duration-200"></div>
+                                <span>Low</span>
+                            </div>
+
+                             <!-- 40% -->
+                             <div class="flex flex-col items-center group relative">
+                                <div id="legendTile40" class="w-10 h-10 rounded border border-theme mb-1 transition-colors duration-200"></div>
+                                <span>Med</span>
+                            </div>
+
+                            <!-- 60% -->
+                            <div class="flex flex-col items-center group relative">
+                                <div id="legendTile60" class="w-10 h-10 rounded border border-theme mb-1 transition-colors duration-200"></div>
+                                <span>High</span>
+                            </div>
+
+                            <!-- 80% -->
+                             <div class="flex flex-col items-center group relative">
+                                <div id="legendTile80" class="w-10 h-10 rounded border border-theme mb-1 transition-colors duration-200"></div>
+                                <span>Very</span>
+                            </div>
+
+                            <!-- 100% -->
+                            <div class="flex flex-col items-center group relative">
+                                <div id="legendTile100" class="w-10 h-10 rounded border border-theme mb-1 ring-2 ring-offset-2 ring-offset-[var(--bg-card)] ring-white transition-colors duration-200"></div>
+                                <span class="font-bold text-white transition-colors duration-300">Max</span>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Footer -->
+                <div id="statsFooter" class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4 hidden">
+                    <div class="bg-[var(--bg-main)] p-3 rounded-lg border border-theme">
+                        <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Top Aesthetic</div>
+                        <div id="statTopName" class="text-lg font-bold text-white truncate transition-colors duration-300">-</div>
+                    </div>
+                    <div class="bg-[var(--bg-main)] p-3 rounded-lg border border-theme">
+                        <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Total Keywords</div>
+                        <div id="statTotalHits" class="text-lg font-bold text-white">0</div>
+                    </div>
+                    <div class="bg-[var(--bg-main)] p-3 rounded-lg border border-theme">
+                        <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Variety Score</div>
+                        <div id="statVariety" class="text-lg font-bold text-white">-</div>
+                    </div>
+                     <div class="bg-[var(--bg-main)] p-3 rounded-lg border border-theme">
+                        <div class="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Active Categories</div>
+                        <div id="statActiveCount" class="text-lg font-bold text-white">0</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- COLOR EDITOR MODAL -->
+    <div id="colorModal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div class="modal-content bg-card w-full max-w-lg p-6 rounded-2xl border border-theme shadow-2xl relative">
+            
+            <button onclick="closeColorModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+
+            <h3 class="text-2xl font-bold text-white mb-2">Palette Editor</h3>
+            <p class="text-sm text-slate-400 mb-6">Create a 3-stop gradient to map intensity levels.</p>
+
+            <!-- Pickers -->
+            <div class="grid grid-cols-3 gap-4 mb-8">
+                <div>
+                    <label class="text-xs uppercase tracking-wider font-bold text-slate-500 mb-2 block">0% (Low)</label>
+                    <div class="flex items-center bg-[var(--bg-main)] p-2 rounded border border-theme">
+                        <input type="color" id="modalPickerLow" class="w-full h-8 bg-transparent border-0 cursor-pointer" value="#392dda" oninput="updateFromModal(true)">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs uppercase tracking-wider font-bold text-slate-500 mb-2 block">50% (Mid)</label>
+                    <div class="flex items-center bg-[var(--bg-main)] p-2 rounded border border-theme">
+                        <input type="color" id="modalPickerMid" class="w-full h-8 bg-transparent border-0 cursor-pointer" value="#ffdc42" oninput="updateFromModal(true)">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs uppercase tracking-wider font-bold text-slate-500 mb-2 block">100% (High)</label>
+                    <div class="flex items-center bg-[var(--bg-main)] p-2 rounded border border-theme">
+                        <input type="color" id="modalPickerHigh" class="w-full h-8 bg-transparent border-0 cursor-pointer" value="#ff3842" oninput="updateFromModal(true)">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Intensity Preview Strip -->
+            <div class="mb-6">
+                <label class="text-xs uppercase tracking-wider font-bold text-slate-500 mb-3 block">Intensity Breakdown (0% - 100%)</label>
+                <div class="grid grid-cols-11 gap-1 h-12" id="modalPreviewStrip">
+                    <!-- Populated via JS -->
+                </div>
+                <div class="flex justify-between text-[10px] text-slate-500 mt-1 px-1">
+                    <span>0%</span>
+                    <span>50%</span>
+                    <span>100%</span>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <button onclick="closeColorModal()" class="px-6 py-2 bg-white text-black font-bold rounded-lg hover:brightness-110">Done</button>
+            </div>
+
+        </div>
+    </div>
+
+<script>
+// ---------------------------
+// CONFIG & DATA
+// ---------------------------
+
+const fullAestheticList = [
+    "2 Tone", "2000s Preppy", "2010s Bright Kawaii", "2010s Meme Maximalism", "2010s Soft Kawaii", "2010s Summer Nostalgia", 
+    "2014 Girly", "50s Suburbia", "8-Bit", "80s Workout", "90s Cool", "Abstract Tech", "Acid Design", "Adventurecore", 
+    "Aestheticism", "Afrofuturism", "After Hours", "Aliencore", "American Kitsch", "Analog Horror", "Angelcore", 
+    "Animecore", "Art Deco", "Art Nouveau", "Atomic Age", "Avant Basic", "Babycore", "Barbiecore", "Bardcore", "Baroque", 
+    "Bauhaus", "Bimbocore", "Biopunk", "Black Metal", "Blockcore", "Bloomcore", "Bodikon", "Bohemian", "Boho-Chic", 
+    "Brat Summer", "Britpop", "Brutalism", "Bubble Goth", "Bubblegum Bitch", "Business Casual", "Cabincore", "Campcore", 
+    "Candycore", "Cassette Futurism", "Catholic Horror", "Chaotic Academia", "Cherry Emoji Twitter", "Christian Girl Autumn", 
+    "Christmas", "Chromecore", "City Pop", "Classic Lolita", "Cleancore", "Clean Girl", "Clockpunk", "Clowncore", 
+    "Club Kids", "Cluttercore", "Coastal Grandmother", "Coquette", "Corporate Memphis", "Cottagecore", "Cottagegoth", 
+    "Country", "Cozycore", "Craftcore", "Crowcore", "Cryptidcore", "Cybercore", "Cybergoth", "Cyber Grunge", "Cyberpunk", 
+    "Cybersigilism", "Danish Pastel", "Dark Academia", "Dark Fantasy", "Dark Naturalism", "Daycore", "Deathrock", 
+    "Decora", "Desert", "Dieselpunk", "Digital Horror", "Diner", "Disco", "Dollcore", "Doomer", "Dopamine Dressing", 
+    "DORFic", "Downtown Girl", "Draincore", "Dreamcore", "Dreampunk", "Earth Tones", "E-Boy", "Eclectic Grandpa", 
+    "Edwardian", "E-Girl", "Emo", "Ethereal", "Fairycore", "Fairy Grunge", "FantasY2K", "Femcel", "Femme Fatale", 
+    "Frutiger Aero", "Frutiger Metro", "Future Funk", "Futurism", "Gamer", "Goblincore", "Gorpcore", "Goth", "Gothic Lolita", 
+    "Grandmacore", "Grandmillenial", "Grunge", "Gyaru", "Halloween", "Hallyu", "Harajuku", "Hauntology", "Health Goth", 
+    "Hellenic", "Heroic Realism", "High School Dream", "Hip-Hop", "Hippie", "Hipster", "Horror", "Hyperpop", 
+    "Indie Sleaze", "Industrial", "Internet Awesomesauce", "Japonisme", "Jirai Kei", "Kawaii", "Kidcore", "Kinderwhore", 
+    "Knightcore", "Library", "Light Academia", "Liminal Space", "Lo-fi", "Lolita", "Lovecore", "Low Poly", "Lunarpunk", 
+    "Mallgoth", "Mallsoft", "Matrix", "Maximalism", "McBling", "Medieval", "Memphis Design", "Metalheart", "Mid-Century Modern", 
+    "Midwest Emo", "Minimalism", "Mob Wife", "Mori Kei", "Mushroomcore", "Nautical", "Neon Noir", "Nerdcore", "Net Art", 
+    "Neubrutalism", "New Age", "New Romantic", "New Wave", "Normcore", "Nostalgic", "Nu-Metal", "Ocean Grunge", "Old Money", 
+    "Old Web", "Opium", "Pale Grunge", "Palewave", "Pastel Goth", "Pink Pilates Princess", "Pixel Art", "Plant Mom", 
+    "Plazacore", "Pop Art", "Preppy", "Princesscore", "Psychedelic", "Punk", "Queercore", "Rave", "Realism", "Retro", 
+    "Retrofuturism", "Riot Grrrl", "Rivieracore", "Rockabilly", "Rococo", "Romantic Academia", "Royalcore", "Rustic", 
+    "Sad Beige", "Sanriocore", "Scene", "Seapunk", "Shibuya-Kei", "Skater", "Skeuomorphism", "Slavic", "Soft Girl", 
+    "Soft Grunge", "Solarpunk", "Sovietwave", "Spacecore", "Steampunk", "Streamline Moderne", "Streetwear", "Succubus Chic", 
+    "Superflat", "Surrealism", "Synthwave", "Tacticool", "Techwear", "That Girl", "Tiki", "Tomboy", "Trad Goth", "Traumacore", 
+    "Tropical", "Twee", "Twilightcore", "Urbancore", "Vaporwave", "Vectorheart", "Victorian", "Vintage", "Visual Kei", 
+    "VSCO Girl", "Warcore", "Webcore", "Weirdcore", "Western", "Whimsigothic", "Witchcore", "Y2K Futurism", "Yume Kawaii", "Zen",
+    "Ah Beng", "Androgynous", "Angry Girl", "Black Ivy", "Bogan", "Cholo", "Choni", "Eshay", "Gopnik", "Greaser", 
+    "Hypebeast", "Kogal", "Lad Culture", "La Sape", "Lumberjack", "Maid", "Metrosexual", "Military Chic", "Mod", 
+    "Otaku", "Pachuco", "Paninaro", "Peacock Revolution", "Pijo", "Preppy", "Racaille", "Raggare", "Rocker", 
+    "Rude Boy", "Sharpies", "Skinhead", "Stilyagi", "Sukeban", "Swenkas", "Teddy Boys", "Ultras", "Vampire", 
+    "Werewolf", "Yanki", "Zazou", "Zef"
+];
+
+const defaultKeywords = {
+    "Cottagecore": "mushroom, forest, moss, baking, gingham, nature, tea, cozy, garden, flowers, picnic, rural, farm, bread, jam, embroidery, cottage",
+    "Dark Academia": "books, library, rain, tweed, poetry, coffee, secret, history, study, blazer, classical, latin, architecture, museum, autumn, ink, parchment",
+    "Cyberpunk": "neon, glitch, high tech, low life, city, rain, chrome, dystopian, circuit, hacker, cyber, robot, ai, hologram, night, synthetic, implant, megacorp",
+    "Vaporwave": "pastel, statue, 80s, glitch, palm tree, mall, synth, windows 95, purple, pink, vhs, retro, nostalgia, consumerism, marble, grid",
+    "Frutiger Aero": "water, glass, bubbles, fish, bokeh, glossy, vista, green, blue, grass, clouds, transparent, optimistic, tech, 2000s, hud",
+    "Y2K Futurism": "chrome, silver, metallic, blob, inflatable, orange, blue, alien, matrix, oakley, futuristic, optimistic, space, digital, cyber",
+    "Goblincore": "mud, frogs, rocks, moss, dirt, bones, mushrooms, snails, forest, swamp, chaos, clutter, collecting, nature, earth",
+    "Old Money": "linen, tennis, golf, hamptons, luxury, inheritance, beige, white, pearls, blazer, sailing, estate, wealth, classic, polo, country club",
+    "Weirdcore": "eyes, text, compression, low res, liminal, unsettling, dream, void, confusing, amateur, flash, nightmare, surreal, edit",
+    "Solarpunk": "solar, green, plants, renewable, utopian, glass, nature, technology, sustainable, bright, community, future, leaves, wind, eco",
+    "Steampunk": "gears, steam, brass, victorian, goggles, clockwork, industrial, invention, copper, airship, mechanical, corset",
+    "Synthwave": "neon, grid, sunset, driving, ferrari, 80s, purple, retro, arcade, synth, outrun, laser, miami",
+    "Traumacore": "childhood, blurry, text, hello kitty, hospital, eyes, dissociation, memory, hurt, bandaid, soft, pink, abuse, dark",
+    "Dreamcore": "clouds, eyes, surreal, dream, sky, liminal, nostalgia, sleeping, weird, bright, confusion, memory",
+    "Barbiecore": "pink, plastic, doll, blonde, fashion, girly, bright, heels, mattel, fabulous, cute",
+    "Coquette": "bows, lace, pearls, lana del rey, soft, vintage, girl, lipstick, white, pink, romance, delicate",
+    "Grunge": "flannel, dirt, nirvana, 90s, guitar, ripped, plaid, messy, angst, dark, rock, seattle",
+    "Goth": "black, bats, skull, dark, makeup, boots, vampire, death, cemetery, lace, silver, cross",
+    "Industrial": "concrete, metal, noise, machinery, factory, rust, grey, harsh, mechanical, utilitarian",
+    "Fairycore": "wings, glitter, magic, forest, nature, flowers, sparkle, elf, pixie, green, soft, ethereal",
+    "Kidcore": "rainbow, stickers, toys, playground, bright, primary colors, crayon, nostalgic, childhood, 90s, tv",
+    "Webcore": "internet, 90s, dial up, glitch, pixel, html, old web, geocities, computer, gif",
+    "Liminal Space": "empty, hallway, lights, eerie, transitional, waiting, quiet, endless, nostalgic, backrooms",
+    "Poolcore": "water, tiles, blue, indoor pool, echo, chlorine, empty, liminal, dream, reflection",
+    "After Hours": "night, car, lights, city, lonely, driving, dark, bokeh, empty, late, insomnia",
+    "Bimbocore": "pink, blonde, fake, plastic, y2k, glitter, makeup, acrylics, fashion, lipstick",
+    "McBling": "rhinestones, playboy, juicy couture, pink, flip phone, 2000s, glitter, velour, gold, luxury, trashy",
+    "Twee": "ukulele, cardigan, bangs, glasses, wes anderson, quirk, indie, soft, vintage, tea",
+    "Indie Sleaze": "flash, party, messy, hipster, american apparel, polaroid, sweat, cigarette, club, 2010s",
+    "Whimsigothic": "celestial, sun, moon, velvet, dark, witchy, stars, purple, gold, zodiac, 90s"
+};
+
+// ---------------------------
+// COLOR STOP DEFINITIONS (UPDATED v13)
+// ---------------------------
+
+const presetHeatStops = {
+    0.0: '#392dda', // Bright Blue (User Requested Low)
+    0.1: '#3fcdff', // Light Blue/Cyan (User Requested)
+    0.2: '#3dff9e', // Mint Green (User Requested)
+    0.3: '#3cff86', // Green (User Requested)
+    0.4: '#fffe42', // Yellow (User Requested)
+    0.5: '#fcff44', // Canary Yellow (User Requested)
+    0.6: '#ffc642',
+    0.7: '#ff9f42',
+    0.8: '#ff8642',
+    0.9: '#ff6b42',
+    1.0: '#ff3842'  // Red
+};
+const PRESET_LOW = '#392dda'; // Updated Base
+
+// State
+let activeAesthetics = {}; 
+let latestScores = [];     
+let latestMaxScore = 0; 
+let useCustomColors = false; 
+let inputMode = 'script'; // 'script' or 'video'
+
+// ---------------------------
+// UI ENGINE
+// ---------------------------
+
+function toggleInputMode(mode) {
+    inputMode = mode;
+    const btnS = document.getElementById('btnModeScript');
+    const btnV = document.getElementById('btnModeVideo');
+    const inputsS = document.getElementById('modeScriptInputs');
+    const inputsV = document.getElementById('modeVideoInputs');
+
+    if(mode === 'script') {
+        btnS.className = "px-3 py-1 rounded text-xs font-bold bg-[#404040] text-white transition-all";
+        btnV.className = "px-3 py-1 rounded text-xs font-bold text-slate-400 hover:text-white transition-all";
+        inputsS.classList.remove('hidden');
+        inputsV.classList.add('hidden');
+    } else {
+        btnV.className = "px-3 py-1 rounded text-xs font-bold bg-[#404040] text-white transition-all";
+        btnS.className = "px-3 py-1 rounded text-xs font-bold text-slate-400 hover:text-white transition-all";
+        inputsV.classList.remove('hidden');
+        inputsS.classList.add('hidden');
+    }
+}
+
+function openColorModal() {
+    document.getElementById('colorModal').classList.add('active');
+    updateFromModal(false);
+}
+
+function closeColorModal() {
+    document.getElementById('colorModal').classList.remove('active');
+}
+
+function updateFromModal(isUserInteraction) {
+    if (isUserInteraction) useCustomColors = true;
+
+    const low = document.getElementById('modalPickerLow').value;
+    const mid = document.getElementById('modalPickerMid').value;
+    const high = document.getElementById('modalPickerHigh').value;
+
+    document.documentElement.style.setProperty('--accent', high);
+    
+    renderModalPreview(low, mid, high);
+    updateLegendPreview(low, mid, high);
+    if(latestScores.length > 0) renderGrid();
+    updateSidebarPreview(low, mid, high);
+}
+
+function renderModalPreview(low, mid, high) {
+    const strip = document.getElementById('modalPreviewStrip');
+    strip.innerHTML = '';
+    
+    for(let i=0; i<=10; i++) {
+        const percent = i / 10;
+        const color = getGradientColor(percent, low, mid, high);
+        const div = document.createElement('div');
+        div.className = "w-full h-full rounded-sm";
+        div.style.backgroundColor = color;
+        strip.appendChild(div);
+    }
+}
+
+function updateSidebarPreview(low, mid, high) {
+    const bar = document.getElementById('sidebarGradientPreview');
+    if (useCustomColors) {
+        bar.style.background = `linear-gradient(to right, ${low}, ${mid}, ${high})`;
+    } else {
+        // Construct standard CSS gradient from stops
+        const keys = Object.keys(presetHeatStops).sort();
+        let css = 'linear-gradient(to right';
+        keys.forEach(k => {
+            css += `, ${presetHeatStops[k]} ${k * 100}%`;
+        });
+        css += ')';
+        bar.style.background = css;
+    }
+}
+
+function updateLegendPreview(low, mid, high) {
+    if(!low) {
+        low = document.getElementById('modalPickerLow').value;
+        mid = document.getElementById('modalPickerMid').value;
+        high = document.getElementById('modalPickerHigh').value;
+    }
+    document.getElementById('legendTile20').style.backgroundColor = getGradientColor(0.2, low, mid, high);
+    document.getElementById('legendTile40').style.backgroundColor = getGradientColor(0.4, low, mid, high);
+    document.getElementById('legendTile60').style.backgroundColor = getGradientColor(0.6, low, mid, high);
+    document.getElementById('legendTile80').style.backgroundColor = getGradientColor(0.8, low, mid, high);
+    document.getElementById('legendTile100').style.backgroundColor = getGradientColor(1.0, low, mid, high);
+}
+
+function getGradientColor(percent, low, mid, high) {
+    if (!useCustomColors) {
+        // --- MULTI-STOP PRESET MODE ---
+        // Find the bounding stops
+        const stops = Object.keys(presetHeatStops).map(parseFloat).sort((a,b) => a-b);
+        
+        // Handle exact edge cases or below min
+        if (percent <= stops[0]) return hexToRgbaStr(presetHeatStops[stops[0]], 0.4);
+        if (percent >= stops[stops.length-1]) return hexToRgbaStr(presetHeatStops[stops[stops.length-1]], 1.0);
+
+        // Find range
+        let lower = stops[0];
+        let upper = stops[stops.length-1];
+        
+        for(let i=0; i < stops.length - 1; i++) {
+            if(percent >= stops[i] && percent < stops[i+1]) {
+                lower = stops[i];
+                upper = stops[i+1];
+                break;
+            }
+        }
+
+        // Interpolate
+        const range = upper - lower;
+        const ratio = (percent - lower) / range;
+        
+        return interpolateHex(
+            presetHeatStops[lower], 
+            presetHeatStops[upper], 
+            ratio, 
+            0.4 + (percent * 0.6) // Alpha scale 0.4 -> 1.0
+        );
+
+    } else {
+        // --- CUSTOM 3-STOP MODE ---
+        if (percent <= 0.5) {
+            const p = percent * 2; 
+            return interpolateHex(low, mid, p, 0.5 + (percent * 0.5));
+        } else {
+            const p = (percent - 0.5) * 2;
+            return interpolateHex(mid, high, p, 0.5 + (percent * 0.5));
+        }
+    }
+}
+
+function interpolateHex(hex1, hex2, ratio, alpha) {
+    const c1 = hexToRgb(hex1);
+    const c2 = hexToRgb(hex2);
+    const r = Math.round(c1.r + (c2.r - c1.r) * ratio);
+    const g = Math.round(c1.g + (c2.g - c1.g) * ratio);
+    const b = Math.round(c1.b + (c2.b - c1.b) * ratio);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function hexToRgbaStr(hex, alpha) {
+    const c = hexToRgb(hex);
+    return `rgba(${c.r}, ${c.g}, ${c.b}, ${alpha})`;
+}
+
+function hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : { r:0, g:0, b:0 };
+}
+
+// ---------------------------
+// LOGIC
+// ---------------------------
+
+function init() {
+    fullAestheticList.sort().forEach(aes => {
+        const keywords = defaultKeywords[aes] || aes.toLowerCase().replace(/core/g, ' core'); 
+        activeAesthetics[aes] = keywords;
+    });
+    updateFromModal(false);
+}
+
+function addCustomAesthetic() {
+    const name = document.getElementById('customName').value.trim();
+    const keywords = document.getElementById('customKeywords').value.trim();
+    if (!name || !keywords) { alert("Please enter both a name and keywords."); return; }
+    activeAesthetics[name] = keywords;
+    if (!fullAestheticList.includes(name)) fullAestheticList.push(name);
+    document.getElementById('customName').value = '';
+    document.getElementById('customKeywords').value = '';
+    if (document.getElementById('videoScript').value) generateHeatMap();
+}
+
+function generateHeatMap() {
+    const script = document.getElementById('videoScript').value;
+    
+    // Check for script presence
+    if (!script) {
+        alert("Please paste a transcript to generate a heat map.");
+        return;
+    }
+
+    // Video Handling (If URL provided in Video Mode)
+    const url = document.getElementById('videoUrl').value;
+    const embedContainer = document.getElementById('videoEmbedContainer');
+    
+    if (inputMode === 'video' && url) {
+        const vidId = extractVideoID(url);
+        if(vidId) {
+            embedContainer.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${vidId}" frameborder="0" allowfullscreen></iframe>`;
+            embedContainer.classList.remove('hidden');
+        } else {
+            embedContainer.classList.add('hidden');
+        }
+    } else {
+        embedContainer.classList.add('hidden');
+        embedContainer.innerHTML = '';
+    }
+
+    // Show Results
+    document.getElementById('emptyState').classList.add('hidden');
+    document.getElementById('heatmapGrid').classList.remove('hidden');
+    document.getElementById('statsFooter').classList.remove('hidden');
+    document.getElementById('legendKey').classList.remove('hidden');
+
+    // Analysis Logic
+    const title = document.getElementById('videoTitle').value.toLowerCase();
+    const desc = document.getElementById('videoDesc').value.toLowerCase();
+    const scriptWords = script.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/);
+    const chunkSize = Math.ceil(scriptWords.length / 10);
+    const chunks = [];
+    for (let i = 0; i < 10; i++) chunks.push(scriptWords.slice(i * chunkSize, (i + 1) * chunkSize).join(" "));
+
+    const scores = [];
+    let maxScore = 0;
+    let totalGlobalHits = 0;
+    let activeCategories = 0;
+
+    Object.keys(activeAesthetics).forEach(aesName => {
+        const keywordStr = activeAesthetics[aesName];
+        if(!keywordStr) return; 
+        const keywords = keywordStr.toLowerCase().split(',').map(k => k.trim()).filter(k => k);
+        let rowData = { name: aesName, chunks: Array(10).fill(0), total: 0 };
+        const titleHits = countMatches(title, keywords) * 3;
+        const descHits = countMatches(desc, keywords) * 2;
+        chunks.forEach((chunkText, index) => {
+            const hits = countMatches(chunkText, keywords);
+            rowData.chunks[index] = hits;
+            rowData.total += hits;
+            if (hits > maxScore) maxScore = hits;
+        });
+        rowData.total += (titleHits + descHits);
+        if (rowData.total > 0) { activeCategories++; totalGlobalHits += rowData.total; }
+        scores.push(rowData);
+    });
+
+    scores.sort((a, b) => b.total - a.total);
+    latestScores = scores;
+    latestMaxScore = maxScore;
+    
+    document.getElementById('statTopName').innerText = scores[0].total > 0 ? scores[0].name : "None";
+    document.getElementById('statTotalHits').innerText = totalGlobalHits;
+    document.getElementById('statActiveCount').innerText = activeCategories;
+    
+    const significant = scores.filter(s => s.total > (scores[0].total * 0.1)).length;
+    document.getElementById('statVariety').innerText = significant > 1 ? "Eclectic" : "Focused";
+
+    renderGrid();
+}
+
+function extractVideoID(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+}
+
+function countMatches(text, keywords) {
+    let count = 0;
+    keywords.forEach(kw => {
+        try {
+            const regex = new RegExp(`\\b${kw}\\b`, 'g');
+            const matches = text.match(regex);
+            if (matches) count += matches.length;
+        } catch (e) {
+            if (text.includes(kw)) count++;
+        }
+    });
+    return count;
+}
+
+function renderGrid() {
+    const showZero = document.getElementById('showZeroMatches').checked;
+    const scores = latestScores;
+    const maxVal = latestMaxScore;
+    const low = document.getElementById('modalPickerLow').value;
+    const mid = document.getElementById('modalPickerMid').value;
+    const high = document.getElementById('modalPickerHigh').value;
+
+    const container = document.getElementById('heatmapGrid');
+    container.innerHTML = '';
+    container.style.gridTemplateColumns = "200px repeat(10, 1fr)";
+
+    const corner = document.createElement('div');
+    corner.className = "text-xs font-bold text-slate-500 uppercase flex items-end justify-end pr-2 pb-1 border-b border-theme";
+    corner.innerText = "Category";
+    container.appendChild(corner);
+
+    for(let i=0; i<10; i++) {
+        const h = document.createElement('div');
+        h.className = "text-[10px] text-slate-500 text-center pb-1 border-b border-theme flex items-end justify-center";
+        h.innerText = `${i*10}%`;
+        container.appendChild(h);
+    }
+
+    let visibleCount = 0;
+    scores.forEach(row => {
+        if (!showZero && row.total === 0) return;
+        visibleCount++;
+
+        const label = document.createElement('div');
+        label.className = "text-xs text-slate-400 font-medium truncate text-right pr-3 py-1.5 flex items-center justify-end h-8 hover:text-white transition-colors cursor-help";
+        label.title = `Total Hits: ${row.total}`;
+        label.innerText = row.name;
+        
+        // Decoupled color: always white for highlighting top rows
+        if (row.total > 0 && row.total === scores[0].total) {
+            label.className += " text-white font-bold";
+        }
+        container.appendChild(label);
+
+        row.chunks.forEach((val, idx) => {
+            const cell = document.createElement('div');
+            cell.className = "h-8 w-full rounded-[2px] heatmap-cell relative group";
+            const intensity = maxVal > 0 ? (val / maxVal) : 0;
+            if (val > 0) {
+                const color = getGradientColor(intensity, low, mid, high);
+                cell.style.backgroundColor = color; 
+                cell.style.boxShadow = `0 0 ${intensity * 10}px ${color.replace(/, [^,]+\)$/, ', 0.5)')}`;
+            } else {
+                cell.style.backgroundColor = 'rgba(50, 50, 50, 0.3)';
+            }
+            if (val > 0) {
+                cell.innerHTML = `
+                    <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-black border border-white text-white text-[10px] rounded opacity-0 group-hover:opacity-100 pointer-events-none whitespace-nowrap z-50 shadow-xl">
+                        ${row.name}: ${val} hits
+                    </div>
+                `;
+            }
+            container.appendChild(cell);
+        });
+    });
+
+    if (visibleCount === 0 && !showZero) {
+        const msg = document.createElement('div');
+        msg.className = "col-span-11 text-center py-10 text-slate-500";
+        msg.innerHTML = "No matches found in script. <br><span class='text-xs'>Try checking 'Show 0-match rows' or paste a longer script.</span>";
+        container.appendChild(msg);
+    }
+}
+
+// Init
+init();
+
+</script>
+</body>
+</html>
