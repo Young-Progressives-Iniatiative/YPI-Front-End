@@ -1,728 +1,758 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Football Manager Financial Dashboard</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts: Atkinson Hyperlegible -->
-    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <style>
-        :root {
-            /* --- DARK MODE (Default) --- */
-            --bg-body: #1c1c1c;
-            --bg-header: #1b1b1b;
-            --bg-card: #2b2b2b;
-            --bg-chart: #1c1c1c;
-            --bg-hover: #323232;
-            
-            --border-header: #2a2a2a;
-            --border-card: rgba(113, 113, 122, 0.3); /* zinc-500/30 */
-            
-            --text-main: #ffffff;
-            --text-secondary: #9ca3af; /* gray-400 */
-            --text-accent: #77db89; /* Compliance Green (Light) */
-            
-            --chart-pos: #77db89;
-            --chart-neg: #ef4444;
-            --chart-grid: #374151;
-            
-            /* Navigation */
-            --nav-active: #98fb98;
-            --nav-glow: rgba(152, 251, 152, 0.25);
-            --nav-inactive: #9ca3af;
-            --nav-hover: #ffffff;
-            
-            /* Buttons */
-            --btn-bg: #2a2d35;
-            --btn-border: rgba(59, 130, 246, 0.5);
-            --btn-icon: #d1d5db;
-            
-            /* Modals */
-            --modal-overlay: rgba(0, 0, 0, 0.8);
-            --modal-bg: #242424;
-            --modal-header-bg: #1e1e1e;
-            --modal-border: #4b5563;
-
-            /* Compliance Box (Dark) */
-            --comp-bg: rgba(21, 128, 61, 0.9); /* green-700/90 */
-            --comp-border: #4ade80; /* green-400 */
-            --comp-text: #dcfce7; /* green-100 */
-            
-            /* Logo */
-            --logo-filter: brightness(0) invert(1);
-            --logo-opacity: 1;
-        }
-
-        [data-theme="light"] {
-            /* --- LIGHT MODE --- */
-            --bg-body: #f3f4f6;
-            --bg-header: #ffffff;
-            --bg-card: #ffffff;
-            --bg-chart: #f9fafb;
-            --bg-hover: #f0fdf4; /* Light green tint hover */
-            
-            --border-header: #e5e7eb;
-            --border-card: #e5e7eb;
-            
-            --text-main: #1c1c1c; /* Requested Secondary Color as Main Text */
-            --text-secondary: #4b5563;
-            --text-accent: #15803d; /* Darker Green for Contrast */
-            
-            --chart-pos: #15803d;
-            --chart-neg: #dc2626;
-            --chart-grid: #e5e7eb;
-            
-            /* Navigation */
-            --nav-active: #15803d;
-            --nav-glow: rgba(21, 128, 61, 0.1);
-            --nav-inactive: #6b7280;
-            --nav-hover: #111827;
-            
-            /* Buttons */
-            --btn-bg: #ffffff;
-            --btn-border: #e5e7eb;
-            --btn-icon: #374151;
-            
-            /* Modals */
-            --modal-overlay: rgba(255, 255, 255, 0.8);
-            --modal-bg: #ffffff;
-            --modal-header-bg: #f3f4f6;
-            --modal-border: #e5e7eb;
-
-            /* Compliance Box (Light) */
-            --comp-bg: #dcfce7; /* green-100 */
-            --comp-border: #16a34a; /* green-600 */
-            --comp-text: #14532d; /* green-900 */
-            
-            /* Logo */
-            --logo-filter: none;
-            --logo-opacity: 0.9;
-        }
-
-        body {
-            font-family: 'Atkinson Hyperlegible', sans-serif;
-            background-color: var(--bg-body);
-            color: var(--text-main);
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        
-        /* Apply variables to common utilities via classes if needed, 
-           or use arbitrary values in HTML */
-        
-        .card-base {
-            background-color: var(--bg-card);
-            border-color: var(--border-card);
-        }
-        
-        .text-accent {
-            color: var(--text-accent);
-        }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: var(--bg-body); 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #374151; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #4b5563; 
-        }
-
-        .font-fm-header { font-family: 'Atkinson Hyperlegible', sans-serif; }
-        .logo-img {
-            filter: var(--logo-filter);
-            opacity: var(--logo-opacity);
-            transition: filter 0.3s ease, opacity 0.3s ease;
-        }
-        ::selection { background: var(--nav-active); color: var(--bg-body); }
-        .modal-enter { opacity: 0; transform: scale(0.95); }
-        .modal-enter-active { opacity: 1; transform: scale(1); transition: opacity 300ms, transform 300ms; }
-        .modal-exit { opacity: 1; transform: scale(1); }
-        .modal-exit-active { opacity: 0; transform: scale(0.95); transition: opacity 200ms, transform 200ms; }
-        .group[aria-expanded="true"] .chevron-icon { transform: rotate(180deg); }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Dashboard - Partner Org</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Google Fonts: Atkinson Hyperlegible -->
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+:root {
+/* --- DARK MODE (Default) --- */
+--bg-body: #1c1c1c;
+--bg-header: #1b1b1b;
+--bg-card: #2b2b2b;
+--bg-chart: #1c1c1c;
+--bg-hover: #323232;
+--border-header: #2a2a2a;
+--border-card: rgba(113, 113, 122, 0.3);
+--text-main: #ffffff;
+--text-secondary: #9ca3af;
+--text-accent: #77db89;
+--chart-pos: #77db89;
+--chart-neg: #ef4444;
+--chart-grid: #374151;
+/* Navigation */
+--nav-active: #98fb98;
+--nav-glow: rgba(152, 251, 152, 0.25);
+--nav-inactive: #9ca3af;
+--nav-hover: #ffffff;
+/* Buttons */
+--btn-bg: #2a2d35;
+--btn-border: rgba(59, 130, 246, 0.5);
+--btn-icon: #d1d5db;
+/* Modals */
+--modal-overlay: rgba(0, 0, 0, 0.8);
+--modal-bg: #242424;
+--modal-header-bg: #1e1e1e;
+--modal-border: #4b5563;
+/* Compliance Box (Dark) */
+--comp-bg: rgba(21, 128, 61, 0.9);
+--comp-border: #4ade80;
+--comp-text: #dcfce7;
+/* Logo */
+--logo-filter: brightness(0) invert(1);
+--logo-opacity: 1;
+}
+[data-theme="light"] {
+/* --- LIGHT MODE --- */
+--bg-body: #f3f4f6;
+--bg-header: #ffffff;
+--bg-card: #ffffff;
+--bg-chart: #f9fafb;
+--bg-hover: #f0fdf4;
+--border-header: #e5e7eb;
+--border-card: #e5e7eb;
+--text-main: #1c1c1c;
+--text-secondary: #4b5563;
+--text-accent: #15803d;
+--chart-pos: #15803d;
+--chart-neg: #dc2626;
+--chart-grid: #e5e7eb;
+/* Navigation */
+--nav-active: #15803d;
+--nav-glow: rgba(21, 128, 61, 0.1);
+--nav-inactive: #6b7280;
+--nav-hover: #111827;
+/* Buttons */
+--btn-bg: #ffffff;
+--btn-border: #e5e7eb;
+--btn-icon: #374151;
+/* Modals */
+--modal-overlay: rgba(255, 255, 255, 0.8);
+--modal-bg: #ffffff;
+--modal-header-bg: #f3f4f6;
+--modal-border: #e5e7eb;
+/* Compliance Box (Light) */
+--comp-bg: #dcfce7;
+--comp-border: #16a34a;
+--comp-text: #14532d;
+/* Logo */
+--logo-filter: none;
+--logo-opacity: 0.9;
+}
+body {
+font-family: 'Atkinson Hyperlegible', sans-serif;
+background-color: var(--bg-body);
+color: var(--text-main);
+transition: background-color 0.3s ease, color 0.3s ease;
+}
+.card-base {
+background-color: var(--bg-card);
+border-color: var(--border-card);
+}
+.text-accent {
+color: var(--text-accent);
+}
+.font-fm-header { font-family: 'Atkinson Hyperlegible', sans-serif; }
+.logo-img {
+filter: var(--logo-filter);
+opacity: var(--logo-opacity);
+transition: filter 0.3s ease, opacity 0.3s ease;
+}
+::selection { background: var(--nav-active); color: var(--bg-body); }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.group[aria-expanded="true"] .chevron-icon { transform: rotate(180deg); }
+</style>
 </head>
 <body class="min-h-screen relative">
 
-    <!-- HEADER -->
-    <header class="flex flex-col w-full bg-[var(--bg-header)] border-b border-[var(--border-header)] shadow-lg transition-colors duration-300">
-        <div class="flex items-center h-16 px-6 gap-6 overflow-x-auto no-scrollbar">
-            
-            <!-- Navigation Controls -->
-            <div class="flex items-center mr-2 flex-shrink-0">
-                <button class="flex items-center justify-center w-8 h-10 bg-[var(--btn-bg)] border border-[var(--btn-border)] rounded-l hover:bg-[var(--bg-hover)] transition-colors group relative">
-                    <div class="absolute inset-0 border border-blue-400/30 rounded-l opacity-50"></div>
-                    <i data-lucide="chevron-left" class="w-5 h-5 text-[var(--btn-icon)] group-hover:text-[var(--text-main)]"></i>
-                </button>
-                <button class="flex items-center justify-center w-8 h-10 bg-[var(--bg-header)] hover:bg-[var(--border-header)] transition-colors rounded-r border-y border-r border-[var(--border-header)]">
-                    <i data-lucide="chevron-right" class="w-5 h-5 text-[var(--text-secondary)]"></i>
-                </button>
-            </div>
-
-            <!-- Logo -->
-            <div class="flex-shrink-0 mr-4">
-                <div class="h-12 w-auto flex items-center justify-center">
-                    <img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="Team Logo" class="h-full w-auto object-contain drop-shadow-md logo-img" onerror="this.src='https://via.placeholder.com/150x50?text=LOGO';this.onerror=null;" />
-                </div>
-            </div>
-
-            <!-- Navigation Menu -->
-            <nav class="flex items-center gap-2" id="main-nav">
-                <!-- Nav items generated by JS -->
-            </nav>
-
-            <!-- Theme Switcher -->
-            <div class="ml-auto flex items-center pl-4 border-l border-[var(--border-header)]">
-                <button id="theme-toggle" class="p-2 rounded-full hover:bg-[var(--bg-hover)] text-[var(--text-main)] transition-all active:scale-95" aria-label="Toggle Theme">
-                    <span class="icon-sun"><i data-lucide="sun" class="w-5 h-5"></i></span>
-                    <span class="icon-moon hidden"><i data-lucide="moon" class="w-5 h-5"></i></span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <!-- MAIN CONTENT -->
-    <div class="p-2 md:p-6 transition-colors duration-300">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          
-            <!-- LEFT COLUMN - FINANCIALS (Span 8) -->
-            <div class="lg:col-span-8 flex flex-col gap-6">
-            
-                <!-- Overall Balance -->
-                <div onclick="openDashboardModal('balance')" class="card-base border shadow-lg rounded-sm p-4 relative overflow-hidden cursor-pointer hover:border-[var(--text-accent)] hover:bg-[var(--bg-hover)] transition-all group">
-                    <div class="flex justify-between items-start mb-3">
-                        <h3 class="text-accent font-bold text-xs uppercase tracking-wider group-hover:text-[var(--text-main)] transition-colors">Overall Balance</h3>
-                        <div><button onclick="openBalanceReport(event)" class="text-[10px] border border-[var(--text-secondary)] px-2 py-0.5 text-[var(--text-secondary)] group-hover:text-[var(--text-main)] group-hover:border-[var(--text-main)] transition-colors z-10 relative">View Balance Sheet</button></div>
-                    </div>
-                    <div class="mb-4">
-                        <h2 class="text-3xl font-bold text-[var(--text-main)]">$1,258,889</h2>
-                    </div>
-                    <div class="relative h-48 w-full bg-[var(--bg-chart)] rounded p-2" id="chart-balance"></div>
-                    <div class="w-full flex justify-between text-[9px] text-[var(--text-secondary)] px-2 mt-2">
-                        <span>Q1 2023</span><span>Q2 2024</span><span>Q3 2025</span><span>Q4 2026</span><span>Q1 2027</span>
-                    </div>
-                </div>
-
-                <!-- Profit/Loss -->
-                <div onclick="openDashboardModal('surplus')" class="card-base border shadow-lg rounded-sm p-4 relative overflow-hidden cursor-pointer hover:border-[var(--text-accent)] hover:bg-[var(--bg-hover)] transition-all group">
-                    <div class="flex justify-between items-start mb-3">
-                        <h3 class="text-accent font-bold text-xs uppercase tracking-wider group-hover:text-[var(--text-main)] transition-colors">Net Surplus / (Deficit) This Month</h3>
-                    </div>
-                    <div class="flex justify-between items-end mb-4">
-                        <div>
-                            <h2 class="text-2xl font-bold text-[var(--text-accent)]">$9,624</h2>
-                        </div>
-                        <div class="text-right flex gap-6 text-[var(--text-main)]">
-                            <div>
-                                <div class="text-[10px] text-[var(--text-secondary)] uppercase">YTD Surplus</div>
-                                <div class="text-sm font-bold">$73,573</div>
-                            </div>
-                            <div>
-                                <div class="text-[10px] text-[var(--text-secondary)] uppercase">Last Year Total</div>
-                                <div class="text-sm font-bold">$143,170</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="relative h-40 w-full bg-[var(--bg-chart)] rounded p-2 mt-2 group-hover:bg-opacity-80" id="chart-profit"></div>
-                    <div class="w-full flex justify-between text-[9px] text-[var(--text-secondary)] px-2 mt-2">
-                        <span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span><span>Jan</span>
-                    </div>
-                </div>
-
-                <!-- Income & Expenditure Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              
-                    <!-- Revenue -->
-                    <div onclick="openDashboardModal('revenue')" class="card-base border shadow-lg rounded-sm p-4 cursor-pointer hover:border-[var(--text-accent)] hover:bg-[var(--bg-hover)] transition-all group">
-                        <div class="flex justify-between items-start mb-3">
-                            <h3 class="text-accent font-bold text-xs uppercase tracking-wider group-hover:text-[var(--text-main)] transition-colors">Revenue This Month</h3>
-                            <button onclick="openRevenueReport(event)" class="text-[10px] border border-[var(--text-secondary)] px-2 py-0.5 text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:border-[var(--text-main)] hover:bg-[var(--btn-bg)] transition-colors z-10 relative">Report</button>
-                        </div>
-                        <h2 class="text-xl font-bold text-[var(--text-main)] mb-2">$156,332</h2>
-                        <div class="h-20 mb-2 bg-[var(--bg-chart)] rounded p-1 group-hover:bg-opacity-80" id="chart-income"></div>
-                        <div class="space-y-1 pt-2 border-t border-[var(--border-card)]">
-                            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Giving</span><span class="text-[var(--text-main)] font-mono">$29k</span></div>
-                            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Grants</span><span class="text-[var(--text-main)] font-mono">$80k</span></div>
-                            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Contracts</span><span class="text-[var(--text-main)] font-mono">$22k</span></div>
-                        </div>
-                    </div>
-
-                    <!-- Expenses -->
-                    <div onclick="openDashboardModal('expenses')" class="card-base border shadow-lg rounded-sm p-4 cursor-pointer hover:border-[var(--text-accent)] hover:bg-[var(--bg-hover)] transition-all group">
-                        <div class="flex justify-between items-start mb-3">
-                            <h3 class="text-accent font-bold text-xs uppercase tracking-wider group-hover:text-[var(--text-main)] transition-colors">Expenses This Month</h3>
-                            <button class="text-[10px] border border-[var(--text-secondary)] px-2 py-0.5 text-[var(--text-secondary)] group-hover:text-[var(--text-main)] group-hover:border-[var(--text-main)] transition-colors">Report</button>
-                        </div>
-                        <h2 class="text-xl font-bold text-[var(--text-main)] mb-2">$252,573</h2>
-                        <div class="h-20 mb-2 bg-[var(--bg-chart)] rounded p-1 group-hover:bg-opacity-80" id="chart-expenses"></div>
-                        <div class="space-y-1 pt-2 border-t border-[var(--border-card)]">
-                            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Salaries</span><span class="text-[var(--text-main)] font-mono">$112k</span></div>
-                            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Aid</span><span class="text-[var(--text-main)] font-mono">$19k</span></div>
-                            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Admin</span><span class="text-[var(--text-main)] font-mono">$32k</span></div>
-                        </div>
-                    </div>
-
-                    <!-- Assets -->
-                    <div class="card-base border shadow-lg rounded-sm p-4">
-                        <div class="flex justify-between items-start mb-3">
-                            <h3 class="text-accent font-bold text-xs uppercase tracking-wider">Total Assets</h3>
-                            <button class="text-[10px] border border-[var(--text-secondary)] px-2 py-0.5 text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:border-[var(--text-main)] transition-colors">Assets</button>
-                        </div>
-                        <h2 class="text-xl font-bold text-[var(--text-main)] mb-2">$1,708,989</h2>
-                        <div class="h-20 mb-2 bg-[var(--bg-chart)] rounded p-1" id="chart-assets"></div>
-                        <div class="space-y-1 pt-2 border-t border-[var(--border-card)]">
-                            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Cash</span><span class="text-[var(--text-main)] font-mono">$850k</span></div>
-                            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Receivables</span><span class="text-[var(--text-main)] font-mono">$420k</span></div>
-                            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Equipment</span><span class="text-[var(--text-main)] font-mono">$438k</span></div>
-                        </div>
-                    </div>
-
-                    <!-- Liabilities -->
-                    <div class="card-base border shadow-lg rounded-sm p-4">
-                        <div class="flex justify-between items-start mb-3">
-                            <h3 class="text-accent font-bold text-xs uppercase tracking-wider">Total Liabilities</h3>
-                            <button class="text-[10px] border border-[var(--text-secondary)] px-2 py-0.5 text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:border-[var(--text-main)] transition-colors">Debts</button>
-                        </div>
-                        <h2 class="text-xl font-bold text-[var(--text-main)] mb-2">$450,100</h2>
-                        <div class="h-20 mb-2 bg-[var(--bg-chart)] rounded p-1" id="chart-liabilities"></div>
-                        <div class="space-y-1 pt-2 border-t border-[var(--border-card)]">
-                            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Bank Loans</span><span class="text-[var(--text-main)] font-mono">$200k</span></div>
-                            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Payables</span><span class="text-[var(--text-main)] font-mono">$150k</span></div>
-                            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Deferred</span><span class="text-[var(--text-main)] font-mono">$100k</span></div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- RIGHT COLUMN - REPORTS (Span 4) -->
-            <div class="lg:col-span-4 flex flex-col gap-6">
-              
-                <!-- Grant Pipeline -->
-                <div class="card-base border shadow-lg rounded-sm p-4 flex-1">
-                    <div class="flex justify-between items-start mb-3">
-                        <h3 class="text-accent font-bold text-xs uppercase tracking-wider">Grant Opportunity Pipeline</h3>
-                    </div>
-                    <div class="space-y-1">
-                        <!-- Report Items -->
-                        <div class="flex items-start gap-3 py-3 border-b border-[var(--border-card)] last:border-0">
-                            <div class="flex-1">
-                                <h4 class="text-accent font-bold text-sm">City Community Fund</h4>
-                                <p class="text-[var(--text-secondary)] text-xs mt-1">Application submitted for housing support. Decision pending.</p>
-                            </div>
-                            <div class="flex items-center justify-center h-8 px-3 rounded border border-green-500 text-green-500 font-bold text-xs bg-[var(--bg-chart)] whitespace-nowrap">$150k</div>
-                        </div>
-                        <div class="flex items-start gap-3 py-3 border-b border-[var(--border-card)] last:border-0">
-                            <div class="flex-1">
-                                <h4 class="text-accent font-bold text-sm">National Arts Endowment</h4>
-                                <p class="text-[var(--text-secondary)] text-xs mt-1">Drafting narrative. Seeking funding for youth programs.</p>
-                            </div>
-                            <div class="flex items-center justify-center h-8 px-3 rounded border border-green-500 text-green-500 font-bold text-xs bg-[var(--bg-chart)] whitespace-nowrap">$50k</div>
-                        </div>
-                        <div class="flex items-start gap-3 py-3 border-b border-[var(--border-card)] last:border-0">
-                            <div class="flex-1">
-                                <h4 class="text-accent font-bold text-sm">Global Health Initiative</h4>
-                                <p class="text-[var(--text-secondary)] text-xs mt-1">LOI stage. High competition expected.</p>
-                            </div>
-                            <div class="flex items-center justify-center h-8 px-3 rounded border border-green-500 text-green-500 font-bold text-xs bg-[var(--bg-chart)] whitespace-nowrap">$500k</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Non-Profit Designation Suite -->
-                <div class="card-base border shadow-lg rounded-sm p-4">
-                    <div class="flex justify-between items-start mb-3">
-                        <h3 class="text-accent font-bold text-xs uppercase tracking-wider">Non-Profit Designation Requirements</h3>
-                    </div>
-
-                    <!-- Type Selector -->
-                    <div class="flex items-center justify-between mb-4 bg-[var(--bg-chart)] p-2 rounded border border-[var(--border-card)] relative">
-                        <span class="text-xs text-[var(--text-secondary)] uppercase font-bold tracking-wider">Designation:</span>
-                        <div class="relative group">
-                            <button id="dropdown-trigger" class="flex items-center gap-2 text-xs font-bold text-[var(--text-main)] hover:text-[var(--text-accent)] transition-colors focus:outline-none">
-                                <span id="current-designation">501(c)(3) Charitable</span>
-                                <i data-lucide="chevron-down" class="w-3 h-3"></i>
-                            </button>
-                        
-                            <!-- Dropdown Menu -->
-                            <div id="dropdown-menu" class="absolute right-0 top-full mt-2 w-48 bg-[var(--bg-card)] border border-[var(--border-card)] shadow-xl rounded z-10 hidden">
-                                <button onclick="setOrgType('c3')" class="w-full text-left px-3 py-2 text-xs hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] transition-colors">501(c)(3) Charitable</button>
-                                <button onclick="setOrgType('c4')" class="w-full text-left px-3 py-2 text-xs hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] transition-colors">501(c)(4) Social Welfare</button>
-                                <button onclick="setOrgType('c6')" class="w-full text-left px-3 py-2 text-xs hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] transition-colors">501(c)(6) Business League</button>
-                                <button onclick="setOrgType('c7')" class="w-full text-left px-3 py-2 text-xs hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] transition-colors">501(c)(7) Social Club</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Action Banner -->
-                    <div class="flex items-center gap-3 bg-[var(--bg-chart)] p-3 rounded mb-4 border border-[var(--border-card)]">
-                        <div class="w-8 h-8 rounded-full border-2 border-blue-400 text-blue-400 flex items-center justify-center font-bold text-xs">
-                            <i data-lucide="check" class="w-4 h-4"></i>
-                        </div>
-                        <p class="text-xs font-bold text-blue-400 leading-tight" id="action-text">
-                            Action required: 2 items pending for 501(c)(3) Charitable compliance.
-                        </p>
-                    </div>
-
-                    <!-- Checklist Container -->
-                    <div class="space-y-1" id="checklist-container">
-                        <!-- Checklist items injected via JS -->
-                    </div>
-                </div>
-
-                <!-- Budget Card -->
-                <div class="bg-gradient-to-br from-[var(--bg-card)] to-[var(--bg-chart)] border-none shadow-lg rounded-sm p-4">
-                    <h3 class="text-[var(--text-secondary)] font-bold text-xs uppercase tracking-wider mb-1">Monthly Operating Budget</h3>
-                    <h2 class="text-3xl font-bold text-[var(--text-main)] mb-2">$335,714 p/m</h2>
-                    <div class="space-y-1">
-                        <p class="text-red-400 text-sm">Currently spending $341,063 p/m</p>
-                        <p class="text-red-400 text-sm opacity-80">Committed spending $341,063 p/m</p>
-                    </div>
-                    <div class="mt-4 pt-3 border-t border-[var(--border-card)]">
-                        <p class="text-[var(--text-secondary)] text-xs">Next Fiscal Year Budget Pending</p>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- FOOTER (Compliance) -->
-        <div class="mt-6">
-            <h4 class="text-accent font-bold text-xs uppercase tracking-wider mb-2">Compliance & Deliverables</h4>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-[var(--comp-bg)] p-4 border-l-4 border-[var(--comp-border)] rounded-sm">
-                    <h4 class="font-bold text-sm mb-1 text-[var(--comp-text-head)] flex items-center gap-2">
-                        Form 990 Compliance Status
-                    </h4>
-                    <div class="flex items-start gap-2">
-                        <i data-lucide="check" class="w-4 h-4 mt-0.5 text-[var(--comp-text)]"></i>
-                        <p class="text-xs text-[var(--comp-text)] leading-tight">Annual return ready for filing.</p>
-                    </div>
-                </div>
-                <div class="bg-[var(--comp-bg)] p-4 border-l-4 border-[var(--comp-border)] rounded-sm">
-                    <h4 class="font-bold text-sm mb-1 text-[var(--comp-text-head)] flex items-center gap-2">
-                        Form 8872 Reporting
-                    </h4>
-                    <div class="flex items-start gap-2">
-                        <i data-lucide="check" class="w-4 h-4 mt-0.5 text-[var(--comp-text)]"></i>
-                        <p class="text-xs text-[var(--comp-text)] leading-tight">Political organization report up to date.</p>
-                    </div>
-                </div>
-                <div class="bg-[var(--comp-bg)] p-4 border-l-4 border-[var(--comp-border)] rounded-sm">
-                    <h4 class="font-bold text-sm mb-1 text-[var(--comp-text-head)] flex items-center gap-2">
-                        Form 4720 Excise Tax
-                    </h4>
-                    <div class="flex items-start gap-2">
-                        <i data-lucide="check" class="w-4 h-4 mt-0.5 text-[var(--comp-text)]"></i>
-                        <p class="text-xs text-[var(--comp-text)] leading-tight">No prohibited tax shelter transactions.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- HEADER -->
+<header class="flex flex-col w-full bg-[var(--bg-header)] border-b border-[var(--border-header)] shadow-lg transition-colors duration-300 sticky top-0 z-40">
+  <div class="flex items-center h-16 px-6 gap-6 overflow-x-auto no-scrollbar">
+    <div class="flex items-center mr-2 flex-shrink-0">
+      <button class="flex items-center justify-center w-8 h-10 bg-[var(--btn-bg)] border border-[var(--btn-border)] rounded-l hover:bg-[var(--bg-hover)] transition-colors group relative">
+        <div class="absolute inset-0 border border-blue-400/30 rounded-l opacity-50"></div>
+        <i data-lucide="chevron-left" class="w-5 h-5 text-[var(--btn-icon)] group-hover:text-[var(--text-main)]"></i>
+      </button>
+      <button class="flex items-center justify-center w-8 h-10 bg-[var(--bg-header)] hover:bg-[var(--border-header)] transition-colors rounded-r border-y border-r border-[var(--border-header)]">
+        <i data-lucide="chevron-right" class="w-5 h-5 text-[var(--text-secondary)]"></i>
+      </button>
     </div>
-
-    <!-- MODALS (Updated with CSS Variables) -->
-    <!-- Generic Dashboard Modal -->
-    <div id="dashboard-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-[var(--modal-overlay)] backdrop-blur-sm transition-opacity duration-300">
-        <div class="bg-[var(--modal-bg)] w-[95%] max-w-5xl rounded-lg border border-[var(--modal-border)] shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
-            <div class="bg-[var(--modal-header-bg)] p-5 border-b border-[var(--modal-border)] flex justify-between items-center">
-                <div>
-                    <h2 id="modal-title" class="text-[var(--text-main)] text-xl font-bold uppercase tracking-wide"></h2>
-                    <p id="modal-subtitle" class="text-[var(--text-secondary)] text-xs mt-1"></p>
-                </div>
-                <div class="flex gap-10 text-right">
-                    <div><div class="text-[10px] text-[var(--text-secondary)] uppercase">This Month</div><div id="modal-stat-month" class="text-lg font-bold text-[var(--text-main)]"></div></div>
-                    <div><div class="text-[10px] text-[var(--text-secondary)] uppercase">Last Month</div><div id="modal-stat-prev" class="text-lg font-bold text-[var(--text-secondary)]"></div></div>
-                    <div><div class="text-[10px] text-[var(--text-secondary)] uppercase">YTD</div><div id="modal-stat-ytd" class="text-lg font-bold text-[var(--text-main)]"></div></div>
-                </div>
-                <button onclick="closeDashboardModal()" class="text-[var(--text-secondary)] hover:text-[var(--text-main)] absolute top-4 right-4"><i data-lucide="x" class="w-6 h-6"></i></button>
-            </div>
-            <div class="p-6 bg-[var(--modal-bg)] flex-1 overflow-y-auto">
-                <div class="relative bg-[var(--bg-chart)] rounded border border-[var(--border-card)] p-4 mb-6">
-                    <div id="modal-chart-container" class="w-full h-64"></div>
-                </div>
-                <div class="grid grid-cols-12 gap-4 text-[10px] text-[var(--text-secondary)] uppercase tracking-wider font-bold mb-2 px-2 border-b border-[var(--border-card)] pb-2">
-                    <div class="col-span-4 pl-8">Category</div><div class="col-span-2 text-right">This Month</div><div class="col-span-2 text-right">Allocation (Std)</div><div class="col-span-2 text-right">Last Month</div><div class="col-span-2 text-right">YTD</div>
-                </div>
-                <div class="space-y-1" id="modal-table-body"></div>
-            </div>
-        </div>
+    <div class="flex-shrink-0 mr-4">
+      <div class="h-12 w-auto flex items-center justify-center">
+        <img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="Team Logo" class="h-full w-auto object-contain drop-shadow-md logo-img" onerror="this.src='https://via.placeholder.com/150x50?text=LOGO';this.onerror=null;" />
+      </div>
     </div>
-
-    <!-- Revenue Report Modal -->
-    <div id="revenue-report-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-[var(--modal-overlay)] backdrop-blur-sm">
-        <div class="bg-[var(--modal-bg)] w-[95%] max-w-6xl rounded-lg border border-[var(--modal-border)] shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
-            <div class="bg-[var(--modal-header-bg)] p-5 border-b border-[var(--modal-border)] flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <button onclick="toggleRevenueView('prev')" class="p-1 rounded-full hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-main)]"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
-                    <div class="text-center w-64">
-                        <h2 id="report-view-title" class="text-[var(--text-main)] text-xl font-bold uppercase tracking-wide">Detailed Revenue Ledger</h2>
-                        <p id="report-view-subtitle" class="text-[var(--text-secondary)] text-xs mt-1">Spreadsheet View</p>
-                    </div>
-                    <button onclick="toggleRevenueView('next')" class="p-1 rounded-full hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-main)]"><i data-lucide="chevron-right" class="w-6 h-6"></i></button>
-                </div>
-                <button onclick="closeRevenueReport()" class="text-[var(--text-secondary)] hover:text-[var(--text-main)]"><i data-lucide="x" class="w-6 h-6"></i></button>
-            </div>
-            <div class="p-0 bg-[var(--modal-bg)] flex-1 overflow-y-auto" id="revenue-report-content"></div>
-        </div>
+    <nav class="flex items-center gap-2" id="main-nav">
+      <!-- Nav items generated by JS -->
+    </nav>
+    <div class="ml-auto flex items-center pl-4 border-l border-[var(--border-header)]">
+      <button id="theme-toggle" class="p-2 rounded-full hover:bg-[var(--bg-hover)] text-[var(--text-main)] transition-all active:scale-95" aria-label="Toggle Theme">
+        <span class="icon-sun"><i data-lucide="sun" class="w-5 h-5"></i></span>
+        <span class="icon-moon hidden"><i data-lucide="moon" class="w-5 h-5"></i></span>
+      </button>
     </div>
+  </div>
+</header>
 
-    <!-- Balance Report Modal -->
-    <div id="balance-report-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-[var(--modal-overlay)] backdrop-blur-sm">
-        <div class="bg-[var(--modal-bg)] w-[95%] max-w-6xl rounded-lg border border-[var(--modal-border)] shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
-            <div class="bg-[var(--modal-header-bg)] p-5 border-b border-[var(--modal-border)] flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <button onclick="toggleBalanceView('prev')" class="p-1 rounded-full hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-main)]"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
-                    <div class="text-center w-64">
-                        <h2 id="balance-view-title" class="text-[var(--text-main)] text-xl font-bold uppercase tracking-wide">Detailed General Ledger</h2>
-                        <p id="balance-view-subtitle" class="text-[var(--text-secondary)] text-xs mt-1">Spreadsheet View</p>
-                    </div>
-                    <button onclick="toggleBalanceView('next')" class="p-1 rounded-full hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-main)]"><i data-lucide="chevron-right" class="w-6 h-6"></i></button>
-                </div>
-                <button onclick="closeBalanceReport()" class="text-[var(--text-secondary)] hover:text-[var(--text-main)]"><i data-lucide="x" class="w-6 h-6"></i></button>
-            </div>
-            <div class="p-0 bg-[var(--modal-bg)] flex-1 overflow-y-auto" id="balance-report-content"></div>
+<!-- MAIN CONTENT -->
+<div class="p-2 md:p-6 transition-colors duration-300">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    
+    <!-- LEFT COLUMN - FINANCIALS (Span 8) -->
+    <div class="lg:col-span-8 flex flex-col gap-6">
+      
+      <!-- Overall Balance -->
+      <div onclick="openDashboardModal('balance')" class="card-base border shadow-lg rounded-sm p-4 relative overflow-hidden cursor-pointer hover:border-[var(--text-accent)] hover:bg-[var(--bg-hover)] transition-all group">
+        <div class="flex justify-between items-start mb-3">
+          <h3 class="text-accent font-bold text-xs uppercase tracking-wider group-hover:text-[var(--text-main)] transition-colors">Overall Balance</h3>
+          <div><button onclick="openBalanceSheet(event)" class="text-[10px] border border-[var(--text-secondary)] px-2 py-0.5 text-[var(--text-secondary)] group-hover:text-[var(--text-main)] group-hover:border-[var(--text-main)] transition-colors z-10 relative">View Balance Sheet</button></div>
         </div>
-    </div>
+        <div class="mb-4">
+          <h2 class="text-3xl font-bold text-[var(--text-main)]">$58,931,825</h2>
+        </div>
+        <div class="relative h-48 w-full bg-[var(--bg-chart)] rounded p-2" id="chart-balance"></div>
+        <div class="w-full flex justify-between text-[9px] text-[var(--text-secondary)] px-2 mt-2">
+          <span>Q1 2025</span><span>Q2 2025</span><span>Q3 2025</span><span>Q4 2025</span><span>Feb 2026</span>
+        </div>
+      </div>
 
-    <!-- JAVASCRIPT LOGIC -->
-    <script>
-        // 1. DATA (Same as before, abbreviated for brevity in prompt but fully included in implementation)
-        const complianceData = {
-            c3: { label: "501(c)(3) Charitable", items: [{label: "Substantiate donors for contributions > $250", checked: true}, {label: "Monitor Public Support Test (33.3% rule)", checked: true}, {label: "Verify no political campaign intervention", checked: true}, {label: "Review excess benefit transactions", checked: false}, {label: "Check UBIT on commercial ads", checked: false}] },
-            c4: { label: "501(c)(4) Social Welfare", items: [{label: "Provide non-deductibility notice to donors", checked: true}, {label: "Ensure social welfare is primary activity", checked: true}, {label: "Calculate proxy tax on lobbying activities", checked: false}, {label: "File Form 8976 (Notice of Intent)", checked: true}, {label: "Limit political campaign activity", checked: false}] },
-            c6: { label: "501(c)(6) Business League", items: [{label: "Separate industry research from paid services", checked: true}, {label: "Issue dues deductibility disclosures", checked: false}, {label: "Avoid 'particular services' to individuals", checked: true}, {label: "Review trade show income for UBIT", checked: false}, {label: "Maintain member support > line of business", checked: true}] },
-            c7: { label: "501(c)(7) Social Club", items: [{label: "Track non-member income (<15% gross)", checked: false}, {label: "Segregate investment income (taxable)", checked: true}, {label: "Document personal guest usage for events", checked: false}, {label: "Ensure discrimination policies are compliant", checked: true}, {label: "File 990-T for investment income", checked: false}] }
-        };
+      <!-- Profit/Loss -->
+      <div onclick="openDashboardModal('surplus')" class="card-base border shadow-lg rounded-sm p-4 relative overflow-hidden cursor-pointer hover:border-[var(--text-accent)] hover:bg-[var(--bg-hover)] transition-all group">
+        <div class="flex justify-between items-start mb-3">
+          <h3 class="text-accent font-bold text-xs uppercase tracking-wider group-hover:text-[var(--text-main)] transition-colors">Net Surplus / (Deficit)</h3>
+        </div>
+        <div class="flex justify-between items-end mb-4">
+          <div>
+            <h2 class="text-2xl font-bold text-[var(--chart-neg)]">($4,265,676)</h2>
+          </div>
+          <div class="text-right flex gap-6 text-[var(--text-main)]">
+            <div>
+              <div class="text-[10px] text-[var(--text-secondary)] uppercase">Unrestricted Net Assets</div>
+              <div class="text-sm font-bold">$17,039,673</div>
+            </div>
+            <div>
+              <div class="text-[10px] text-[var(--text-secondary)] uppercase">Restricted Net Assets</div>
+              <div class="text-sm font-bold">$12,445,115</div>
+            </div>
+          </div>
+        </div>
+        <div class="relative h-40 w-full bg-[var(--bg-chart)] rounded p-2 mt-2 group-hover:bg-opacity-80" id="chart-profit"></div>
+        <div class="w-full flex justify-between text-[9px] text-[var(--text-secondary)] px-2 mt-2">
+          <span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span><span>Jan</span><span>Feb</span>
+        </div>
+      </div>
 
-        const chartData = {
-            balance: [800, 850, 820, 780, 750, 810, 840, 900, 950, 840, 790, 860, 880, 900, 920, 940, 900, 860, 840, 880],
-            profit: [40, 20, 40, 70, 100, 60, 30, 90, 110, 70, 60, 65, 40, 30, 80, 100, 110, 90, 70, 60],
-            income: [120, 140, 125, 180, 130, 120, 110, 150, 190, 140, 120, 160],
-            expense: [140, 145, 142, 148, 190, 145, 142, 146, 180, 145, 142, 145],
-            asset: [1220, 1222, 1225, 1218, 1225, 1230, 1235, 1240, 1238, 1242, 1248, 1255],
-            debt: [500, 498, 495, 490, 485, 480, 475, 470, 465, 460, 455, 450]
-        };
-
-        const modalData = {
-            expenses: { title: "Statement of Functional Expenses", subtitle: "Consolidated Functional Expenses for Fiscal Year 2025", stats: { month: "$252,573", prev: "$248,110", ytd: "$2,104,330" }, items: [ { category: "Program Services", item: "Direct Community Grants", thisMonth: 80000, lastMonth: 75000, ytd: 650000, history: [70, 72, 68, 75, 80, 78, 74, 76, 79, 81, 75, 80], std: "30%", tips: ["Implement stricter grant performance reviews.", "Shift to milestone-based disbursement."] }, { category: "Program Services", item: "Program Staff Salaries", thisMonth: 95000, lastMonth: 95000, ytd: 760000, history: [94, 94, 94, 95, 95, 95, 95, 95, 95, 95, 95, 95], std: "35%", tips: ["Review staff capacity."] }, { category: "Management & General", item: "Admin Salaries", thisMonth: 17000, lastMonth: 15000, ytd: 136000, history: [16, 16, 16, 16.5, 16.5, 17, 17, 17, 17, 15, 15, 17], std: "10%", tips: ["Audit administrative workflows."] }, { category: "Fundraising", item: "Fundraising Events", thisMonth: 15000, lastMonth: 12000, ytd: 95000, history: [5, 5, 25, 8, 6, 7, 5, 5, 20, 8, 12, 15], std: "5%", tips: ["Secure event sponsorships."] } ] },
-            revenue: { title: "Revenue Composition Report", subtitle: "Income Streams Analysis for Fiscal Year 2025", stats: { month: "$156,332", prev: "$142,500", ytd: "$1,850,200" }, items: [ { category: "Contributions", item: "Individual Donations", thisMonth: 29000, lastMonth: 25000, ytd: 350000, history: [20, 22, 25, 28, 30, 29, 27, 26, 28, 29, 25, 29], std: "20%", tips: ["Launch recurring giving campaign."] }, { category: "Grants", item: "Foundation Grants", thisMonth: 80000, lastMonth: 90000, ytd: 900000, history: [80, 80, 90, 90, 85, 85, 80, 80, 90, 90, 90, 80], std: "50%", tips: ["Research aligned foundations."] }, { category: "Earned Income", item: "Gov Contracts", thisMonth: 22000, lastMonth: 20000, ytd: 240000, history: [20, 20, 20, 21, 21, 22, 22, 22, 22, 20, 20, 22], std: "15%", tips: ["Ensure compliance reporting."] } ] },
-            surplus: { title: "Net Surplus Breakdown", subtitle: "Surplus (Deficit) Contribution by Activity", stats: { month: "$9,624", prev: "($5,200)", ytd: "$73,573" }, items: [ { category: "Programs", item: "Youth Outreach", thisMonth: -5000, lastMonth: -4500, ytd: -55000, history: [-4, -4.2, -4.5, -4.8, -5, -5.2, -5, -4.8, -4.5, -4.2, -4.5, -5], std: "N/A", tips: ["Seek restricted funding."] }, { category: "Fundraising", item: "Annual Gala (Net)", thisMonth: 15000, lastMonth: -2000, ytd: 120000, history: [-1, -1, -5, -2, 100, 20, 5, -1, -1, -1, -2, 15], std: "ROI 4:1", tips: ["Maximize post-event pledges."] } ] },
-            balance: { title: "Balance Sheet Summary", subtitle: "Financial Position", stats: { month: "$1,258,889", prev: "$1,249,265", ytd: "+$50k" }, items: [ { category: "Assets", item: "Cash & Equivalents", thisMonth: 850000, lastMonth: 840000, ytd: 850000, history: [800, 810, 820, 830, 840, 830, 820, 810, 820, 830, 840, 850], std: "6 mo", tips: ["Maximize high-yield savings."] }, { category: "Liabilities", item: "Accounts Payable", thisMonth: 150000, lastMonth: 155000, ytd: 150000, history: [140, 145, 150, 155, 160, 155, 150, 145, 150, 155, 155, 150], std: "30 days", tips: ["Negotiate payment terms."] } ] }
-        };
-
-        // Report Data
-        let currentRevenueViewIndex = 0; const revenueViews = ['spreadsheet', 'statement'];
-        const revenueTransactions = [ { date: "Jan 15, 2025", source: "City Community Fund", category: "Grants", amount: 50000, status: "Received" }, { date: "Jan 12, 2025", source: "Individual Donor", category: "Contributions", amount: 500, status: "Received" } ];
-        let currentBalanceViewIndex = 0; const balanceViews = ['spreadsheet', 'statement'];
-        const balanceTransactions = [ { date: "Jan 30, 2025", account: "Cash - Operating", category: "Asset", amount: 12000, type: "Debit" }, { date: "Jan 28, 2025", account: "Accounts Payable", category: "Liability", amount: 4500, type: "Credit" } ];
-
-        // --- CHART GENERATION (Updated for CSS Vars) ---
-        function generateLineChartSVG(data, height = 100) {
-            const max = Math.max(...data) * 1.05; const min = Math.min(...data) * 0.95; const range = max - min; const width = 100;
-            let pathD = ''; const stepX = width / (data.length - 1);
-            data.forEach((val, i) => { const x = i * stepX; const normalizedY = ((max - val) / range) * height; pathD += (i===0 ? `M${x},${normalizedY} ` : `L${x},${normalizedY} `); });
-            const isPositive = data[data.length - 1] >= data[0];
-            const strokeVar = isPositive ? 'var(--chart-pos)' : 'var(--chart-neg)';
-            return `<div class="w-full" style="height: ${height}px"><svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" class="w-full h-full"><path d="${pathD}" fill="none" stroke="${strokeVar}" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" /></svg></div>`;
-        }
+      <!-- Income & Expenditure Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Revenue -->
+        <div onclick="openDashboardModal('revenue')" class="card-base border shadow-lg rounded-sm p-4 cursor-pointer hover:border-[var(--text-accent)] hover:bg-[var(--bg-hover)] transition-all group">
+          <div class="flex justify-between items-start mb-3">
+            <h3 class="text-accent font-bold text-xs uppercase tracking-wider group-hover:text-[var(--text-main)] transition-colors">Revenue YTD</h3>
+            <button onclick="openRevenueReport(event)" class="text-[10px] border border-[var(--text-secondary)] px-2 py-0.5 text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:border-[var(--text-main)] hover:bg-[var(--btn-bg)] transition-colors z-10 relative">Report</button>
+          </div>
+          <h2 class="text-xl font-bold text-[var(--text-main)] mb-2">$1,850,200</h2>
+          <div class="h-20 mb-2 bg-[var(--bg-chart)] rounded p-1 group-hover:bg-opacity-80" id="chart-income"></div>
+          <div class="space-y-1 pt-2 border-t border-[var(--border-card)]">
+            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Contributions</span><span class="text-[var(--text-main)] font-mono">$350k</span></div>
+            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Grants</span><span class="text-[var(--text-main)] font-mono">$900k</span></div>
+            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Earned Income</span><span class="text-[var(--text-main)] font-mono">$240k</span></div>
+          </div>
+        </div>
         
-        function generateMiniSparklineSVG(data) {
-             const height = 60; const width = 300; 
-             const max = Math.max(...data) * 1.1; const min = Math.min(...data) * 0.9; const range = max - min;
-             let pathD = ''; const stepX = width / (data.length - 1);
-             data.forEach((val, i) => { const x = i * stepX; const normalizedY = ((max - val) / range) * height; pathD += (i===0 ? `M${x},${normalizedY} ` : `L${x},${normalizedY} `); });
-             const isPositive = data[data.length - 1] >= data[0];
-             const strokeVar = isPositive ? 'var(--chart-pos)' : 'var(--chart-neg)';
-             const fillVar = isPositive ? 'rgba(119, 219, 137, 0.1)' : 'rgba(239, 68, 68, 0.1)';
-             const areaPathD = `${pathD} L${width},${height} L0,${height} Z`;
-             return `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" class="w-full h-full"><path d="${areaPathD}" fill="${fillVar}" stroke="none" /><path d="${pathD}" fill="none" stroke="${strokeVar}" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" /></svg>`;
-        }
+        <!-- Expenses -->
+        <div onclick="openDashboardModal('expenses')" class="card-base border shadow-lg rounded-sm p-4 cursor-pointer hover:border-[var(--text-accent)] hover:bg-[var(--bg-hover)] transition-all group">
+          <div class="flex justify-between items-start mb-3">
+            <h3 class="text-accent font-bold text-xs uppercase tracking-wider group-hover:text-[var(--text-main)] transition-colors">Expenses YTD</h3>
+            <button class="text-[10px] border border-[var(--text-secondary)] px-2 py-0.5 text-[var(--text-secondary)] group-hover:text-[var(--text-main)] group-hover:border-[var(--text-main)] transition-colors">Report</button>
+          </div>
+          <h2 class="text-xl font-bold text-[var(--text-main)] mb-2">$2,104,330</h2>
+          <div class="h-20 mb-2 bg-[var(--bg-chart)] rounded p-1 group-hover:bg-opacity-80" id="chart-expenses"></div>
+          <div class="space-y-1 pt-2 border-t border-[var(--border-card)]">
+            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Salaries</span><span class="text-[var(--text-main)] font-mono">$1,100k</span></div>
+            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Program</span><span class="text-[var(--text-main)] font-mono">$750k</span></div>
+            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Admin</span><span class="text-[var(--text-main)] font-mono">$250k</span></div>
+          </div>
+        </div>
 
-        function generateBarChartSVG(height = 200) {
-           const width = 800; const barCount = 12; const gap = 10; const groupGap = 30; const totalGroupWidth = (width - (barCount - 1) * groupGap) / barCount; const barWidth = totalGroupWidth / 2 - gap/2;
-           let svgContent = '';
-           for(let i=0; i<barCount; i++) {
-               const h1 = Math.random() * 0.8 * height + 0.1 * height; const h2 = Math.random() * 0.8 * height + 0.1 * height; 
-               const x1 = i * (barWidth * 2 + gap + groupGap); const x2 = x1 + barWidth + gap; const y1 = height - h1; const y2 = height - h2;
-               svgContent += `<rect x="${x1}" y="${y1}" width="${barWidth}" height="${h1}" fill="var(--chart-pos)" rx="2" /><rect x="${x2}" y="${y2}" width="${barWidth}" height="${h2}" fill="#4b5563" rx="2" />`;
-           }
-           return `<svg viewBox="0 0 ${width * 1.5} ${height}" preserveAspectRatio="none" class="w-full h-full"><line x1="0" y1="0" x2="${width * 1.5}" y2="0" stroke="var(--chart-grid)" stroke-width="1" stroke-dasharray="4" /><line x1="0" y1="${height/2}" x2="${width * 1.5}" y2="${height/2}" stroke="var(--chart-grid)" stroke-width="1" stroke-dasharray="4" /><line x1="0" y1="${height}" x2="${width * 1.5}" y2="${height}" stroke="var(--chart-grid)" stroke-width="1" />${svgContent}</svg>`;
-        }
+        <!-- Assets Card -->
+        <div class="card-base border shadow-lg rounded-sm p-4">
+          <div class="flex justify-between items-start mb-3">
+            <h3 class="text-accent font-bold text-xs uppercase tracking-wider">Total Assets</h3>
+            <button class="text-[10px] border border-[var(--text-secondary)] px-2 py-0.5 text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:border-[var(--text-main)] transition-colors">Detail</button>
+          </div>
+          <h2 class="text-xl font-bold text-[var(--text-main)] mb-2">$58,931,825</h2>
+          <div class="h-20 mb-2 bg-[var(--bg-chart)] rounded p-1" id="chart-assets"></div>
+          <div class="space-y-1 pt-2 border-t border-[var(--border-card)]">
+            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Cash & ST Inv</span><span class="text-[var(--text-main)] font-mono">$4,853k</span></div>
+            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Long Term Inv</span><span class="text-[var(--text-main)] font-mono">$30,936k</span></div>
+            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">PPE Net</span><span class="text-[var(--text-main)] font-mono">$16,407k</span></div>
+          </div>
+        </div>
 
-        // --- DOM LOGIC ---
-        function renderChecklist(type) {
-            const data = complianceData[type];
-            document.getElementById('current-designation').innerText = data.label;
-            const pendingCount = data.items.filter(i => !i.checked).length;
-            document.getElementById('action-text').innerText = `Action required: ${pendingCount} items pending for ${data.label} compliance.`;
-            const container = document.getElementById('checklist-container');
-            container.innerHTML = '';
-            [...data.items].sort((a,b)=>a.checked===b.checked?0:a.checked?1:-1).forEach(item => {
-                const checkClass = item.checked ? 'bg-[var(--comp-border)] border-[var(--comp-border)]' : 'border-[var(--text-secondary)]';
-                const textClass = item.checked ? 'text-[var(--text-secondary)] line-through' : 'text-[var(--text-main)]';
-                const icon = item.checked ? '<i data-lucide="check" class="w-3.5 h-3.5 text-white stroke-[3]"></i>' : '';
-                container.innerHTML += `<div class="flex items-center gap-3 py-3 border-b border-[var(--border-card)] last:border-0 hover:bg-[var(--bg-hover)] px-2 -mx-2 rounded transition-colors cursor-pointer group"><div class="w-5 h-5 rounded-sm flex items-center justify-center border transition-colors ${checkClass}">${icon}</div><span class="text-xs font-medium ${textClass}">${item.label}</span></div>`;
-            });
-            lucide.createIcons();
-        }
+        <!-- Liabilities Card -->
+        <div class="card-base border shadow-lg rounded-sm p-4">
+          <div class="flex justify-between items-start mb-3">
+            <h3 class="text-accent font-bold text-xs uppercase tracking-wider">Total Liabilities</h3>
+            <button class="text-[10px] border border-[var(--text-secondary)] px-2 py-0.5 text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:border-[var(--text-main)] transition-colors">Detail</button>
+          </div>
+          <h2 class="text-xl font-bold text-[var(--text-main)] mb-2">$33,712,713</h2>
+          <div class="h-20 mb-2 bg-[var(--bg-chart)] rounded p-1" id="chart-liabilities"></div>
+          <div class="space-y-1 pt-2 border-t border-[var(--border-card)]">
+            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Lease Liability</span><span class="text-[var(--text-main)] font-mono">$21,199k</span></div>
+            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">Deferred Revenue</span><span class="text-[var(--text-main)] font-mono">$8,133k</span></div>
+            <div class="flex justify-between items-center text-xs py-1 border-b border-[var(--border-card)] last:border-0"><span class="text-[var(--text-secondary)]">AP & Accrued</span><span class="text-[var(--text-main)] font-mono">$2,392k</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        function setOrgType(type) {
-            renderChecklist(type);
-            document.getElementById('dropdown-menu').classList.add('hidden');
-        }
+    <!-- RIGHT COLUMN - REPORTS (Span 4) -->
+    <div class="lg:col-span-4 flex flex-col gap-6">
+      
+      <!-- Grant Pipeline -->
+      <div class="card-base border shadow-lg rounded-sm p-4 flex-1">
+        <div class="flex justify-between items-start mb-3">
+          <h3 class="text-accent font-bold text-xs uppercase tracking-wider">Grant Opportunity Pipeline</h3>
+        </div>
+        <div class="space-y-1">
+          <div class="flex items-start gap-3 py-3 border-b border-[var(--border-card)] last:border-0">
+            <div class="flex-1">
+              <h4 class="text-accent font-bold text-sm">City Community Fund</h4>
+              <p class="text-[var(--text-secondary)] text-xs mt-1">Application submitted for housing support. Decision pending.</p>
+            </div>
+            <div class="flex items-center justify-center h-8 px-3 rounded border border-green-500 text-green-500 font-bold text-xs bg-[var(--bg-chart)] whitespace-nowrap">$150k</div>
+          </div>
+          <div class="flex items-start gap-3 py-3 border-b border-[var(--border-card)] last:border-0">
+            <div class="flex-1">
+              <h4 class="text-accent font-bold text-sm">National Arts Endowment</h4>
+              <p class="text-[var(--text-secondary)] text-xs mt-1">Drafting narrative. Seeking funding for youth programs.</p>
+            </div>
+            <div class="flex items-center justify-center h-8 px-3 rounded border border-green-500 text-green-500 font-bold text-xs bg-[var(--bg-chart)] whitespace-nowrap">$50k</div>
+          </div>
+          <div class="flex items-start gap-3 py-3 border-b border-[var(--border-card)] last:border-0">
+            <div class="flex-1">
+              <h4 class="text-accent font-bold text-sm">Global Health Initiative</h4>
+              <p class="text-[var(--text-secondary)] text-xs mt-1">LOI stage. High competition expected.</p>
+            </div>
+            <div class="flex items-center justify-center h-8 px-3 rounded border border-green-500 text-green-500 font-bold text-xs bg-[var(--bg-chart)] whitespace-nowrap">$500k</div>
+          </div>
+        </div>
+      </div>
 
-        // Modals
-        function openDashboardModal(type) {
-            const data = modalData[type]; if(!data) return;
-            document.getElementById('modal-title').innerText = data.title;
-            document.getElementById('modal-subtitle').innerText = data.subtitle;
-            document.getElementById('modal-stat-month').innerText = data.stats.month;
-            document.getElementById('modal-stat-prev').innerText = data.stats.prev;
-            document.getElementById('modal-stat-ytd').innerText = data.stats.ytd;
-            document.getElementById('modal-chart-container').innerHTML = generateBarChartSVG(250);
-            
-            const tbody = document.getElementById('modal-table-body'); tbody.innerHTML = '';
-            const totalThisMonth = data.items.reduce((sum, item) => sum + Math.abs(item.thisMonth), 0);
-            const formatCurrency = (val) => (typeof val==='string'?val : (val<0?'-':'')+'$'+Math.abs(val).toLocaleString());
-            
-            [...new Set(data.items.map(i=>i.category))].forEach(cat => {
-                tbody.innerHTML += `<div class="px-2 py-3 mt-4 mb-1 border-b border-[var(--border-card)] text-[var(--text-accent)] font-bold text-xs uppercase tracking-widest">${cat}</div>`;
-                data.items.filter(i=>i.category===cat).forEach((row, idx) => {
-                    const percent = ((Math.abs(row.thisMonth)/totalThisMonth)*100).toFixed(1);
-                    const rowId = `row-${type}-${idx}`; const chartId = `chart-${type}-${idx}`;
-                    // Row HTML
-                    const rowHTML = `
-                    <div class="group cursor-pointer rounded transition-colors hover:bg-[var(--bg-hover)] border-l-4 border-transparent hover:border-[var(--text-accent)]" onclick="toggleRow('${rowId}', '${chartId}', [${row.history}])" aria-expanded="false">
-                        <div class="grid grid-cols-12 gap-4 p-2 items-center">
-                            <div class="col-span-4 font-medium text-[var(--text-main)] text-sm pl-2 flex items-center gap-2"><i data-lucide="chevron-down" class="chevron-icon w-4 h-4 text-[var(--text-secondary)] transition-transform duration-200"></i> ${row.item}</div>
-                            <div class="col-span-2 text-right text-[var(--text-secondary)] text-sm font-mono">${formatCurrency(row.thisMonth)}</div>
-                            <div class="col-span-2 text-right text-sm font-mono text-[var(--text-main)] font-bold">${percent}% <span class="text-[var(--text-secondary)] text-[10px] font-normal ml-1">(${row.std})</span></div>
-                            <div class="col-span-2 text-right text-[var(--text-secondary)] text-sm font-mono">${formatCurrency(row.lastMonth)}</div>
-                            <div class="col-span-2 text-right text-[var(--text-secondary)] text-sm font-mono">${formatCurrency(row.ytd)}</div>
-                        </div>
-                        <div id="${rowId}" class="hidden bg-[var(--bg-body)] p-4 border-t border-[var(--border-card)] mx-2 mb-2 rounded-b flex flex-col md:flex-row gap-6">
-                            <div class="w-full md:w-1/4"><h4 class="text-[10px] font-bold text-[var(--text-secondary)] uppercase mb-2">Trend</h4><div id="${chartId}" class="h-20 w-full bg-[var(--bg-chart)] rounded p-1 border border-[var(--border-card)]"></div></div>
-                            <div class="w-full md:w-3/4"><h4 class="text-[10px] font-bold text-[var(--text-accent)] uppercase mb-2">Tips</h4><ul class="space-y-1 text-xs text-[var(--text-main)]">${row.tips.map(t=>`<li>• ${t}</li>`).join('')}</ul></div>
-                        </div>
-                    </div>`;
-                    tbody.innerHTML += rowHTML;
-                });
-            });
-            document.getElementById('dashboard-modal').classList.remove('hidden');
-            lucide.createIcons();
-        }
+      <!-- Non-Profit Designation Suite -->
+      <div class="card-base border shadow-lg rounded-sm p-4">
+        <div class="flex justify-between items-start mb-3">
+          <h3 class="text-accent font-bold text-xs uppercase tracking-wider">Non-Profit Designation Requirements</h3>
+        </div>
+        <!-- Type Selector -->
+        <div class="flex items-center justify-between mb-4 bg-[var(--bg-chart)] p-2 rounded border border-[var(--border-card)] relative">
+          <span class="text-xs text-[var(--text-secondary)] uppercase font-bold tracking-wider">Designation:</span>
+          <div class="relative group">
+            <button id="dropdown-trigger" class="flex items-center gap-2 text-xs font-bold text-[var(--text-main)] hover:text-[var(--text-accent)] transition-colors focus:outline-none">
+              <span id="current-designation">501(c)(3) Charitable</span>
+              <i data-lucide="chevron-down" class="w-3 h-3"></i>
+            </button>
+            <!-- Dropdown Menu -->
+            <div id="dropdown-menu" class="absolute right-0 top-full mt-2 w-48 bg-[var(--bg-card)] border border-[var(--border-card)] shadow-xl rounded z-10 hidden">
+              <button onclick="setOrgType('c3')" class="w-full text-left px-3 py-2 text-xs hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] transition-colors">501(c)(3) Charitable</button>
+              <button onclick="setOrgType('c4')" class="w-full text-left px-3 py-2 text-xs hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] transition-colors">501(c)(4) Social Welfare</button>
+              <button onclick="setOrgType('c6')" class="w-full text-left px-3 py-2 text-xs hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] transition-colors">501(c)(6) Business League</button>
+              <button onclick="setOrgType('c7')" class="w-full text-left px-3 py-2 text-xs hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] transition-colors">501(c)(7) Social Club</button>
+            </div>
+          </div>
+        </div>
+        <!-- Action Banner -->
+        <div class="flex items-center gap-3 bg-[var(--bg-chart)] p-3 rounded mb-4 border border-[var(--border-card)]">
+          <div class="w-8 h-8 rounded-full border-2 border-blue-400 text-blue-400 flex items-center justify-center font-bold text-xs">
+            <i data-lucide="check" class="w-4 h-4"></i>
+          </div>
+          <p class="text-xs font-bold text-blue-400 leading-tight" id="action-text">Action required: 2 items pending for 501(c)(3) Charitable compliance.</p>
+        </div>
+        <!-- Checklist Container -->
+        <div class="space-y-1" id="checklist-container"></div>
+      </div>
 
-        function toggleRow(rowId, chartId, data) {
-            const el = document.getElementById(rowId);
-            el.classList.toggle('hidden');
-            el.parentElement.setAttribute('aria-expanded', !el.classList.contains('hidden'));
-            if(!el.classList.contains('hidden') && document.getElementById(chartId).innerHTML === '') {
-                document.getElementById(chartId).innerHTML = generateMiniSparklineSVG(data);
-            }
-        }
+      <!-- Budget Card -->
+      <div class="bg-gradient-to-br from-[var(--bg-card)] to-[var(--bg-chart)] border-none shadow-lg rounded-sm p-4">
+        <h3 class="text-[var(--text-secondary)] font-bold text-xs uppercase tracking-wider mb-1">Monthly Operating Budget</h3>
+        <h2 class="text-3xl font-bold text-[var(--text-main)] mb-2">$335,714 p/m</h2>
+        <div class="space-y-1">
+          <p class="text-red-400 text-sm">Currently spending $341,063 p/m</p>
+          <p class="text-red-400 text-sm opacity-80">Committed spending $341,063 p/m</p>
+        </div>
+        <div class="mt-4 pt-3 border-t border-[var(--border-card)]">
+          <p class="text-[var(--text-secondary)] text-xs">Next Fiscal Year Budget Pending</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        function closeDashboardModal() { document.getElementById('dashboard-modal').classList.add('hidden'); }
+  <!-- COMPLIANCE & DELIVERABLES -->
+  <div class="mt-6">
+    <h4 class="text-accent font-bold text-xs uppercase tracking-wider mb-2">Compliance & Deliverables</h4>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-[var(--comp-bg)] p-4 border-l-4 border-[var(--comp-border)] rounded-sm">
+        <h4 class="font-bold text-sm mb-1 text-[var(--comp-text)] flex items-center gap-2">
+          Form 990 Compliance Status
+        </h4>
+        <div class="flex items-start gap-2">
+          <i data-lucide="check" class="w-4 h-4 mt-0.5 text-[var(--comp-text)]"></i>
+          <p class="text-xs text-[var(--comp-text)] leading-tight">Annual return ready for filing.</p>
+        </div>
+      </div>
+      <div class="bg-[var(--comp-bg)] p-4 border-l-4 border-[var(--comp-border)] rounded-sm">
+        <h4 class="font-bold text-sm mb-1 text-[var(--comp-text)] flex items-center gap-2">
+          Form 8872 Reporting
+        </h4>
+        <div class="flex items-start gap-2">
+          <i data-lucide="check" class="w-4 h-4 mt-0.5 text-[var(--comp-text)]"></i>
+          <p class="text-xs text-[var(--comp-text)] leading-tight">Political organization report up to date.</p>
+        </div>
+      </div>
+      <div class="bg-[var(--comp-bg)] p-4 border-l-4 border-[var(--comp-border)] rounded-sm">
+        <h4 class="font-bold text-sm mb-1 text-[var(--comp-text)] flex items-center gap-2">
+          Form 4720 Excise Tax
+        </h4>
+        <div class="flex items-start gap-2">
+          <i data-lucide="check" class="w-4 h-4 mt-0.5 text-[var(--comp-text)]"></i>
+          <p class="text-xs text-[var(--comp-text)] leading-tight">No prohibited tax shelter transactions.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-        // Revenue/Balance Reports (Simplified for brevity but fully functional in logic)
-        function openRevenueReport(e) { e.stopPropagation(); document.getElementById('revenue-report-modal').classList.remove('hidden'); renderReportView('revenue', 'revenue-report-content'); }
-        function closeRevenueReport() { document.getElementById('revenue-report-modal').classList.add('hidden'); }
-        function toggleRevenueView() { renderReportView('revenue', 'revenue-report-content'); } // simplified toggle
+<!-- MODALS -->
 
-        function openBalanceReport(e) { e.stopPropagation(); document.getElementById('balance-report-modal').classList.remove('hidden'); renderReportView('balance', 'balance-report-content'); }
-        function closeBalanceReport() { document.getElementById('balance-report-modal').classList.add('hidden'); }
-        function toggleBalanceView() { renderReportView('balance', 'balance-report-content'); }
+<!-- Balance Sheet Modal (Populated with Feb 2026 Data) -->
+<div id="balance-sheet-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-[var(--modal-overlay)] backdrop-blur-sm transition-opacity duration-300">
+  <div class="bg-[var(--modal-bg)] w-[95%] max-w-7xl rounded-lg border border-[var(--modal-border)] shadow-2xl flex flex-col overflow-hidden max-h-[95vh]">
+    <div class="bg-[var(--modal-header-bg)] p-5 border-b border-[var(--modal-border)] flex justify-between items-center sticky top-0 z-10">
+      <div>
+        <h2 class="text-[var(--text-main)] text-xl font-bold uppercase tracking-wide">Consolidated Balance Sheet</h2>
+        <p class="text-[var(--text-secondary)] text-xs mt-1">As of February 28, 2026 (Unaudited)</p>
+      </div>
+      <button onclick="closeBalanceSheet()" class="text-[var(--text-secondary)] hover:text-[var(--text-main)] absolute top-4 right-4"><i data-lucide="x" class="w-6 h-6"></i></button>
+    </div>
+    
+    <div class="p-6 bg-[var(--modal-bg)] flex-1 overflow-y-auto">
+      <!-- Summary Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="p-4 border border-[var(--border-card)] rounded bg-[var(--bg-chart)]">
+          <p class="text-[10px] text-[var(--text-secondary)] uppercase font-bold tracking-wider">Total Assets</p>
+          <p class="text-2xl font-bold text-[var(--text-main)] mt-1">$58,931,825</p>
+        </div>
+        <div class="p-4 border border-[var(--border-card)] rounded bg-[var(--bg-chart)]">
+          <p class="text-[10px] text-[var(--text-secondary)] uppercase font-bold tracking-wider">Total Liabilities</p>
+          <p class="text-2xl font-bold text-[var(--text-main)] mt-1">$33,712,713</p>
+        </div>
+        <div class="p-4 border border-[var(--border-card)] rounded bg-[var(--bg-chart)]">
+          <p class="text-[10px] text-[var(--text-secondary)] uppercase font-bold tracking-wider">Net Assets</p>
+          <p class="text-2xl font-bold text-[var(--chart-pos)] mt-1">$25,219,112</p>
+        </div>
+        <div class="p-4 border border-[var(--border-card)] rounded bg-[var(--bg-chart)]">
+          <p class="text-[10px] text-[var(--text-secondary)] uppercase font-bold tracking-wider">Inc/(Dec) in Net Assets</p>
+          <p class="text-2xl font-bold text-[var(--chart-neg)] mt-1">($4,265,676)</p>
+        </div>
+      </div>
 
-        function renderReportView(type, containerId) {
-            const container = document.getElementById(containerId);
-            // Just rendering a placeholder table to demonstrate the theme variables usage in report
-            const rows = type === 'revenue' ? revenueTransactions : balanceTransactions;
-            const headers = type === 'revenue' ? ['Date','Source','Cat','Amt','Status'] : ['Date','Account','Cat','Amt','Type'];
-            
-            let html = `<div class="w-full overflow-x-auto"><table class="w-full text-left border-collapse"><thead><tr class="bg-[var(--bg-header)] border-b border-[var(--border-header)] text-xs text-[var(--text-secondary)] uppercase tracking-wider">`;
-            headers.forEach(h => html += `<th class="px-4 py-3 font-bold">${h}</th>`);
-            html += `</tr></thead><tbody>`;
-            
-            rows.forEach(r => {
-                html += `<tr class="border-b border-[var(--border-card)] hover:bg-[var(--bg-hover)] transition-colors">
-                    <td class="px-4 py-3 text-sm text-[var(--text-secondary)]">${r.date}</td>
-                    <td class="px-4 py-3 text-sm text-[var(--text-main)] font-medium">${r.source || r.account}</td>
-                    <td class="px-4 py-3 text-sm text-[var(--text-secondary)]">${r.category}</td>
-                    <td class="px-4 py-3 text-sm text-[var(--text-main)] font-mono">$${r.amount}</td>
-                    <td class="px-4 py-3 text-sm"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[var(--comp-bg)] text-[var(--comp-text)]">${r.status || r.type}</span></td>
-                </tr>`;
-            });
-            html += `</tbody></table></div>`;
-            container.innerHTML = html;
-        }
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- ASSETS COLUMN -->
+        <div>
+          <h3 class="text-[var(--text-accent)] font-bold text-sm uppercase tracking-wide mb-3 pb-2 border-b border-[var(--border-card)]">Assets</h3>
+          
+          <div class="mb-6">
+            <h4 class="text-[var(--text-secondary)] font-bold text-xs uppercase tracking-wider mb-2 mt-2">Current Assets</h4>
+            <div class="space-y-1">
+              <div class="flex justify-between text-sm px-2 py-1 rounded hover:bg-[var(--bg-hover)]"><span>Cash & Short Term Investments</span><span class="font-mono text-[var(--text-main)]">$4,853,332</span></div>
+              <div class="flex justify-between text-sm px-2 py-1 rounded hover:bg-[var(--bg-hover)]"><span>Accounts/Interest Receivable</span><span class="font-mono text-[var(--text-main)]">$730,071</span></div>
+              <div class="flex justify-between text-sm px-2 py-1 rounded hover:bg-[var(--bg-hover)]"><span>Prepaid Expenses</span><span class="font-mono text-[var(--text-main)]">$1,685,230</span></div>
+              <div class="flex justify-between text-sm font-bold px-2 py-2 mt-1 border-t border-[var(--border-card)]"><span>Total Current Assets</span><span class="font-mono text-[var(--text-main)]">$7,268,633</span></div>
+            </div>
+          </div>
 
-        document.addEventListener('DOMContentLoaded', () => {
-            // Theme Toggle
-            const themeBtn = document.getElementById('theme-toggle');
-            const sunIcon = themeBtn.querySelector('.icon-sun');
-            const moonIcon = themeBtn.querySelector('.icon-moon');
-            const body = document.body;
-            let isDark = true; 
+          <div class="mb-6">
+            <h4 class="text-[var(--text-secondary)] font-bold text-xs uppercase tracking-wider mb-2 mt-2">Investments</h4>
+            <div class="space-y-1">
+              <div class="flex justify-between text-sm px-2 py-1 rounded hover:bg-[var(--bg-hover)]"><span>Long Term Investments</span><span class="font-mono text-[var(--text-main)]">$30,936,078</span></div>
+              <div class="flex justify-between text-sm px-2 py-1 rounded hover:bg-[var(--bg-hover)]"><span>Inv. - Deferred Compensation</span><span class="font-mono text-[var(--text-main)]">$1,497,079</span></div>
+              <div class="flex justify-between text-sm px-2 py-1 rounded hover:bg-[var(--bg-hover)]"><span>Inv. in Partnership</span><span class="font-mono text-[var(--text-main)]">$400,000</span></div>
+              <div class="flex justify-between text-sm font-bold px-2 py-2 mt-1 border-t border-[var(--border-card)]"><span>Total Investments</span><span class="font-mono text-[var(--text-main)]">$32,833,157</span></div>
+            </div>
+          </div>
 
-            const updateThemeUI = () => {
-                if (isDark) {
-                    body.removeAttribute('data-theme');
-                    sunIcon.classList.remove('hidden');
-                    moonIcon.classList.add('hidden');
-                } else {
-                    body.setAttribute('data-theme', 'light');
-                    sunIcon.classList.add('hidden');
-                    moonIcon.classList.remove('hidden');
-                }
-            };
-            themeBtn.addEventListener('click', () => { isDark = !isDark; updateThemeUI(); });
-            updateThemeUI();
+          <div class="mb-6">
+            <h4 class="text-[var(--text-secondary)] font-bold text-xs uppercase tracking-wider mb-2 mt-2">Other Assets</h4>
+            <div class="space-y-1">
+              <div class="flex justify-between text-sm px-2 py-1 rounded hover:bg-[var(--bg-hover)]"><span>Contributions Receivable</span><span class="font-mono text-[var(--text-main)]">$2,422,577</span></div>
+              <div class="flex justify-between text-sm px-2 py-1 rounded hover:bg-[var(--bg-hover)]"><span>Property and Equipment - Net</span><span class="font-mono text-[var(--text-main)]">$16,407,458</span></div>
+              <div class="flex justify-between text-sm font-bold px-2 py-2 mt-1 border-t border-[var(--border-card)]"><span>Total Other Assets</span><span class="font-mono text-[var(--text-main)]">$18,830,035</span></div>
+            </div>
+          </div>
 
-            // Render Main Charts
-            document.getElementById('chart-balance').innerHTML = generateLineChartSVG(chartData.balance, 180);
-            document.getElementById('chart-profit').innerHTML = generateLineChartSVG(chartData.profit, 140);
-            document.getElementById('chart-income').innerHTML = generateLineChartSVG(chartData.income, 72);
-            document.getElementById('chart-expenses').innerHTML = generateLineChartSVG(chartData.expense, 72);
-            document.getElementById('chart-assets').innerHTML = generateLineChartSVG(chartData.asset, 72);
-            document.getElementById('chart-liabilities').innerHTML = generateLineChartSVG(chartData.debt, 72);
+          <div class="flex justify-between text-lg font-bold px-2 py-3 mt-4 border-t-2 border-[var(--chart-pos)] bg-[var(--chart-pos)]/10 rounded text-[var(--chart-pos)]">
+            <span>Total Assets</span>
+            <span class="font-mono">$58,931,825</span>
+          </div>
+        </div>
 
-            // Nav Logic
-            const navItems = ['Vision', 'Organizing', 'Financials', 'Data Suite', 'Projects', 'Marketing', 'Fundraising'];
-            const navContainer = document.getElementById('main-nav');
-            navItems.forEach(item => {
-                const btn = document.createElement('button');
-                btn.className = item === 'Financials' 
-                    ? 'group flex items-center px-3 py-2 text-xl font-bold tracking-tight font-fm-header transition-all text-[var(--nav-active)] drop-shadow-[0_0_8px_var(--nav-glow)] scale-105' 
-                    : 'group flex items-center px-3 py-2 text-xl font-bold tracking-tight font-fm-header transition-all text-[var(--nav-inactive)] hover:text-[var(--nav-hover)] hover:scale-105';
-                btn.innerHTML = `<span>${item}</span>`;
-                btn.onclick = function() {
-                    Array.from(navContainer.children).forEach(c => c.className = 'group flex items-center px-3 py-2 text-xl font-bold tracking-tight font-fm-header transition-all text-[var(--nav-inactive)] hover:text-[var(--nav-hover)] hover:scale-105');
-                    this.className = 'group flex items-center px-3 py-2 text-xl font-bold tracking-tight font-fm-header transition-all text-[var(--nav-active)] drop-shadow-[0_0_8px_var(--nav-glow)] scale-105';
-                };
-                navContainer.appendChild(btn);
-            });
+        <!-- LIABILITIES & NET ASSETS COLUMN -->
+        <div>
+          <h3 class="text-[var(--text-accent)] font-bold text-sm uppercase tracking-wide mb-3 pb-2 border-b border-[var(--border-card)]">Liabilities & Net Assets</h3>
+          
+          <div class="mb-6">
+            <h4 class="text-[var(--text-secondary)] font-bold text-xs uppercase tracking-wider mb-2 mt-2">Current Liabilities</h4>
+            <div class="space-y-1">
+              <div class="flex justify-between text-sm px-2 py-1 rounded hover:bg-[var(--bg-hover)]"><span>Accounts Payable</span><span class="font-mono text-[var(--text-main)]">$738,985</span></div>
+              <div class="flex justify-between text-sm px-2 py-1 rounded hover:bg-[var(--bg-hover)]"><span>Accrued Expenses</span><span class="font-mono text-[var(--text-main)]">$1,653,413</span></div>
+              <div class="px-2 py-1 mt-1 text-[var(--text-accent)] text-xs font-bold uppercase">Deferred Revenue</div>
+              <div class="space-y-1 pl-4 mb-2 border-l-2 border-[var(--border-card)] ml-3">
+                <div class="flex justify-between text-sm px-2 py-1 rounded hover:bg-[var(--bg-hover)]"><span>Deferred Membership</span><span class="font-mono text-[var(--text-main)]">$4,369,482</span></div>
+                <div class="flex justify-between text-sm px-2 py-1 rounded hover:bg-[var(--bg-hover)]"><span>Deferred Conference</span><span class="font-mono text-[var(--text-main)]">$1,843,446</span></div>
+                <div class="flex justify-between text-sm px-2 py-1 rounded hover:bg-[var(--bg-hover)]"><span>Deferred Other</span><span class="font-mono text-[var(--text-main)]">$1,920,454</span></div>
+                <div class="flex justify-between text-sm font-bold px-2 py-1 mt-1 border-t border-[var(--border-card)]"><span>Total Deferred</span><span class="font-mono text-[var(--text-main)]">$8,133,382</span></div>
+              </div>
+              <div class="flex justify-between text-sm font-bold px-2 py-2 mt-1 border-t border-[var(--border-card)]"><span>Total Current Liabilities</span><span class="font-mono text-[var(--text-main)]">$10,525,780</span></div>
+            </div>
+          </div>
 
-            // Dropdowns
-            document.getElementById('dropdown-trigger').addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('dropdown-menu').classList.toggle('hidden'); });
-            document.addEventListener('click', () => document.getElementById('dropdown-menu').classList.add('hidden'));
-            
-            renderChecklist('c3');
-            lucide.createIcons();
-        });
-    </script>
+          <div class="mb-6">
+            <h4 class="text-[var(--text-secondary)] font-bold text-xs uppercase tracking-wider mb-2 mt-2">Other Liabilities</h4>
+            <div class="space-y-1">
+              <div class="flex justify-between text-sm px-2 py-1 rounded hover:bg-[var(--bg-hover)]"><span>Refundable Grant Advances</span><span class="font-mono text-[var(--text-main)]">$240,976</span></div>
+              <div class="flex justify-between text-sm px-2 py-1 rounded hover:bg-[var(--bg-hover)]"><span>Deferred Compensation</span><span class="font-mono text-[var(--text-main)]">$1,497,079</span></div>
+              <div class="flex justify-between text-sm px-2 py-1 rounded hover:bg-[var(--bg-hover)]"><span>Lease Liability</span><span class="font-mono text-[var(--text-main)]">$21,198,878</span></div>
+              <div class="flex justify-between text-sm px-2 py-1 rounded hover:bg-[var(--bg-hover)]"><span>Loan Payable</span><span class="font-mono text-[var(--text-main)]">$250,000</span></div>
+              <div class="flex justify-between text-sm font-bold px-2 py-2 mt-1 border-t border-[var(--border-card)]"><span>Total Liabilities</span><span class="font-mono text-[var(--text-main)]">$33,712,713</span></div>
+            </div>
+          </div>
+
+          <div class="mb-6">
+            <h4 class="text-[var(--text-accent)] font-bold text-xs uppercase tracking-wider mb-2 mt-2">Net Assets</h4>
+            <div class="space-y-1">
+              <div class="flex justify-between text-sm px-2 py-1 rounded hover:bg-[var(--bg-hover)]"><span>Net Assets Without Donor Restrictions</span><span class="font-mono text-[var(--text-main)]">$17,039,673</span></div>
+              <div class="flex justify-between text-sm px-2 py-1 rounded hover:bg-[var(--bg-hover)]"><span>Net Assets With Donor Restrictions</span><span class="font-mono text-[var(--text-main)]">$12,445,115</span></div>
+              <div class="flex justify-between text-sm px-2 py-1 rounded hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] italic"><span>Increase/(Decrease) in Net Assets</span><span class="font-mono">($4,265,676)</span></div>
+              <div class="flex justify-between text-lg font-bold px-2 py-3 mt-4 border-t-2 border-[var(--chart-pos)] bg-[var(--chart-pos)]/10 rounded text-[var(--chart-pos)]"><span>Total Net Assets</span><span class="font-mono">$25,219,112</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Generic Dashboard Modal -->
+<div id="dashboard-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-[var(--modal-overlay)] backdrop-blur-sm transition-opacity duration-300">
+  <div class="bg-[var(--modal-bg)] w-[95%] max-w-5xl rounded-lg border border-[var(--modal-border)] shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
+    <div class="bg-[var(--modal-header-bg)] p-5 border-b border-[var(--modal-border)] flex justify-between items-center">
+      <div>
+        <h2 id="modal-title" class="text-[var(--text-main)] text-xl font-bold uppercase tracking-wide"></h2>
+        <p id="modal-subtitle" class="text-[var(--text-secondary)] text-xs mt-1"></p>
+      </div>
+      <div class="flex gap-10 text-right">
+        <div><div class="text-[10px] text-[var(--text-secondary)] uppercase">This Month</div><div id="modal-stat-month" class="text-lg font-bold text-[var(--text-main)]"></div></div>
+        <div><div class="text-[10px] text-[var(--text-secondary)] uppercase">Last Month</div><div id="modal-stat-prev" class="text-lg font-bold text-[var(--text-secondary)]"></div></div>
+        <div><div class="text-[10px] text-[var(--text-secondary)] uppercase">YTD</div><div id="modal-stat-ytd" class="text-lg font-bold text-[var(--text-main)]"></div></div>
+      </div>
+      <button onclick="closeDashboardModal()" class="text-[var(--text-secondary)] hover:text-[var(--text-main)] absolute top-4 right-4"><i data-lucide="x" class="w-6 h-6"></i></button>
+    </div>
+    <div class="p-6 bg-[var(--modal-bg)] flex-1 overflow-y-auto">
+      <div class="relative bg-[var(--bg-chart)] rounded border border-[var(--border-card)] p-4 mb-6">
+        <div id="modal-chart-container" class="w-full h-64"></div>
+      </div>
+      <div class="grid grid-cols-12 gap-4 text-[10px] text-[var(--text-secondary)] uppercase tracking-wider font-bold mb-2 px-2 border-b border-[var(--border-card)] pb-2">
+        <div class="col-span-4 pl-8">Category</div><div class="col-span-2 text-right">This Month</div><div class="col-span-2 text-right">Allocation (Std)</div><div class="col-span-2 text-right">Last Month</div><div class="col-span-2 text-right">YTD</div>
+      </div>
+      <div class="space-y-1" id="modal-table-body"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Revenue Report Modal -->
+<div id="revenue-report-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-[var(--modal-overlay)] backdrop-blur-sm">
+  <div class="bg-[var(--modal-bg)] w-[95%] max-w-6xl rounded-lg border border-[var(--modal-border)] shadow-2xl flex flex-col overflow-hidden max-h-[90vh]">
+    <div class="bg-[var(--modal-header-bg)] p-5 border-b border-[var(--modal-border)] flex justify-between items-center">
+      <div class="flex items-center gap-4">
+        <button onclick="toggleRevenueView('prev')" class="p-1 rounded-full hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-main)]"><i data-lucide="chevron-left" class="w-6 h-6"></i></button>
+        <div class="text-center w-64">
+          <h2 id="report-view-title" class="text-[var(--text-main)] text-xl font-bold uppercase tracking-wide">Detailed Revenue Ledger</h2>
+          <p id="report-view-subtitle" class="text-[var(--text-secondary)] text-xs mt-1">Spreadsheet View</p>
+        </div>
+        <button onclick="toggleRevenueView('next')" class="p-1 rounded-full hover:bg-[var(--bg-hover)] text-[var(--text-secondary)] hover:text-[var(--text-main)]"><i data-lucide="chevron-right" class="w-6 h-6"></i></button>
+      </div>
+      <button onclick="closeRevenueReport()" class="text-[var(--text-secondary)] hover:text-[var(--text-main)]"><i data-lucide="x" class="w-6 h-6"></i></button>
+    </div>
+    <div class="p-0 bg-[var(--modal-bg)] flex-1 overflow-y-auto" id="revenue-report-content"></div>
+  </div>
+</div>
+
+<!-- JAVASCRIPT LOGIC -->
+<script>
+const complianceData = {
+  c3: { label: "501(c)(3) Charitable", items: [{label: "Substantiate donors for contributions > $250", checked: true}, {label: "Monitor Public Support Test (33.3% rule)", checked: true}, {label: "Verify no political campaign intervention", checked: true}, {label: "Review excess benefit transactions", checked: false}, {label: "Check UBIT on commercial ads", checked: false}] },
+  c4: { label: "501(c)(4) Social Welfare", items: [{label: "Provide non-deductibility notice to donors", checked: true}, {label: "Ensure social welfare is primary activity", checked: true}, {label: "Calculate proxy tax on lobbying activities", checked: false}, {label: "File Form 8976 (Notice of Intent)", checked: true}, {label: "Limit political campaign activity", checked: false}] },
+  c6: { label: "501(c)(6) Business League", items: [{label: "Separate industry research from paid services", checked: true}, {label: "Issue dues deductibility disclosures", checked: false}, {label: "Avoid 'particular services' to individuals", checked: true}, {label: "Review trade show income for UBIT", checked: false}, {label: "Maintain member support > line of business", checked: true}] },
+  c7: { label: "501(c)(7) Social Club", items: [{label: "Track non-member income (<15% gross)", checked: false}, {label: "Segregate investment income (taxable)", checked: true}, {label: "Document personal guest usage for events", checked: false}, {label: "Ensure discrimination policies are compliant", checked: true}, {label: "File 990-T for investment income", checked: false}] }
+};
+
+const chartData = {
+  balance: [64.1, 60.5, 56.2, 61.1, 58.9], // Millions (Dec24, Sep25, Dec25, Feb25, Feb26)
+  profit: [143, 120, 85, 45, 73, 50, -20, 10], // YTD Surplus fluctuating
+  income: [150, 180, 200, 220, 210, 190, 205, 160], // Monthly Revenue
+  expense: [200, 210, 205, 220, 240, 235, 250, 252], // Monthly Expense
+  asset: [64.1, 62.3, 60.5, 59.5, 58.9],
+  debt: [35.5, 35.1, 33.2, 33.0, 33.7]
+};
+
+const modalData = {
+  expenses: { title: "Statement of Functional Expenses", subtitle: "Consolidated Functional Expenses for Fiscal Year 2026", stats: { month: "$252,573", prev: "$248,110", ytd: "$2,104,330" }, items: [ { category: "Program Services", item: "Direct Community Grants", thisMonth: 80000, lastMonth: 75000, ytd: 650000, history: [70, 72, 68, 75, 80, 78, 74, 80], std: "30%", tips: ["Implement stricter grant performance reviews.", "Shift to milestone-based disbursement."] }, { category: "Program Services", item: "Program Staff Salaries", thisMonth: 95000, lastMonth: 95000, ytd: 760000, history: [94, 94, 94, 95, 95, 95, 95, 95], std: "35%", tips: ["Review staff capacity."] }, { category: "Management & General", item: "Admin Salaries", thisMonth: 17000, lastMonth: 15000, ytd: 136000, history: [16, 16, 16, 16.5, 16.5, 17, 17, 17], std: "10%", tips: ["Audit administrative workflows."] }, { category: "Fundraising", item: "Fundraising Events", thisMonth: 15000, lastMonth: 12000, ytd: 95000, history: [5, 5, 25, 8, 6, 7, 12, 15], std: "5%", tips: ["Secure event sponsorships."] } ] },
+  revenue: { title: "Revenue Composition Report", subtitle: "Income Streams Analysis for Fiscal Year 2026", stats: { month: "$156,332", prev: "$142,500", ytd: "$1,850,200" }, items: [ { category: "Contributions", item: "Individual Donations", thisMonth: 29000, lastMonth: 25000, ytd: 350000, history: [20, 22, 25, 28, 30, 29, 27, 29], std: "20%", tips: ["Launch recurring giving campaign."] }, { category: "Grants", item: "Foundation Grants", thisMonth: 80000, lastMonth: 90000, ytd: 900000, history: [80, 80, 90, 90, 85, 85, 80, 80], std: "50%", tips: ["Research aligned foundations."] }, { category: "Earned Income", item: "Gov Contracts", thisMonth: 22000, lastMonth: 20000, ytd: 240000, history: [20, 20, 20, 21, 21, 22, 22, 22], std: "15%", tips: ["Ensure compliance reporting."] } ] },
+  surplus: { title: "Net Surplus Breakdown", subtitle: "Surplus (Deficit) Contribution by Activity", stats: { month: "$9,624", prev: "($5,200)", ytd: "$73,573" }, items: [ { category: "Programs", item: "Youth Outreach", thisMonth: -5000, lastMonth: -4500, ytd: -55000, history: [-4, -4.2, -4.5, -4.8, -5, -5.2, -4.8, -5], std: "N/A", tips: ["Seek restricted funding."] }, { category: "Fundraising", item: "Annual Gala (Net)", thisMonth: 15000, lastMonth: -2000, ytd: 120000, history: [-1, -1, -5, -2, 100, 20, 5, 15], std: "ROI 4:1", tips: ["Maximize post-event pledges."] } ] },
+  balance: { title: "Balance Sheet Summary", subtitle: "Financial Position as of Feb 28, 2026", stats: { month: "$58,931,825", prev: "$60,524,849", ytd: "-$1.5M" }, items: [ { category: "Assets", item: "Cash & Short Term Inv", thisMonth: 4853332, lastMonth: 3785584, ytd: 4853332, history: [11.3, 9.6, 8.0, 5.7, 4.8], std: "6 mo", tips: ["Monitor liquidity runway."] }, { category: "Investments", item: "Long Term Investments", thisMonth: 30936078, lastMonth: 29694880, ytd: 30936078, history: [26.6, 29.2, 29.2, 31.5, 30.9], std: "12 mo", tips: ["Review asset allocation."] } ] }
+};
+
+// Report Data
+let currentRevenueViewIndex = 0; const revenueViews = ['spreadsheet', 'statement'];
+const revenueTransactions = [ { date: "Feb 28, 2026", source: "City Community Fund", category: "Grants", amount: 50000, status: "Received" }, { date: "Feb 12, 2026", source: "Individual Donor", category: "Contributions", amount: 500, status: "Received" } ];
+
+// --- CHART GENERATION ---
+function generateLineChartSVG(data, height = 100) {
+  const max = Math.max(...data) * 1.1; const min = Math.min(...data) * 0.9; const range = max - min; const width = 100;
+  let pathD = ''; const stepX = width / (data.length - 1);
+  data.forEach((val, i) => { const x = i * stepX; const normalizedY = ((max - val) / range) * height; pathD += (i===0 ? `M${x},${normalizedY} ` : `L${x},${normalizedY} `); });
+  const isPositive = data[data.length - 1] >= data[0];
+  const strokeVar = isPositive ? 'var(--chart-pos)' : 'var(--chart-neg)';
+  return `<div class="w-full" style="height: ${height}px"><svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" class="w-full h-full"><path d="${pathD}" fill="none" stroke="${strokeVar}" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" /></svg></div>`;
+}
+
+function generateMiniSparklineSVG(data) {
+  const height = 60; const width = 300;
+  const max = Math.max(...data) * 1.1; const min = Math.min(...data) * 0.9; const range = max - min;
+  let pathD = ''; const stepX = width / (data.length - 1);
+  data.forEach((val, i) => { const x = i * stepX; const normalizedY = ((max - val) / range) * height; pathD += (i===0 ? `M${x},${normalizedY} ` : `L${x},${normalizedY} `); });
+  const isPositive = data[data.length - 1] >= data[0];
+  const strokeVar = isPositive ? 'var(--chart-pos)' : 'var(--chart-neg)';
+  const fillVar = isPositive ? 'rgba(119, 219, 137, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+  const areaPathD = `${pathD} L${width},${height} L0,${height} Z`;
+  return `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" class="w-full h-full"><path d="${areaPathD}" fill="${fillVar}" stroke="none" /><path d="${pathD}" fill="none" stroke="${strokeVar}" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" /></svg>`;
+}
+
+function generateBarChartSVG(height = 200) {
+  const width = 800; const barCount = 8; const gap = 10; const groupGap = 30; const totalGroupWidth = (width - (barCount - 1) * groupGap) / barCount; const barWidth = totalGroupWidth / 2 - gap/2;
+  let svgContent = '';
+  for(let i=0; i<barCount; i++) {
+    const h1 = Math.random() * 0.8 * height + 0.1 * height; const h2 = Math.random() * 0.8 * height + 0.1 * height;
+    const x1 = i * (barWidth * 2 + gap + groupGap); const x2 = x1 + barWidth + gap; const y1 = height - h1; const y2 = height - h2;
+    svgContent += `<rect x="${x1}" y="${y1}" width="${barWidth}" height="${h1}" fill="var(--chart-pos)" rx="2" /><rect x="${x2}" y="${y2}" width="${barWidth}" height="${h2}" fill="#4b5563" rx="2" />`;
+  }
+  return `<svg viewBox="0 0 ${width * 1.5} ${height}" preserveAspectRatio="none" class="w-full h-full"><line x1="0" y1="0" x2="${width * 1.5}" y2="0" stroke="var(--chart-grid)" stroke-width="1" stroke-dasharray="4" /><line x1="0" y1="${height/2}" x2="${width * 1.5}" y2="${height/2}" stroke="var(--chart-grid)" stroke-width="1" stroke-dasharray="4" /><line x1="0" y1="${height}" x2="${width * 1.5}" y2="${height}" stroke="var(--chart-grid)" stroke-width="1" />${svgContent}</svg>`;
+}
+
+// --- DOM LOGIC ---
+function renderChecklist(type) {
+  const data = complianceData[type];
+  document.getElementById('current-designation').innerText = data.label;
+  const pendingCount = data.items.filter(i => !i.checked).length;
+  document.getElementById('action-text').innerText = `Action required: ${pendingCount} items pending for ${data.label} compliance.`;
+  const container = document.getElementById('checklist-container');
+  container.innerHTML = '';
+  [...data.items].sort((a,b)=>a.checked===b.checked?0:a.checked?1:-1).forEach(item => {
+    const checkClass = item.checked ? 'bg-[var(--comp-border)] border-[var(--comp-border)]' : 'border-[var(--text-secondary)]';
+    const textClass = item.checked ? 'text-[var(--text-secondary)] line-through' : 'text-[var(--text-main)]';
+    const icon = item.checked ? '<i data-lucide="check" class="w-3.5 h-3.5 text-white stroke-[3]"></i>' : '';
+    container.innerHTML += `<div class="flex items-center gap-3 py-3 border-b border-[var(--border-card)] last:border-0 hover:bg-[var(--bg-hover)] px-2 -mx-2 rounded transition-colors cursor-pointer group"><div class="w-5 h-5 rounded-sm flex items-center justify-center border transition-colors ${checkClass}">${icon}</div><span class="text-xs font-medium ${textClass}">${item.label}</span></div>`;
+  });
+  lucide.createIcons();
+}
+
+function setOrgType(type) {
+  renderChecklist(type);
+  document.getElementById('dropdown-menu').classList.add('hidden');
+}
+
+// Modals
+function openDashboardModal(type) {
+  const data = modalData[type]; if(!data) return;
+  document.getElementById('modal-title').innerText = data.title;
+  document.getElementById('modal-subtitle').innerText = data.subtitle;
+  document.getElementById('modal-stat-month').innerText = data.stats.month;
+  document.getElementById('modal-stat-prev').innerText = data.stats.prev;
+  document.getElementById('modal-stat-ytd').innerText = data.stats.ytd;
+  document.getElementById('modal-chart-container').innerHTML = generateBarChartSVG(250);
+  const tbody = document.getElementById('modal-table-body'); tbody.innerHTML = '';
+  const totalThisMonth = data.items.reduce((sum, item) => sum + Math.abs(item.thisMonth), 0);
+  const formatCurrency = (val) => (typeof val==='string'?val : (val<0?'-':'')+'$'+Math.abs(val).toLocaleString());
+  [...new Set(data.items.map(i=>i.category))].forEach(cat => {
+    tbody.innerHTML += `<div class="px-2 py-3 mt-4 mb-1 border-b border-[var(--border-card)] text-[var(--text-accent)] font-bold text-xs uppercase tracking-widest">${cat}</div>`;
+    data.items.filter(i=>i.category===cat).forEach((row, idx) => {
+      const percent = ((Math.abs(row.thisMonth)/totalThisMonth)*100).toFixed(1);
+      const rowId = `row-${type}-${idx}`; const chartId = `chart-${type}-${idx}`;
+      const rowHTML = `
+        <div class="group cursor-pointer rounded transition-colors hover:bg-[var(--bg-hover)] border-l-4 border-transparent hover:border-[var(--text-accent)]" onclick="toggleRow('${rowId}', '${chartId}', [${row.history}])" aria-expanded="false">
+          <div class="grid grid-cols-12 gap-4 p-2 items-center">
+            <div class="col-span-4 font-medium text-[var(--text-main)] text-sm pl-2 flex items-center gap-2"><i data-lucide="chevron-down" class="chevron-icon w-4 h-4 text-[var(--text-secondary)] transition-transform duration-200"></i> ${row.item}</div>
+            <div class="col-span-2 text-right text-[var(--text-secondary)] text-sm font-mono">${formatCurrency(row.thisMonth)}</div>
+            <div class="col-span-2 text-right text-sm font-mono text-[var(--text-main)] font-bold">${percent}% <span class="text-[var(--text-secondary)] text-[10px] font-normal ml-1">(${row.std})</span></div>
+            <div class="col-span-2 text-right text-[var(--text-secondary)] text-sm font-mono">${formatCurrency(row.lastMonth)}</div>
+            <div class="col-span-2 text-right text-[var(--text-secondary)] text-sm font-mono">${formatCurrency(row.ytd)}</div>
+          </div>
+          <div id="${rowId}" class="hidden bg-[var(--bg-body)] p-4 border-t border-[var(--border-card)] mx-2 mb-2 rounded-b flex flex-col md:flex-row gap-6">
+            <div class="w-full md:w-1/4"><h4 class="text-[10px] font-bold text-[var(--text-secondary)] uppercase mb-2">Trend</h4><div id="${chartId}" class="h-20 w-full bg-[var(--bg-chart)] rounded p-1 border border-[var(--border-card)]"></div></div>
+            <div class="w-full md:w-3/4"><h4 class="text-[10px] font-bold text-[var(--text-accent)] uppercase mb-2">Tips</h4><ul class="space-y-1 text-xs text-[var(--text-main)]">${row.tips.map(t=>`<li>• ${t}</li>`).join('')}</ul></div>
+          </div>
+        </div>`;
+      tbody.innerHTML += rowHTML;
+    });
+  });
+  document.getElementById('dashboard-modal').classList.remove('hidden');
+  lucide.createIcons();
+}
+
+function toggleRow(rowId, chartId, data) {
+  const el = document.getElementById(rowId);
+  el.classList.toggle('hidden');
+  el.parentElement.setAttribute('aria-expanded', !el.classList.contains('hidden'));
+  if(!el.classList.contains('hidden') && document.getElementById(chartId).innerHTML === '') {
+    document.getElementById(chartId).innerHTML = generateMiniSparklineSVG(data);
+  }
+}
+
+function closeDashboardModal() { document.getElementById('dashboard-modal').classList.add('hidden'); }
+
+// Balance Sheet Modal
+function openBalanceSheet(e) {
+  if(e) e.stopPropagation();
+  document.getElementById('balance-sheet-modal').classList.remove('hidden');
+}
+function closeBalanceSheet() {
+  document.getElementById('balance-sheet-modal').classList.add('hidden');
+}
+
+function openRevenueReport(e) { e.stopPropagation(); document.getElementById('revenue-report-modal').classList.remove('hidden'); renderReportView('revenue', 'revenue-report-content'); }
+function closeRevenueReport() { document.getElementById('revenue-report-modal').classList.add('hidden'); }
+function toggleRevenueView() { renderReportView('revenue', 'revenue-report-content'); }
+
+function renderReportView(type, containerId) {
+  const container = document.getElementById(containerId);
+  const rows = type === 'revenue' ? revenueTransactions : [];
+  const headers = ['Date','Source','Cat','Amt','Status'];
+  let html = `<div class="w-full overflow-x-auto"><table class="w-full text-left border-collapse"><thead><tr class="bg-[var(--bg-header)] border-b border-[var(--border-header)] text-xs text-[var(--text-secondary)] uppercase tracking-wider">`;
+  headers.forEach(h => html += `<th class="px-4 py-3 font-bold">${h}</th>`);
+  html += `</tr></thead><tbody>`;
+  rows.forEach(r => {
+    html += `<tr class="border-b border-[var(--border-card)] hover:bg-[var(--bg-hover)] transition-colors">
+      <td class="px-4 py-3 text-sm text-[var(--text-secondary)]">${r.date}</td>
+      <td class="px-4 py-3 text-sm text-[var(--text-main)] font-medium">${r.source || ''}</td>
+      <td class="px-4 py-3 text-sm text-[var(--text-secondary)]">${r.category}</td>
+      <td class="px-4 py-3 text-sm text-[var(--text-main)] font-mono">$${r.amount.toLocaleString()}</td>
+      <td class="px-4 py-3 text-sm"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[var(--comp-bg)] text-[var(--comp-text)]">${r.status}</span></td>
+    </tr>`;
+  });
+  html += `</tbody></table></div>`;
+  container.innerHTML = html;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Theme Toggle
+  const themeBtn = document.getElementById('theme-toggle');
+  const sunIcon = themeBtn.querySelector('.icon-sun');
+  const moonIcon = themeBtn.querySelector('.icon-moon');
+  const body = document.body;
+  let isDark = true;
+  const updateThemeUI = () => {
+    if (isDark) {
+      body.removeAttribute('data-theme');
+      sunIcon.classList.remove('hidden');
+      moonIcon.classList.add('hidden');
+    } else {
+      body.setAttribute('data-theme', 'light');
+      sunIcon.classList.add('hidden');
+      moonIcon.classList.remove('hidden');
+    }
+  };
+  themeBtn.addEventListener('click', () => { isDark = !isDark; updateThemeUI(); });
+  updateThemeUI();
+
+  // Render Main Charts
+  document.getElementById('chart-balance').innerHTML = generateLineChartSVG(chartData.balance, 180);
+  document.getElementById('chart-profit').innerHTML = generateLineChartSVG(chartData.profit, 140);
+  document.getElementById('chart-income').innerHTML = generateLineChartSVG(chartData.income, 72);
+  document.getElementById('chart-expenses').innerHTML = generateLineChartSVG(chartData.expense, 72);
+  document.getElementById('chart-assets').innerHTML = generateLineChartSVG(chartData.asset, 72);
+  document.getElementById('chart-liabilities').innerHTML = generateLineChartSVG(chartData.debt, 72);
+
+  // Nav Logic
+  const navItems = ['Vision', 'Organizing', 'Financials', 'Data Suite', 'Projects', 'Marketing', 'Fundraising'];
+  const navContainer = document.getElementById('main-nav');
+  navItems.forEach(item => {
+    const btn = document.createElement('button');
+    btn.className = item === 'Financials'
+      ? 'group flex items-center px-3 py-2 text-xl font-bold tracking-tight font-fm-header transition-all text-[var(--nav-active)] drop-shadow-[0_0_8px_var(--nav-glow)] scale-105'
+      : 'group flex items-center px-3 py-2 text-xl font-bold tracking-tight font-fm-header transition-all text-[var(--nav-inactive)] hover:text-[var(--nav-hover)] hover:scale-105';
+    btn.innerHTML = `<span>${item}</span>`;
+    btn.onclick = function() {
+      Array.from(navContainer.children).forEach(c => c.className = 'group flex items-center px-3 py-2 text-xl font-bold tracking-tight font-fm-header transition-all text-[var(--nav-inactive)] hover:text-[var(--nav-hover)] hover:scale-105');
+      this.className = 'group flex items-center px-3 py-2 text-xl font-bold tracking-tight font-fm-header transition-all text-[var(--nav-active)] drop-shadow-[0_0_8px_var(--nav-glow)] scale-105';
+    };
+    navContainer.appendChild(btn);
+  });
+
+  // Dropdowns
+  document.getElementById('dropdown-trigger').addEventListener('click', (e) => { e.stopPropagation(); document.getElementById('dropdown-menu').classList.toggle('hidden'); });
+  document.addEventListener('click', () => document.getElementById('dropdown-menu').classList.add('hidden'));
+
+  renderChecklist('c3');
+  lucide.createIcons();
+});
+</script>
 </body>
 </html>
+
