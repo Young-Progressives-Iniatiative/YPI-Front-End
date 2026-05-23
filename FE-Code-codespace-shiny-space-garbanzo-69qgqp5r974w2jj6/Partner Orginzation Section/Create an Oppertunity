@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YPI | Partner Role Management</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        ypi: { green: '#37af4b', dark: '#121212', card: '#1c1c1c', element: '#252525', hover: '#2d8c3c', border: '#333333' }
+      },
+      fontFamily: {
+        sans: ['Atkinson Hyperlegible', 'sans-serif'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+        inter: ['Inter', 'sans-serif']
+      },
+      boxShadow: {
+        'glow': '0 0 15px rgba(55, 175, 75, 0.2)',
+        'glow-lg': '0 0 25px rgba(55, 175, 75, 0.3)',
+      }
+    }
+  }
+}
+</script>
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+/* --- CORE THEME VARIABLES --- */
+:root {
+  --bg-main: #121212;
+  --bg-panel: #1c1c1c;
+  --bg-element: #252525;
+  --text-main: #ffffff;
+  --text-muted: #9ca3af;
+  --border-color: #333;
+  --accent-green: #37af4b;
+  --highlight-green: #98fb98;
+  --danger-red: #ef4444;
+  --nav-inactive: #9ca3af;
+  --nav-active: #98fb98;
+}
+
+/* --- LIGHT MODE OVERRIDES --- */
+body.light-mode {
+  --bg-main: #f3f4f6;
+  --bg-panel: #ffffff;
+  --bg-element: #e5e7eb;
+  --text-main: #111827;
+  --text-muted: #4b5563;
+  --border-color: #d1d5db;
+  --accent-green: #16a34a;
+  --highlight-green: #15803d;
+  --nav-inactive: #6b7280;
+  --nav-active: #16a34a;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  font-family: 'Atkinson Hyperlegible', sans-serif;
+  margin: 0;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+.font-fm-header { font-family: 'Atkinson Hyperlegible', sans-serif; }
+.logo-img { transition: filter 0.3s ease; }
+body.light-mode .logo-img { filter: invert(1); }
+
+.tab-content { display: none; animation: fadeIn 0.4s ease-out; width: 100%; }
+.tab-content.active { display: flex; flex-direction: column; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* --- LAYOUT --- */
+.trigger-container { align-items: center; justify-content: flex-start; min-height: calc(100vh - 80px); text-align: center; padding: 0; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.theme-bg-panel { background-color: var(--bg-panel); }
+.theme-bg-element { background-color: var(--bg-element); }
+.theme-border { border-color: var(--border-color); }
+.theme-text-muted { color: var(--text-muted); }
+.theme-text-main { color: var(--text-main); }
+
+/* --- RECRUITING DASHBOARD STYLES --- */
+.recruiting-sidebar {
+  position: sticky; top: 100px; height: calc(100vh - 120px); overflow-y: auto; padding-right: 1rem;
+  scrollbar-width: thin;
+}
+.recruiting-sidebar::-webkit-scrollbar { width: 4px; }
+.recruiting-sidebar::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+.section-link {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); transition: all 0.2s; cursor: pointer;
+  border: 1px solid transparent; margin-bottom: 4px;
+}
+.section-link:hover { background-color: var(--bg-element); color: var(--text-main); }
+.section-link.active {
+  background-color: rgba(55, 175, 75, 0.1); border-color: rgba(55, 175, 75, 0.3); color: var(--highlight-green);
+}
+.section-link i { width: 16px; height: 16px; }
+.section-link .status-dot { width: 6px; height: 6px; border-radius: 50%; background-color: var(--border-color); margin-left: auto; }
+.section-link .status-dot.complete { background-color: var(--accent-green); }
+
+.form-card {
+  background: linear-gradient(180deg, var(--bg-panel), rgba(25, 25, 25, 0.8));
+  border: 1px solid var(--border-color);
+  border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-card:hover { border-color: rgba(55, 175, 75, 0.3); }
+.form-input {
+  width: 100%; padding: 0.6rem 0.8rem; border-radius: 8px; border: 1px solid var(--border-color);
+  font-size: 0.9rem; color: var(--text-main); background-color: var(--bg-element); transition: all 0.15s ease;
+}
+.form-input:focus { outline: none; border-color: var(--accent-green); box-shadow: 0 0 0 2px rgba(55, 175, 75, 0.15); }
+.form-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.03em; }
+.toggle-switch {
+  position: relative; display: inline-block; width: 40px; height: 22px;
+}
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--bg-element);
+  transition: .4s; border-radius: 22px; border: 1px solid var(--border-color);
+}
+.slider:before {
+  position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 2px; background-color: var(--text-muted);
+  transition: .4s; border-radius: 50%;
+}
+input:checked + .slider { background-color: var(--accent-green); border-color: var(--accent-green); }
+input:checked + .slider:before { transform: translateX(18px); background-color: white; }
+
+.completion-ring {
+  width: 44px; height: 44px; position: relative;
+}
+.completion-ring svg { transform: rotate(-90deg); }
+.completion-ring circle { fill: transparent; stroke-width: 4; }
+.completion-ring .bg { stroke: var(--border-color); }
+.completion-ring .progress { stroke: var(--accent-green); stroke-dasharray: 120; stroke-dashoffset: 120; transition: stroke-dashoffset 0.5s ease; }
+.completion-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 10px; font-weight: bold; color: var(--text-main); }
+
+.tag { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 500; background: var(--bg-element); border: 1px solid var(--border-color); color: var(--text-muted); cursor: pointer; transition: 0.2s; }
+.tag:hover { border-color: var(--accent-green); color: var(--highlight-green); }
+.tag.selected { background: rgba(55, 175, 75, 0.15); border-color: var(--accent-green); color: var(--highlight-green); }
+.tag i { font-size: 8px; }
+
+.ai-recommendation {
+  background: linear-gradient(135deg, rgba(55, 175, 75, 0.05), rgba(55, 175, 75, 0.01));
+  border: 1px solid rgba(55, 175, 75, 0.2); border-radius: 12px; padding: 1rem; margin-bottom: 1rem;
+  display: flex; gap: 10px; align-items: flex-start;
+}
+.ai-recommendation i { color: var(--highlight-green); margin-top: 2px; }
+.ai-text { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
+
+.scroll-container { scroll-behavior: smooth; }
+.section-target { scroll-margin-top: 100px; }
+</style>
+</head>
+<body>
+<header class="flex flex-col w-full theme-bg-panel border-b theme-border shadow-lg sticky top-0 z-50 transition-colors">
+<div class="flex items-center h-16 px-6 gap-6 overflow-x-auto no-scrollbar">
+<div class="flex items-center mr-2 flex-shrink-0">
+<button class="flex items-center justify-center w-8 h-10 theme-bg-element border border-blue-500/50 rounded-l hover:opacity-80 transition-all group relative opacity-50 cursor-not-allowed">
+<i data-lucide="chevron-left" class="w-5 h-5 theme-text-muted group-hover:theme-text-main"></i>
+</button>
+<button class="flex items-center justify-center w-8 h-10 theme-bg-panel hover:theme-bg-element transition-colors rounded-r border-y border-r theme-border opacity-50 cursor-not-allowed">
+<i data-lucide="chevron-right" class="w-5 h-5 theme-text-muted"></i>
+</button>
+</div>
+<div class="flex-shrink-0 mr-4">
+<div class="h-12 w-auto flex items-center justify-center">
+<img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI Logo" class="h-full w-auto object-contain drop-shadow-md logo-img" onerror="this.src='https://placehold.co/119x32/1c1c1c/fefefe?text=YPI'"/>
+</div>
+</div>
+<nav class="flex items-center gap-2 flex-1 overflow-x-auto no-scrollbar" id="main-nav">
+<!-- Nav items injected by JS -->
+</nav>
+<div class="flex items-center gap-2 flex-shrink-0">
+<div class="relative group/notif">
+<button class="relative flex items-center justify-center p-2 rounded-full theme-bg-element hover:opacity-80 transition-all text-[var(--text-main)]">
+<span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-[var(--bg-panel)]">3</span>
+<svg id="notifIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2m.995-14.901a1 1 0 1 0-1.99 0A5 5 0 0 0 3 6c0 1.098-.5 6-2 7h14c-1.5-1-2-5.902-2-7 0-2.42-1.72-4.44-4.005-4.901"/></svg>
+</button>
+<div class="absolute right-0 top-full pt-2 invisible group-hover/notif:visible opacity-0 group-hover/notif:opacity-100 translate-y-2 group-hover/notif:translate-y-0 transition-all duration-200 z-[60] w-80">
+<div class="theme-bg-panel border theme-border shadow-2xl rounded-xl overflow-hidden flex flex-col">
+<div class="p-4 border-b theme-border"><h3 class="font-bold text-sm">Notifications</h3></div>
+<div class="p-3 theme-text-muted text-xs">3 new applicants for Canvasser role.</div>
+</div>
+</div>
+</div>
+<button id="themeToggle" class="flex items-center justify-center p-2 rounded-full theme-bg-element hover:opacity-80 transition-all text-[var(--text-main)]">
+<svg id="themeIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8M8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0m0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5.5 0 0 1 8 13m8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5M3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8m10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0m-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0m9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707M4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708"/></svg>
+</button>
+<button id="logoutBtn" class="flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 transition-all font-medium text-sm ml-1">
+<i data-lucide="log-out" class="w-4 h-4"></i> <span class="hidden lg:inline">Log Out</span>
+</button>
+</div>
+</div>
+</header>
+
+<div class="main-content w-full flex flex-col min-h-screen">
+<section id="content-Organizing" class="tab-content active">
+  <div class="w-full border-b theme-border py-4 px-6 flex items-center justify-between gap-4 theme-bg-panel">
+    <div class="flex items-center gap-4">
+      <h1 class="text-xl font-bold text-[var(--text-main)]"><i class="fa-solid fa-briefcase text-[var(--accent-green)] mr-2"></i>Post New Role</h1>
+      <div class="h-6 w-[1px] bg-[var(--border-color)]"></div>
+      <div class="text-xs theme-text-muted flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-[var(--accent-green)]"></i> Draft Auto-Saved: 2m ago
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <button class="px-4 py-2 rounded-lg theme-bg-element border theme-border hover:border-[var(--accent-green)] transition-colors text-sm font-bold">
+        <i class="fa-solid fa-eye mr-2"></i> Preview
+      </button>
+      <button class="px-4 py-2 rounded-lg bg-[var(--accent-green)] hover:bg-[var(--highlight-green)] text-[var(--bg-main)] transition-all text-sm font-bold shadow-glow">
+        <i class="fa-solid fa-paper-plane mr-2"></i> Publish Role
+      </button>
+    </div>
+  </div>
+  
+  <div class="flex flex-1 p-6 gap-8 scroll-container overflow-y-auto" style="height: calc(100vh - 140px);">
+    <!-- Sidebar Navigation -->
+    <div class="w-64 flex-shrink-0 recruiting-sidebar no-scrollbar hidden lg:block">
+      <div class="flex items-center gap-4 mb-6 p-3 rounded-xl theme-bg-element border theme-border">
+        <div class="completion-ring">
+          <svg width="44" height="44"><circle class="bg" cx="22" cy="22" r="18"/><circle class="progress" cx="22" cy="22" r="18" id="completionCircle"/></svg>
+          <div class="completion-text" id="completionText">0%</div>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-xs font-bold theme-text-main">Role Completeness</span>
+          <span class="text-[10px] theme-text-muted">AI-Optimized Score</span>
+        </div>
+      </div>
+      <div class="space-y-1" id="sidebarLinks">
+        <!-- Links injected by JS -->
+      </div>
+    </div>
+
+    <!-- Main Form Area -->
+    <div class="flex-1 max-w-4xl mx-auto space-y-8 pb-20">
+      
+      <!-- 1. Role Overview -->
+      <div id="section-1" class="section-target">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="bg-[var(--accent-green)]/20 text-[var(--highlight-green)] text-xs px-2 py-1 rounded font-mono">01</span> Role Overview</h2>
+        <div class="form-card">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="form-label">Role Title</label>
+              <input type="text" class="form-input" placeholder="e.g. Youth Mentor / Canvasser" oninput="updateScore()">
+            </div>
+            <div>
+              <label class="form-label">Department / Team</label>
+              <select class="form-input"><option>Community Outreach</option><option>Data & Tech</option><option>Fundraising</option><option>Events</option></select>
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="form-label">Short Summary (For Search Results)</label>
+            <textarea class="form-input h-20" placeholder="Concise 1-2 sentence overview..." oninput="updateScore()"></textarea>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="form-label">Location Type</label>
+              <div class="flex gap-2 mt-2">
+                <span class="tag selected" onclick="toggleTag(this)"><i class="fa-solid fa-map-marker-alt"></i> In-Person</span>
+                <span class="tag" onclick="toggleTag(this)"><i class="fa-solid fa-wifi"></i> Remote</span>
+                <span class="tag" onclick="toggleTag(this)"><i class="fa-solid fa-arrows-alt"></i> Hybrid</span>
+              </div>
+            </div>
+            <div>
+              <label class="form-label">Urgency</label>
+              <select class="form-input mt-2"><option>Standard</option><option>Urgent</option><option>Immediate</option></select>
+            </div>
+          </div>
+          <div class="ai-recommendation">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <div class="ai-text">AI Recommendation: Roles with "Remote" or "Hybrid" options receive <strong>42% more applicants</strong> on average. Consider adding flexibility.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. Organization Information -->
+      <div id="section-2" class="section-target">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="bg-[var(--accent-green)]/20 text-[var(--highlight-green)] text-xs px-2 py-1 rounded font-mono">02</span> Organization Information</h2>
+        <div class="form-card">
+          <div class="flex items-start gap-4 mb-4">
+            <div class="w-16 h-16 rounded-lg bg-[var(--bg-element)] border border-[var(--border-color)] flex items-center justify-center text-2xl">🏢</div>
+            <div class="flex-1">
+              <label class="form-label">Organization Name</label>
+              <input type="text" class="form-input mb-2" value="YPI | Youth Policy Initiative" readonly>
+              <div class="flex items-center gap-2 text-xs theme-text-muted">
+                <i class="fa-solid fa-check-circle text-[var(--accent-green)]"></i> Verified Organization
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="form-label">Mission Statement</label>
+              <textarea class="form-input h-24" readonly>Empowering youth through policy advocacy and civic engagement across underrepresented communities.</textarea>
+            </div>
+            <div>
+              <label class="form-label">Primary Focus Areas</label>
+              <div class="flex flex-wrap gap-2 mt-2">
+                <span class="tag selected"><i class="fa-solid fa-graduation-cap"></i> Education</span>
+                <span class="tag selected"><i class="fa-solid fa-scale-balanced"></i> Policy</span>
+                <span class="tag"><i class="fa-solid fa-leaf"></i> Environment</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Mission Alignment -->
+      <div id="section-3" class="section-target">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="bg-[var(--accent-green)]/20 text-[var(--highlight-green)] text-xs px-2 py-1 rounded font-mono">03</span> Mission Alignment</h2>
+        <div class="form-card">
+          <label class="form-label">Why This Role Matters</label>
+          <textarea class="form-input h-32 mb-4" placeholder="Explain the impact of this role on the community or organization..." oninput="updateScore()"></textarea>
+          <label class="form-label">SDG Alignment (Sustainable Development Goals)</label>
+          <div class="flex flex-wrap gap-2 mt-2">
+            <span class="tag" onclick="toggleTag(this)">1. No Poverty</span>
+            <span class="tag" onclick="toggleTag(this)">4. Quality Education</span>
+            <span class="tag" onclick="toggleTag(this)">8. Decent Work</span>
+            <span class="tag" onclick="toggleTag(this)">10. Reduced Inequalities</span>
+          </div>
+          <div class="ai-recommendation mt-4">
+            <i class="fa-solid fa-lightbulb"></i>
+            <div class="ai-text">Storytelling Tip: Use impact metrics like "Helped 50+ students" or "Raised $5k" in the description to boost conversion by <strong>28%</strong>.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Volunteer Impact -->
+      <div id="section-4" class="section-target">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="bg-[var(--accent-green)]/20 text-[var(--highlight-green)] text-xs px-2 py-1 rounded font-mono">04</span> Volunteer Impact</h2>
+        <div class="form-card">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-[var(--bg-element)] p-3 rounded-lg border border-[var(--border-color)] text-center">
+              <div class="text-2xl font-bold text-[var(--accent-green)] mb-1">Est.</div>
+              <div class="text-sm theme-text-muted">Volunteers Needed</div>
+              <input type="number" class="form-input mt-2 text-center" value="5">
+            </div>
+            <div class="bg-[var(--bg-element)] p-3 rounded-lg border border-[var(--border-color)] text-center">
+              <div class="text-2xl font-bold text-[var(--accent-green)] mb-1">Est.</div>
+              <div class="text-sm theme-text-muted">Hours / Volunteer</div>
+              <input type="number" class="form-input mt-2 text-center" value="10">
+            </div>
+            <div class="bg-[var(--bg-element)] p-3 rounded-lg border border-[var(--border-color)] text-center">
+              <div class="text-2xl font-bold text-[var(--accent-green)] mb-1">Total</div>
+              <div class="text-sm theme-text-muted">Projected Impact Hours</div>
+              <div class="text-xl font-bold mt-2">50 Hrs</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Responsibilities -->
+      <div id="section-5" class="section-target">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="bg-[var(--accent-green)]/20 text-[var(--highlight-green)] text-xs px-2 py-1 rounded font-mono">05</span> Responsibilities</h2>
+        <div class="form-card">
+          <div id="responsibilities-list" class="space-y-2 mb-4">
+            <div class="flex items-center gap-2 p-3 bg-[var(--bg-element)] rounded-lg border border-[var(--border-color)]">
+              <i class="fa-solid fa-grip-lines text-gray-500 cursor-move"></i>
+              <input type="text" class="form-input flex-1 border-0 bg-transparent" value="Engage with community members via door-to-door canvassing" oninput="updateScore()">
+              <span class="tag text-[10px] border-yellow-500/50 text-yellow-500">High Priority</span>
+              <button class="text-red-400 hover:text-red-500"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="flex items-center gap-2 p-3 bg-[var(--bg-element)] rounded-lg border border-[var(--border-color)]">
+              <i class="fa-solid fa-grip-lines text-gray-500 cursor-move"></i>
+              <input type="text" class="form-input flex-1 border-0 bg-transparent" value="Log data in CRM within 24 hours of interaction" oninput="updateScore()">
+              <button class="text-red-400 hover:text-red-500"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <input type="text" id="new-resp" class="form-input" placeholder="Add a responsibility...">
+            <button onclick="addResponsibility()" class="bg-[var(--accent-green)] text-white px-3 rounded-lg hover:bg-[var(--highlight-green)] hover:text-[var(--bg-main)] transition-colors"><i class="fa-solid fa-plus"></i></button>
+          </div>
+          <div class="mt-4 text-xs theme-text-muted">
+            <i class="fa-solid fa-shield-halved text-[var(--accent-green)] mr-1"></i> Burnout Prevention: Keep role under 5 core tasks to improve retention.
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Qualifications & Fit -->
+      <div id="section-6" class="section-target">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="bg-[var(--accent-green)]/20 text-[var(--highlight-green)] text-xs px-2 py-1 rounded font-mono">06</span> Qualifications & Fit</h2>
+        <div class="form-card">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="form-label">Required Skills</label>
+              <input type="text" class="form-input mb-2" placeholder="Communication, Data Entry...">
+              <div class="flex gap-2 mt-2">
+                <span class="tag"><i class="fa-solid fa-plus"></i> Add Skill</span>
+              </div>
+            </div>
+            <div>
+              <label class="form-label">Experience Level</label>
+              <div class="flex gap-2 mt-2">
+                <span class="tag" onclick="toggleTag(this)">Entry Level</span>
+                <span class="tag" onclick="toggleTag(this)">Mid-Level</span>
+                <span class="tag" onclick="toggleTag(this)">Senior</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-6 border-t border-[var(--border-color)] pt-4">
+            <label class="form-label flex items-center justify-between">GPA Requirement
+              <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+            </label>
+            <input type="text" class="form-input w-32 mt-2" placeholder="Min GPA (e.g. 3.0)" value="3.0">
+          </div>
+          <div class="mt-4 border-t border-[var(--border-color)] pt-4">
+            <label class="form-label">Inclusivity Recommendations</label>
+            <div class="flex flex-wrap gap-2">
+              <span class="tag"><i class="fa-solid fa-wheelchair"></i> Accessibility Friendly</span>
+              <span class="tag"><i class="fa-solid fa-language"></i> Multilingual Encouraged</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. Time Commitment -->
+      <div id="section-7" class="section-target">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="bg-[var(--accent-green)]/20 text-[var(--highlight-green)] text-xs px-2 py-1 rounded font-mono">07</span> Time Commitment</h2>
+        <div class="form-card">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="form-label">Hours Per Week</label>
+              <input type="range" min="1" max="40" value="10" class="w-full mt-2 accent-[var(--accent-green)]">
+              <div class="text-right text-sm font-bold text-[var(--accent-green)]">10 hrs/week</div>
+            </div>
+            <div>
+              <label class="form-label">Duration</label>
+              <select class="form-input"><option>Indefinite</option><option>1 Month</option><option>3 Months</option><option>6 Months</option><option>1 Year</option></select>
+            </div>
+          </div>
+          <div class="mt-4">
+            <label class="form-label flex items-center justify-between">Flexible Schedule
+              <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+            </label>
+          </div>
+          <div class="mt-4 p-3 rounded bg-[var(--bg-element)] border border-[var(--border-color)]">
+            <div class="flex justify-between text-xs theme-text-muted mb-1"><span>Retention Risk</span><span class="text-[var(--accent-green)]">Low</span></div>
+            <div class="h-2 bg-[var(--border-color)] rounded-full overflow-hidden"><div class="h-full w-1/4 bg-[var(--accent-green)]"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8. Schedule & Availability -->
+      <div id="section-8" class="section-target">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="bg-[var(--accent-green)]/20 text-[var(--highlight-green)] text-xs px-2 py-1 rounded font-mono">08</span> Schedule & Availability</h2>
+        <div class="form-card">
+          <div class="grid grid-cols-7 gap-2 mb-4 text-center">
+            <div class="text-xs theme-text-muted">Mon</div><div class="text-xs theme-text-muted">Tue</div><div class="text-xs theme-text-muted">Wed</div><div class="text-xs theme-text-muted">Thu</div><div class="text-xs theme-text-muted">Fri</div><div class="text-xs theme-text-muted">Sat</div><div class="text-xs theme-text-muted">Sun</div>
+            <div class="aspect-square bg-[var(--accent-green)]/20 rounded border border-[var(--accent-green)] cursor-pointer"></div>
+            <div class="aspect-square bg-[var(--bg-element)] rounded border border-[var(--border-color)] cursor-pointer"></div>
+            <div class="aspect-square bg-[var(--accent-green)]/20 rounded border border-[var(--accent-green)] cursor-pointer"></div>
+            <div class="aspect-square bg-[var(--bg-element)] rounded border border-[var(--border-color)] cursor-pointer"></div>
+            <div class="aspect-square bg-[var(--accent-green)]/20 rounded border border-[var(--accent-green)] cursor-pointer"></div>
+            <div class="aspect-square bg-[var(--bg-element)] rounded border border-[var(--border-color)] cursor-pointer"></div>
+            <div class="aspect-square bg-[var(--bg-element)] rounded border border-[var(--border-color)] cursor-pointer"></div>
+          </div>
+          <label class="form-label">Primary Availability Windows</label>
+          <div class="space-y-2 mt-2">
+            <div class="flex gap-2"><input type="text" class="form-input" value="Mon, Wed, Fri" readonly><input type="text" class="form-input w-32" value="10am - 2pm" readonly></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9. Benefits & Recognition -->
+      <div id="section-9" class="section-target">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="bg-[var(--accent-green)]/20 text-[var(--highlight-green)] text-xs px-2 py-1 rounded font-mono">09</span> Benefits & Recognition</h2>
+        <div class="form-card">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex items-center gap-3 p-3 bg-[var(--bg-element)] rounded-lg border border-[var(--border-color)]">
+              <input type="checkbox" id="ben-1" checked class="w-5 h-5 accent-[var(--accent-green)] rounded bg-[var(--bg-element)]">
+              <label for="ben-1" class="text-sm font-medium cursor-pointer">Verified Service Hours</label>
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-[var(--bg-element)] rounded-lg border border-[var(--border-color)]">
+              <input type="checkbox" id="ben-2" checked class="w-5 h-5 accent-[var(--accent-green)] rounded bg-[var(--bg-element)]">
+              <label for="ben-2" class="text-sm font-medium cursor-pointer">Letter of Recommendation</label>
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-[var(--bg-element)] rounded-lg border border-[var(--border-color)]">
+              <input type="checkbox" id="ben-3" class="w-5 h-5 accent-[var(--accent-green)] rounded bg-[var(--bg-element)]">
+              <label for="ben-3" class="text-sm font-medium cursor-pointer">Internship Pathway</label>
+            </div>
+            <div class="flex items-center gap-3 p-3 bg-[var(--bg-element)] rounded-lg border border-[var(--border-color)]">
+              <input type="checkbox" id="ben-4" checked class="w-5 h-5 accent-[var(--accent-green)] rounded bg-[var(--bg-element)]">
+              <label for="ben-4" class="text-sm font-medium cursor-pointer">Networking Events</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 10. Application Settings -->
+      <div id="section-10" class="section-target">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="bg-[var(--accent-green)]/20 text-[var(--highlight-green)] text-xs px-2 py-1 rounded font-mono">10</span> Application Settings</h2>
+        <div class="form-card">
+          <label class="form-label flex items-center justify-between">One-Click Apply
+            <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+          </label>
+          <p class="text-xs theme-text-muted mt-1 mb-4">Allows candidates to apply using their YPI profile instantly.</p>
+          <div class="border-t border-[var(--border-color)] pt-4 mb-4">
+            <label class="form-label flex items-center justify-between">Require Resume Upload
+              <label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label>
+            </label>
+          </div>
+          <div>
+            <label class="form-label">Review Workflow</label>
+            <div class="flex gap-2 mt-2">
+              <span class="tag selected"><i class="fa-solid fa-hand-pointer"></i> Manual Review</span>
+              <span class="tag"><i class="fa-solid fa-robot"></i> AI Auto-Accept</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 11. Recruitment Visibility -->
+      <div id="section-11" class="section-target">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="bg-[var(--accent-green)]/20 text-[var(--highlight-green)] text-xs px-2 py-1 rounded font-mono">11</span> Recruitment Visibility</h2>
+        <div class="form-card">
+          <label class="form-label">Target Audience</label>
+          <div class="flex flex-wrap gap-2 mt-2 mb-4">
+            <span class="tag"><i class="fa-solid fa-school"></i> High School Students</span>
+            <span class="tag"><i class="fa-solid fa-university"></i> Undergrads</span>
+            <span class="tag"><i class="fa-solid fa-graduation-cap"></i> Grad Students</span>
+            <span class="tag"><i class="fa-solid fa-users"></i> Community</span>
+          </div>
+          <label class="form-label">Featured Placement</label>
+          <div class="flex items-center gap-4 p-3 bg-[var(--bg-element)] rounded border border-[var(--border-color)]">
+            <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+            <div class="flex-1">
+              <div class="text-sm font-bold">Boost to Top of Search</div>
+              <div class="text-xs theme-text-muted">Increases visibility by 3x for 7 days.</div>
+            </div>
+          </div>
+          <div class="mt-4">
+            <label class="form-label">Projected Applicant Volume</label>
+            <div class="flex items-center gap-4">
+              <div class="h-24 w-full bg-[var(--bg-element)] rounded p-2 border border-[var(--border-color)] relative overflow-hidden">
+                <svg viewBox="0 0 100 50" class="w-full h-full" preserveAspectRatio="none">
+                  <path d="M0,50 L10,40 L20,35 L30,45 L40,20 L50,15 L60,25 L70,10 L80,5 L90,15 L100,5" fill="none" stroke="var(--accent-green)" stroke-width="2"/>
+                  <path d="M0,50 L10,40 L20,35 L30,45 L40,20 L50,15 L60,25 L70,10 L80,5 L90,15 L100,5 L100,50 Z" fill="url(#gradient)" opacity="0.5"/>
+                  <defs><linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--accent-green)"/><stop offset="100%" stop-color="transparent"/></linearGradient></defs>
+                </svg>
+                <div class="absolute bottom-1 right-1 text-[10px] font-bold theme-text-muted">+24% vs avg</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 12. Discovery Optimization -->
+      <div id="section-12" class="section-target">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="bg-[var(--accent-green)]/20 text-[var(--highlight-green)] text-xs px-2 py-1 rounded font-mono">12</span> Discovery Optimization</h2>
+        <div class="form-card">
+          <label class="form-label">SEO / Search Keywords</label>
+          <input type="text" class="form-input mb-2" placeholder="e.g. Youth, Policy, Canvassing, Remote, Internship">
+          <div class="flex gap-2 flex-wrap">
+            <span class="tag">youth</span>
+            <span class="tag">policy</span>
+            <span class="tag">canvassing</span>
+            <span class="tag">civic engagement</span>
+            <span class="tag">remote</span>
+          </div>
+          <div class="mt-4 p-3 bg-[var(--accent-green)]/5 rounded border border-[var(--accent-green)]/20">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-xs font-bold theme-text-main">Discoverability Score</span>
+              <span class="text-xs font-bold text-[var(--accent-green)]">85/100</span>
+            </div>
+            <div class="h-2 bg-[var(--border-color)] rounded-full overflow-hidden">
+              <div class="h-full w-[85%] bg-[var(--accent-green)]"></div>
+            </div>
+            <div class="text-[10px] theme-text-muted mt-1">Excellent. Keywords align with high-volume search terms.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 13. Screening Questions -->
+      <div id="section-13" class="section-target">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="bg-[var(--accent-green)]/20 text-[var(--highlight-green)] text-xs px-2 py-1 rounded font-mono">13</span> Screening Questions</h2>
+        <div class="form-card">
+          <div class="space-y-3 mb-4">
+            <div class="p-3 bg-[var(--bg-element)] rounded border border-[var(--border-color)]">
+              <div class="flex justify-between items-center mb-1">
+                <span class="text-sm font-bold">Are you available to work 10 hours/week?</span>
+                <span class="tag text-[10px] border-red-400/30 text-red-400">Knockout</span>
+              </div>
+              <div class="text-xs theme-text-muted">Required: Yes</div>
+            </div>
+            <div class="p-3 bg-[var(--bg-element)] rounded border border-[var(--border-color)]">
+              <span class="text-sm font-bold">Describe a time you worked in a diverse team.</span>
+              <div class="text-xs theme-text-muted">Type: Short Answer | Weight: Medium</div>
+            </div>
+          </div>
+          <button class="w-full py-2 border border-[var(--accent-green)] text-[var(--accent-green)] rounded hover:bg-[var(--accent-green)]/10 transition-colors text-sm font-bold">
+            <i class="fa-solid fa-plus mr-1"></i> Add Question
+          </button>
+        </div>
+      </div>
+
+      <!-- 14. Accessibility & Accommodations -->
+      <div id="section-14" class="section-target">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="bg-[var(--accent-green)]/20 text-[var(--highlight-green)] text-xs px-2 py-1 rounded font-mono">14</span> Accessibility</h2>
+        <div class="form-card">
+          <p class="text-xs theme-text-muted mb-4">Indicate accommodations available to ensure all volunteers can participate.</p>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="flex items-center gap-2 p-2 bg-[var(--bg-element)] rounded cursor-pointer">
+              <input type="checkbox" class="accent-[var(--accent-green)]"> <span class="text-sm">Wheelchair Accessible</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 bg-[var(--bg-element)] rounded cursor-pointer">
+              <input type="checkbox" class="accent-[var(--accent-green)]"> <span class="text-sm">Screen Reader Compatible</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 bg-[var(--bg-element)] rounded cursor-pointer">
+              <input type="checkbox" class="accent-[var(--accent-green)]"> <span class="text-sm">Flexible Pacing</span>
+            </label>
+            <label class="flex items-center gap-2 p-2 bg-[var(--bg-element)] rounded cursor-pointer">
+              <input type="checkbox" class="accent-[var(--accent-green)]"> <span class="text-sm">Language Support</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 15. Safety & Compliance -->
+      <div id="section-15" class="section-target">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="bg-[var(--accent-green)]/20 text-[var(--highlight-green)] text-xs px-2 py-1 rounded font-mono">15</span> Safety & Compliance</h2>
+        <div class="form-card">
+          <label class="form-label flex items-center justify-between">Background Check Required
+            <label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label>
+          </label>
+          <p class="text-xs theme-text-muted mt-1 mb-4">Recommended for roles involving minors or sensitive data.</p>
+          <div class="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded text-sm text-yellow-200">
+            <i class="fa-solid fa-triangle-exclamation mr-1"></i> Note: You must provide a safe working environment.
+          </div>
+        </div>
+      </div>
+
+      <!-- 16. Team Structure -->
+      <div id="section-16" class="section-target">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="bg-[var(--accent-green)]/20 text-[var(--highlight-green)] text-xs px-2 py-1 rounded font-mono">16</span> Team Structure</h2>
+        <div class="form-card">
+          <label class="form-label">Direct Supervisor</label>
+          <select class="form-input mb-4">
+            <option>Select a staff member...</option>
+            <option>Sarah Jenkins (Outreach Director)</option>
+            <option>David Astals (Program Manager)</option>
+          </select>
+          <label class="form-label">Reports To</label>
+          <input type="text" class="form-input" value="Outreach Director" readonly>
+          <div class="mt-4">
+            <label class="form-label">Team Size (Current)</label>
+            <div class="text-xl font-bold text-[var(--accent-green)]">4 Active Members</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 17. Communication Preferences -->
+      <div id="section-17" class="section-target">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="bg-[var(--accent-green)]/20 text-[var(--highlight-green)] text-xs px-2 py-1 rounded font-mono">17</span> Communication</h2>
+        <div class="form-card">
+          <label class="form-label">Primary Communication Channel</label>
+          <div class="flex gap-2 mt-2 mb-4">
+            <span class="tag selected"><i class="fa-brands fa-slack"></i> Slack</span>
+            <span class="tag"><i class="fa-solid fa-envelope"></i> Email</span>
+            <span class="tag"><i class="fa-solid fa-comments"></i> Discord</span>
+          </div>
+          <label class="form-label">Welcome Message Template</label>
+          <textarea class="form-input h-24" placeholder="Hi {{Name}}, welcome to YPI! We're excited to have you..." oninput="updateScore()"></textarea>
+        </div>
+      </div>
+
+      <!-- 18. Onboarding Workflow -->
+      <div id="section-18" class="section-target">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="bg-[var(--accent-green)]/20 text-[var(--highlight-green)] text-xs px-2 py-1 rounded font-mono">18</span> Onboarding Workflow</h2>
+        <div class="form-card">
+          <div class="relative border-l-2 border-[var(--accent-green)] ml-4 space-y-6 pb-4">
+            <div class="ml-6 relative">
+              <div class="absolute -left-[29px] bg-[var(--accent-green)] w-4 h-4 rounded-full border-4 border-[var(--bg-main)]"></div>
+              <h3 class="text-sm font-bold">Acceptance Email</h3>
+              <p class="text-xs theme-text-muted">Auto-sends within 5 mins of approval.</p>
+            </div>
+            <div class="ml-6 relative">
+              <div class="absolute -left-[29px] bg-[var(--bg-element)] border-2 border-[var(--accent-green)] w-4 h-4 rounded-full"></div>
+              <h3 class="text-sm font-bold">Orientation Session</h3>
+              <p class="text-xs theme-text-muted">Scheduled for first available Monday.</p>
+            </div>
+            <div class="ml-6 relative">
+              <div class="absolute -left-[29px] bg-[var(--bg-element)] border-2 border-[var(--border-color)] w-4 h-4 rounded-full"></div>
+              <h3 class="text-sm font-bold">Mentor Assignment</h3>
+              <p class="text-xs theme-text-muted">Assigned within 48 hours.</p>
+            </div>
+          </div>
+          <button class="mt-2 text-sm font-bold text-[var(--accent-green)] hover:underline">+ Add Custom Step</button>
+        </div>
+      </div>
+
+      <!-- 19. Success Metrics -->
+      <div id="section-19" class="section-target">
+        <h2 class="text-lg font-bold mb-4 flex items-center gap-2"><span class="bg-[var(--accent-green)]/20 text-[var(--highlight-green)] text-xs px-2 py-1 rounded font-mono">19</span> Success Metrics</h2>
+        <div class="form-card">
+          <label class="form-label mb-2">Define what success looks like for this role.</label>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-3 bg-[var(--bg-element)] rounded border border-[var(--border-color)]">
+              <div class="text-xs theme-text-muted mb-1">Target Retention Rate</div>
+              <div class="flex items-center gap-2">
+                <input type="number" class="form-input w-20" value="80"> <span class="text-sm font-bold">%</span>
+              </div>
+            </div>
+            <div class="p-3 bg-[var(--bg-element)] rounded border border-[var(--border-color)]">
+              <div class="text-xs theme-text-muted mb-1">Avg. Volunteer Satisfaction</div>
+              <div class="flex items-center gap-2">
+                <input type="number" class="form-input w-20" value="4.5"> <span class="text-sm font-bold">/ 5.0</span>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 p-3 bg-[var(--accent-green)]/10 border border-[var(--accent-green)]/30 rounded text-sm text-[var(--highlight-green)] text-center">
+            <i class="fa-solid fa-chart-line mr-1"></i> Setting clear metrics increases role fill rate by 18%.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="content-Vision" class="tab-content trigger-container">
+  <h1 class="text-3xl font-bold theme-text-main">Our Vision</h1>
+  <p class="theme-text-muted mt-4">Empowering the next generation of leaders.</p>
+</section>
+<section id="content-Financials" class="tab-content trigger-container">
+  <h1 class="text-3xl font-bold theme-text-main">Financials</h1>
+  <p class="theme-text-muted mt-4">Budget tracking and resource allocation.</p>
+</section>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Init Icons
+  lucide.createIcons();
+
+  // Theme Toggle
+  const themeToggle = document.getElementById('themeToggle');
+  const themeIcon = document.getElementById('themeIcon');
+  themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('light-mode');
+    const isLight = document.body.classList.contains('light-mode');
+    themeIcon.innerHTML = isLight 
+      ? '<path d="M13.695 9.955a.75.75 0 011.06.045 7 7 0 00.495.668.75.75 0 01-1.164.936 8.5 8.5 0 01-.391-.804.75.75 0 011.164-.936zM12 15a3 3 0 100-6 3 3 0 000 6zM12 1a.75.75 0 01.75.75v.5a.75.75 0 01-1.5 0v-.5A.75.75 0 0112 1zm-11.995 7a.75.75 0 010 1.5h-.5a.75.75 0 010-1.5h.5zm1.35 5.65a.75.75 0 01-.106 1.06.75.75 0 01-1.06-.106l-.35-.428a.75.75 0 011.164-.936l.352.43zm10.29 0a.75.75 0 011.06-.106l.35.428a.75.75 0 01-1.164.936l-.35-.428a.75.75 0 01.105-1.06zM12 22a.75.75 0 01.75-.75v-.5a.75.75 0 01-1.5 0v.5A.75.75 0 0112 22zm-8.345-1.35a.75.75 0 01-1.06.106.75.75 0 01.106-1.06l.428-.352a.75.75 0 01.936 1.164l-.428.352zm14.426 0a.75.75 0 01-1.164.936l-.428-.352a.75.75 0 011.06-1.164l.428.352z"/>' 
+      : '<path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8M8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0m0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13m8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5M3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8m10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0m-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0m9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707M4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708"/>';
+  });
+
+  // Nav Generation
+  const navItems = ['Vision', 'Organizing', 'Financials'];
+  const navContainer = document.getElementById('main-nav');
+  navItems.forEach(item => {
+    const btn = document.createElement('button');
+    const isActive = item === 'Organizing';
+    btn.className = `group flex items-center px-3 py-2 text-xl font-bold tracking-tight font-fm-header transition-all cursor-pointer hover:scale-105`;
+    btn.style.color = isActive ? 'var(--nav-active)' : 'var(--nav-inactive)';
+    btn.innerHTML = `<span>${item}</span>`;
+    btn.onclick = () => {
+      document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active'));
+      document.getElementById(`content-${item}`).classList.add('active');
+      navContainer.querySelectorAll('button').forEach(b => b.style.color = 'var(--nav-inactive)');
+      btn.style.color = 'var(--nav-active)';
+    };
+    navContainer.appendChild(btn);
+  });
+
+  // Recruitment Sidebar Logic
+  const sections = [
+    { id: 'section-1', label: 'Role Overview', icon: 'briefcase' },
+    { id: 'section-2', label: 'Organization Info', icon: 'building' },
+    { id: 'section-3', label: 'Mission Alignment', icon: 'compass' },
+    { id: 'section-4', label: 'Volunteer Impact', icon: 'chart-bar' },
+    { id: 'section-5', label: 'Responsibilities', icon: 'list-check' },
+    { id: 'section-6', label: 'Qualifications', icon: 'user-check' },
+    { id: 'section-7', label: 'Time Commitment', icon: 'clock' },
+    { id: 'section-8', label: 'Schedule', icon: 'calendar' },
+    { id: 'section-9', label: 'Benefits', icon: 'gift' },
+    { id: 'section-10', label: 'Application Settings', icon: 'settings' },
+    { id: 'section-11', label: 'Recruitment Visibility', icon: 'eye' },
+    { id: 'section-12', label: 'Discovery Optimization', icon: 'search' },
+    { id: 'section-13', label: 'Screening Questions', icon: 'message-circle-question' },
+    { id: 'section-14', label: 'Accessibility', icon: 'accessibility' },
+    { id: 'section-15', label: 'Safety & Compliance', icon: 'shield-check' },
+    { id: 'section-16', label: 'Team Structure', icon: 'users' },
+    { id: 'section-17', label: 'Communication', icon: 'message-square' },
+    { id: 'section-18', label: 'Onboarding', icon: 'rocket' },
+    { id: 'section-19', label: 'Success Metrics', icon: 'target' }
+  ];
+
+  const sidebarLinks = document.getElementById('sidebarLinks');
+  const scrollContainer = document.querySelector('.scroll-container');
+
+  sections.forEach((sec, idx) => {
+    const link = document.createElement('div');
+    link.className = 'section-link';
+    link.id = `link-${sec.id}`;
+    link.innerHTML = `<i data-lucide="${sec.icon}" class="w-4 h-4"></i> ${sec.label} <span class="status-dot" id="dot-${sec.id}"></span>`;
+    link.onclick = () => {
+      document.getElementById(sec.id).scrollIntoView({ behavior: 'smooth' });
+    };
+    sidebarLinks.appendChild(link);
+  });
+  lucide.createIcons();
+
+  // ScrollSpy
+  scrollContainer.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(sec => {
+      const element = document.getElementById(sec.id);
+      if (element) {
+        const rect = element.getBoundingClientRect();
+        if (rect.top <= 150) current = sec.id;
+      }
+    });
+    if (current) {
+      sections.forEach(sec => {
+        const link = document.getElementById(`link-${sec.id}`);
+        if (link) link.classList.toggle('active', sec.id === current);
+      });
+    }
+  });
+
+  // Tag Toggles
+  window.toggleTag = function(el) { el.classList.toggle('selected'); updateScore(); };
+
+  // Add Responsibility
+  window.addResponsibility = function() {
+    const input = document.getElementById('new-resp');
+    if(input.value.trim()) {
+      const list = document.getElementById('responsibilities-list');
+      const item = document.createElement('div');
+      item.className = 'flex items-center gap-2 p-3 bg-[var(--bg-element)] rounded-lg border border-[var(--border-color)] fade-in';
+      item.innerHTML = `
+        <i class="fa-solid fa-grip-lines text-gray-500 cursor-move"></i>
+        <input type="text" class="form-input flex-1 border-0 bg-transparent" value="${input.value}" oninput="updateScore()">
+        <button class="text-red-400 hover:text-red-500"><i class="fa-solid fa-xmark"></i></button>
+      `;
+      list.appendChild(item);
+      input.value = '';
+      lucide.createIcons();
+      updateScore();
+    }
+  };
+
+  // Completion Score Logic
+  window.updateScore = function() {
+    // Simple heuristic for demo
+    let score = 0;
+    const inputs = document.querySelectorAll('.section-target input, .section-target textarea, .section-target select');
+    inputs.forEach(i => { if(i.value) score += 1; });
+    score = Math.min(100, Math.round((score / 35) * 100));
+    
+    document.getElementById('completionText').innerText = `${score}%`;
+    const circle = document.getElementById('completionCircle');
+    const offset = 120 - (120 * score / 100);
+    circle.style.strokeDashoffset = offset;
+
+    // Update dots
+    sections.forEach(sec => {
+      const secEl = document.getElementById(sec.id);
+      const dot = document.getElementById(`dot-${sec.id}`);
+      const inputsInSec = secEl.querySelectorAll('input, textarea');
+      const filled = Array.from(inputsInSec).some(i => i.value);
+      dot.classList.toggle('complete', filled);
+    });
+  };
+
+  updateScore();
+});
+</script>
+</body>
+</html>
+
