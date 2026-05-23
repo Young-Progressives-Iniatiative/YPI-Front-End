@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YPI | Partner Role Management</title>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        ypi: { green: '#37af4b', dark: '#121212', card: '#1c1c1c', element: '#252525', hover: '#2d8c3c', border: '#333333' }
+      },
+      fontFamily: {
+        sans: ['Atkinson Hyperlegible', 'sans-serif'],
+        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+        inter: ['Inter', 'sans-serif']
+      }
+    }
+  }
+}
+</script>
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<!-- FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+:root {
+  --bg-main: #121212;
+  --bg-panel: #1c1c1c;
+  --bg-element: #252525;
+  --text-main: #ffffff;
+  --text-muted: #9ca3af;
+  --border-color: #333;
+  --accent-green: #37af4b;
+  --highlight-green: #98fb98;
+  --danger-red: #ef4444;
+  --db-bg: #0b0b0e;
+  --db-card: #15161c;
+  --db-muted: #9aa0a6;
+  --db-text: #f5f5f7;
+  --db-green: #2ecc71;
+  --db-red: #e74c3c;
+  --db-yellow: #f1c40f;
+}
+body { background-color: var(--bg-main); color: #f0f0f0; font-family: 'Atkinson Hyperlegible', sans-serif; margin: 0; }
+.font-fm-header { font-family: 'Atkinson Hyperlegible', sans-serif; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #1a1a1a; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #37af4b; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.fade-in { animation: fadeIn 0.3s ease-in-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.tab-content { display: none; animation: fadeIn 0.4s ease-out; width: 100%; }
+.tab-content.active { display: flex; flex-direction: column; }
+.trigger-container { align-items: center; justify-content: flex-start; min-height: calc(100vh - 80px); text-align: center; padding: 1rem 2rem; }
+.calendar-container { width: 100%; max-width: 1100px; background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); margin-top: 1rem; display: flex; flex-direction: column; min-height: 600px; }
+.calendar-header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 2rem; background: var(--bg-element); border-bottom: 1px solid var(--border-color); }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); background: var(--border-color); gap: 1px; flex: 1; }
+.calendar-day { background: var(--bg-panel); min-height: 140px; padding: 0.75rem; position: relative; display: flex; flex-direction: column; gap: 0.5rem; }
+.calendar-event { background: rgba(55, 175, 75, 0.15); border-left: 3px solid var(--accent-green); color: var(--highlight-green); padding: 0.4rem 0.6rem; font-size: 0.8rem; border-radius: 4px; cursor: pointer; text-align: left; font-weight: 600; }
+.modal-overlay { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center; }
+.modal-overlay.active { display: flex; }
+.form-page-container { position: relative; max-width: 1150px; width: 95%; margin: auto; padding: 2.5rem; background-color: var(--db-bg); border-radius: 14px; border: 1px solid #333; box-shadow: 0 20px 50px rgba(0,0,0,0.5); max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+.section-header { color: #f8fafc; font-weight: 700; letter-spacing: -0.015em; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.125rem; border-bottom: 1px solid #333; padding-bottom: 0.75rem; }
+.step-badge { width: 24px; height: 24px; background-color: #252525; color: #37af4b; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; border: 1px solid #333; }
+.input-group { margin-bottom: 1.25rem; text-align: left; }
+.input-label { display: block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #9ca3af; margin-bottom: 0.35rem; letter-spacing: 0.025em; cursor: help; }
+.input-label:hover { color: var(--highlight-green); }
+.form-input { width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid #333; font-size: 0.875rem; color: #f1f5f9; background-color: #1c1c1c; transition: all 0.15s ease; }
+.form-input:focus { outline: none; border-color: #37af4b; box-shadow: 0 0 0 3px rgba(55, 175, 75, 0.1); background-color: #121212; }
+.form-textarea { width: 100%; padding: 0.5rem 0.75rem; border-radius: 0.5rem; border: 1px solid #333; font-size: 0.875rem; color: #f1f5f9; background-color: #1c1c1c; min-height: 100px; resize: vertical; }
+.form-textarea:focus { outline: none; border-color: #37af4b; box-shadow: 0 0 0 3px rgba(55, 175, 75, 0.1); background-color: #121212; }
+.list-item { background: #1c1c1c; border: 1px solid #333; border-radius: 6px; padding: 0.5rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: flex-start; font-size: 0.875rem; color: #e2e8f0; }
+.col-wrapper { height: 100%; overflow-y: auto; border-right: 1px solid #333; padding: 1.5rem; background-color: #121212; }
+.col-wrapper:last-child { border-right: none; }
+select.form-input { background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em; padding-right: 2.5rem; -webkit-appearance: none; appearance: none; }
+.db-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.db-card { background: linear-gradient(180deg, #1a1b22, #121318); border-radius: 14px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,.35); position: relative; transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; }
+.db-card:hover { transform: translateY(-2px); box-shadow: 0 15px 40px rgba(55, 175, 75, 0.15); border: 1px solid #37af4b; }
+.metric-title { font-weight: 600; font-size: 1.05rem; margin-bottom: 6px; color: var(--db-text); }
+.metric-sub { color: var(--db-muted); font-size: .85rem; margin-bottom: 10px; }
+.metric-value { font-size: 2rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.up { color: var(--db-green); }
+.down { color: var(--db-red); }
+.db-section { margin-top: 32px; }
+.db-section h2 { font-size: 1.2rem; margin-bottom: 12px; color: var(--db-text); cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.db-section h2:hover { color: var(--highlight-green); }
+.stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; }
+.stat { background: var(--db-card); border-radius: 12px; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; font-size: .95rem; color: var(--db-text); cursor: pointer; transition: background 0.2s; }
+.stat:hover { background: #1f2028; }
+.stat span { color: var(--db-muted); }
+.legend { display: flex; gap: 16px; margin-top: 10px; font-size: .85rem; color: var(--db-muted); }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.yellow-dot { background: var(--db-yellow); }
+.red-dot { background: var(--db-red); }
+.modal-nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 100; transition: all 0.2s; }
+.modal-nav-btn:hover { background: rgba(255,255,255,0.15); border-color: var(--ypi-green); }
+.modal-nav-btn.left { left: 1rem; }
+.modal-nav-btn.right { right: 1rem; }
+.db-page { display: none; animation: fadeIn 0.3s ease-out; }
+.db-page.active { display: block; }
+.pagination-dots { display: flex; justify-content: center; gap: 8px; margin-top: 1.5rem; position: sticky; bottom: 0; padding-bottom: 10px; background: var(--db-bg); z-index: 50; }
+.page-dot { width: 8px; height: 8px; border-radius: 50%; background: #333; transition: all 0.2s; cursor: pointer; }
+.page-dot.active { background: var(--ypi-green); width: 24px; border-radius: 4px; }
+.sticky-th { position: sticky; top: 0; z-index: 20; }
+@keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.message-box-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 10000; display: flex; justify-content: center; align-items: center; visibility: hidden; opacity: 0; transition: opacity 0.3s ease-in-out; }
+.message-box { background-color: var(--bg-panel); color: var(--text-main); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-width: 400px; width: 90%; text-align: center; }
+
+/* NEW POPUP SYSTEM STYLES */
+.popup-trigger { position: relative; }
+.popup-trigger::after {
+  content: '?'; position: absolute; top: 0; right: -16px; width: 16px; height: 16px;
+  background: #333; color: #888; border-radius: 50%; font-size: 10px;
+  display: flex; align-items: center; justify-content: center; cursor: help; opacity: 0; transition: 0.2s;
+}
+.popup-trigger:hover::after { opacity: 1; background: #37af4b; color: white; }
+.popup-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 5000; align-items: center; justify-content: center; padding: 20px; }
+.popup-modal-overlay.active { display: flex; }
+.popup-content { background: #121212; border: 1px solid #333; border-radius: 16px; width: 90%; max-width: 800px; max-height: 85vh; overflow-y: auto; box-shadow: 0 25px 60px rgba(0,0,0,0.6); animation: popupSlide 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+@keyframes popupSlide { from { opacity: 0; transform: scale(0.95) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.popup-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid #333; background: #15151a; }
+.popup-title { font-size: 1.1rem; font-weight: 700; color: #f8fafc; display: flex; align-items: center; gap: 8px; }
+.popup-close { background: none; border: none; color: #9ca3af; cursor: pointer; font-size: 1.5rem; padding: 4px; transition: 0.2s; }
+.popup-close:hover { color: #ef4444; transform: rotate(90deg); }
+.popup-body { padding: 24px; }
+.popup-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+.popup-stat { background: #1a1b22; border: 1px solid #2a2b34; border-radius: 10px; padding: 16px; }
+.popup-stat-label { font-size: 0.8rem; color: #9aa0a6; margin-bottom: 6px; }
+.popup-stat-value { font-size: 1.25rem; font-weight: 700; color: #f5f5f7; }
+.popup-bar { height: 6px; background: #252525; border-radius: 3px; overflow: hidden; margin-top: 8px; }
+.popup-bar-fill { height: 100%; background: #37af4b; border-radius: 3px; }
+.tag { display: inline-block; padding: 4px 8px; background: #252525; border: 1px solid #333; border-radius: 4px; font-size: 0.75rem; color: #e0e0e8; margin-right: 4px; margin-bottom: 4px; }
+.tag.green { background: rgba(55,175,75,0.15); border-color: rgba(55,175,75,0.3); color: #98fb98; }
+</style>
+</head>
+<body>
+<header class="flex flex-col w-full bg-[#1b1b1b] border-b border-[#2a2a2a] shadow-lg sticky top-0 z-50">
+<div class="flex items-center h-16 px-6 gap-6 overflow-x-auto no-scrollbar">
+<div class="flex items-center mr-2 flex-shrink-0">
+<button class="flex items-center justify-center w-8 h-10 bg-[#2a2d35] border border-blue-500/50 rounded-l hover:bg-[#353842] transition-colors group relative"><i data-lucide="chevron-left" class="w-5 h-5 text-gray-300 group-hover:text-white"></i></button>
+<button class="flex items-center justify-center w-8 h-10 bg-[#1f1f1f] hover:bg-[#2a2a2a] transition-colors rounded-r border-y border-r border-[#333]"><i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i></button>
+</div>
+<div class="flex-shrink-0 mr-4">
+<div class="h-12 w-auto flex items-center justify-center">
+<img src="https://weareypi.com/wp-content/uploads/2025/06/Site-Icon-3.png" alt="YPI" class="h-full w-auto object-contain drop-shadow-md" onerror="this.src='https://placehold.co/119x32/1c1c1c/fefefe?text=YPI'"/>
+</div>
+</div>
+<nav class="flex items-center gap-2" id="main-nav"></nav>
+</div>
+</header>
+
+<div class="main-content w-full">
+<section id="content-Organizing" class="tab-content trigger-container active">
+<div class="w-full border-b border-white/10 mb-8">
+<nav class="flex gap-8" aria-label="Module Navigation">
+<button id="nav-roles" onclick="switchMainView('roleManagementView')" class="border-b-2 border-green-500 py-4 px-2 text-sm font-bold text-green-500 transition-colors flex items-center gap-2"><i class="fa-solid fa-users-gear"></i> Role Management</button>
+<button id="nav-calendar" onclick="switchMainView('calendarView')" class="border-b-2 border-transparent py-4 px-2 text-sm font-bold text-neutral-400 hover:text-white hover:border-neutral-500 transition-colors flex items-center gap-2"><i data-lucide="calendar-days"></i> Calendar</button>
+</nav>
+</div>
+<!-- ROLE MANAGEMENT VIEW -->
+<div id="roleManagementView" class="w-full fade-in flex flex-col h-full overflow-hidden">
+<div class="flex justify-center mb-8 flex-shrink-0">
+<div class="bg-neutral-800/80 p-1.5 rounded-full border border-white/5 shadow-xl inline-flex relative">
+<button id="myRolesTab" onclick="switchSubTab('myRolesSection')" class="px-8 py-2.5 rounded-full text-sm font-bold transition-all text-white bg-green-600 shadow-lg">Manage Roles</button>
+<button id="createRoleTab" onclick="switchSubTab('createRoleSection')" class="px-8 py-2.5 rounded-full text-sm font-bold transition-all text-neutral-400 hover:text-white">Post New Role</button>
+</div>
+</div>
+<!-- SECTION: ACTIVE ROLES -->
+<div id="myRolesSection" class="fade-in space-y-8 overflow-y-auto px-4">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="rolesGrid">
+<div class="role-card cursor-pointer group bg-neutral-800 rounded-xl p-6 border border-neutral-700 hover:border-green-500/50 transition-all hover:-translate-y-1 relative" onclick="openRoleModal()">
+<h4 class="text-xl font-bold text-white group-hover:text-green-400 transition-colors">Canvasser</h4>
+<p class="text-neutral-400 text-xs uppercase font-semibold mt-1 mb-4">Non-Profit X</p>
+<div class="space-y-2 mb-6 text-sm">
+<div class="flex items-center text-neutral-300"><i class="fa-solid fa-location-dot w-5 text-neutral-500"></i> Bethesda, MD</div>
+<div class="flex items-center text-green-400"><i class="fa-solid fa-circle-check w-5"></i> Actively Recruiting</div>
+</div>
+<div class="border-t border-white/5 pt-4 flex items-center justify-between">
+<div class="text-sm"><span class="text-white font-bold text-lg">12</span> <span class="text-neutral-500">Applicants</span></div>
+<button class="bg-green-600/20 text-green-400 px-3 py-1 rounded-lg text-xs font-bold border border-green-600/30">View</button>
+</div>
+</div>
+</div>
+</div>
+<!-- SECTION: ROLE BUILDER -->
+<div id="createRoleSection" class="hidden fade-in flex-1 overflow-hidden">
+<div class="flex h-full bg-[#121212] border border-[#333] rounded-2xl overflow-hidden shadow-2xl">
+<!-- Column 1: Core Details -->
+<div class="w-1/4 col-wrapper border-r border-[#333]">
+<h2 class="section-header popup-trigger" data-popup="core-details" data-popup-title="Core Details"><span class="step-badge">1</span> Core Details</h2>
+<div class="input-group"><label class="input-label popup-trigger" data-popup="role-definition" data-popup-title="Role Title">Role Title</label><input type="text" id="builder-title" class="form-input font-medium" placeholder="e.g. Data Engineering Intern"></div>
+<div class="input-group"><label class="input-label popup-trigger" data-popup="core-details" data-popup-title="Event Type">Event Type</label><select id="builder-event-type" class="form-input"><option value="Recurring">Recurring Role (Ongoing)</option><option value="One-Time">One-Time Event</option><option value="Project">Project-Based</option><option value="Seasonal">Seasonal / Summer Only</option></select></div>
+<div class="grid grid-cols-2 gap-3 mb-5">
+<div class="input-group mb-0"><label class="input-label popup-trigger" data-popup="commitment-structure" data-popup-title="Hours / Week" id="builder-hours-label">Hours / Week</label><input type="number" id="builder-hours" class="form-input" value="10"></div>
+<div class="input-group mb-0"><label class="input-label popup-trigger" data-popup="fit-quals" data-popup-title="Role Type">Role Type</label><select id="builder-type" class="form-input"><option>Internship</option><option>Fellowship</option><option>Volunteer</option></select></div>
+</div>
+<div class="input-group"><label class="input-label popup-trigger" data-popup="schedule" data-popup-title="Application Deadline">Application Deadline</label><input type="date" id="builder-deadline" class="form-input"></div>
+<div class="bg-[#1c1c1c] p-4 rounded-lg border border-[#333] mb-5 popup-trigger" data-popup="commitment-structure" data-popup-title="Location Targeting">
+<label class="input-label text-white mb-3">Location Targeting</label>
+<div class="space-y-3">
+<div class="flex gap-2"><div class="w-1/3"><label class="text-[10px] uppercase text-neutral-500 font-bold mb-1 block">Radius</label><input type="number" id="builder-radius" class="form-input text-xs" placeholder="Miles"></div><div class="flex-1"><label class="text-[10px] uppercase text-neutral-500 font-bold mb-1 block">From Location</label><input type="text" id="builder-target-loc" class="form-input text-xs" placeholder="Venue or ZIP"></div></div>
+</div>
+</div>
+<div class="bg-[#1c1c1c] p-4 rounded-lg border border-[#333] popup-trigger" data-popup="commitment-structure" data-popup-title="Commitment Structure">
+<label class="input-label text-white mb-3">Commitment Structure</label>
+<div class="space-y-3">
+<div><label class="text-[10px] uppercase text-slate-500 font-bold mb-1 block">Schedule</label><input type="text" id="builder-schedule" class="form-input text-xs" value="Part-time"></div>
+<div><label class="text-[10px] uppercase text-slate-500 font-bold mb-1 block">Duration</label><input type="text" id="builder-duration" class="form-input text-xs" value="Temporary / Seasonal"></div>
+</div>
+</div>
+</div>
+<!-- Column 2: Role Definition -->
+<div class="w-1/4 col-wrapper border-r border-[#333]">
+<h2 class="section-header popup-trigger" data-popup="role-definition" data-popup-title="Role Definition"><span class="step-badge">2</span> Role Definition</h2>
+<div class="input-group"><label class="input-label popup-trigger" data-popup="role-definition" data-popup-title="Mission Summary">Mission Summary</label><textarea id="builder-summary" class="form-textarea h-40" placeholder="Mission goals..."></textarea></div>
+<div class="input-group">
+<label class="input-label flex justify-between items-center popup-trigger" data-popup="key-responsibilities" data-popup-title="Key Responsibilities">Key Responsibilities <span class="text-[10px] bg-[#252525] px-2 py-0.5 rounded text-neutral-400 border border-[#333]" id="builder-resp-count">0 items</span></label>
+<div id="builder-responsibilities-container" class="space-y-2 mb-3 min-h-[100px]"></div>
+<div class="flex gap-2"><input type="text" id="builder-new-resp" class="form-input text-sm" placeholder="Add..."><button onclick="addBuilderResponsibility()" class="bg-[#1c1c1c] border border-[#333] hover:bg-neutral-800 text-neutral-300 px-3 rounded-md transition-colors flex-shrink-0"><i class="fa-solid fa-plus text-[#37af4b]"></i></button></div>
+</div>
+</div>
+<!-- Column 3: Credit & Recognition -->
+<div class="w-1/4 col-wrapper border-r border-[#333]">
+<h2 class="section-header popup-trigger" data-popup="credit-recognition" data-popup-title="Credit & Recognition"><span class="step-badge">3</span> Credit & Recognition</h2>
+<div class="input-group"><label class="input-label popup-trigger" data-popup="credit-recognition" data-popup-title="Credit Type">Credit Type</label><select id="builder-paid" class="form-input"><option value="Volunteer Hours">Volunteer Service Hours</option><option value="School Credit">School Credit / Internship</option><option value="Stipend">Stipend Provided</option></select></div>
+<div class="input-group">
+<label class="input-label flex justify-between items-center popup-trigger" data-popup="benefits-outcomes" data-popup-title="Benefits & Outcomes">Benefits & Outcomes <span class="text-[10px] bg-[#252525] px-2 py-0.5 rounded text-neutral-400 border border-[#333]" id="builder-ben-count">0 items</span></label>
+<div id="builder-benefits-container" class="space-y-2 mb-4 min-h-[100px]"></div>
+<div class="bg-[#1c1c1c] p-3 rounded border border-[#333] popup-trigger" data-popup="benefits-outcomes" data-popup-title="Add Benefit">
+<input type="text" id="builder-new-ben-title" class="form-input text-xs mb-2 font-medium bg-[#121212] border-[#333]" placeholder="Title">
+<input type="text" id="builder-new-ben-desc" class="form-input text-xs mb-2 bg-[#121212] border-[#333]" placeholder="Description">
+<button onclick="addBuilderBenefit()" class="w-full bg-[#333] hover:bg-neutral-700 text-neutral-200 text-xs font-medium py-1.5 rounded transition-colors shadow-sm">Add Benefit</button>
+</div>
+</div>
+</div>
+<!-- Column 4: Fit & Quals -->
+<div class="w-1/4 col-wrapper relative">
+<h2 class="section-header popup-trigger" data-popup="fit-quals" data-popup-title="Fit & Quals"><span class="step-badge">4</span> Fit & Quals</h2>
+<div class="input-group">
+<label class="input-label mb-2">Philosophy Tags</label>
+<div class="space-y-2">
+<label class="flex items-center gap-2 p-2 border border-[#333] rounded bg-[#1c1c1c] hover:border-neutral-500 cursor-pointer transition-colors"><input type="checkbox" id="builder-check-honors" class="accent-[#37af4b] w-4 h-4 rounded border-[#333] bg-[#252525]"><span class="text-xs font-medium text-neutral-300">Honors Focus</span></label>
+<label class="flex items-center gap-2 p-2 border border-[#333] rounded bg-[#1c1c1c] hover:border-neutral-500 cursor-pointer transition-colors"><input type="checkbox" id="builder-check-ib" class="accent-[#37af4b] w-4 h-4 rounded border-[#333] bg-[#252525]"><span class="text-xs font-medium text-neutral-300">IB Focus</span></label>
+<label class="flex items-center gap-2 p-2 border border-[#333] rounded bg-[#1c1c1c] hover:border-neutral-500 cursor-pointer transition-colors"><input type="checkbox" id="builder-check-no-gpa" checked class="accent-[#37af4b] w-4 h-4 rounded border-[#333] bg-[#252525]"><span class="text-xs font-medium text-neutral-300">No Minimum GPA</span></label>
+<div id="min-gpa-container" class="hidden mt-2 p-2 bg-[#121212] rounded border border-[#333] fade-in"><label class="input-label !mb-1 popup-trigger" data-popup="fit-quals" data-popup-title="Required Min GPA">Required Min GPA</label><input type="number" id="builder-min-gpa" class="form-input" placeholder="e.g. 3.0" step="0.1" min="0" max="5"></div>
+<div id="builder-philosophy-tags-container" class="space-y-2 mt-4"></div>
+<div class="mt-4 pt-4 border-t border-[#333] popup-trigger" data-popup="fit-quals" data-popup-title="Custom Philosophy"><label class="input-label">Add Custom Philosophy</label><div class="flex gap-2"><input type="text" id="builder-new-philosophy" class="form-input text-xs" placeholder="e.g. Remote First"><button onclick="addBuilderPhilosophy()" class="bg-[#1c1c1c] border border-[#333] hover:bg-neutral-800 text-neutral-300 px-3 rounded-md transition-colors flex-shrink-0"><i class="fa-solid fa-plus text-[#37af4b]"></i></button></div></div>
+</div>
+</div>
+<div class="input-group"><label class="input-label popup-trigger" data-popup="fit-quals" data-popup-title="Preferred Majors">Preferred Majors</label><textarea id="builder-majors" class="form-input text-xs h-20" placeholder="CS, Math, etc."></textarea></div>
+<div class="mt-8 pt-4 border-t border-[#333] space-y-3">
+<button onclick="handlePublish(event)" class="w-full bg-[#37af4b] hover:bg-ypi-hover text-white py-3 rounded-xl font-bold transition shadow-lg shadow-green-900/20">Publish Role</button>
+<button onclick="switchSubTab('myRolesSection')" class="w-full bg-[#1c1c1c] border border-[#333] text-neutral-400 py-3 rounded-xl font-bold hover:text-white hover:bg-neutral-800 transition">Discard Draft</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- CALENDAR VIEW -->
+<div id="calendarView" class="w-full hidden fade-in">
+<div class="calendar-container mx-auto">
+<div class="calendar-header">
+<div class="flex items-center gap-4">
+<div class="flex bg-[#121212] rounded-lg p-1 border border-[#333]"><button class="view-toggle-btn active p-2 rounded" id="viewGridBtn"><i data-lucide="grid" class="w-4 h-4"></i></button><button class="view-toggle-btn p-2 rounded" id="viewListBtn"><i data-lucide="list" class="w-4 h-4"></i></button></div>
+<div class="flex gap-1"><button class="calendar-nav-btn" id="prevMonth"><i data-lucide="chevron-left" class="w-4 h-4"></i></button><button class="calendar-nav-btn" id="nextMonth"><i data-lucide="chevron-right" class="w-4 h-4"></i></button></div>
+</div>
+<h2 id="calendarTitle" class="text-xl font-bold text-white">Month Year</h2>
+<button class="bg-[#98fb98]/10 text-[#98fb98] border border-[#98fb98]/30 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-[#98fb98] hover:text-[#121212] transition" id="syncCalendarBtn"><i data-lucide="refresh-cw" class="w-4 h-4"></i> Sync</button>
+</div>
+<div class="calendar-grid" id="calendarGrid"></div>
+<div class="hidden flex-col p-6 gap-4" id="listView"></div>
+</div>
+</div>
+</section>
+<section id="content-Vision" class="tab-content generic-section"><h1>Our Vision</h1></section>
+<section id="content-Financials" class="tab-content generic-section"><h1>Financials</h1></section>
+<section id="content-Data Suite" class="tab-content generic-section"><h1>Data Suite</h1></section>
+</div>
+
+<!-- ROLE ANALYTICS MODAL -->
+<div id="roleModal" class="modal-overlay">
+<div class="form-page-container">
+<button class="absolute top-4 right-4 text-3xl text-gray-500 hover:text-white z-[110]" onclick="closeRoleModal()">&times;</button>
+<button class="modal-nav-btn left" onclick="changeModalPage(-1)"><i data-lucide="chevron-left"></i></button>
+<button class="modal-nav-btn right" onclick="changeModalPage(1)"><i data-lucide="chevron-right"></i></button>
+<!-- Page 0: Opportunity Overview -->
+<div id="db-page-0" class="db-page active">
+<h1 class="text-2xl font-bold mb-6 text-center text-white">Opportunity Overview</h1>
+<div class="db-grid">
+<div class="db-card text-left popup-trigger" data-popup="important-metric" data-popup-title="Important Metric">
+<div class="metric-title popup-trigger" data-popup="important-metric" data-popup-title="Important Metric">Important Metric</div>
+<div class="metric-sub">-1 from yesterday</div>
+<div class="metric-value up">6 ↑</div>
+</div>
+<div class="db-card text-left popup-trigger" data-popup="secondary-metric" data-popup-title="Secondary Metric">
+<div class="metric-title popup-trigger" data-popup="secondary-metric" data-popup-title="Secondary Metric">Secondary Metric</div>
+<div class="metric-sub">-1 from yesterday</div>
+<div class="metric-value down">7 ↓</div>
+</div>
+<div class="db-card text-left popup-trigger" data-popup="traffic-sources" data-popup-title="Traffic Sources">
+<div class="metric-title">Traffic Sources</div>
+<div class="mt-3">
+<div class="mb-2 text-[0.8rem] text-white cursor-pointer hover:text-[#98fb98] popup-trigger" data-popup="for-you" data-popup-title="For You">For You<div class="h-1.5 bg-[#2a2b34] rounded-full overflow-hidden mt-1"><div class="w-[69%] h-full bg-[#f1c40f]"></div></div></div>
+<div class="mb-2 text-[0.8rem] text-white cursor-pointer hover:text-[#98fb98] popup-trigger" data-popup="traffic-sources-profile" data-popup-title="Profile">Profile<div class="h-1.5 bg-[#2a2b34] rounded-full overflow-hidden mt-1"><div class="w-[20%] h-full bg-[#f1c40f]"></div></div></div>
+<div class="mb-2 text-[0.8rem] text-white cursor-pointer hover:text-[#98fb98] popup-trigger" data-popup="search" data-popup-title="Search">Search<div class="h-1.5 bg-[#2a2b34] rounded-full overflow-hidden mt-1"><div class="w-[8%] h-full bg-[#f1c40f]"></div></div></div>
+</div>
+</div>
+</div>
+<div class="db-section text-left popup-trigger" data-popup="applicants-analytics" data-popup-title="Applicants Analytics">
+<h2 class="font-bold text-white"><i data-lucide="bar-chart-2" class="w-5 h-5 text-[#37af4b]"></i> Applicants Analytics</h2>
+<div class="stats-row">
+<div class="stat popup-trigger" data-popup="total-applicants" data-popup-title="Total Applicants"><strong>Total</strong><span>58</span></div>
+<div class="stat popup-trigger" data-popup="matching-applicants" data-popup-title="Matching Applicants"><strong>Matching</strong><span>42</span></div>
+</div>
+<div class="db-card">
+<svg viewBox="0 0 640 260" width="100%" height="220">
+<line x1="40" y1="20" x2="40" y2="230" stroke="#2a2b34" stroke-width="2" /><line x1="40" y1="230" x2="620" y2="230" stroke="#2a2b34" stroke-width="2" />
+<polyline fill="none" stroke="#e74c3c" stroke-width="3" points="40,225 120,215 200,200 280,180 360,150 440,120 520,80 600,60" />
+<polyline fill="none" stroke="#f1c40f" stroke-width="3" points="40,230 120,225 200,215 280,200 360,185 440,165 520,140 600,120" />
+</svg>
+</div>
+</div>
+<div class="db-section text-left popup-trigger" data-popup="reach" data-popup-title="Reach">
+<h2 class="font-bold text-white"><i data-lucide="globe" class="w-5 h-5 text-[#37af4b]"></i> Reach</h2>
+<div class="db-card popup-trigger" data-popup="engagement-velocity" data-popup-title="Engagement Velocity">
+<svg viewBox="0 0 640 260" width="100%" height="220">
+<line x1="40" y1="20" x2="40" y2="230" stroke="#2a2b34" stroke-width="2" /><line x1="40" y1="230" x2="620" y2="230" stroke="#2a2b34" stroke-width="2" />
+<text x="12" y="230" fill="#9aa0a6" font-size="10">0</text><text x="6" y="50" fill="#9aa0a6" font-size="10">1k</text>
+<text x="40" y="252" fill="#9aa0a6" font-size="10">Day 1</text><text x="240" y="252" fill="#9aa0a6" font-size="10">Day 15</text><text x="520" y="252" fill="#9aa0a6" font-size="10">Day 30</text>
+<polyline fill="none" stroke="#37af4b" stroke-width="3" points="40,200 120,180 200,190 280,150 360,120 440,100 520,60 600,40" />
+</svg>
+<div class="legend mt-2"><span class="dot bg-[#37af4b]"></span>Engagement Velocity</div>
+</div>
+</div>
+</div>
+<!-- Page 1: Applicants List -->
+<div id="db-page-1" class="db-page">
+<h1 class="text-2xl font-bold mb-6 text-center text-white">Applicants</h1>
+<div class="w-full overflow-x-auto bg-[#121212] rounded-xl border border-[#333]">
+<table class="w-full text-left border-collapse min-w-[1000px]">
+<thead>
+<tr class="bg-[#1a1a1a] text-[10px] text-gray-500 uppercase tracking-wider border-b border-[#333]">
+<th class="p-3 sticky left-0 bg-[#1a1a1a] border-r border-[#333] w-12 text-center">est</th>
+<th class="p-3 border-r border-[#333] w-10 text-center">INF</th>
+<th class="p-3 border-r border-[#333]">Name</th>
+<th class="p-3 border-r border-[#333]">School</th>
+<th class="p-3 border-r border-[#333]">Role</th>
+<th class="p-3 text-center text-[#98fb98] border-r border-[#333]">eVLA</th>
+<th class="p-3 text-center font-mono">GPA+</th>
+<th class="p-3 text-center font-mono">SSL+</th>
+<th class="p-3 text-right sticky right-0 bg-[#1a1a1a]">View Application</th>
+</tr>
+</thead>
+<tbody class="text-xs divide-y divide-[#222]">
+<tr class="hover:bg-[#1f1f1f] transition">
+<td class="p-3 text-center text-gray-400 font-mono sticky left-0 bg-[#121212] border-r border-[#333]">A+</td>
+<td class="p-3 text-center border-r border-[#333] relative group/wnt overflow-visible"><span class="bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded text-[9px] font-bold cursor-help border border-blue-500/30">Wnt</span></td>
+<td class="p-3 font-bold text-white border-r border-[#333]">Alex Johnson</td>
+<td class="p-3 text-gray-400 border-r border-[#333]">B-CC High</td>
+<td class="p-3 text-[#98fb98] border-r border-[#333]">Canvasser</td>
+<td class="p-3 text-center text-white border-r border-[#333] font-bold">78</td>
+<td class="p-3 text-center text-white font-mono bg-green-900/10">112</td>
+<td class="p-3 text-center text-white font-mono">110</td>
+<td class="p-3 text-right sticky right-0 bg-[#121212]"><button class="bg-[#37af4b] text-white text-[9px] font-bold px-3 py-1.5 rounded uppercase" onclick="showMessage('Applicant Data', 'Viewing Alex Johnson\'s profile...')">View Application</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="pagination-dots"><div class="page-dot active" id="dot-0" onclick="setModalPage(0)"></div><div class="page-dot" id="dot-1" onclick="setModalPage(1)"></div></div>
+</div>
+</div>
+</div>
+
+<!-- GLOBAL POPUP OVERLAY CONTAINER -->
+<div class="popup-modal-overlay" id="globalPopupOverlay" tabindex="-1">
+<div class="popup-content" id="globalPopupContent">
+<div class="popup-header">
+<div class="popup-title" id="popupTitle"><i data-lucide="info" class="w-5 h-5 text-[#37af4b]"></i> <span id="popupTitleText">Info</span></div>
+<button class="popup-close" onclick="closePopup()">&times;</button>
+</div>
+<div class="popup-body" id="popupBody"></div>
+</div>
+</div>
+
+<div class="message-box-overlay" id="messageBoxOverlay"></div>
+
+<script>
+const builderState = { responsibilities: ["Create and manage databases tailored to organizational needs.", "Collaborate with communications teams to analyze outreach data."], benefits: [{ title: "Service Hours", desc: "Certified verification for requirements." }], philosophies: [] };
+
+// --- POPUP SYSTEM ---
+const POPUP_REGISTRY = {
+  'important-metric': () => `<div class="popup-grid"><div class="popup-stat"><div class="popup-stat-label">Historical Trend</div><div class="popup-stat-value up">+14% <span class="text-xs text-neutral-400">WoW</span></div><div class="popup-bar"><div class="popup-bar-fill" style="width: 65%"></div></div></div><div class="popup-stat"><div class="popup-stat-label">Projected Perf.</div><div class="popup-stat-value">8.2</div><div class="popup-bar"><div class="popup-bar-fill bg-blue-500" style="width: 82%"></div></div></div></div><div class="mt-4"><div class="tag green">Healthy</div><div class="tag">Benchmark: 7.0</div></div><p class="mt-4 text-neutral-300 text-sm">Engagement is trending upward. Recommendation: Increase ad spend on high-performing segments to capitalize on momentum.</p>`,
+  'secondary-metric': () => `<div class="popup-grid"><div class="popup-stat"><div class="popup-stat-label">Referral Breakdown</div><div class="popup-stat-value">62%</div></div><div class="popup-stat"><div class="popup-stat-label">Audience Quality</div><div class="popup-stat-value text-green-400">High</div></div></div><div class="mt-4 text-neutral-300 text-sm">Supporting analytics indicate strong retention from secondary channels. Historical movement shows consistent -2% weekly decay.</div>`,
+  'traffic-sources': () => `<div class="popup-grid"><div class="popup-stat"><div class="popup-stat-label">For You</div><div class="popup-stat-value">69%</div><div class="popup-bar"><div class="popup-bar-fill" style="width: 69%"></div></div></div><div class="popup-stat"><div class="popup-stat-label">Profile</div><div class="popup-stat-value">20%</div><div class="popup-bar"><div class="popup-bar-fill bg-blue-400" style="width: 20%"></div></div></div><div class="popup-stat"><div class="popup-stat-label">Search</div><div class="popup-stat-value">8%</div><div class="popup-bar"><div class="popup-bar-fill bg-yellow-400" style="width: 8%"></div></div></div></div><div class="mt-4 text-sm text-neutral-300">Heatmap indicates strong retention on algorithmic feed. Click-through rate averages 4.2%.</div>`,
+  'for-you': () => `<div class="popup-grid"><div class="popup-stat"><div class="popup-stat-label">Alg. Exposure</div><div class="popup-stat-value">85k</div></div><div class="popup-stat"><div class="popup-stat-label">Avg Session</div><div class="popup-stat-value">2m 14s</div></div></div><div class="mt-4"><span class="tag">Retention: 72%</span><span class="tag green">Feed Optimal</span></div><p class="mt-3 text-neutral-300 text-sm">Recommendation performance is peaking. Feed distribution heavily favors returning users.</p>`,
+  'search': () => `<div class="popup-grid"><div class="popup-stat"><div class="popup-stat-label">Search Impressions</div><div class="popup-stat-value">12.4k</div></div><div class="popup-stat"><div class="popup-stat-label">Top Keyword</div><div class="popup-stat-value text-xs">Canvassing</div></div></div><div class="mt-3 text-neutral-300 text-sm">Discoverability score: 78/100. Recommended keywords: <span class="text-green-400">Outreach, Data Entry</span>. Funnel shows 15% drop-off at query stage.</div>`,
+  'applicants-analytics': () => `<div class="popup-grid"><div class="popup-stat"><div class="popup-stat-label">Pipeline Health</div><div class="popup-stat-value text-green-400">Strong</div></div><div class="popup-stat"><div class="popup-stat-label">Avg Qualification</div><div class="popup-stat-value">82</div></div></div><div class="mt-3 text-neutral-300 text-sm">Funnel shows 42% conversion to interview. Drop-off highest at final submission. Demographic split: 60% HS, 30% College.</div>`,
+  'total-applicants': () => `<div class="popup-grid"><div class="popup-stat"><div class="popup-stat-label">Total Pool</div><div class="popup-stat-value">58</div></div><div class="popup-stat"><div class="popup-stat-label">Avg Score</div><div class="popup-stat-value">74.5</div></div></div><div class="mt-3"><span class="tag">Filter: All</span><span class="tag">Sort: Date Desc</span></div><p class="mt-3 text-neutral-300 text-sm">Includes pending and rejected. AI recommendation: Focus on top 20% based on SSL+ scoring.</p>`,
+  'matching-applicants': () => `<div class="popup-grid"><div class="popup-stat"><div class="popup-stat-label">Qualified</div><div class="popup-stat-value">42</div></div><div class="popup-stat"><div class="popup-stat-label">Match Rate</div><div class="popup-stat-value text-green-400">72.4%</div></div></div><div class="mt-3 text-neutral-300 text-sm">Compatibility meter: High. AI summaries suggest immediate outreach for 12 profiles with >90% match.</div>`,
+  'reach': () => `<div class="popup-grid"><div class="popup-stat"><div class="popup-stat-label">Impressions</div><div class="popup-stat-value">145k</div></div><div class="popup-stat"><div class="popup-stat-label">Unique Users</div><div class="popup-stat-value">89k</div></div></div><div class="mt-3"><span class="tag">Penetration: 68%</span><span class="tag green">Geo: Stable</span></div><p class="mt-3 text-neutral-300 text-sm">Engagement map shows strong clustering in target regions. Growth velocity remains positive.</p>`,
+  'engagement-velocity': () => `<div class="popup-grid"><div class="popup-stat"><div class="popup-stat-label">Momentum</div><div class="popup-stat-value up">High</div></div><div class="popup-stat"><div class="popup-stat-label">Viral Potential</div><div class="popup-stat-value">8.1</div></div></div><div class="mt-3 text-neutral-300 text-sm">Acceleration indicators show rapid hourly spikes between 4-7 PM. Engagement decay is slower than platform average. Recommendation engine suggests boosting at 3:45 PM.</div>`,
+  'core-details': () => `<div class="popup-grid"><div class="popup-stat"><div class="popup-stat-label">Role Health</div><div class="popup-stat-value text-green-400">Optimal</div></div><div class="popup-stat"><div class="popup-stat-label">Publishing</div><div class="popup-stat-value">Live</div></div></div><div class="mt-3 text-neutral-300 text-sm">Internal visibility: All Org Members. Deadline management active. Recruitment status: Actively Sourcing.</div>`,
+  'role-definition': () => `<div class="popup-grid"><div class="popup-stat"><div class="popup-stat-label">Mission Alignment</div><div class="popup-stat-value text-green-400">95%</div></div></div><div class="mt-3 text-neutral-300 text-sm">Narrative editor active. Live preview available. Impact explanation tied to community outreach KPIs.</div>`,
+  'credit-recognition': () => `<div class="popup-grid"><div class="popup-stat"><div class="popup-stat-label">Hours Tracked</div><div class="popup-stat-value">0</div></div><div class="popup-stat"><div class="popup-stat-label">Rec Letters</div><div class="popup-stat-value">Eligible</div></div></div><div class="mt-3"><span class="tag">Certification Preview</span><span class="tag">Badges Enabled</span></div>`,
+  'benefits-outcomes': () => `<div class="popup-grid"><div class="popup-stat"><div class="popup-stat-label">Internship Path</div><div class="popup-stat-value">Available</div></div><div class="popup-stat"><div class="popup-stat-label">Mentorship</div><div class="popup-stat-value">1:1</div></div></div><div class="mt-3 text-neutral-300 text-sm">Networking opportunities mapped. Certification pathways: Data Science, Non-Profit Management.</div>`,
+  'key-responsibilities': () => `<div class="popup-grid"><div class="popup-stat"><div class="popup-stat-label">Workload</div><div class="popup-stat-value">Light</div></div></div><div class="mt-3"><span class="tag">P1: Data Entry</span><span class="tag">P2: Reporting</span></div><p class="mt-3 text-neutral-300 text-sm">Timeline: 2-3 weeks ramp-up. Role hierarchy aligns with Operations Dept.</p>`,
+  'commitment-structure': () => `<div class="popup-grid"><div class="popup-stat"><div class="popup-stat-label">Intensity</div><div class="popup-stat-value">Moderate</div></div><div class="popup-stat"><div class="popup-stat-label">Flex Score</div><div class="popup-stat-value text-green-400">8/10</div></div></div><div class="mt-3 text-neutral-300 text-sm">Hybrid/Remote indicators enabled. Attendance expectations: Async-first.</div>`,
+  'schedule': () => `<div class="popup-grid"><div class="popup-stat"><div class="popup-stat-label">Weekly Hrs</div><div class="popup-stat-value">10</div></div></div><div class="mt-3 text-neutral-300 text-sm">Visual matrix available. Conflict detection active. Synced to partner calendar.</div>`,
+  'duration': () => `<div class="popup-grid"><div class="popup-stat"><div class="popup-stat-label">Length</div><div class="popup-stat-value">8 Weeks</div></div></div><div class="mt-3"><span class="tag">Onboarding: W1</span><span class="tag">Eval: W4</span><span class="tag green">Completion: W8</span></div>`,
+  'fit-quals': () => `<div class="popup-grid"><div class="popup-stat"><div class="popup-stat-label">Confidence</div><div class="popup-stat-value text-green-400">92%</div></div></div><div class="mt-3 text-neutral-300 text-sm">GPA logic: None. Philosophy tags: Remote, Async. Major matching: CS, Math, PolSci. AI recommendation engine active.</div>`,
+  'traffic-sources-profile': () => `<div class="popup-stat"><div class="popup-stat-label">Profile Views</div><div class="popup-stat-value">3.2k</div></div><p class="mt-2 text-sm text-neutral-400">Direct traffic to org profile. Bounce rate: 34%.</p>`
+};
+
+let currentPopup = null;
+function openPopup(key) {
+  if (!POPUP_REGISTRY[key]) return;
+  currentPopup = document.getElementById('globalPopupOverlay');
+  document.getElementById('popupTitleText').innerText = key.replace(/-/g, ' ').toUpperCase();
+  document.getElementById('popupBody').innerHTML = POPUP_REGISTRY[key]();
+  currentPopup.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('globalPopupContent').focus();
+}
+function closePopup() {
+  const overlay = document.getElementById('globalPopupOverlay');
+  overlay.classList.remove('active');
+  document.body.style.overflow = '';
+  currentPopup = null;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.popup-trigger').forEach(el => {
+    el.addEventListener('click', (e) => {
+      const key = el.dataset.popup;
+      if(key) openPopup(key);
+    });
+    el.addEventListener('mouseenter', (e) => {
+      const key = el.dataset.popup;
+      if(key && !currentPopup) {
+        // Optional: could show tooltip preview here
+      }
+    });
+  });
+
+  // ESC & Click Outside
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (currentPopup) closePopup();
+      else if (document.getElementById('roleModal').classList.contains('active')) closeRoleModal();
+    }
+  });
+  document.getElementById('globalPopupOverlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('globalPopupOverlay')) closePopup();
+  });
+
+  lucide.createIcons();
+  renderBuilderLists();
+  // ... existing init logic ...
+});
+
+// --- EXISTING LOGIC ---
+function renderBuilderLists() {
+  const respContainer = document.getElementById('builder-responsibilities-container');
+  const benContainer = document.getElementById('builder-benefits-container');
+  const philContainer = document.getElementById('builder-philosophy-tags-container');
+  if(respContainer) {
+    respContainer.innerHTML = builderState.responsibilities.map((resp, i) => `<div class="list-item group"><span class="pr-2 text-xs break-words whitespace-normal leading-relaxed">${resp}</span><div class="flex gap-2 flex-shrink-0"><button onclick="editBuilderResp(${i})" class="text-slate-500 hover:text-blue-400 transition-colors p-1"><i class="fa-solid fa-pencil"></i></button><button onclick="removeBuilderResp(${i})" class="text-slate-500 hover:text-red-400 transition-colors p-1"><i class="fa-solid fa-xmark"></i></button></div></div>`).join('');
+    document.getElementById('builder-resp-count').innerText = `${builderState.responsibilities.length} items`;
+  }
+  if(benContainer) {
+    benContainer.innerHTML = builderState.benefits.map((ben, i) => `<div class="list-item group flex-col items-start gap-1"><div class="flex justify-between w-full"><span class="font-semibold text-xs text-slate-300">${ben.title}</span><button onclick="removeBuilderBen(${i})" class="text-slate-500 hover:text-red-400 transition-colors p-1 -mt-1 -mr-1"><i class="fa-solid fa-xmark"></i></button></div><span class="text-[10px] text-slate-500 leading-tight">${ben.desc}</span></div>`).join('');
+    document.getElementById('builder-ben-count').innerText = `${builderState.benefits.length} items`;
+  }
+  if(philContainer) {
+    philContainer.innerHTML = builderState.philosophies.map((phil, i) => `<div class="flex items-center gap-2 p-2 border border-[#333] rounded bg-[#1c1c1c] hover:border-neutral-500 transition-colors"><span class="flex-1 text-xs font-medium text-slate-300">${phil}</span><button onclick="removeBuilderPhilosophy(${i})" class="text-slate-500 hover:text-red-400 transition-colors p-1"><i class="fa-solid fa-xmark"></i></button></div>`).join('');
+  }
+  lucide.createIcons();
+}
+window.addBuilderResponsibility = function() { const inp = document.getElementById('builder-new-resp'); if(inp.value.trim()){ builderState.responsibilities.push(inp.value.trim()); inp.value = ''; renderBuilderLists(); } };
+window.editBuilderResp = function(i) { const inp = document.getElementById('builder-new-resp'); inp.value = builderState.responsibilities[i]; builderState.responsibilities.splice(i, 1); renderBuilderLists(); inp.focus(); };
+window.removeBuilderResp = function(i) { builderState.responsibilities.splice(i, 1); renderBuilderLists(); };
+window.addBuilderBenefit = function() { const t = document.getElementById('builder-new-ben-title'); const d = document.getElementById('builder-new-ben-desc'); if(t.value.trim() && d.value.trim()){ builderState.benefits.push({ title: t.value.trim(), desc: d.value.trim() }); t.value = ''; d.value = ''; renderBuilderLists(); } };
+window.removeBuilderBen = function(i) { builderState.benefits.splice(i, 1); renderBuilderLists(); };
+window.addBuilderPhilosophy = function() { const inp = document.getElementById('builder-new-philosophy'); if(inp.value.trim()){ builderState.philosophies.push(inp.value.trim()); inp.value = ''; renderBuilderLists(); } };
+window.removeBuilderPhilosophy = function(i) { builderState.philosophies.splice(i, 1); renderBuilderLists(); };
+
+document.addEventListener('DOMContentLoaded', () => {
+  let events = JSON.parse(localStorage.getItem('ypi_events')) || [{ id: '1', title: 'Annual Food Drive', date: new Date().toISOString().split('T')[0], time: '10:00', location: 'Main Hall', description: 'Sorting donations.' }];
+  let currentDate = new Date();
+  let modalPage = 0;
+  const totalModalPages = 2;
+  const navItems = ['Vision', 'Organizing', 'Financials', 'Data Suite'];
+  const navContainer = document.getElementById('main-nav');
+  navItems.forEach(item => {
+    const btn = document.createElement('button');
+    btn.className = `px-3 py-2 text-xl font-bold font-fm-header transition-all ${item === 'Organizing' ? 'text-[#98fb98]' : 'text-gray-500 hover:text-white'}`;
+    btn.innerHTML = `<span>${item}</span>`;
+    btn.onclick = () => { document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active')); const target = document.getElementById(`content-${item}`); if(target) target.classList.add('active'); navContainer.querySelectorAll('button').forEach(b => b.className = 'px-3 py-2 text-xl font-bold font-fm-header text-gray-500 hover:text-white'); btn.className = 'px-3 py-2 text-xl font-bold font-fm-header text-[#98fb98]'; };
+    navContainer.appendChild(btn);
+  });
+  const eventTypeSelect = document.getElementById('builder-event-type');
+  const hoursLabel = document.getElementById('builder-hours-label');
+  if (eventTypeSelect && hoursLabel) { eventTypeSelect.addEventListener('change', (e) => { hoursLabel.innerText = e.target.value === 'One-Time' ? 'Hours' : 'Hours / Week'; }); }
+  const gpaCheckbox = document.getElementById('builder-check-no-gpa');
+  const gpaContainer = document.getElementById('min-gpa-container');
+  if(gpaCheckbox && gpaContainer) { gpaCheckbox.addEventListener('change', (e) => { gpaContainer.classList.toggle('hidden', e.target.checked); }); }
+  window.switchMainView = function(viewId) { ['roleManagementView', 'calendarView'].forEach(id => { const el = document.getElementById(id); if(el) el.classList.add('hidden'); }); const target = document.getElementById(viewId); if(target) target.classList.remove('hidden'); refreshUI(); };
+  window.switchSubTab = function(sectionId) { document.getElementById('myRolesSection').classList.add('hidden'); document.getElementById('createRoleSection').classList.add('hidden'); const myTab = document.getElementById('myRolesTab'); const createTab = document.getElementById('createRoleTab'); if (sectionId === 'myRolesSection') { myTab.className = "px-8 py-2.5 rounded-full text-sm font-bold transition-all text-white bg-green-600 shadow-lg"; createTab.className = "px-8 py-2.5 rounded-full text-sm font-bold transition-all text-neutral-400 hover:text-white"; } else { createTab.className = "px-8 py-2.5 rounded-full text-sm font-bold transition-all text-white bg-green-600 shadow-lg"; myTab.className = "px-8 py-2.5 rounded-full text-sm font-bold transition-all text-neutral-400 hover:text-white"; renderBuilderLists(); } document.getElementById(sectionId).classList.remove('hidden'); };
+  window.handlePublish = function(e) { e.preventDefault(); showMessage('Role Builder', 'Role published successfully to the partner network.'); switchSubTab('myRolesSection'); };
+  function renderCalendar() { const grid = document.getElementById('calendarGrid'); if (!grid) return; grid.innerHTML = ''; const month = currentDate.getMonth(); const year = currentDate.getFullYear(); const titleEl = document.getElementById('calendarTitle'); if(titleEl) titleEl.innerText = `${new Intl.DateTimeFormat('en-US', {month:'long'}).format(currentDate)} ${year}`; const firstDay = new Date(year, month, 1).getDay(); const daysInMonth = new Date(year, month + 1, 0).getDate(); for (let i = 0; i < firstDay; i++) grid.insertAdjacentHTML('beforeend', '<div class="calendar-day opacity-20"></div>'); for (let i = 1; i <= daysInMonth; i++) { const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`; const dayEvents = events.filter(e => e.date === dateStr); let eventHtml = dayEvents.map(e => `<div class="calendar-event">${e.title}</div>`).join(''); grid.insertAdjacentHTML('beforeend', `<div class="calendar-day ${i === new Date().getDate() && month === new Date().getMonth() ? 'today' : ''}"><span class="day-number text-xs font-bold text-gray-500">${i}</span><div class="mt-2 space-y-1">${eventHtml}</div></div>`); } }
+  window.changeModalPage = function(dir) { modalPage = (modalPage + dir + totalModalPages) % totalModalPages; updateModalUI(); };
+  window.setModalPage = function(page) { modalPage = page; updateModalUI(); };
+  function updateModalUI() { document.querySelectorAll('.db-page').forEach((p, idx) => { p.classList.toggle('active', idx === modalPage); }); document.querySelectorAll('.page-dot').forEach((d, idx) => { d.classList.toggle('active', idx === modalPage); }); lucide.createIcons(); }
+  window.openRoleModal = function() { modalPage = 0; updateModalUI(); document.getElementById('roleModal').classList.add('active'); };
+  window.closeRoleModal = function() { document.getElementById('roleModal').classList.remove('active'); };
+  window.showMessage = function(title, message) { const overlay = document.getElementById('messageBoxOverlay'); overlay.innerHTML = `<div class="message-box"><h3>${title}</h3><p class="text-gray-400 my-4">${message}</p><button class="bg-[#37af4b] text-white px-6 py-2 rounded-lg font-bold" onclick="hideMessageBox()">OK</button></div>`; overlay.style.visibility = 'visible'; overlay.style.opacity = '1'; };
+  window.hideMessageBox = function() { const overlay = document.getElementById('messageBoxOverlay'); overlay.style.opacity = '0'; setTimeout(() => overlay.style.visibility = 'hidden', 300); };
+  function refreshUI() { renderCalendar(); lucide.createIcons(); }
+  const prevBtn = document.getElementById('prevMonth'); const nextBtn = document.getElementById('nextMonth');
+  if(prevBtn) prevBtn.onclick = () => { currentDate.setMonth(currentDate.getMonth() - 1); refreshUI(); };
+  if(nextBtn) nextBtn.onclick = () => { currentDate.setMonth(currentDate.getMonth() + 1); refreshUI(); };
+  refreshUI();
+});
+</script>
+</body>
+</html>
+
