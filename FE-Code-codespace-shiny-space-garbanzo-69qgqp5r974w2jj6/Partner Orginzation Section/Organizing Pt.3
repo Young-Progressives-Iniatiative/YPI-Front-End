@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YPI | In-Person Volunteer Database</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+darkMode: 'class',
+theme: {
+extend: {
+colors: {
+ypi: {
+green: '#37af4b',
+dark: '#1c1c1c',
+card: '#252525',
+hover: '#2d8c3c',
+glow: '#98fb98'
+}
+},
+fontFamily: {
+sans: ['Atkinson Hyperlegible', 'sans-serif'],
+mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace']
+}
+}
+}
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+:root {
+--bg-main: #121212;
+--bg-panel: #1c1c1c;
+--bg-element: #252525;
+--text-main: #ffffff;
+--text-muted: #9ca3af;
+--border-color: #333;
+--accent-green: #37af4b;
+--highlight-green: #98fb98;
+--danger-red: #ef4444;
+}
+body {
+background-color: var(--bg-main);
+color: #f0f0f0;
+font-family: 'Atkinson Hyperlegible', sans-serif;
+margin: 0;
+overflow: hidden;
+}
+.font-fm-header { font-family: 'Atkinson Hyperlegible', sans-serif; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #1a1a1a; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-green); }
+
+.fade-in { animation: fadeIn 0.3s ease-in-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.tab-content { display: none; }
+.tab-content.active { display: flex; flex-direction: column; height: calc(100vh - 64px); }
+
+/* Header */
+header { box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+
+/* Layout */
+.dashboard-layout { display: flex; flex: 1; overflow: hidden; }
+.sidebar { width: 280px; background: var(--bg-panel); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
+.main-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg-main); }
+
+/* Sidebar Sections */
+.sidebar-section { padding: 1.25rem; border-bottom: 1px solid var(--border-color); }
+.sidebar-title { font-size: 0.75rem; color: var(--highlight-green); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }
+.filter-group { margin-bottom: 1rem; }
+.filter-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; margin-bottom: 0.3rem; display: block; }
+.filter-select, .filter-input {
+width: 100%; background: var(--bg-element); border: 1px solid var(--border-color); color: var(--text-main);
+padding: 0.5rem; border-radius: 6px; font-size: 0.85rem; outline: none; transition: all 0.2s;
+}
+.filter-select:focus, .filter-input:focus { border-color: var(--highlight-green); box-shadow: 0 0 0 2px rgba(152, 251, 152, 0.1); }
+
+/* Query Builder */
+.query-header { background: var(--bg-panel); border-bottom: 1px solid var(--border-color); padding: 0.75rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+.query-tabs { display: flex; gap: 1.5rem; height: 100%; align-items: flex-end; }
+.query-tab {
+padding: 0.5rem 0; border-bottom: 2px solid transparent; cursor: pointer; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem;
+}
+.query-tab.active { border-color: var(--accent-green); color: var(--highlight-green); }
+.query-tab:hover { color: var(--text-main); }
+
+.match-strategy { display: flex; background: var(--bg-element); border-radius: 6px; padding: 2px; border: 1px solid var(--border-color); }
+.strategy-btn {
+padding: 0.3rem 0.8rem; border-radius: 4px; cursor: pointer; font-size: 0.7rem; font-weight: 600; transition: all 0.2s; background: transparent; border: none; color: var(--text-muted);
+}
+.strategy-btn.active { background: rgba(152, 251, 152, 0.15); color: var(--highlight-green); }
+
+.query-area { padding: 1.5rem; overflow-y: auto; background: var(--bg-main); flex: 1; }
+.query-row { display: flex; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.5rem; }
+.logic-operator {
+width: 60px; height: 36px; display: flex; align-items: center; justify-content: center;
+background: var(--bg-element); border: 1px solid var(--border-color); border-radius: 4px;
+font-size: 0.7rem; font-weight: 700; font-family: monospace; color: var(--highlight-green);
+}
+.logic-select {
+width: 60px; height: 36px; background: var(--bg-element); border: 1px solid var(--border-color); border-radius: 4px;
+font-size: 0.7rem; font-weight: 700; font-family: monospace; color: #a78bfa; outline: none; cursor: pointer;
+}
+.query-input-group {
+flex: 1; display: flex; background: var(--bg-element); border: 1px solid var(--border-color);
+border-radius: 6px; padding: 0.5rem; gap: 0.5rem; align-items: center; transition: all 0.2s;
+}
+.query-input-group:hover { border-color: #444; }
+.query-field, .query-op, .query-val { background: transparent; border: none; outline: none; font-size: 0.8rem; color: var(--text-main); }
+.query-field { flex: 0 0 25%; font-weight: 600; }
+.query-op { flex: 0 0 15%; color: #60a5fa; font-weight: 500; }
+.query-val { flex: 1; }
+
+.add-condition-btn {
+margin-top: 1.5rem; margin-left: 60px; width: calc(100% - 60px); padding: 0.75rem;
+background: rgba(255,255,255,0.03); border: 1px dashed var(--border-color); border-radius: 6px;
+color: var(--text-muted); cursor: pointer; font-weight: 600; font-size: 0.85rem; transition: all 0.2s;
+display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+}
+.add-condition-btn:hover { border-color: var(--accent-green); color: var(--highlight-green); background: rgba(55, 175, 75, 0.05); }
+
+.remove-btn { width: 32px; height: 36px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); cursor: pointer; border-radius: 4px; transition: all 0.2s; background: transparent; border: none; }
+.remove-btn:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger-red); }
+
+/* Results Panel */
+.results-bar {
+background: var(--bg-panel); border-bottom: 1px solid var(--border-color); padding: 0.75rem 1.5rem;
+display: flex; justify-content: space-between; align-items: center;
+}
+.results-stats { display: flex; gap: 1.5rem; font-size: 0.8rem; }
+.stat-item { display: flex; align-items: center; gap: 0.4rem; }
+.stat-value { font-weight: 700; color: var(--highlight-green); font-family: monospace; }
+.results-grid-container { flex: 1; overflow-y: auto; padding: 1.5rem; background: var(--bg-main); }
+.results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1rem; }
+
+/* Volunteer Card */
+.vol-card {
+background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 10px; padding: 1rem;
+position: relative; overflow: hidden; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); cursor: pointer;
+}
+.vol-card:hover { transform: translateY(-3px); border-color: var(--accent-green); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
+.vol-card::before {
+content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--accent-green);
+opacity: 0; transition: opacity 0.2s;
+}
+.vol-card:hover::before { opacity: 1; }
+
+.vol-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+.vol-avatar { width: 40px; height: 40px; background: #2a2d35; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: var(--highlight-green); border: 1px solid var(--border-color); }
+.vol-info { flex: 1; }
+.vol-name { font-weight: 700; color: var(--text-main); font-size: 0.95rem; margin-bottom: 0.1rem; }
+.vol-role { font-size: 0.75rem; color: var(--text-muted); }
+.vol-status { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+.status-active { background: rgba(152, 251, 152, 0.1); color: var(--highlight-green); border: 1px solid rgba(152, 251, 152, 0.2); }
+.status-priority { background: rgba(234, 179, 8, 0.1); color: #fbbf24; border: 1px solid rgba(234, 179, 8, 0.2); }
+.status-dormant { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+
+.vol-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.75rem; }
+.vol-tag { background: var(--bg-element); color: var(--text-muted); padding: 0.15rem 0.4rem; border-radius: 3px; font-size: 0.65rem; border: 1px solid var(--border-color); }
+
+.vol-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem; }
+.metric-box { background: rgba(255,255,255,0.02); padding: 0.4rem; border-radius: 6px; border: 1px solid var(--border-color); }
+.metric-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; }
+.metric-val { font-size: 0.9rem; font-weight: 700; font-family: monospace; color: var(--text-main); }
+.metric-high { color: var(--highlight-green); }
+
+.vol-footer { display: flex; gap: 0.5rem; padding-top: 0.5rem; border-top: 1px solid var(--border-color); }
+.vol-btn { flex: 1; padding: 0.4rem; border-radius: 5px; font-size: 0.7rem; font-weight: 600; text-align: center; cursor: pointer; transition: all 0.2s; border: none; }
+.btn-primary { background: var(--accent-green); color: white; }
+.btn-primary:hover { background: #2d8c3c; transform: scale(1.02); }
+.btn-secondary { background: var(--bg-element); color: var(--text-muted); border: 1px solid var(--border-color); }
+.btn-secondary:hover { color: var(--text-main); border-color: var(--text-muted); }
+
+/* Modal */
+.modal-overlay {
+display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%;
+background-color: rgba(0,0,0,0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center;
+}
+.modal-overlay.active { display: flex; }
+.vol-modal-container {
+background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 12px;
+max-width: 900px; width: 95%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.close-modal { position: absolute; top: 1.5rem; right: 1.5rem; cursor: pointer; color: var(--text-muted); background: var(--bg-element); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); transition: all 0.2s; z-index: 10; }
+.close-modal:hover { color: var(--highlight-green); border-color: var(--highlight-green); }
+.modal-header { padding: 2rem; border-bottom: 1px solid var(--border-color); position: relative; }
+.modal-body { padding: 2rem; }
+.modal-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+.section-title { font-size: 0.9rem; font-weight: 700; color: var(--highlight-green); margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.timeline-item { display: flex; gap: 1rem; margin-bottom: 1rem; padding-left: 1rem; border-left: 2px solid var(--border-color); position: relative; }
+.timeline-item::before { content: ''; position: absolute; left: -6px; top: 0; width: 10px; height: 10px; background: var(--accent-green); border-radius: 50%; }
+.timeline-date { font-size: 0.7rem; color: var(--text-muted); min-width: 80px; }
+.timeline-content { font-size: 0.85rem; color: var(--text-main); }
+.timeline-type { font-size: 0.65rem; color: var(--highlight-green); font-weight: 600; text-transform: uppercase; }
+
+/* Attribute Library */
+.library-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+.lib-card { background: var(--bg-panel); border: 1px solid var(--border-color); padding: 1rem; border-radius: 8px; transition: all 0.2s; }
+.lib-card:hover { border-color: var(--accent-green); transform: translateY(-2px); }
+.lib-title { font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem; }
+.lib-desc { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+.lib-add-btn { font-size: 0.7rem; color: var(--highlight-green); cursor: pointer; font-weight: 600; background: rgba(152, 251, 152, 0.05); padding: 0.25rem 0.5rem; border-radius: 4px; display: inline-flex; align-items: center; gap: 0.3rem; }
+.lib-add-btn:hover { background: rgba(152, 251, 152, 0.15); }
+
+@media (max-width: 1024px) {
+.sidebar { width: 240px; }
+}
+@media (max-width: 768px) {
+.dashboard-layout { flex-direction: column; overflow-y: auto; height: auto; }
+.sidebar { width: 100%; max-height: 300px; overflow-y: auto; }
+.main-panel { overflow: visible; height: auto; }
+.modal-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="flex flex-col w-full bg-[#1b1b1b] border-b border-[#2a2a2a] shadow-lg sticky top-0 z-50">
+<div class="flex items-center h-16 px-6 gap-6 overflow-x-auto no-scrollbar">
+<div class="flex-shrink-0 mr-4">
+<div class="h-10 w-auto flex items-center justify-center font-bold text-xl tracking-tight text-white">
+<i data-lucide="shield" class="w-6 h-6 mr-2 text-[#98fb98]"></i>
+<span>YPI <span class="text-[#98fb98] font-light">|</span> <span class="text-sm font-normal text-gray-400">Field Intelligence</span></span>
+</div>
+</div>
+<nav class="flex items-center gap-2" id="main-nav">
+<!-- JS generated nav -->
+</nav>
+<div class="ml-auto flex items-center gap-3">
+<button class="p-2 rounded-lg bg-[#2a2d35] border border-[#333] hover:border-[#98fb98] transition text-[#98fb98] relative">
+<i data-lucide="bell" class="w-4 h-4"></i>
+<span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+</button>
+<div class="w-8 h-8 rounded-full bg-[#2a2d35] border border-[#333] flex items-center justify-center text-xs font-bold text-white cursor-pointer">
+JD
+</div>
+</div>
+</div>
+</header>
+
+<div class="main-content w-full">
+<section id="content-Volunteer-Database" class="tab-content active">
+<div class="dashboard-layout">
+<!-- LEFT SIDEBAR -->
+<aside class="sidebar">
+<div class="sidebar-section">
+<div class="sidebar-title"><i data-lucide="filter" class="w-3 h-3"></i> Core Criteria</div>
+<div class="filter-group">
+<label class="filter-label">Volunteer Type</label>
+<select class="filter-select"><option>All Types</option><option>Canvasser</option><option>Phone Banker</option><option>Event Staff</option><option>Data Entry</option></select>
+</div>
+<div class="filter-group">
+<label class="filter-label">Experience Level</label>
+<select class="filter-select"><option>Any Level</option><option>Novice</option><option>Intermediate</option><option>Veteran</option></select>
+</div>
+<div class="filter-group">
+<label class="filter-label">Region</label>
+<select class="filter-select"><option>All Regions</option><option>Montgomery County</option><option>Prince George's</option><option>Howard County</option></select>
+</div>
+<div class="filter-group">
+<label class="filter-label">Availability</label>
+<select class="filter-select"><option>Any Availability</option><option>Weekdays Only</option><option>Weekends Only</option><option>Evenings</option><option>Full Time</option></select>
+</div>
+</div>
+<div class="sidebar-section">
+<div class="sidebar-title"><i data-lucide="bookmark" class="w-3 h-3"></i> Saved Presets</div>
+<div class="space-y-1">
+<button class="w-full text-left px-3 py-2 text-xs font-mono text-[#98fb98] bg-[#98fb98]/5 border border-[#98fb98]/20 rounded hover:bg-[#98fb98]/10 transition">Active Weekend Canvassers</button>
+<button class="w-full text-left px-3 py-2 text-xs font-mono text-gray-400 hover:text-white hover:bg-white/5 rounded transition">High School Organizers</button>
+<button class="w-full text-left px-3 py-2 text-xs font-mono text-gray-400 hover:text-white hover:bg-white/5 rounded transition">Event Leadership Pool</button>
+<button class="w-full text-left px-3 py-2 text-xs font-mono text-gray-400 hover:text-white hover:bg-white/5 rounded transition">Dormant Reactivation</button>
+</div>
+</div>
+<div class="sidebar-section">
+<div class="sidebar-title"><i data-lucide="activity" class="w-3 h-3"></i> Pipeline Status</div>
+<div class="space-y-1">
+<div class="flex justify-between items-center text-xs text-gray-400 px-2 py-1"><span>Active</span><span class="text-[#98fb98] font-mono">482</span></div>
+<div class="flex justify-between items-center text-xs text-gray-400 px-2 py-1"><span>High Priority</span><span class="text-yellow-400 font-mono">15</span></div>
+<div class="flex justify-between items-center text-xs text-gray-400 px-2 py-1"><span>Dormant</span><span class="text-red-400 font-mono">84</span></div>
+</div>
+</div>
+</aside>
+
+<!-- MAIN PANEL -->
+<main class="main-panel">
+<div class="query-header">
+<div class="query-tabs">
+<div class="query-tab active" id="tab-filters" onclick="switchTab('filters')"><i data-lucide="zap" class="w-3 h-3"></i> Advanced Filters <span class="bg-[#333] text-gray-300 px-1.5 py-0.5 rounded-full text-[10px] ml-1" id="filter-count">2</span></div>
+<div class="query-tab" id="tab-library" onclick="switchTab('library')"><i data-lucide="database" class="w-3 h-3"></i> Attribute Library</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-[10px] text-gray-500 font-mono uppercase">Match Strategy:</span>
+<div class="match-strategy">
+<button class="strategy-btn active" id="mode-strict" onclick="setMatchMode('strict')">STRICT (ALL)</button>
+<button class="strategy-btn" id="mode-flex" onclick="setMatchMode('flex')">FLEX (ANY)</button>
+<button class="strategy-btn" id="mode-custom" onclick="setMatchMode('custom')">CUSTOM</button>
+</div>
+</div>
+</div>
+
+<div class="query-area" id="query-view">
+<div class="space-y-3 relative">
+<div class="absolute left-[22px] top-4 bottom-12 w-0.5 bg-[#333] -z-10"></div>
+<div id="query-rows-container">
+<!-- Rows injected here -->
+</div>
+<button class="add-condition-btn" onclick="addQueryRow()"><i data-lucide="plus" class="w-4 h-4"></i> Add Advanced Filter</button>
+</div>
+</div>
+
+<div class="query-area hidden" id="library-view">
+<div class="max-w-6xl mx-auto">
+<h3 class="text-xl font-bold text-white mb-2">Attribute Library</h3>
+<p class="text-sm text-gray-500 mb-6">Browse available data points to filter your volunteer targeting lists.</p>
+<div class="library-grid">
+<div class="lib-card"><div class="lib-title"><i data-lucide="activity" class="w-4 h-4 text-[#98fb98]"></i> evL+ Score</div><div class="lib-desc">Engagement Value Level metric. Numeric range 0-1000.</div><div class="lib-add-btn"><i data-lucide="plus" class="w-3 h-3"></i> Add to Filters</div></div>
+<div class="lib-card"><div class="lib-title"><i data-lucide="graduation-cap" class="w-4 h-4 text-blue-400"></i> GPA</div><div class="lib-desc">Academic performance data. Decimal value.</div><div class="lib-add-btn"><i data-lucide="plus" class="w-3 h-3"></i> Add to Filters</div></div>
+<div class="lib-card"><div class="lib-title"><i data-lucide="map-pin" class="w-4 h-4 text-yellow-400"></i> Location / ZIP</div><div class="lib-desc">Geographic targeting. Text match.</div><div class="lib-add-btn"><i data-lucide="plus" class="w-3 h-3"></i> Add to Filters</div></div>
+<div class="lib-card"><div class="lib-title"><i data-lucide="check-circle" class="w-4 h-4 text-purple-400"></i> Status</div><div class="lib-desc">Current volunteer status. Select: Active, Dormant, Priority.</div><div class="lib-add-btn"><i data-lucide="plus" class="w-3 h-3"></i> Add to Filters</div></div>
+<div class="lib-card"><div class="lib-title"><i data-lucide="calendar" class="w-4 h-4 text-pink-400"></i> Availability</div><div class="lib-desc">Time-based availability. Select or Range.</div><div class="lib-add-btn"><i data-lucide="plus" class="w-3 h-3"></i> Add to Filters</div></div>
+</div>
+</div>
+</div>
+
+<div class="results-bar">
+<div class="results-stats">
+<div class="stat-item"><i data-lucide="search" class="w-3 h-3 text-gray-400"></i> Estimated Matches: <span class="stat-value">142</span></div>
+<div class="stat-item"><i data-lucide="star" class="w-3 h-3 text-yellow-400"></i> High Priority: <span class="stat-value text-yellow-400">15</span></div>
+<div class="stat-item"><i data-lucide="clock" class="w-3 h-3 text-gray-400"></i> Recently Active: <span class="stat-value">42</span></div>
+</div>
+<div class="flex gap-2">
+<button class="text-xs font-bold text-gray-400 hover:text-white px-2 py-1 transition"><i data-lucide="sort-asc" class="w-3 h-3 inline mr-1"></i> Sort</button>
+<button class="text-xs font-bold text-gray-400 hover:text-white px-2 py-1 transition"><i data-lucide="download" class="w-3 h-3 inline mr-1"></i> Export</button>
+<button class="bg-[#37af4b] hover:bg-[#2d8c3c] text-white text-xs font-bold px-4 py-2 rounded transition shadow-lg shadow-green-900/20"><i data-lucide="search" class="w-3 h-3 inline mr-1"></i> Run Query</button>
+</div>
+</div>
+
+<div class="results-grid-container">
+<div class="results-grid" id="volunteers-grid">
+<!-- Volunteer cards injected via JS -->
+</div>
+</div>
+</main>
+</div>
+</section>
+
+<!-- Volunteer Detail Modal -->
+<div id="volunteerModal" class="modal-overlay">
+<div class="vol-modal-container relative">
+<button class="close-modal" onclick="closeVolunteerModal()"><i data-lucide="x" class="w-5 h-5"></i></button>
+<div class="modal-header">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 rounded-xl bg-[#252525] border border-[#333] flex items-center justify-center text-2xl font-bold text-[#98fb98] shadow-lg">AJ</div>
+<div>
+<h2 class="text-2xl font-bold text-white" id="modal-name">Alex Johnson</h2>
+<p class="text-[#98fb98] text-sm font-semibold uppercase tracking-wide" id="modal-role">Field Organizer / Canvasser</p>
+<div class="flex gap-2 mt-2">
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-green-900/30 text-green-400 border border-green-500/30">Active</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#252525] text-gray-300 border border-[#333]">Zone: Bethesda</span>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#252525] text-gray-300 border border-[#333]">Reliability: High</span>
+</div>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="bg-[#37af4b] hover:bg-[#2d8c3c] text-white text-sm font-bold px-4 py-2 rounded transition"><i data-lucide="message-circle" class="w-4 h-4 inline mr-1"></i> Outreach</button>
+<button class="bg-[#252525] hover:bg-[#2a2a2a] text-gray-300 text-sm font-bold px-4 py-2 rounded transition border border-[#333]"><i data-lucide="bookmark" class="w-4 h-4 inline mr-1"></i> Assign</button>
+</div>
+</div>
+</div>
+<div class="modal-body">
+<div class="modal-grid">
+<div>
+<div class="section-title"><i data-lucide="bar-chart" class="w-4 h-4"></i> Intelligence Metrics</div>
+<div class="grid grid-cols-2 gap-3 mb-6">
+<div class="bg-[#252525] p-3 rounded border border-[#333]"><div class="text-[10px] text-gray-500 uppercase">evL+ Score</div><div class="text-lg font-bold font-mono text-[#98fb98]">842</div></div>
+<div class="bg-[#252525] p-3 rounded border border-[#333]"><div class="text-[10px] text-gray-500 uppercase">Hours Contributed</div><div class="text-lg font-bold font-mono text-white">142h</div></div>
+<div class="bg-[#252525] p-3 rounded border border-[#333]"><div class="text-[10px] text-gray-500 uppercase">Retention Rate</div><div class="text-lg font-bold font-mono text-[#98fb98]">94%</div></div>
+<div class="bg-[#252525] p-3 rounded border border-[#333]"><div class="text-[10px] text-gray-500 uppercase">Follow-Up Rate</div><div class="text-lg font-bold font-mono text-white">88%</div></div>
+</div>
+<div class="section-title"><i data-lucide="shield" class="w-4 h-4"></i> Skills & Assets</div>
+<div class="flex flex-wrap gap-2">
+<span class="bg-[#252525] text-gray-300 px-2 py-1 rounded text-xs border border-[#333]">Public Speaking</span>
+<span class="bg-[#252525] text-gray-300 px-2 py-1 rounded text-xs border border-[#333]">Canvassing Lead</span>
+<span class="bg-[#252525] text-gray-300 px-2 py-1 rounded text-xs border border-[#333]">Bilingual (ES)</span>
+<span class="bg-[#252525] text-gray-300 px-2 py-1 rounded text-xs border border-[#333]">Van Access</span>
+</div>
+</div>
+<div>
+<div class="section-title"><i data-lucide="clock" class="w-4 h-4"></i> Organizing History</div>
+<div class="space-y-0">
+<div class="timeline-item">
+<div class="timeline-date">Oct 24</div>
+<div class="timeline-content"><div class="timeline-type">Canvass Event</div>Led Zone 4 Walk in Bethesda. 12 doors knocked. 3 new signups.</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-date">Oct 15</div>
+<div class="timeline-content"><div class="timeline-type">Phone Bank</div>Completed 45 calls. 90% connection rate. High engagement noted.</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-date">Oct 02</div>
+<div class="timeline-content"><div class="timeline-type">Training</div>Certified in Field Safety & De-escalation protocols.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+lucide.createIcons();
+initNav();
+initQueryBuilder();
+renderVolunteers();
+});
+
+// --- NAV LOGIC ---
+function initNav() {
+const navItems = ['Volunteer Database', 'Organizing', 'Field Operations', 'Analytics', 'Partner Intelligence'];
+const navContainer = document.getElementById('main-nav');
+navItems.forEach((item, idx) => {
+const btn = document.createElement('button');
+const isActive = idx === 0;
+btn.className = `group flex items-center px-3 py-2 text-lg font-bold tracking-tight font-fm-header transition-all cursor-pointer ${isActive ? 'text-[#98fb98] drop-shadow-[0_0_8px_rgba(152,251,152,0.25)] scale-105' : 'text-gray-400 hover:text-white hover:scale-105'}`;
+btn.innerHTML = `<span>${item}</span>`;
+btn.addEventListener('click', function() {
+Array.from(navContainer.children).forEach(c => c.className = 'group flex items-center px-3 py-2 text-lg font-bold tracking-tight font-fm-header transition-all cursor-pointer text-gray-400 hover:text-white hover:scale-105');
+this.className = 'group flex items-center px-3 py-2 text-lg font-bold tracking-tight font-fm-header transition-all cursor-pointer text-[#98fb98] drop-shadow-[0_0_8px_rgba(152,251,152,0.25)] scale-105';
+});
+navContainer.appendChild(btn);
+});
+}
+
+// --- QUERY BUILDER LOGIC ---
+const fields = [
+{val:'evL+', label:'evL+ Score'},
+{val:'gpa', label:'GPA'},
+{val:'hours', label:'Volunteer Hours'},
+{val:'status', label:'Status'},
+{val:'location', label:'Location'},
+{val:'role', label:'Role'}
+];
+const ops = ['is', 'is not', 'is greater than', 'is less than', 'contains'];
+let matchMode = 'strict';
+
+function initQueryBuilder() {
+addQueryRow(1, 'evL+', 'is greater than', '100');
+addQueryRow(2, 'status', 'is not', 'Dormant');
+}
+
+window.addQueryRow = function(id, field='', op='', val='') {
+const container = document.getElementById('query-rows-container');
+const newId = id || Date.now();
+const count = container.children.length;
+const row = document.createElement('div');
+row.className = 'query-row fade-in';
+row.dataset.id = newId;
+
+let logicHtml = '';
+if(count === 0) {
+logicHtml = `<div class="logic-operator">IF</div>`;
+} else {
+logicHtml = `<select class="logic-select" onchange="updateLogic(this)"><option>AND</option><option>OR</option><option>NOT</option></select>`;
+}
+
+let fieldOptions = fields.map(f => `<option value="${f.val}" ${f.val===field?'selected':''}>${f.label}</option>`).join('');
+let opOptions = ops.map(o => `<option ${o===op?'selected':''}>${o}</option>`).join('');
+
+row.innerHTML = `
+${logicHtml}
+<div class="query-input-group">
+<select class="query-field" onchange="updateRow()">${fieldOptions}</select>
+<div class="w-px h-6 bg-[#333]"></div>
+<select class="query-op" onchange="updateRow()">${opOptions}</select>
+<div class="w-px h-6 bg-[#333]"></div>
+<input type="text" class="query-val" value="${val}" placeholder="Value..." oninput="updateRow()">
+</div>
+<button class="remove-btn" onclick="this.parentElement.remove(); updateRow()"><i data-lucide="minus-circle" class="w-4 h-4"></i></button>
+`;
+container.appendChild(row);
+lucide.createIcons();
+updateRow();
+}
+
+window.updateLogic = function(select) {
+const val = select.value;
+if(val === 'AND') select.style.color = 'var(--highlight-green)';
+else if(val === 'OR') select.style.color = '#fbbf24';
+else select.style.color = '#ef4444';
+}
+
+window.updateRow = function() {
+document.getElementById('filter-count').innerText = document.getElementById('query-rows-container').children.length;
+}
+
+window.switchTab = function(tab) {
+document.getElementById('tab-filters').classList.toggle('active', tab === 'filters');
+document.getElementById('tab-library').classList.toggle('active', tab === 'library');
+document.getElementById('query-view').classList.toggle('hidden', tab !== 'filters');
+document.getElementById('library-view').classList.toggle('hidden', tab !== 'library');
+}
+
+window.setMatchMode = function(mode) {
+matchMode = mode;
+document.getElementById('mode-strict').classList.toggle('active', mode==='strict');
+document.getElementById('mode-flex').classList.toggle('active', mode==='flex');
+document.getElementById('mode-custom').classList.toggle('active', mode==='custom');
+}
+
+// --- VOLUNTEERS RENDER ---
+const volunteers = [
+{name:'Alex Johnson', role:'Field Organizer', status:'Active', statusClass:'status-active', tags:['Canvassing', 'Leadership', 'Zone 4'], score:'842', hours:'142h', reliability:'High'},
+{name:'Maria Garcia', role:'Phone Bank Lead', status:'Priority', statusClass:'status-priority', tags:['Spanish', 'Phone Bank', 'Data'], score:'790', hours:'98h', reliability:'Med'},
+{name:'David Smith', role:'Event Staff', status:'Active', statusClass:'status-active', tags:['Logistics', 'Transport', 'Zone 2'], score:'615', hours:'45h', reliability:'High'},
+{name:'Emily Chen', role:'Canvasser', status:'Dormant', statusClass:'status-dormant', tags:['Campus', 'Digital Outreach'], score:'320', hours:'12h', reliability:'Low'},
+{name:'Michael Brown', role:'Field Coordinator', status:'Priority', statusClass:'status-priority', tags:['Strategy', 'Training', 'Zone 1'], score:'910', hours:'210h', reliability:'High'},
+{name:'Sarah Connor', role:'Recruiter', status:'Active', statusClass:'status-active', tags:['Social Media', 'Events'], score:'755', hours:'67h', reliability:'Med'}
+];
+
+function renderVolunteers() {
+const grid = document.getElementById('volunteers-grid');
+grid.innerHTML = '';
+volunteers.forEach((v, i) => {
+const initials = v.name.split(' ').map(n=>n[0]).join('');
+const card = document.createElement('div');
+card.className = 'vol-card fade-in';
+card.style.animationDelay = `${i*0.05}s`;
+card.innerHTML = `
+<div class="vol-header">
+<div class="vol-avatar">${initials}</div>
+<div class="vol-info">
+<div class="vol-name">${v.name}</div>
+<div class="vol-role">${v.role}</div>
+</div>
+<span class="vol-status ${v.statusClass}">${v.status}</span>
+</div>
+<div class="vol-tags">${v.tags.map(t=>`<span class="vol-tag">${t}</span>`).join('')}</div>
+<div class="vol-metrics">
+<div class="metric-box"><div class="metric-label">evL+ Score</div><div class="metric-val metric-high">${v.score}</div></div>
+<div class="metric-box"><div class="metric-label">Hours</div><div class="metric-val">${v.hours}</div></div>
+<div class="metric-box"><div class="metric-label">Compatibility</div><div class="metric-val metric-high">92%</div></div>
+<div class="metric-box"><div class="metric-label">Reliability</div><div class="metric-val">${v.reliability}</div></div>
+</div>
+<div class="vol-footer">
+<button class="vol-btn btn-primary" onclick="event.stopPropagation(); alert('Message sent to ${v.name}')">Outreach</button>
+<button class="vol-btn btn-secondary" onclick="openVolunteerModal('${v.name}', '${v.role}')">View Profile</button>
+</div>
+`;
+card.addEventListener('click', () => openVolunteerModal(v.name, v.role));
+grid.appendChild(card);
+});
+lucide.createIcons();
+}
+
+window.openVolunteerModal = function(name, role) {
+document.getElementById('modal-name').innerText = name;
+document.getElementById('modal-role').innerText = role;
+document.getElementById('volunteerModal').classList.add('active');
+}
+
+window.closeVolunteerModal = function() {
+document.getElementById('volunteerModal').classList.remove('active');
+}
+
+// Close modal on outside click
+document.getElementById('volunteerModal').addEventListener('click', (e) => {
+if(e.target.id === 'volunteerModal') closeVolunteerModal();
+});
+</script>
+</body>
+</html>
+
