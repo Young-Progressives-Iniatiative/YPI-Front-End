@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YPI | Volunteer Discovery Hub</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            ypi: {
+              green: '#37af4b',
+              dark: '#1c1c1c',
+              card: '#252525',
+              hover: '#2d8c3c',
+              accent: '#98fb98'
+            }
+          },
+          fontFamily: {
+            sans: ['Atkinson Hyperlegible', 'sans-serif'],
+            mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+  
+  <!-- Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Custom Styles -->
+  <style>
+    :root {
+      --bg-main: #121212;
+      --bg-panel: #1c1c1c;
+      --bg-element: #252525;
+      --text-main: #ffffff;
+      --text-muted: #9ca3af;
+      --border-color: #333;
+      --accent-green: #37af4b;
+      --highlight-green: #98fb98;
+    }
+    body {
+      background-color: var(--bg-main);
+      color: #f0f0f0;
+      font-family: 'Atkinson Hyperlegible', sans-serif;
+      margin: 0;
+      overflow-x: hidden;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #1a1a1a; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #37af4b; }
+
+    /* Fade transitions */
+    .fade-in { animation: fadeIn 0.3s ease-in-out; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes zoomIn95 {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-1rem); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .animate-in { animation-duration: 0.2s; animation-timing-function: ease-out; animation-fill-mode: forwards; }
+    .fade-in { animation-name: fadeIn; }
+    .zoom-in-95 { animation-name: zoomIn95; }
+    .slide-in-from-left-4 { animation-name: slideInLeft; }
+
+    /* Utility classes */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Team Screen Table Styles (Adapted) */
+    .volunteer-table { width: 100%; border-collapse: collapse; min-width: 1400px; }
+    .volunteer-table th {
+      background: #1e1e2a;
+      padding: 6px 8px;
+      text-align: left;
+      font-weight: 500;
+      font-size: 11px;
+      color: #8888a0;
+      white-space: nowrap;
+      border-bottom: 1px solid #2a2a35;
+      border-right: 1px solid #252530;
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+    }
+    .volunteer-table th:hover { color: #c8c8d0; background: #252535; }
+    .volunteer-table th.sort-active { color: #e0e0e8; }
+    .volunteer-table th .sort-icon { display: inline-block; margin-left: 4px; font-size: 8px; opacity: 0.5; }
+    .volunteer-table th.sort-active .sort-icon { opacity: 1; color: #7b8aff; }
+    .volunteer-table tbody tr { border-bottom: 1px solid #1a1a24; transition: background 0.1s; }
+    .volunteer-table tbody tr:hover { background: #1e1e2e; }
+    .volunteer-table tbody tr:nth-child(even) { background: #13131a; }
+    .volunteer-table tbody tr:nth-child(even):hover { background: #1e1e2e; }
+    .volunteer-table td { padding: 4px 8px; white-space: nowrap; border-right: 1px solid #1a1a22; font-size: 12px; vertical-align: middle; }
+    .volunteer-table td:last-child { border-right: none; }
+    .checkbox-cell { text-align: center; padding: 4px 6px; }
+    .checkbox-cell input[type="checkbox"] { width: 14px; height: 14px; accent-color: #7b8aff; cursor: pointer; }
+    .inf-cell { text-align: center; min-width: 40px; }
+    .badge { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: 700; letter-spacing: 0.3px; }
+    .badge-unr { background: #ff6b6b; color: #fff; }
+    .badge-wnt { background: #4ade80; color: #fff; }
+    .badge-sus { background: #f97316; color: #fff; }
+    .player-cell { display: flex; align-items: center; gap: 8px; min-width: 160px; }
+    .player-avatar { width: 22px; height: 22px; border-radius: 50%; background: #2a2a3a; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; color: #6a6a7a; }
+    .flag { font-size: 12px; flex-shrink: 0; }
+    .player-name { color: #7b8aff; font-weight: 500; font-size: 12px; }
+    .player-name:hover { text-decoration: underline; cursor: pointer; }
+    .position-cell { color: #a0a0b0; font-size: 11px; min-width: 140px; }
+    .education-cell { color: #c8c8d0; text-align: center; min-width: 80px; font-size: 11px; }
+    .club-cell { display: flex; align-items: center; gap: 6px; min-width: 130px; }
+    .club-badge { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #333; color: #fff; font-size: 9px; font-weight: 700; }
+    .club-name { color: #a0a0b0; font-size: 11px; }
+    .expires-cell { display: flex; align-items: center; gap: 4px; min-width: 100px; }
+    .happiness-cell { display: flex; align-items: center; gap: 4px; min-width: 110px; }
+    .table-container { overflow-x: auto; max-height: calc(100vh - 320px); position: relative; }
+    .table-container::-webkit-scrollbar { width: 8px; height: 8px; }
+    .table-container::-webkit-scrollbar-track { background: #0e0e12; }
+    .table-container::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 4px; }
+    .table-container::-webkit-scrollbar-corner { background: #0e0e12; }
+
+    /* Query Builder Specifics */
+    .query-builder-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .query-builder-panel.active { opacity: 1; pointer-events: auto; }
+    .qb-content {
+      width: 90%;
+      max-width: 1200px;
+      height: 80vh;
+      background: #1c1c1c;
+      border: 1px solid #333;
+      border-radius: 12px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: scale(0.95);
+      transition: transform 0.3s ease;
+    }
+    .query-builder-panel.active .qb-content { transform: scale(1); }
+    .qb-sidebar { width: 260px; background: #161616; border-right: 1px solid #2d2d2d; display: flex; flex-direction: column; overflow-y: auto; }
+    .qb-main { flex: 1; display: flex; flex-direction: column; background: #1e1e24; }
+    .qb-row { display: flex; align-items: center; gap: 3; margin-bottom: 8px; }
+    .qb-select { background: #252535; border: 1px solid #3a3a4a; color: #c8c8d0; padding: 6px 10px; border-radius: 6px; font-family: inherit; font-size: 12px; outline: none; }
+    .qb-input { background: #252535; border: 1px solid #3a3a4a; color: #c8c8d0; padding: 6px 10px; border-radius: 6px; font-family: inherit; font-size: 12px; outline: none; flex: 1; }
+    .qb-btn { padding: 6px 12px; border-radius: 6px; border: none; cursor: pointer; font-family: inherit; font-size: 12px; transition: all 0.15s; }
+    .qb-btn-primary { background: #37af4b; color: #fff; }
+    .qb-btn-primary:hover { background: #2d8c3c; }
+    .qb-btn-secondary { background: #2a2a3a; color: #a0a0b0; border: 1px solid #3a3a4a; }
+    .qb-btn-secondary:hover { background: #3a3a4a; color: #e0e0e8; }
+    .qb-btn-danger { background: transparent; color: #6a6a7a; }
+    .qb-btn-danger:hover { color: #ff6b6b; background: rgba(255, 107, 107, 0.1); }
+    .qb-pill { display: inline-flex; align-items: center; gap: 4px; background: #252535; border: 1px solid #3a3a4a; border-radius: 20px; padding: 2px 8px; font-size: 11px; color: #98fb98; margin-right: 4px; }
+    .qb-pill-close { cursor: pointer; font-size: 10px; }
+    .qb-pill-close:hover { color: #fff; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .qb-content { width: 95%; height: 85vh; }
+      .qb-sidebar { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER COMPONENT -->
+  <header class="flex flex-col w-full bg-[#1b1b1b] border-b border-[#2a2a2a] shadow-lg sticky top-0 z-50">
+    <div class="flex items-center h-16 px-6 gap-6 overflow-x-auto no-scrollbar">
+      <div class="flex items-center mr-2 flex-shrink-0">
+        <button class="flex items-center justify-center w-8 h-10 bg-[#2a2d35] border border-blue-500/50 rounded-l hover:bg-[#353842] transition-colors group relative">
+          <div class="absolute inset-0 border border-blue-400/30 rounded-l opacity-50"></div>
+          <i data-lucide="chevron-left" class="w-5 h-5 text-gray-300 group-hover:text-white"></i>
+        </button>
+        <button class="flex items-center justify-center w-8 h-10 bg-[#1f1f1f] hover:bg-[#2a2a2a] transition-colors rounded-r border-y border-r border-[#333]">
+          <i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i>
+        </button>
+      </div>
+      <div class="flex-shrink-0 mr-4">
+        <div class="h-12 w-auto flex items-center justify-center">
+          <div class="text-green-500 font-bold text-xl tracking-tighter flex items-center gap-2">
+            <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-mono">Y</div>
+            YPI
+          </div>
+        </div>
+      </div>
+      <nav class="flex items-center gap-2" id="main-nav">
+        <!-- Nav items generated by JS -->
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="p-6 max-w-[1920px] mx-auto">
+    
+    <!-- Title & Actions -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
+          <i data-lucide="database" class="text-[#98fb98]"></i>
+          In-Person Volunteer Database
+        </h1>
+        <p class="text-sm text-gray-400 mt-1">Intelligence & Outreach Targeting System</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="flex items-center gap-2 px-4 py-2 bg-[#252525] border border-[#333] rounded-lg hover:border-green-500/50 transition-colors text-sm font-medium" onclick="exportData()">
+          <i data-lucide="download" class="w-4 h-4"></i> Export
+        </button>
+        <button class="flex items-center gap-2 px-4 py-2 bg-[#252525] border border-[#333] rounded-lg hover:border-green-500/50 transition-colors text-sm font-medium" onclick="openQueryBuilder()">
+          <i data-lucide="zap" class="w-4 h-4 text-yellow-500"></i> Advanced Search
+        </button>
+      </div>
+    </div>
+
+    <!-- ACTIVE QUERY BADGES (Visible when QB is closed) -->
+    <div id="active-query-bar" class="mb-4 hidden">
+      <div class="flex flex-wrap items-center gap-3 p-3 bg-[#1a1a1a] rounded-lg border border-[#333]">
+        <span class="text-xs text-gray-400 uppercase font-bold tracking-wide">Active Filters:</span>
+        <div id="active-pills-container" class="flex flex-wrap gap-2"></div>
+        <button onclick="openQueryBuilder()" class="ml-auto text-xs text-green-400 hover:text-green-300 font-medium flex items-center gap-1">
+          <i data-lucide="edit-3" class="w-3 h-3"></i> Edit Query
+        </button>
+      </div>
+    </div>
+
+    <!-- ANALYTICS CARDS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="bg-[#1c1c1c] border border-[#2a2a2a] p-4 rounded-xl shadow-md hover:border-green-500/30 transition-colors">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-xs text-gray-500 uppercase font-bold tracking-wide">Total Volunteers</p>
+            <p class="text-2xl font-bold text-white mt-1">1,248</p>
+          </div>
+          <div class="p-2 bg-green-900/20 rounded-lg"><i data-lucide="users" class="w-5 h-5 text-green-500"></i></div>
+        </div>
+        <p class="text-xs text-green-400 mt-2 flex items-center gap-1"><i data-lucide="trending-up" class="w-3 h-3"></i> +12% from last month</p>
+      </div>
+      <div class="bg-[#1c1c1c] border border-[#2a2a2a] p-4 rounded-xl shadow-md hover:border-green-500/30 transition-colors">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-xs text-gray-500 uppercase font-bold tracking-wide">High Priority Matches</p>
+            <p class="text-2xl font-bold text-white mt-1">84</p>
+          </div>
+          <div class="p-2 bg-yellow-900/20 rounded-lg"><i data-lucide="alert-triangle" class="w-5 h-5 text-yellow-500"></i></div>
+        </div>
+        <p class="text-xs text-gray-400 mt-2">Ready for immediate outreach</p>
+      </div>
+      <div class="bg-[#1c1c1c] border border-[#2a2a2a] p-4 rounded-xl shadow-md hover:border-green-500/30 transition-colors">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-xs text-gray-500 uppercase font-bold tracking-wide">Weekend Availability</p>
+            <p class="text-2xl font-bold text-white mt-1">68%</p>
+          </div>
+          <div class="p-2 bg-blue-900/20 rounded-lg"><i data-lucide="calendar-check" class="w-5 h-5 text-blue-400"></i></div>
+        </div>
+        <p class="text-xs text-gray-400 mt-2">849 volunteers available Sat/Sun</p>
+      </div>
+      <div class="bg-[#1c1c1c] border border-[#2a2a2a] p-4 rounded-xl shadow-md hover:border-green-500/30 transition-colors">
+        <div class="flex justify-between items-start">
+          <div>
+            <p class="text-xs text-gray-500 uppercase font-bold tracking-wide">Outreach Response</p>
+            <p class="text-2xl font-bold text-white mt-1">42.5%</p>
+          </div>
+          <div class="p-2 bg-purple-900/20 rounded-lg"><i data-lucide="message-square" class="w-5 h-5 text-purple-400"></i></div>
+        </div>
+        <p class="text-xs text-green-400 mt-2 flex items-center gap-1"><i data-lucide="trending-up" class="w-3 h-3"></i> +5.2% improvement</p>
+      </div>
+    </div>
+
+    <!-- TABLE CONTAINER -->
+    <div class="bg-[#1c1c1c] border border-[#2a2a2a] rounded-xl shadow-md overflow-hidden">
+      <div class="p-4 border-b border-[#2a2a2a] flex justify-between items-center bg-[#1e1e24]">
+        <div class="flex items-center gap-2">
+          <div class="text-xs font-bold text-gray-400 uppercase tracking-wide">Results:</div>
+          <div class="bg-[#252535] px-2 py-1 rounded text-xs text-white font-mono" id="result-count">0</div>
+          <div class="text-xs text-gray-500">Potential Volunteers Found</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-gray-500 uppercase font-bold">View:</span>
+          <div class="flex bg-[#252525] rounded border border-[#333]">
+            <button class="px-2 py-1 text-gray-400 hover:text-white"><i data-lucide="list" class="w-4 h-4"></i></button>
+            <button class="px-2 py-1 text-white border-l border-[#333]"><i data-lucide="grid" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="table-container" id="table-container">
+        <table class="volunteer-table" id="volunteerTable">
+          <thead>
+            <tr>
+              <th style="width:30px" class="checkbox-cell"><input type="checkbox" id="select-all"></th>
+              <th style="width:50px" onclick="sortTable('inf')">Status <span class="sort-icon">▼</span></th>
+              <th onclick="sortTable('volunteer')">Volunteer <span class="sort-icon">▼</span></th>
+              <th onclick="sortTable('region')">Region <span class="sort-icon">▼</span></th>
+              <th onclick="sortTable('interest')">Interest <span class="sort-icon">▼</span></th>
+              <th onclick="sortTable('school')">School Status <span class="sort-icon">▼</span></th>
+              <th onclick="sortTable('org')">Prev Org <span class="sort-icon">▼</span></th>
+              <th onclick="sortTable('vstatus')">V. Status <span class="sort-icon">▼</span></th>
+              <th onclick="sortTable('hours')">Hours/Wk <span class="sort-icon">▼</span></th>
+              <th onclick="sortTable('engagement')">Engagement <span class="sort-icon">▼</span></th>
+              <th onclick="sortTable('interestLvl')">Interest Lvl <span class="sort-icon">▼</span></th>
+              <th onclick="sortTable('match')">Match % <span class="sort-icon">▼</span></th>
+              <th onclick="sortTable('transport')">Transport <span class="sort-icon">▼</span></th>
+              <th onclick="sortTable('languages')">Languages <span class="sort-icon">▼</span></th>
+              <th onclick="sortTable('notes')">Outreach Notes <span class="sort-icon">▼</span></th>
+            </tr>
+          </thead>
+          <tbody id="volunteerBody">
+            <!-- Rows injected via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- QUERY BUILDER OVERLAY -->
+  <div class="query-builder-panel" id="queryBuilderPanel">
+    <div class="qb-content">
+      <!-- QB Header -->
+      <div class="flex justify-between items-center p-4 border-b border-[#333] bg-[#161616]">
+        <div class="flex items-center gap-3">
+          <i data-lucide="zap" class="w-5 h-5 text-yellow-500"></i>
+          <h2 class="text-lg font-bold text-white tracking-tight">Advanced Search Engine</h2>
+          <div class="px-2 py-0.5 bg-green-500/20 text-green-400 text-xs font-bold rounded border border-green-500/30">BETA</div>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="resetQuery()" class="qb-btn qb-btn-secondary text-xs">Reset</button>
+          <button onclick="closeQueryBuilder()" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors text-gray-400 hover:text-white">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex flex-1 overflow-hidden">
+        <!-- Left Sidebar (Core Filters) -->
+        <div class="qb-sidebar p-4">
+          <h3 class="text-xs font-bold text-green-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+            <i data-lucide="filter" class="w-3 h-3"></i> Core Criteria
+          </h3>
+          <div class="space-y-4 mb-6">
+            <div class="space-y-1">
+              <label class="text-[10px] uppercase text-gray-500 font-bold tracking-wider">Interest Area</label>
+              <select class="qb-select w-full" onchange="addFilterFromSidebar('Interest', this.value)">
+                <option value="">All Interests</option>
+                <option value="Field Organizer">Field Organizer</option>
+                <option value="Canvasser">Canvasser</option>
+                <option value="Phone Banker">Phone Banker</option>
+                <option value="Data Captain">Data Captain</option>
+              </select>
+            </div>
+            <div class="space-y-1">
+              <label class="text-[10px] uppercase text-gray-500 font-bold tracking-wider">Availability</label>
+              <select class="qb-select w-full" onchange="addFilterFromSidebar('Availability', this.value)">
+                <option value="">Any Availability</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+            <div class="space-y-1">
+              <label class="text-[10px] uppercase text-gray-500 font-bold tracking-wider">Education Status</label>
+              <select class="qb-select w-full" onchange="addFilterFromSidebar('Education', this.value)">
+                <option value="">Any Status</option>
+                <option value="In School">In School</option>
+                <option value="Gap Year">Gap Year</option>
+                <option value="Graduated">Graduated</option>
+              </select>
+            </div>
+            <div class="space-y-1">
+              <label class="text-[10px] uppercase text-gray-500 font-bold tracking-wider">Region</label>
+              <select class="qb-select w-full" onchange="addFilterFromSidebar('Region', this.value)">
+                <option value="">All Regions</option>
+                <option value="Montgomery">Montgomery</option>
+                <option value="Prince George's">Prince George's</option>
+                <option value="Howard">Howard</option>
+                <option value="DC Metro">DC Metro</option>
+              </select>
+            </div>
+            <div class="space-y-1">
+              <label class="text-[10px] uppercase text-gray-500 font-bold tracking-wider">Match Score</label>
+              <input type="range" class="w-full accent-green-500" min="0" max="100" value="50" oninput="addFilterFromSidebar('Match Score', '>= ' + this.value + '%')">
+            </div>
+          </div>
+
+          <h3 class="text-xs font-bold text-gray-600 uppercase tracking-widest mb-2">Quick Presets</h3>
+          <div class="space-y-2">
+            <button onclick="applyPreset('high_engagement')" class="w-full text-left px-3 py-2 text-xs font-mono text-green-400 bg-green-900/10 border border-green-500/20 rounded hover:bg-green-900/20 transition-colors truncate">
+              High Engagement + Available
+            </button>
+            <button onclick="applyPreset('weekend_only')" class="w-full text-left px-3 py-2 text-xs font-mono text-gray-400 hover:text-white hover:bg-white/5 rounded transition-colors truncate">
+              Weekend Only + Spanish
+            </button>
+            <button onclick="applyPreset('new_volunteers')" class="w-full text-left px-3 py-2 text-xs font-mono text-gray-400 hover:text-white hover:bg-white/5 rounded transition-colors truncate">
+              New Volunteers (Last 7 Days)
+            </button>
+          </div>
+        </div>
+
+        <!-- Main Query Area -->
+        <div class="qb-main p-6 overflow-y-auto">
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-3">
+              <div class="text-[10px] text-gray-500 font-mono uppercase">Match Strategy:</div>
+              <div class="flex bg-[#161616] rounded border border-[#333] p-1">
+                <button id="qb-match-all" class="px-3 py-1 rounded text-[10px] font-bold transition-all bg-green-900/30 text-green-400" onclick="setMatchMode('ALL')">STRICT (ALL)</button>
+                <button id="qb-match-any" class="px-3 py-1 rounded text-[10px] font-bold transition-all text-gray-500 hover:text-gray-300" onclick="setMatchMode('ANY')">FLEXIBLE (ANY)</button>
+              </div>
+            </div>
+            <div class="text-[10px] font-mono text-gray-400">Active Rules: <span id="rule-count" class="text-white">0</span></div>
+          </div>
+
+          <div id="query-rules-container" class="space-y-3">
+            <!-- Rules injected here -->
+          </div>
+
+          <div class="mt-6 flex items-center gap-3">
+            <button onclick="addRule()" class="qb-btn qb-btn-secondary flex items-center gap-2">
+              <i data-lucide="plus" class="w-4 h-4"></i> Add Condition
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- QB Footer -->
+      <div class="p-4 border-t border-[#333] bg-[#161616] flex justify-between items-center">
+        <div class="text-[10px] text-gray-500 font-mono flex items-center gap-2">
+          EST. RESULTS: <span id="est-results" class="text-white">~1,248</span>
+        </div>
+        <div class="flex gap-3">
+          <button onclick="closeQueryBuilder()" class="qb-btn qb-btn-secondary">Close</button>
+          <button onclick="applyQuery()" class="qb-btn qb-btn-primary flex items-center gap-2">
+            <i data-lucide="search" class="w-4 h-4"></i> Apply Query
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VOLUNTEER DETAIL MODAL -->
+  <div id="volunteerModal" class="fixed inset-0 z-[200] hidden flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="closeVolunteerModal()"></div>
+    <div class="relative bg-[#1c1c1c] border border-[#333] rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 fade-in">
+      <div class="p-6 border-b border-[#333] flex justify-between items-start">
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 rounded-full bg-[#252535] flex items-center justify-center text-2xl font-bold text-white" id="modal-avatar-initials">JD</div>
+          <div>
+            <h2 class="text-xl font-bold text-white" id="modal-name">John Doe</h2>
+            <p class="text-sm text-gray-400 flex items-center gap-2"><i data-lucide="map-pin" class="w-3 h-3"></i> <span id="modal-region">Region</span></p>
+          </div>
+        </div>
+        <button onclick="closeVolunteerModal()" class="text-gray-400 hover:text-white transition"><i data-lucide="x" class="w-6 h-6"></i></button>
+      </div>
+      <div class="p-6 space-y-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-[#252525] p-3 rounded-lg border border-[#333]">
+            <div class="text-[10px] text-gray-500 uppercase font-bold">Match Score</div>
+            <div class="text-lg font-bold text-green-400 mt-1" id="modal-match">85%</div>
+          </div>
+          <div class="bg-[#252525] p-3 rounded-lg border border-[#333]">
+            <div class="text-[10px] text-gray-500 uppercase font-bold">Engagement</div>
+            <div class="text-lg font-bold text-blue-400 mt-1" id="modal-engagement">High</div>
+          </div>
+          <div class="bg-[#252525] p-3 rounded-lg border border-[#333]">
+            <div class="text-[10px] text-gray-500 uppercase font-bold">Languages</div>
+            <div class="text-lg font-bold text-white mt-1" id="modal-langs">English, Spanish</div>
+          </div>
+          <div class="bg-[#252525] p-3 rounded-lg border border-[#333]">
+            <div class="text-[10px] text-gray-500 uppercase font-bold">Transport</div>
+            <div class="text-lg font-bold text-yellow-400 mt-1" id="modal-transport">Car</div>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-white mb-2 flex items-center gap-2"><i data-lucide="message-circle" class="w-4 h-4 text-green-400"></i> Outreach Notes</h3>
+          <p class="text-sm text-gray-300 bg-[#252525] p-3 rounded-lg border border-[#333]" id="modal-notes">Volunteer expressed interest in weekend canvassing events. Highly motivated and reliable.</p>
+        </div>
+        <div class="flex gap-3 pt-2">
+          <button class="flex-1 bg-green-600 hover:bg-green-500 text-white py-2 rounded font-bold text-sm transition">Contact Volunteer</button>
+          <button class="flex-1 bg-[#252535] hover:bg-[#353845] border border-[#333] text-gray-300 py-2 rounded font-bold text-sm transition">View History</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- MOCK DATA GENERATION ---
+    const regions = ['Montgomery', 'Prince George\'s', 'Howard', 'DC Metro', 'Frederick', 'Baltimore'];
+    const interests = ['Field Organizer', 'Canvasser', 'Phone Banker', 'Data Captain', 'Event Staff', 'Driver'];
+    const schools = ['In School (HS)', 'In School (College)', 'Gap Year', 'Graduated'];
+    const statuses = ['Active', 'Inactive', 'Pending', 'Banned'];
+    const transports = ['Car', 'Public Transit', 'Bike', 'Rideshare'];
+    const languages = [['English'], ['English', 'Spanish'], ['English', 'Mandarin'], ['English', 'French'], ['English', 'Arabic']];
+    const availabilities = ['High', 'Medium', 'Low'];
+    const orgs = ['YPI', 'Local 4 Action', 'Climate Corps', 'Voter Alliance', 'Community Aid', 'None'];
+
+    let volunteers = [];
+    for (let i = 1; i <= 150; i++) {
+      const langSet = languages[Math.floor(Math.random() * languages.length)];
+      volunteers.push({
+        id: i,
+        picked: false,
+        inf: Math.random() > 0.8 ? 'Sus' : Math.random() > 0.5 ? 'Wnt' : '-',
+        volunteer: `Volunteer ${i}`,
+        nationality: '🇺🇸',
+        region: regions[Math.floor(Math.random() * regions.length)],
+        interest: interests[Math.floor(Math.random() * interests.length)],
+        school: schools[Math.floor(Math.random() * schools.length)],
+        org: orgs[Math.floor(Math.random() * orgs.length)],
+        vstatus: statuses[Math.floor(Math.random() * statuses.length)],
+        hours: Math.floor(Math.random() * 20) + 1,
+        engagement: availabilities[Math.floor(Math.random() * availabilities.length)],
+        interestLvl: ['Excited', 'Moderate', 'Neutral'][Math.floor(Math.random() * 3)],
+        match: Math.floor(Math.random() * 40) + 60,
+        transport: transports[Math.floor(Math.random() * transports.length)],
+        languages: langSet.join(', '),
+        notes: ['Highly responsive', 'Needs background check', 'Great with phone banks', 'Prefers weekends'][Math.floor(Math.random() * 4)],
+        initials: `V${i}`,
+        avatarColor: `hsl(${Math.random() * 360}, 60%, 40%)`
+      });
+    }
+
+    // --- STATE MANAGEMENT ---
+    let currentSort = { column: 'match', asc: false };
+    let activeFilters = []; // Array of {id, field, operator, value}
+    let matchMode = 'ALL';
+    let filteredVolunteers = [...volunteers];
+
+    // --- RENDER FUNCTIONS ---
+    function renderTable(data) {
+      const tbody = document.getElementById('volunteerBody');
+      tbody.innerHTML = '';
+      document.getElementById('result-count').innerText = data.length;
+      
+      data.forEach(p => {
+        const tr = document.createElement('tr');
+        if (p.picked) tr.classList.add('selected');
+        
+        // Badge Logic
+        let infHtml = '-';
+        if (p.inf === 'Sus') infHtml = '<span class="badge badge-sus">Sus</span>';
+        else if (p.inf === 'Wnt') infHtml = '<span class="badge badge-wnt">Wnt</span>';
+
+        // Status Color
+        let statusColor = 'text-gray-300';
+        if (p.vstatus === 'Active') statusColor = 'text-green-400';
+        else if (p.vstatus === 'Inactive') statusColor = 'text-gray-500';
+        else if (p.vstatus === 'Pending') statusColor = 'text-yellow-400';
+
+        tr.innerHTML = `
+          <td class="checkbox-cell"><input type="checkbox" ${p.picked ? 'checked' : ''} onchange="togglePick(${p.id}, this)"></td>
+          <td class="inf-cell">${infHtml}</td>
+          <td>
+            <div class="player-cell cursor-pointer" onclick="openVolunteerModal(${p.id})">
+              <div class="player-avatar" style="background:${p.avatarColor}">${p.initials}</div>
+              <span class="flag">${p.nationality}</span>
+              <span class="player-name">${p.volunteer}</span>
+            </div>
+          </td>
+          <td style="color:#a0a0b0; font-size:11px; min-width:100px;">${p.region}</td>
+          <td style="color:#7b8aff; font-size:11px; font-weight:500; min-width:110px;">${p.interest}</td>
+          <td style="color:#c8c8d0; text-align:center; min-width:80px; font-size:11px;">${p.school}</td>
+          <td style="color:#a0a0b0; font-size:11px; min-width:100px;">${p.org}</td>
+          <td class="${statusColor} font-medium text-xs min-w-80px;">${p.vstatus}</td>
+          <td style="color:#c8c8d0; font-size:11px; text-align:center; min-width:60px;">${p.hours}h</td>
+          <td style="color:#a0a0b0; font-size:11px; min-width:80px;">${p.engagement}</td>
+          <td style="color:#c8c8d0; min-width:80px;">${p.interestLvl}</td>
+          <td style="min-width:60px; text-align:center;">
+            <span style="color:${p.match > 80 ? '#4ade80' : p.match > 50 ? '#facc15' : '#ef4444'}; font-weight:700;">${p.match}%</span>
+          </td>
+          <td style="color:#a0a0b0; font-size:11px; min-width:80px;">${p.transport}</td>
+          <td style="color:#a0a0b0; font-size:11px; min-width:100px;">${p.languages}</td>
+          <td style="color:#8888a0; font-size:11px; min-width:140px; max-width:160px; overflow:hidden; text-overflow:ellipsis;">${p.notes}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function togglePick(id, checkbox) {
+      const p = volunteers.find(v => v.id === id);
+      if (p) {
+        p.picked = checkbox.checked;
+        const tr = checkbox.closest('tr');
+        if (checkbox.checked) tr.classList.add('selected');
+        else tr.classList.remove('selected');
+      }
+    }
+
+    // --- SORTING ---
+    function sortTable(col) {
+      if (currentSort.column === col) currentSort.asc = !currentSort.asc;
+      else { currentSort.column = col; currentSort.asc = true; }
+      
+      document.querySelectorAll('.volunteer-table th').forEach(th => th.classList.remove('sort-active'));
+      // Update header UI (simplified for brevity, assumes order matches thead)
+      
+      const sorted = [...filteredVolunteers].sort((a, b) => {
+        let valA = a[col], valB = b[col];
+        if (col === 'volunteer' || col === 'region') {
+          valA = valA.toLowerCase(); valB = valB.toLowerCase();
+          return currentSort.asc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+        }
+        return currentSort.asc ? valA - valB : valB - valA;
+      });
+      renderTable(sorted);
+    }
+
+    // --- QUERY BUILDER LOGIC ---
+    function openQueryBuilder() {
+      document.getElementById('queryBuilderPanel').classList.add('active');
+      renderRules();
+    }
+
+    function closeQueryBuilder() {
+      document.getElementById('queryBuilderPanel').classList.remove('active');
+      updateActivePills();
+    }
+
+    function addRule(field = 'Availability', operator = 'is', value = '') {
+      activeFilters.push({ id: Date.now(), field, operator, value });
+      renderRules();
+    }
+
+    function removeRule(id) {
+      activeFilters = activeFilters.filter(r => r.id !== id);
+      renderRules();
+    }
+
+    function updateRule(id, key, val) {
+      const r = activeFilters.find(r => r.id === id);
+      if (r) { r[key] = val; renderRules(); }
+    }
+
+    function renderRules() {
+      const container = document.getElementById('query-rules-container');
+      container.innerHTML = '';
+      document.getElementById('rule-count').innerText = activeFilters.length;
+
+      activeFilters.forEach((rule, idx) => {
+        const div = document.createElement('div');
+        div.className = 'qb-row fade-in';
+        div.innerHTML = `
+          <div class="w-12 shrink-0">
+            ${idx === 0 ? '<div class="h-8 flex items-center justify-center bg-[#252535] border border-[#333] rounded text-[10px] font-bold text-gray-400 font-mono">IF</div>' : 
+            `<select class="qb-select w-full h-8 text-center text-purple-400" onchange="updateRule(${rule.id}, 'logic', this.value)">
+              <option>AND</option><option>OR</option><option>NOT</option>
+            </select>`}
+          </div>
+          <div class="flex-1 flex items-center gap-2 bg-[#1c1c1c] p-2 border border-[#333] rounded hover:border-gray-500 transition">
+            <select class="qb-select w-1/3 font-bold text-white" onchange="updateRule(${rule.id}, 'field', this.value)">
+              <option value="Region">Region</option>
+              <option value="Interest">Interest</option>
+              <option value="Availability">Availability</option>
+              <option value="Match">Match Score</option>
+              <option value="Languages">Languages</option>
+              <option value="Status">Status</option>
+            </select>
+            <select class="qb-select w-1/4 text-blue-400" onchange="updateRule(${rule.id}, 'operator', this.value)">
+              <option value="is">is</option>
+              <option value="is_not">is not</option>
+              <option value="contains">contains</option>
+              <option value="gte">>=</option>
+              <option value="lte"><=</option>
+            </select>
+            <input class="qb-input" placeholder="Value..." value="${rule.value}" oninput="updateRule(${rule.id}, 'value', this.value)">
+          </div>
+          <button class="w-8 h-8 flex items-center justify-center rounded hover:bg-red-500/10 hover:text-red-400 transition" onclick="removeRule(${rule.id})">
+            <i data-lucide="trash-2" class="w-4 h-4"></i>
+          </button>
+        `;
+        container.appendChild(div);
+      });
+      lucide.createIcons({ containers: container });
+    }
+
+    function applyQuery() {
+      closeQueryBuilder();
+      filterTable();
+    }
+
+    function applyPreset(type) {
+      activeFilters = [];
+      if (type === 'high_engagement') {
+        addRule('Availability', 'is', 'High');
+        addRule('Match', 'gte', '80');
+      } else if (type === 'weekend_only') {
+        addRule('Interest', 'is', 'Canvasser');
+        addRule('Languages', 'contains', 'Spanish');
+      } else {
+        addRule('Status', 'is', 'Active');
+      }
+      renderRules();
+    }
+
+    function resetQuery() {
+      activeFilters = [];
+      renderRules();
+    }
+
+    function addFilterFromSidebar(field, value) {
+      if (!value || value === '') return;
+      addRule(field, 'is', value);
+    }
+
+    function setMatchMode(mode) {
+      matchMode = mode;
+      document.getElementById('qb-match-all').className = mode === 'ALL' ? 'px-3 py-1 rounded text-[10px] font-bold transition-all bg-green-900/30 text-green-400' : 'px-3 py-1 rounded text-[10px] font-bold transition-all text-gray-500 hover:text-gray-300';
+      document.getElementById('qb-match-any').className = mode === 'ANY' ? 'px-3 py-1 rounded text-[10px] font-bold transition-all bg-green-900/30 text-green-400' : 'px-3 py-1 rounded text-[10px] font-bold transition-all text-gray-500 hover:text-gray-300';
+    }
+
+    function filterTable() {
+      if (activeFilters.length === 0) {
+        filteredVolunteers = [...volunteers];
+      } else {
+        filteredVolunteers = volunteers.filter(v => {
+          let matches = activeFilters.map(f => {
+            let valA, valB;
+            valB = f.value;
+            
+            // Map rule field to volunteer object key
+            const keyMap = {
+              'Region': 'region', 'Interest': 'interest', 'Availability': 'engagement', 
+              'Match': 'match', 'Languages': 'languages', 'Status': 'vstatus'
+            };
+            valA = v[keyMap[f.field]];
+            
+            if (valA === undefined) return false;
+            valA = String(valA).toLowerCase();
+            valB = String(valB).toLowerCase();
+
+            if (f.operator === 'is') return valA === valB;
+            if (f.operator === 'is_not') return valA !== valB;
+            if (f.operator === 'contains') return valA.includes(valB);
+            if (f.operator === 'gte') return parseInt(valA) >= parseInt(valB);
+            if (f.operator === 'lte') return parseInt(valA) <= parseInt(valB);
+            return false;
+          });
+
+          return matchMode === 'ALL' ? matches.every(Boolean) : matches.some(Boolean);
+        });
+      }
+      sortTable(currentSort.column);
+    }
+
+    function updateActivePills() {
+      const container = document.getElementById('active-pills-container');
+      const bar = document.getElementById('active-query-bar');
+      container.innerHTML = '';
+      
+      if (activeFilters.length === 0) {
+        bar.classList.add('hidden');
+        return;
+      }
+      bar.classList.remove('hidden');
+
+      activeFilters.forEach(f => {
+        const pill = document.createElement('div');
+        pill.className = 'qb-pill';
+        pill.innerHTML = `<span class="font-bold text-green-300">${f.field}:</span> ${f.value} <span class="qb-pill-close" onclick="removePill(${f.id})">×</span>`;
+        container.appendChild(pill);
+      });
+    }
+
+    function removePill(id) {
+      activeFilters = activeFilters.filter(r => r.id !== id);
+      updateActivePills();
+      filterTable();
+    }
+
+    // --- MODAL INTERACTIONS ---
+    function openVolunteerModal(id) {
+      const v = volunteers.find(val => val.id === id);
+      if (!v) return;
+      document.getElementById('modal-name').innerText = v.volunteer;
+      document.getElementById('modal-region').innerText = v.region;
+      document.getElementById('modal-match').innerText = v.match + '%';
+      document.getElementById('modal-engagement').innerText = v.engagement;
+      document.getElementById('modal-langs').innerText = v.languages;
+      document.getElementById('modal-transport').innerText = v.transport;
+      document.getElementById('modal-notes').innerText = v.notes;
+      document.getElementById('modal-avatar-initials').innerText = v.initials;
+      document.getElementById('modal-avatar-initials').style.background = v.avatarColor;
+      document.getElementById('volunteerModal').classList.remove('hidden');
+    }
+
+    function closeVolunteerModal() {
+      document.getElementById('volunteerModal').classList.add('hidden');
+    }
+
+    function exportData() {
+      alert(`Exporting ${filteredVolunteers.length} volunteers to CSV...`);
+    }
+
+    // --- INIT ---
+    document.addEventListener('DOMContentLoaded', () => {
+      renderTable(volunteers);
+      lucide.createIcons();
+
+      // Nav Items
+      const navItems = ['Vision', 'Volunteer DB', 'Financials', 'Data Suite', 'Projects', 'Marketing', 'Donors'];
+      const navContainer = document.getElementById('main-nav');
+      navItems.forEach(item => {
+        const btn = document.createElement('button');
+        const isActive = item === 'Volunteer DB';
+        btn.className = `group flex items-center px-3 py-2 text-sm font-bold tracking-tight transition-all cursor-pointer ${isActive ? 'text-[#98fb98] drop-shadow-[0_0_8px_rgba(152,251,152,0.25)] scale-105' : 'text-gray-400 hover:text-white hover:scale-105'}`;
+        btn.innerText = item;
+        navContainer.appendChild(btn);
+      });
+
+      // Select All Checkbox
+      document.getElementById('select-all').addEventListener('change', (e) => {
+        const isChecked = e.target.checked;
+        filteredVolunteers.forEach(v => v.picked = isChecked);
+        renderTable(filteredVolunteers);
+      });
+    });
+  </script>
+</body>
+</html>
+
