@@ -1,0 +1,736 @@
+<body class="ext_bg">
+
+<table cellspacing="0" cellpadding="0" align="center" width="968px">
+
+	<!-- OOTP IGNORE START TEAM HEADER -->
+	<tbody><tr>
+		<td>
+			<table border="0" width="968px" cellspacing="0" cellpadding="0" style="background-image:url(../images/report_header.jpg); background-repeat:no-repeat;">
+				<tbody><tr style="height:160px;">
+					<td align="left" valign="top" style="padding:4px 0px 0px 4px;"><a href="../leagues/league_203_home.html"><img src="../images/league_logos/major_league_baseball.png" border="0" title="Major League Baseball"></a></td>
+					<td valign="top">
+						<table width="648px" border="0" cellspacing="0" cellpadding="0">
+							<tbody><tr>
+								<td align="center" valign="top" style="padding-top:14px;">
+									<div class="reptitle">BOSTON RED SOX</div>
+<div class="repsubtitle">TEAM SALARY</div>
+
+									<div style="text-align:center; color:#FFFFFF; padding-top:4px;">11/30/2025</div>
+								</td>
+								<td><img src="../images/pixel.gif" width="1" height="138"></td>
+							</tr>
+							<tr>
+								<td align="center" valign="top" class="menu">
+									<a href="../index.html" class="menu">BNN Index</a>  |
+									<a href="../leagues/league_203_home.html" class="menu">MLB</a>  |
+									<a href="../leagues/league_203_scores.html" class="menu">SCORES</a>  |
+									<a href="../leagues/league_203_standings.html" class="menu">STANDINGS</a>  |
+									<a href="../leagues/league_203_stats.html" class="menu">STATS</a>  |
+									<a href="../leagues/league_203_teams.html" class="menu">TEAMS</a>  |
+									<a href="../leagues/league_203_players.html" class="menu">PLAYERS</a>  |
+									<a href="../leagues/league_203_transactions_0_0.html" class="menu">TRANSACTIONS</a>  |
+									<a href="../history/league_203_index.html" class="menu">HISTORY</a>
+								</td>
+								<td><img src="../images/pixel.gif" width="1" height="22"></td>
+							</tr>
+						</tbody></table>
+					</td>
+					<td align="right" valign="top" style="padding:4px 4px 0px 0px;"><a href="../teams/team_4.html"><img src="../images/team_logos/boston_red_sox.png" border="0" title="Boston Red Sox"></a></td>
+				</tr>
+			</tbody></table>
+		</td>
+	</tr>
+<!-- OOTP IGNORE END TEAM HEADER -->
+
+	<!--x
+	<tr><td class="boxtitle">TEAM SALARY</td></tr>
+	x-->
+	<tr>
+		<td>
+			<table class="data sortable" cellspacing="0" cellpadding="0" width="968px"><thead><tr>
+					<th class="hsp dr">Pos</th>
+					<th class="hsc dl" width="190">Name</th>
+					<th class="hsu dr">Age</th>
+					<th class="hsu dr">2025</th>
+					<th class="hsu dr">2026</th>
+					<th class="hsu dr">2027</th>
+					<th class="hsu dr">2028</th>
+					<th class="hsu dr">2029</th>
+					<th class="hsu dr">2030</th>
+					<th class="hsu dr">2031</th>
+					<th class="hsu dr">2032</th>
+					<th class="hsu dr">2033</th>
+					<th class="hsu dr">2034</th>
+				</tr></thead>
+				<tbody>						
+						<tr>
+			<td class="dr">SP</td>
+			<td class="dl"><a href="../players/player_21868.html">Sonny Gray</a></td>
+			<td class="dr">36</td>
+			<td class="dr">$25.0m</td>
+			<td class="dr">$35.0m</td>
+			<td class="dr">$30.0m(T)</td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">SP</td>
+			<td class="dl"><a href="../players/player_44622.html">Garrett Crochet</a></td>
+			<td class="dr">26</td>
+			<td class="dr">$24.8m</td>
+			<td class="dr">$28.8m</td>
+			<td class="dr">$28.8m</td>
+			<td class="dr">$28.8m</td>
+			<td class="dr">$28.8m(O)</td>
+			<td class="dr">$30.0m</td>
+			<td class="dr">$15.0m(T)</td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">SS</td>
+			<td class="dl"><a href="../players/player_31058.html">Trevor Story</a></td>
+			<td class="dr">33</td>
+			<td class="dr">$22.5m</td>
+			<td class="dr">$25.0m(O)</td>
+			<td class="dr">$25.0m</td>
+			<td class="dr">$25.0m(T)</td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">LF</td>
+			<td class="dl"><a href="../players/player_41329.html">Masataka Yoshida</a></td>
+			<td class="dr">32</td>
+			<td class="dr">$18.6m</td>
+			<td class="dr">$18.6m</td>
+			<td class="dr">$18.6m</td>
+			<td class="dr"><i>$27.0m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">RP</td>
+			<td class="dl"><a href="../players/player_24802.html">Jordan Hicks</a></td>
+			<td class="dr">29</td>
+			<td class="dr">$12.5m</td>
+			<td class="dr">$12.5m</td>
+			<td class="dr">$12.5m</td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">CL</td>
+			<td class="dl"><a href="../players/player_25299.html">Aroldis Chapman</a></td>
+			<td class="dr">37</td>
+			<td class="dr">$10.8m</td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">SP</td>
+			<td class="dl"><a href="../players/player_23370.html">Patrick Sandoval</a></td>
+			<td class="dr">29</td>
+			<td class="dr">$5.5m</td>
+			<td class="dr">$12.8m</td>
+			<td class="dr"><i>$7.5m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">RP</td>
+			<td class="dl"><a href="../players/player_24197.html">Garrett Whitlock</a></td>
+			<td class="dr">29</td>
+			<td class="dr">$5.5m</td>
+			<td class="dr">$7.5m</td>
+			<td class="dr">$8.2m</td>
+			<td class="dr">$10.5m(T)</td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">RP</td>
+			<td class="dl"><a href="../players/player_20765.html">Tanner Houck</a></td>
+			<td class="dr">29</td>
+			<td class="dr">$4.0m</td>
+			<td class="dr"><i>$6.2m(A)</i></td>
+			<td class="dr"><i>$8.2m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">LF</td>
+			<td class="dl"><a href="../players/player_28006.html">Jarren Duran</a></td>
+			<td class="dr">29</td>
+			<td class="dr">$3.8m</td>
+			<td class="dr">$8.0m(T)</td>
+			<td class="dr"><i>$12.4m(A)</i></td>
+			<td class="dr"><i>$16.3m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">RP</td>
+			<td class="dl"><a href="../players/player_24689.html">Kutter Crawford</a></td>
+			<td class="dr">29</td>
+			<td class="dr">$2.8m</td>
+			<td class="dr"><i>$2.8m(*)</i></td>
+			<td class="dr"><i>$4.8m(A)</i></td>
+			<td class="dr"><i>$6.0m(A)</i></td>
+			<td class="dr"><i>$7.0m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">SP</td>
+			<td class="dl"><a href="../players/player_43093.html">Brayan Bello</a></td>
+			<td class="dr">26</td>
+			<td class="dr">$2.7m</td>
+			<td class="dr">$6.2m</td>
+			<td class="dr">$8.7m</td>
+			<td class="dr">$16.2m</td>
+			<td class="dr">$19.2m</td>
+			<td class="dr">$21.0m(T)</td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">LF</td>
+			<td class="dl"><a href="../players/player_52756.html">Roman Anthony</a></td>
+			<td class="dr">21</td>
+			<td class="dr">$2.6m</td>
+			<td class="dr">$4.6m</td>
+			<td class="dr">$8.6m</td>
+			<td class="dr">$15.6m</td>
+			<td class="dr">$19.6m</td>
+			<td class="dr">$23.6m</td>
+			<td class="dr">$25.6m</td>
+			<td class="dr">$29.6m</td>
+			<td class="dr">$34.0m(T)</td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">2B</td>
+			<td class="dl"><a href="../players/player_47468.html">Kristian Campbell</a></td>
+			<td class="dr">23</td>
+			<td class="dr">$1.2m</td>
+			<td class="dr">$2.2m</td>
+			<td class="dr">$3.2m</td>
+			<td class="dr">$4.2m</td>
+			<td class="dr">$6.2m</td>
+			<td class="dr">$9.2m</td>
+			<td class="dr">$13.2m</td>
+			<td class="dr">$16.2m</td>
+			<td class="dr">$19.0m</td>
+			<td class="dr">$21.0m(T)</td>
+		</tr>						
+		<tr>
+			<td class="dr">CF</td>
+			<td class="dl"><a href="../players/player_43180.html">Ceddanne Rafaela</a></td>
+			<td class="dr">25</td>
+			<td class="dr">$1.2m</td>
+			<td class="dr">$2.2m</td>
+			<td class="dr">$3.8m</td>
+			<td class="dr">$5.8m</td>
+			<td class="dr">$7.8m</td>
+			<td class="dr">$10.8m</td>
+			<td class="dr">$13.2m</td>
+			<td class="dr">$16.0m(T)</td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">RP</td>
+			<td class="dl"><a href="../players/player_44235.html">Cooper Criswell</a></td>
+			<td class="dr">29</td>
+			<td class="dr">$1.0m</td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">RF</td>
+			<td class="dl"><a href="../players/player_42501.html">Wilyer Abreu</a></td>
+			<td class="dr">26</td>
+			<td class="dr">$740k</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$4.5m(A)</i></td>
+			<td class="dr"><i>$7.1m(A)</i></td>
+			<td class="dr"><i>$9.5m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">RP</td>
+			<td class="dl"><a href="../players/player_25008.html">Osvaldo Berrios</a></td>
+			<td class="dr">26</td>
+			<td class="dr">$740k</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$1.7m(A*)</i></td>
+			<td class="dr"><i>$1.9m(A)</i></td>
+			<td class="dr"><i>$2.2m(A)</i></td>
+			<td class="dr"><i>$2.6m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">1B</td>
+			<td class="dl"><a href="../players/player_19674.html">Triston Casas</a></td>
+			<td class="dr">25</td>
+			<td class="dr">$740k</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$3.8m(A)</i></td>
+			<td class="dr"><i>$6.0m(A)</i></td>
+			<td class="dr"><i>$8.0m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">C</td>
+			<td class="dl"><a href="../players/player_26836.html">Jason Delay</a></td>
+			<td class="dr">30</td>
+			<td class="dr">$740k</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$2.2m(A)</i></td>
+			<td class="dr"><i>$3.0m(A)</i></td>
+			<td class="dr"><i>$3.4m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">RP</td>
+			<td class="dl"><a href="../players/player_48453.html">Hunter Dobbins</a></td>
+			<td class="dr">26</td>
+			<td class="dr">$740k</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$2.0m(A*)</i></td>
+			<td class="dr"><i>$2.6m(A)</i></td>
+			<td class="dr"><i>$3.2m(A)</i></td>
+			<td class="dr"><i>$3.6m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">RP</td>
+			<td class="dl"><a href="../players/player_42270.html">Shane Drohan</a></td>
+			<td class="dr">26</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$1.9m(A*)</i></td>
+			<td class="dr"><i>$2.2m(A)</i></td>
+			<td class="dr"><i>$2.6m(A)</i></td>
+			<td class="dr"><i>$3.0m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">SP</td>
+			<td class="dl"><a href="../players/player_49153.html">Connelly Early</a></td>
+			<td class="dr">23</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$2.8m(A*)</i></td>
+			<td class="dr"><i>$3.8m(A)</i></td>
+			<td class="dr"><i>$5.0m(A)</i></td>
+			<td class="dr"><i>$6.5m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">RF</td>
+			<td class="dl"><a href="../players/player_40887.html">Nate Eaton</a></td>
+			<td class="dr">28</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">LF</td>
+			<td class="dl"><a href="../players/player_46685.html">Jhostynxon Garcia</a></td>
+			<td class="dr">22</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$2.6m(A*)</i></td>
+			<td class="dr"><i>$3.6m(A)</i></td>
+			<td class="dr"><i>$4.8m(A)</i></td>
+			<td class="dr"><i>$6.0m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">1B</td>
+			<td class="dl"><a href="../players/player_26025.html">Romy Gonzalez</a></td>
+			<td class="dr">29</td>
+			<td class="dr">$740k</td>
+			<td class="dr"><i>$3.0m(A)</i></td>
+			<td class="dr"><i>$5.5m(A)</i></td>
+			<td class="dr"><i>$8.0m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">3B</td>
+			<td class="dl"><a href="../players/player_19613.html">Tristan Gray</a></td>
+			<td class="dr">29</td>
+			<td class="dr">$740k</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$2.2m(A*)</i></td>
+			<td class="dr"><i>$3.0m(A)</i></td>
+			<td class="dr"><i>$4.0m(A)</i></td>
+			<td class="dr"><i>$4.8m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">SS</td>
+			<td class="dl"><a href="../players/player_44930.html">Vaughn Grissom</a></td>
+			<td class="dr">24</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$3.2m(A*)</i></td>
+			<td class="dr"><i>$5.5m(A)</i></td>
+			<td class="dr"><i>$8.0m(A)</i></td>
+			<td class="dr"><i>$9.5m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">2B</td>
+			<td class="dl"><a href="../players/player_27897.html">David Hamilton</a></td>
+			<td class="dr">28</td>
+			<td class="dr">$740k</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$2.6m(A*)</i></td>
+			<td class="dr"><i>$4.2m(A)</i></td>
+			<td class="dr"><i>$6.0m(A)</i></td>
+			<td class="dr"><i>$7.5m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">RP</td>
+			<td class="dl"><a href="../players/player_47006.html">Kyle Harrison</a></td>
+			<td class="dr">24</td>
+			<td class="dr">$740k</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$2.2m(A*)</i></td>
+			<td class="dr"><i>$3.4m(A)</i></td>
+			<td class="dr"><i>$5.0m(A)</i></td>
+			<td class="dr"><i>$6.5m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">RP</td>
+			<td class="dl"><a href="../players/player_42889.html">Zack Kelly</a></td>
+			<td class="dr">30</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">3B</td>
+			<td class="dl"><a href="../players/player_47373.html">Marcelo Mayer</a></td>
+			<td class="dr">22</td>
+			<td class="dr">$740k</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$3.0m(A*)</i></td>
+			<td class="dr"><i>$4.2m(A)</i></td>
+			<td class="dr"><i>$6.0m(A)</i></td>
+			<td class="dr"><i>$7.5m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">RP</td>
+			<td class="dl"><a href="../players/player_25180.html">Jovani Moran</a></td>
+			<td class="dr">28</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">C</td>
+			<td class="dl"><a href="../players/player_1758.html">Carlos Narvaez</a></td>
+			<td class="dr">27</td>
+			<td class="dr">$740k</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$3.2m(A*)</i></td>
+			<td class="dr"><i>$5.5m(A)</i></td>
+			<td class="dr"><i>$8.0m(A)</i></td>
+			<td class="dr"><i>$9.5m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">SP</td>
+			<td class="dl"><a href="../players/player_46691.html">Luis Perales</a></td>
+			<td class="dr">22</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$1.9m(A*)</i></td>
+			<td class="dr"><i>$2.4m(A)</i></td>
+			<td class="dr"><i>$2.8m(A)</i></td>
+			<td class="dr"><i>$3.2m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">SP</td>
+			<td class="dl"><a href="../players/player_51963.html">David Sandlin</a></td>
+			<td class="dr">24</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$1.9m(A*)</i></td>
+			<td class="dr"><i>$2.2m(A)</i></td>
+			<td class="dr"><i>$2.6m(A)</i></td>
+			<td class="dr"><i>$3.0m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">RP</td>
+			<td class="dl"><a href="../players/player_18221.html">Justin Slaten</a></td>
+			<td class="dr">28</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>MiLC</i></td>
+			<td class="dr"><i>$1.3m(A*)</i></td>
+			<td class="dr"><i>$1.5m(A)</i></td>
+			<td class="dr"><i>$1.7m(A)</i></td>
+			<td class="dr"><i>$1.9m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">1B</td>
+			<td class="dl"><a href="../players/player_27018.html">Nick Sogard</a></td>
+			<td class="dr">28</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">RP</td>
+			<td class="dl"><a href="../players/player_53687.html">Payton Tolle</a></td>
+			<td class="dr">23</td>
+			<td class="dr">$740k</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$1.8m(A*)</i></td>
+			<td class="dr"><i>$2.2m(A)</i></td>
+			<td class="dr"><i>$2.6m(A)</i></td>
+			<td class="dr"><i>$3.0m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">RP</td>
+			<td class="dl"><a href="../players/player_50802.html">Tyler Uberstine</a></td>
+			<td class="dr">26</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$1.9m(A*)</i></td>
+			<td class="dr"><i>$2.2m(A)</i></td>
+			<td class="dr"><i>$2.6m(A)</i></td>
+			<td class="dr"><i>$3.0m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">RP</td>
+			<td class="dl"><a href="../players/player_20586.html">Greg Weissert</a></td>
+			<td class="dr">30</td>
+			<td class="dr">$740k</td>
+			<td class="dr"><i>$740k(*)</i></td>
+			<td class="dr"><i>$1.6m(A)</i></td>
+			<td class="dr"><i>$2.0m(A)</i></td>
+			<td class="dr"><i>$2.4m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+		<tr>
+			<td class="dr">C</td>
+			<td class="dl"><a href="../players/player_19085.html">Connor Wong</a></td>
+			<td class="dr">29</td>
+			<td class="dr">$740k</td>
+			<td class="dr"><i>$1.5m(A)</i></td>
+			<td class="dr"><i>$2.6m(A)</i></td>
+			<td class="dr"><i>$3.8m(A)</i></td>
+			<td class="dr"><i>$5.0m(A)</i></td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+			<td class="dr"> </td>
+		</tr>						
+						 		
+	
+			</tbody><tfoot><tr class="hsi sortbottom">
+			<td class="dr"></td>
+			<td class="dl"><b>TOTAL</b></td>
+			<td class="dr"></td>
+			<td class="dr"><b>$163.6m</b></td>
+			<td class="dr"><b>$191.0m</b></td>
+			<td class="dr"><b>$221.1m</b></td>
+			<td class="dr"><b>$229.1m</b></td>
+			<td class="dr"><b>$175.9m</b></td>
+			<td class="dr"><b>$167.9m</b></td>
+			<td class="dr"><b>$113.3m</b></td>
+			<td class="dr"><b>$61.9m</b></td>
+			<td class="dr"><b>$53.0m</b></td>
+			<td class="dr"><b>$21.0m</b></td>
+		</tr></tfoot></table>
+		</td>
+	</tr>
+	<tr>
+		<td>
+			<i><b>Legend:</b> auto = auto-renew contract, V = Vesting Option, T = Team Option, P = Player Option, A = Arbitration Eligible, A* = possibly Arbitration eligible, else auto-renew, A# = possible FA eligible, else arbitration, MiLC=Minor League Contract, O=Player holds opt-out after the season, R=Retained Salary Player, ^=Team portion, *=players in minors on league minimum deals are only paid 16.5% of their salary while in the minors</i>
+		</td>
+	</tr>
+	<tr>
+		<td style="padding-top:8px;"><!-- OOTP IGNORE START PAGE FOOTER --><img src="../images/bnn_bottom_bar.jpg" border="0"><!-- OOTP IGNORE END PAGE FOOTER --></td>
+
+	</tr>
+	
+</tbody></table>
+
+<!-- OOTP IGNORE START PAGE BOTTOM -->
+<table cellspacing="0" cellpadding="0" align="center" width="968px">
+	
+	<tbody><tr>
+		<td style="padding-top:2px; font-size:11px; text-align:center;">
+			Sunday, May 24th , 2026 - OOTP Baseball 26.8 Build 82
+		</td>
+	</tr>	
+</tbody></table>
+</body>
