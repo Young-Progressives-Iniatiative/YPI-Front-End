@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Career Stats</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/atkinson-hyperlegible@5.0.18/index.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/atkinson-hyperlegible@5.0.18/700.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/atkinson-hyperlegible@5.0.18/400.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/atkinson-hyperlegible@5.0.18/500.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/atkinson-hyperlegible@5.0.18/600.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.18/400.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.18/500.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.18/700.css">
+    <style>
+        :root {
+            --bg-primary: #1c1c1c;
+            --bg-secondary: #1c1c1c;
+            --bg-tertiary: #2a2a2a;
+            --bg-hover: #252525;
+            --border-color: #333333;
+            --text-primary: #e0e0e0;
+            --text-secondary: #999999;
+            --text-muted: #666666;
+            --green-primary: #77C081;
+            --green-dim: #5a9e64;
+            --red-accent: #c97070;
+            --orange-accent: #c4a060;
+            --eagles-color: #3a6b5e;
+            --chiefs-color: #b04050;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Atkinson Hyperlegible', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 32px 24px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .table-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table-scroll {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead th {
+            padding: 12px 14px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--green-primary);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-family: 'Atkinson Hyperlegible', sans-serif;
+        }
+
+        tbody tr {
+            transition: background 0.15s;
+            border-bottom: 1px solid rgba(51, 51, 51, 0.4);
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: var(--bg-hover);
+        }
+
+        tbody tr.summary-row {
+            background: var(--bg-tertiary);
+            border-top: 1px solid var(--border-color);
+        }
+
+        tbody tr.summary-row td {
+            color: var(--text-primary);
+            font-weight: 700;
+            padding: 12px 14px;
+        }
+
+        tbody td {
+            padding: 10px 14px;
+            text-align: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 400;
+            color: var(--text-primary);
+        }
+
+        tbody td:first-child {
+            text-align: left;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        tbody td.summary-label {
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-family: 'Atkinson Hyperlegible', sans-serif;
+            font-size: 12px;
+        }
+
+        .team-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .team-logo {
+            width: 22px;
+            height: 22px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.8);
+            flex-shrink: 0;
+            font-family: 'Atkinson Hyperlegible', sans-serif;
+        }
+
+        .team-logo.eagles {
+            background: var(--eagles-color);
+        }
+
+        .team-logo.chiefs {
+            background: var(--chiefs-color);
+        }
+
+        .league-badge {
+            display: inline-flex;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: 700;
+            background: #2a3a4a;
+            color: var(--text-secondary);
+            letter-spacing: 0.05em;
+            font-family: 'Atkinson Hyperlegible', sans-serif;
+        }
+
+        .note-text {
+            text-align: left !important;
+            font-family: 'Atkinson Hyperlegible', sans-serif;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .note-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            background: rgba(255,255,255,0.03);
+            font-family: 'Atkinson Hyperlegible', sans-serif;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="table-container">
+            <div class="table-scroll">
+                <table id="statsTable">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left; min-width:80px;">Year</th>
+                            <th style="min-width:70px;">Team</th>
+                            <th style="min-width:40px;">Lg</th>
+                            <th style="min-width:40px;">W</th>
+                            <th style="min-width:40px;">L</th>
+                            <th style="min-width:50px;">W%</th>
+                            <th style="min-width:55px;">SRS</th>
+                            <th style="min-width:55px;">OSRS</th>
+                            <th style="min-width:55px;">DRS</th>
+                            <th style="min-width:35px;">PW</th>
+                            <th style="min-width:35px;">PL</th>
+                            <th style="min-width:50px;">PW%</th>
+                            <th style="min-width:160px; text-align:left;">Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const careerData = [
+            { year: 1999, team: 'PHI', isEagles: true, lg: 'NFL', w: 5, l: 11, srs: -4.2, osrs: -3.3, drs: -0.9, pw: null, pl: null, notes: '' },
+            { year: 2000, team: 'PHI', isEagles: true, lg: 'NFL', w: 11, l: 5, srs: 3.1, osrs: 1.0, drs: 2.1, pw: 1, pl: 1, notes: '' },
+            { year: 2001, team: 'PHI', isEagles: true, lg: 'NFL', w: 11, l: 5, srs: 7.7, osrs: 0.9, drs: 6.8, pw: 2, pl: 1, notes: '' },
+            { year: 2002, team: 'PHI', isEagles: true, lg: 'NFL', w: 12, l: 4, srs: 8.3, osrs: 4.5, drs: 3.8, pw: 1, pl: 1, notes: '' },
+            { year: 2003, team: 'PHI', isEagles: true, lg: 'NFL', w: 12, l: 4, srs: 4.4, osrs: 2.9, drs: 1.5, pw: 1, pl: 1, notes: 'NFC Champions' },
+            { year: 2004, team: 'PHI', isEagles: true, lg: 'NFL', w: 13, l: 3, srs: 5.6, osrs: 2.0, drs: 3.5, pw: 2, pl: 1, notes: '' },
+            { year: 2005, team: 'PHI', isEagles: true, lg: 'NFL', w: 6, l: 10, srs: -2.3, osrs: -0.7, drs: -1.7, pw: null, pl: null, notes: '' },
+            { year: 2006, team: 'PHI', isEagles: true, lg: 'NFL', w: 10, l: 6, srs: 3.4, osrs: 3.2, drs: 0.2, pw: 1, pl: 1, notes: '' },
+            { year: 2007, team: 'PHI', isEagles: true, lg: 'NFL', w: 8, l: 8, srs: 5.3, osrs: 0.1, drs: 5.1, pw: null, pl: null, notes: '' },
+            { year: 2008, team: 'PHI', isEagles: true, lg: 'NFL', w: 9, l: 6, srs: 7.8, osrs: 4.7, drs: 3.2, pw: 2, pl: 1, notes: '' },
+            { year: 2009, team: 'PHI', isEagles: true, lg: 'NFL', w: 11, l: 5, srs: 6.0, osrs: 5.8, drs: 0.2, pw: 0, pl: 1, notes: '' },
+            { year: 2010, team: 'PHI', isEagles: true, lg: 'NFL', w: 10, l: 6, srs: 4.2, osrs: 5.4, drs: -1.2, pw: 0, pl: 1, notes: '' },
+            { year: 2011, team: 'PHI', isEagles: true, lg: 'NFL', w: 8, l: 8, srs: 4.7, osrs: 3.1, drs: 1.7, pw: null, pl: null, notes: '' },
+            { year: 2012, team: 'PHI', isEagles: true, lg: 'NFL', w: 4, l: 12, srs: -8.9, osrs: -5.3, drs: -3.6, pw: null, pl: null, notes: '' },
+            { year: 2013, team: 'KC', isEagles: false, lg: 'NFL', w: 11, l: 5, srs: 6.1, osrs: 1.7, drs: 4.3, pw: 0, pl: 1, notes: '' },
+            { year: 2014, team: 'KC', isEagles: false, lg: 'NFL', w: 9, l: 7, srs: 2.6, osrs: 1.2, drs: 1.4, pw: null, pl: null, notes: '' },
+            { year: 2015, team: 'KC', isEagles: false, lg: 'NFL', w: 11, l: 5, srs: 6.2, osrs: 3.6, drs: 2.6, pw: 1, pl: 1, notes: '' },
+            { year: 2016, team: 'KC', isEagles: false, lg: 'NFL', w: 12, l: 4, srs: 7.6, osrs: 3.2, drs: 4.4, pw: 1, pl: 1, notes: '' },
+            { year: 2017, team: 'KC', isEagles: false, lg: 'NFL', w: 10, l: 6, srs: 4.8, osrs: 3.8, drs: 1.0, pw: 1, pl: 1, notes: '' },
+            { year: 2018, team: 'KC', isEagles: false, lg: 'NFL', w: 12, l: 4, srs: 8.1, osrs: 5.4, drs: 2.7, pw: 1, pl: 1, notes: 'AFC Champions' },
+            { year: 2019, team: 'KC', isEagles: false, lg: 'NFL', w: 12, l: 4, srs: 8.6, osrs: 5.9, drs: 2.7, pw: 3, pl: 1, notes: 'Super Bowl LIV Champions' },
+            { year: 2020, team: 'KC', isEagles: false, lg: 'NFL', w: 14, l: 2, srs: 10.2, osrs: 6.1, drs: 4.1, pw: 3, pl: 0, notes: 'Super Bowl LV' },
+            { year: 2021, team: 'KC', isEagles: false, lg: 'NFL', w: 12, l: 5, srs: 6.8, osrs: 4.1, drs: 2.7, pw: 2, pl: 1, notes: 'AFC Champions' },
+            { year: 2022, team: 'KC', isEagles: false, lg: 'NFL', w: 14, l: 3, srs: 9.3, osrs: 5.6, drs: 3.7, pw: 3, pl: 1, notes: 'Super Bowl LVII Champions' },
+            { year: 2023, team: 'KC', isEagles: false, lg: 'NFL', w: 11, l: 6, srs: 5.4, osrs: 2.8, drs: 2.6, pw: 3, pl: 1, notes: 'Super Bowl LVIII Champions' },
+            { year: 2024, team: 'KC', isEagles: false, lg: 'NFL', w: 15, l: 2, srs: 9.8, osrs: 5.2, drs: 4.6, pw: 3, pl: 1, notes: 'Super Bowl LIX' },
+        ];
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            let html = '';
+
+            careerData.forEach((d) => {
+                const winPct = d.w / (d.w + d.l);
+                const playoffPct = d.pw !== null ? (d.pw / (d.pw + d.pl)) : null;
+                const playoffText = d.pw !== null ? '.' + Math.round(playoffPct * 1000).toString().padStart(3, '0') : '—';
+
+                html += `<tr>
+                    <td>${d.year}</td>
+                    <td>
+                        <div class="team-cell">
+                            <div class="team-logo ${d.isEagles ? 'eagles' : 'chiefs'}">${d.team}</div>
+                        </div>
+                    </td>
+                    <td><span class="league-badge">${d.lg}</span></td>
+                    <td>${d.w}</td>
+                    <td>${d.l}</td>
+                    <td>.${Math.round(winPct * 1000).toString().padStart(3, '0')}</td>
+                    <td>${d.srs > 0 ? '+' : ''}${d.srs}</td>
+                    <td>${d.osrs > 0 ? '+' : ''}${d.osrs}</td>
+                    <td>${d.drs > 0 ? '+' : ''}${d.drs}</td>
+                    <td>${d.pw !== null ? d.pw : '—'}</td>
+                    <td>${d.pl !== null ? d.pl : '—'}</td>
+                    <td>${playoffText}</td>
+                    <td class="note-text">${d.notes ? `<span class="note-badge">${d.notes}</span>` : ''}</td>
+                </tr>`;
+            });
+
+            const eaglesData = careerData.filter(d => d.isEagles);
+            const eW = eaglesData.reduce((s, d) => s + d.w, 0);
+            const eL = eaglesData.reduce((s, d) => s + d.l, 0);
+            const ePW = eaglesData.reduce((s, d) => s + (d.pw || 0), 0);
+            const ePL = eaglesData.reduce((s, d) => s + (d.pl || 0), 0);
+            const eAvgSRS = (eaglesData.reduce((s, d) => s + d.srs, 0) / eaglesData.length).toFixed(1);
+
+            html += `<tr class="summary-row">
+                <td class="summary-label">14 yrs — PHI</td>
+                <td></td>
+                <td></td>
+                <td>${eW}</td>
+                <td>${eL}</td>
+                <td>.${Math.round((eW/(eW+eL))*1000).toString().padStart(3,'0')}</td>
+                <td>${eAvgSRS}</td>
+                <td></td>
+                <td></td>
+                <td>${ePW}</td>
+                <td>${ePL}</td>
+                <td>.${Math.round((ePW/(ePW+ePL))*1000).toString().padStart(3,'0')}</td>
+                <td class="note-text"></td>
+            </tr>`;
+
+            const chiefsData = careerData.filter(d => !d.isEagles);
+            const cW = chiefsData.reduce((s, d) => s + d.w, 0);
+            const cL = chiefsData.reduce((s, d) => s + d.l, 0);
+            const cPW = chiefsData.reduce((s, d) => s + (d.pw || 0), 0);
+            const cPL = chiefsData.reduce((s, d) => s + (d.pl || 0), 0);
+            const cAvgSRS = (chiefsData.reduce((s, d) => s + d.srs, 0) / chiefsData.length).toFixed(1);
+
+            html += `<tr class="summary-row">
+                <td class="summary-label">${chiefsData.length} yrs — KC</td>
+                <td></td>
+                <td></td>
+                <td>${cW}</td>
+                <td>${cL}</td>
+                <td>.${Math.round((cW/(cW+cL))*1000).toString().padStart(3,'0')}</td>
+                <td>${cAvgSRS}</td>
+                <td></td>
+                <td></td>
+                <td>${cPW}</td>
+                <td>${cPL}</td>
+                <td>.${Math.round((cPW/(cPW+cPL))*1000).toString().padStart(3,'0')}</td>
+                <td class="note-text"></td>
+            </tr>`;
+
+            const totalW = careerData.reduce((s, d) => s + d.w, 0);
+            const totalL = careerData.reduce((s, d) => s + d.l, 0);
+            const totalSRS = careerData.reduce((s, d) => s + d.srs, 0).toFixed(1);
+            const totalOSRS = careerData.reduce((s, d) => s + d.osrs, 0).toFixed(1);
+            const totalDRS = careerData.reduce((s, d) => s + d.drs, 0).toFixed(1);
+            const totalPW = careerData.reduce((s, d) => s + (d.pw || 0), 0);
+            const totalPL = careerData.reduce((s, d) => s + (d.pl || 0), 0);
+            const winPct = totalW / (totalW + totalL);
+            const playoffPct = totalPL > 0 ? totalPW / (totalPW + totalPL) : 0;
+
+            html += `<tr class="summary-row">
+                <td class="summary-label">${careerData.length} yrs — Total</td>
+                <td></td>
+                <td></td>
+                <td>${totalW}</td>
+                <td>${totalL}</td>
+                <td>.${Math.round(winPct*1000).toString().padStart(3,'0')}</td>
+                <td>${totalSRS}</td>
+                <td>${totalOSRS}</td>
+                <td>${totalDRS}</td>
+                <td>${totalPW}</td>
+                <td>${totalPL}</td>
+                <td>.${Math.round(playoffPct*1000).toString().padStart(3,'0')}</td>
+                <td class="note-text"></td>
+            </tr>`;
+
+            tbody.innerHTML = html;
+        }
+
+        renderTable();
+    </script>
+</body>
+</html>
+
