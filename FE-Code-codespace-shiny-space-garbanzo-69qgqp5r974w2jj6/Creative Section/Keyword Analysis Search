@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en-US" prefix="og: https://ogp.me/ns#" dir="ltr" data-theme="dark">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Timeline | Open Measures</title>
+    <link rel="icon" type="image/png" href="favicon-32x32.png">
+    <!-- Fontsource: Atkinson Hyperlegible -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/atkinson-hyperlegible@5.0.19/index.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* --- CORE THEME VARIABLES --- */
+        :root {
+            --bg-color: #f5f7fa;
+            --bg-main: #f3f4f6;
+            --bg-panel: #ffffff;
+            --bg-element: #e5e7eb;
+            --bg-secondary: #f9fafb;
+            --card-bg: #ffffff;
+            --text-main: #111827;
+            --text-primary: #111827;
+            --text-muted: #4b5563;
+            --text-secondary: #4b5563;
+            --border-color: #d1d5db;
+            --accent-color: #16a34a;
+            --accent-green: #16a34a;
+            --accent-hover: rgba(22, 163, 74, 0.12);
+            --highlight-green: #15803d;
+            --success-color: #77C081;
+            --danger-color: #e53935;
+            --nav-inactive: #6b7280;
+            --nav-active: #16a34a;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --font-stack: 'Atkinson Hyperlegible', system-ui, -apple-system, sans-serif;
+            --header-height: 64px;
+            --subheader-height: 48px;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1c1c1c;
+            --bg-main: #1c1c1c;
+            --bg-panel: #1b1b1b;
+            --bg-element: #2a2d35;
+            --bg-secondary: #222222;
+            --card-bg: #2a2a2a;
+            --text-main: #ffffff;
+            --text-primary: #e6e6e6;
+            --text-muted: #9ca3af;
+            --text-secondary: #a0a0a0;
+            --border-color: #2a2a2a;
+            --accent-color: #37af4b;
+            --accent-green: #37af4b;
+            --accent-hover: rgba(55, 175, 75, 0.15);
+            --highlight-green: #98fb98;
+            --success-color: #77C081;
+            --danger-color: #ef5350;
+            --nav-inactive: #9ca3af;
+            --nav-active: #98fb98;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            font-family: var(--font-stack);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            line-height: 1.5;
+            letter-spacing: 0.01em;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        a, button, input, select, textarea { font-family: var(--font-stack); }
+        
+        /* Utilities */
+        .font-fm-header { font-family: 'Atkinson Hyperlegible', sans-serif; }
+        .theme-bg-panel { background-color: var(--bg-panel); border-color: var(--border-color); }
+        .theme-bg-element { background-color: var(--bg-element); border-color: var(--border-color); }
+        .theme-border { border-color: var(--border-color); }
+        .theme-text-muted { color: var(--text-muted); }
+        .theme-text-main { color: var(--text-main); }
+        
+        #app-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: var(--transition);
+        }
+        #dynamic-subheader {
+            background-color: var(--bg-element);
+            border-bottom: 1px solid var(--border-color);
+            transition: var(--transition);
+            min-height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+        }
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Layout */
+        .q-layout-wrapper {
+            display: flex;
+            min-height: calc(100vh - var(--header-height) - var(--subheader-height));
+            position: relative;
+        }
+        .q-drawer {
+            width: 340px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border-color);
+            padding: 16px;
+            overflow-y: auto;
+            height: calc(100vh - var(--header-height) - var(--subheader-height));
+            position: sticky;
+            top: calc(var(--header-height) + var(--subheader-height));
+            transition: var(--transition);
+        }
+        .q-drawer.collapsed {
+            width: 0;
+            padding: 0;
+            overflow: hidden;
+            border-right: none;
+        }
+        .q-page-container { flex: 1; padding: 24px; overflow-x: hidden; }
+        
+        /* Sidebar */
+        .sidebar-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.05em; display: flex; justify-content: space-between; align-items: center; }
+        .input-card { background: var(--bg-element); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px; display: flex; align-items: center; gap: 10px; margin-bottom: 12px; transition: var(--transition); }
+        .input-card:hover { box-shadow: var(--shadow-sm); }
+        .input-card .tool-name { font-weight: 600; font-size: 14px; }
+        .input-card .fat-text { font-size: 12px; color: var(--text-secondary); }
+        
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+        .form-input { width: 100%; padding: 10px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-primary); border-radius: var(--radius-sm); font-size: 14px; transition: var(--transition); }
+        .form-input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 2px var(--accent-hover); }
+        .search-row { display: flex; gap: 8px; align-items: flex-start; }
+        .search-bar { flex: 1; }
+
+        /* Platform Selector */
+        .platform-selector { background: var(--bg-element); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; max-height: 300px; overflow-y: auto; }
+        .platform-search { width: 100%; padding: 8px 12px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-primary); border-radius: var(--radius-sm); font-size: 13px; margin-bottom: 10px; }
+        .platform-group-title { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin: 12px 0 6px; letter-spacing: 0.06em; }
+        .platform-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 6px; border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); }
+        .platform-item:hover { background: var(--accent-hover); }
+        .platform-item.disabled { opacity: 0.4; cursor: not-allowed; }
+        .platform-item.disabled:hover { background: transparent; }
+        .platform-info { display: flex; align-items: center; gap: 10px; }
+        .platform-icon { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; font-size: 12px; }
+        .platform-name { font-size: 14px; font-weight: 500; }
+        .platform-check { width: 18px; height: 18px; border: 2px solid var(--border-color); border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: var(--transition); background: var(--card-bg); }
+        .platform-item.selected .platform-check { background: var(--accent-color); border-color: var(--accent-color); }
+        .platform-item.selected .platform-check::after { content: '✓'; color: #fff; font-size: 11px; }
+        
+        /* Toggle & Switches */
+        .toggle-switch { position: relative; width: 44px; height: 24px; background: var(--border-color); border-radius: 12px; cursor: pointer; transition: var(--transition); }
+        .toggle-switch.active { background: var(--accent-color); }
+        .toggle-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: #fff; border-radius: 50%; transition: var(--transition); box-shadow: var(--shadow-sm); }
+        .toggle-switch.active::after { transform: translateX(20px); }
+
+        /* Influencer Section */
+        .collapsible { border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-top: 12px; background: var(--card-bg); overflow: hidden; transition: var(--transition); }
+        .collapsible-header { padding: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 14px; user-select: none; }
+        .collapsible-header:hover { background: var(--accent-hover); }
+        .collapsible-content { padding: 0 12px; max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; }
+        .collapsible.open .collapsible-content { max-height: 600px; padding: 12px; border-top: 1px solid var(--border-color); }
+        .collapsible-icon { transition: transform 0.3s ease; }
+        .collapsible.open .collapsible-icon { transform: rotate(180deg); }
+
+        .metric-card { background: var(--bg-secondary); border-radius: var(--radius-sm); padding: 16px; text-align: center; margin: 12px 0; }
+        .score-circle { width: 64px; height: 64px; border-radius: 50%; background: conic-gradient(var(--accent-color) calc(var(--score)*3.6deg), var(--border-color) 0); margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700; color: var(--text-primary); position: relative; }
+        .score-circle::after { content: ''; position: absolute; inset: 4px; background: var(--bg-secondary); border-radius: 50%; }
+        .score-value { position: relative; z-index: 1; }
+        .score-label { font-size: 11px; color: var(--text-secondary); margin-top: -12px; margin-bottom: 8px; }
+        
+        .matrix-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; font-size: 12px; }
+        .matrix-cell { background: var(--bg-secondary); padding: 8px; border-radius: var(--radius-sm); text-align: center; }
+        .matrix-cell span { font-weight: 700; display: block; margin-bottom: 4px; }
+
+        /* Buttons */
+        .fat-button { width: 100%; padding: 12px; background: var(--accent-color); color: #fff; border: none; border-radius: var(--radius-sm); font-size: 14px; font-weight: 600; cursor: pointer; transition: var(--transition); margin-top: 8px; }
+        .fat-button:hover { opacity: 0.9; transform: translateY(-1px); }
+        .fat-button.secondary { background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--border-color); }
+        .theme-toggle { background: transparent; border: 1px solid var(--border-color); padding: 6px 10px; border-radius: var(--radius-sm); cursor: pointer; display: flex; align-items: center; gap: 6px; color: var(--text-primary); transition: var(--transition); }
+        .theme-toggle:hover { background: var(--accent-hover); }
+
+        /* Cards */
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); box-shadow: var(--shadow-md); margin-bottom: 24px; transition: var(--transition); }
+        .card-header { padding: 16px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .card-title { font-size: 16px; font-weight: 700; margin: 0; }
+        .card-body { padding: 16px; }
+        .chart-container { position: relative; height: 350px; width: 100%; }
+        
+        /* Table */
+        .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .data-table th, .data-table td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        .data-table th { background: var(--bg-secondary); font-weight: 600; color: var(--text-secondary); position: sticky; top: 0; }
+        .data-table tr:hover td { background: var(--accent-hover); }
+        .table-wrapper { max-height: 400px; overflow-y: auto; border-radius: var(--radius-sm); border: 1px solid var(--border-color); }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .q-layout-wrapper { flex-direction: column; }
+            .q-drawer { width: 100%; height: auto; position: relative; top: 0; border-right: none; border-bottom: 1px solid var(--border-color); }
+            .q-drawer.collapsed { height: 0; }
+        }
+    </style>
+</head>
+<body class="desktop no-touch" data-theme="dark">
+    <div class="flex flex-col h-full">
+        <!-- MAIN HEADER -->
+        <header id="app-header" class="flex flex-col w-full">
+            <div class="flex items-center h-16 px-6 gap-6">
+                <!-- Sidebar Toggle -->
+                <button id="sidebarToggle" class="flex items-center justify-center w-10 h-10 theme-bg-element border theme-border rounded hover:opacity-80 transition-all" title="Toggle Sidebar">
+                    <i data-lucide="panel-left" class="w-5 h-5 theme-text-muted"></i>
+                </button>
+
+                <!-- Main Navigation Menu -->
+                <nav class="flex items-center gap-2 flex-1 overflow-x-auto no-scrollbar" id="main-nav"></nav>
+
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <!-- Notification -->
+                    <div class="relative group/notif">
+                        <button class="relative flex items-center justify-center p-2 rounded-full theme-bg-element hover:opacity-80 transition-all text-[var(--text-main)]">
+                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border-2 border-[var(--bg-panel)]">2</span>
+                            <i data-lucide="bell" class="w-5 h-5"></i>
+                        </button>
+                        <div class="absolute right-0 top-full pt-2 invisible group-hover/notif:visible opacity-0 group-hover/notif:opacity-100 transition-all duration-200 z-[60] w-80 pointer-events-none group-hover/notif:pointer-events-auto">
+                            <div class="theme-bg-panel border theme-border shadow-2xl rounded-xl overflow-hidden flex flex-col">
+                                <div class="p-3 border-b theme-border"><h3 class="font-bold text-sm">Notifications</h3></div>
+                                <div class="p-3 theme-bg-element text-center text-xs theme-text-muted">No new alerts</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Theme Toggle -->
+                    <button id="themeToggle" class="flex items-center justify-center w-10 h-10 rounded-full theme-bg-element hover:opacity-80 transition-all text-[var(--text-main)]" title="Toggle Theme">
+                        <span id="themeIconSun"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-sun-fill" viewBox="0 0 16 16"><path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8M8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0m0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13m8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5M3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8m10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0m-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0m9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707M4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708"/></svg></span>
+                        <span id="themeIconMoon" class="hidden"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-moon-fill" viewBox="0 0 16 16"><path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278"/></svg></span>
+                    </button>
+                    
+                    <!-- Edit Query -->
+                    <button class="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--accent-color)] hover:opacity-90 text-white transition-all font-medium text-sm shadow-sm">
+                        <span>Edit Query</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- DYNAMIC SUB-HEADER -->
+        <div id="dynamic-subheader" class="w-full theme-bg-element border-b theme-border shadow-sm transition-colors flex items-center justify-between px-4 md:px-6 gap-4">
+            <!-- Content injected via JS -->
+        </div>
+
+        <!-- MAIN LAYOUT -->
+        <div class="q-layout-wrapper flex-1 overflow-hidden">
+            <aside class="q-drawer no-scrollbar" id="sidebar">
+                <div class="sidebar-title">
+                    <span>Edit Analysis</span>
+                    <i data-lucide="settings-2" class="w-4 h-4 theme-text-muted cursor-pointer hover:theme-text-main"></i>
+                </div>
+
+                <!-- Search Term -->
+                <div class="form-group">
+                    <label class="form-label">Search Term (<a href="#" style="color:var(--accent-color);">docs</a>)</label>
+                    <div class="search-row">
+                        <input type="text" class="form-input search-bar" id="searchTerm" placeholder="Example: qanon" value="qanon">
+                        <button type="button" class="flex-shrink-0 w-10 h-10 flex items-center justify-center rounded bg-[var(--accent-color)] text-white hover:opacity-90">
+                            <i data-lucide="search" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Date Range -->
+                <div class="form-group" style="display:flex; gap:12px;">
+                    <div style="flex:1;">
+                        <label class="form-label">Start date</label>
+                        <input type="text" class="form-input text-xs" id="startDate" placeholder="YYYY-MM-DD" value="2023-01-01">
+                    </div>
+                    <div style="flex:1;">
+                        <label class="form-label">End date</label>
+                        <input type="text" class="form-input text-xs" id="endDate" placeholder="YYYY-MM-DD" value="2025-12-31">
+                    </div>
+                </div>
+
+                <!-- Sources -->
+                <div class="form-group">
+                    <div class="form-label" style="display:flex; justify-content:space-between; align-items:center;">
+                        Sources
+                        <div class="platform-actions" style="margin:0;">
+                            <button type="button" class="action-link" style="font-size:12px; color:var(--accent-color); background:none; border:none; cursor:pointer; font-weight:600;" onclick="selectAllPlatforms()">Select All</button>
+                            <button type="button" class="action-link" style="font-size:12px; color:var(--accent-color); background:none; border:none; cursor:pointer; font-weight:600; margin-left:8px;" onclick="clearPlatforms()">Clear</button>
+                        </div>
+                    </div>
+                    <input type="text" class="form-input mb-2 text-xs" id="platformSearch" placeholder="Filter platforms...">
+                    <div id="platformLimitMsg" style="font-size:11px; color:var(--danger-color); margin-bottom:6px;"></div>
+                    <div class="platform-selector" id="platformSelectorContainer">
+                        <!-- Rendered via JS -->
+                    </div>
+                </div>
+
+                <!-- Options -->
+                <div class="form-group">
+                    <label class="form-label">Interval</label>
+                    <select class="form-input" id="intervalSelect">
+                        <option value="weekly" selected>Weekly</option>
+                        <option value="daily">Daily</option>
+                        <option value="monthly">Monthly</option>
+                    </select>
+                </div>
+
+                <div class="toggle-row">
+                    <span class="toggle-label">Show changepoint</span>
+                    <div class="toggle-switch" id="changepointToggle" onclick="this.classList.toggle('active')"></div>
+                </div>
+
+                <div class="toggle-row" style="border-top:1px solid var(--border-color); padding-top:12px;">
+                    <span class="toggle-label">Cross-Platform Comparison</span>
+                    <div class="toggle-switch active" id="comparisonToggle" onclick="toggleComparison()"></div>
+                </div>
+
+                <!-- Influencer Section -->
+                <div class="collapsible" id="influencerSection">
+                    <div class="collapsible-header" onclick="toggleCollapsible('influencerSection')">
+                        <span>Influencer Comparison</span>
+                        <span class="collapsible-icon">▼</span>
+                    </div>
+                    <div class="collapsible-content">
+                        <div class="form-group">
+                            <label class="form-label">Influencer A Handle</label>
+                            <input type="text" class="form-input text-xs" id="influencerA" placeholder="@handleA">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Influencer B Handle</label>
+                            <input type="text" class="form-input text-xs" id="influencerB" placeholder="@handleB">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Metric</label>
+                            <select class="form-input text-xs" id="metricSelect">
+                                <option>Keyword Frequency</option>
+                                <option>Engagement Rate</option>
+                                <option>Cross-Platform Overlap</option>
+                            </select>
+                        </div>
+                        <button type="button" class="fat-button secondary text-xs" onclick="calculateEchoChamber()">Analyze</button>
+                        
+                        <div id="influencerResults" style="display:none; margin-top:12px;">
+                            <div class="metric-card">
+                                <div class="score-circle" style="--score: 68;"><span class="score-value" id="echoScore">68</span></div>
+                                <div class="score-label">Echo Chamber Score</div>
+                            </div>
+                            <div class="matrix-grid">
+                                <div class="matrix-cell"><span id="matrixShared">4</span>Shared</div>
+                                <div class="matrix-cell"><span id="matrixExclusive">1</span>Exclusive</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="fat-button" onclick="runAnalysis()">Run Analysis</button>
+            </aside>
+
+            <main class="q-page-container">
+                <!-- Chart -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title" id="chartTitle">Timeline Results</h2>
+                        <div id="chartLegend" style="display:flex; gap:12px; font-size:12px; flex-wrap:wrap; justify-content:flex-end;"></div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="timelineChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card-header" style="border-top:1px solid var(--border-color); border-bottom:none; justify-content:flex-end;">
+                        <button class="fat-button secondary" style="width:auto; margin:0;" onclick="downloadChart()">Save PNG</button>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title" id="tableTitle">Data Table</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-wrapper">
+                            <table class="data-table" id="dataTable">
+                                <thead><tr id="tableHeadRow"></tr></thead>
+                                <tbody id="tableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-header" style="border-top:1px solid var(--border-color); justify-content:flex-end;">
+                        <button class="fat-button secondary" style="width:auto; margin:0;" onclick="downloadCSV()">Download CSV</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // --- APP INIT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            initHeader();
+            initApp();
+        });
+
+        // --- HEADER LOGIC ---
+        function initHeader() {
+            const themeToggle = document.getElementById('themeToggle');
+            const sunIcon = document.getElementById('themeIconSun');
+            const moonIcon = document.getElementById('themeIconMoon');
+
+            // Apply saved theme
+            const savedTheme = localStorage.getItem('om_theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcons(savedTheme);
+
+            function updateThemeIcons(theme) {
+                if (theme === 'light') {
+                    sunIcon.classList.add('hidden');
+                    moonIcon.classList.remove('hidden');
+                } else {
+                    sunIcon.classList.remove('hidden');
+                    moonIcon.classList.add('hidden');
+                }
+            }
+
+            themeToggle.addEventListener('click', () => {
+                const current = document.documentElement.getAttribute('data-theme');
+                const newTheme = current === 'dark' ? 'light' : 'dark';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('om_theme', newTheme);
+                updateThemeIcons(newTheme);
+                updateChartTheme();
+            });
+
+            // Subheader & Navigation
+            const navItems = ['Timeline', 'Comparison', 'Influencers', 'Settings'];
+            const sectionData = {
+                'Timeline': { items: ['Keyword Usage', 'Changepoint Analysis', 'Raw Data'], actions: ['Filter', 'Export'] },
+                'Comparison': { items: ['Cross-Platform View', 'Normalized Overlay', 'Correlation Matrix'], actions: ['Sync Range', 'Download Report'] },
+                'Influencers': { items: ['Echo Chamber Score', 'Audience Overlap', 'Keyword Diff'], actions: ['Add Handle', 'Compare'] },
+                'Settings': { items: ['Profile', 'API Keys', 'Integrations'], actions: ['Help', 'Logout'] }
+            };
+            const navContainer = document.getElementById('main-nav');
+            const navHistory = ['Timeline'];
+            let historyIndex = 0;
+
+            function updateNavButtons() {
+                // Mock back/forward logic
+            }
+
+            function renderSubheader(tabName) {
+                const container = document.getElementById('dynamic-subheader');
+                const data = sectionData[tabName] || { items: [], actions: [] };
+                let leftHtml = `<div class="flex items-center gap-6 flex-shrink-0 overflow-x-auto no-scrollbar"><nav class="flex gap-5 text-sm font-medium">`;
+                data.items.forEach((item, index) => {
+                    const isActive = index === 0;
+                    const activeClass = isActive ? 'theme-text-main border-b-2 border-[var(--accent-color)] pb-0.5' : 'theme-text-muted hover:theme-text-main transition-colors';
+                    leftHtml += `<button class="subnav-btn ${activeClass} whitespace-nowrap">${item}</button>`;
+                });
+                leftHtml += `</nav></div>`;
+
+                let rightHtml = `<div class="flex items-center gap-4 flex-shrink-0"><div class="flex items-center gap-2 mr-2">`;
+                data.actions.forEach(action => {
+                    let icon = 'plus';
+                    if(action.includes('Filter')) icon = 'filter';
+                    if(action.includes('Export') || action.includes('Report') || action.includes('CSV')) icon = 'download';
+                    rightHtml += `<button class="p-1.5 theme-text-muted hover:theme-text-main hover:bg-white/5 rounded flex items-center gap-1 text-xs" title="${action}">
+                        ${icon ? `<i data-lucide="${icon}" class="w-3 h-3"></i>` : ''}
+                        ${action}
+                    </button>`;
+                });
+                rightHtml += `</div><div class="h-8 w-[1px] bg-gray-700/30 hidden sm:block"></div><div class="text-right hidden sm:block"><div class="text-xs theme-text-muted">Active Queries</div><div class="text-sm font-bold text-[var(--accent-color)]">${Math.floor(Math.random() * 12) + 1}</div></div></div>`;
+                container.innerHTML = leftHtml + rightHtml;
+                lucide.createIcons();
+
+                container.querySelectorAll('.subnav-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        container.querySelectorAll('.subnav-btn').forEach(b => {
+                            b.className = 'subnav-btn theme-text-muted hover:theme-text-main transition-colors whitespace-nowrap';
+                            b.style.borderBottom = 'none';
+                        });
+                        this.className = 'subnav-btn theme-text-main border-b-2 border-[var(--accent-color)] pb-0.5 whitespace-nowrap';
+                    });
+                });
+            }
+
+            navItems.forEach(item => {
+                const btn = document.createElement('button');
+                btn.innerHTML = `<span>${item}</span>`;
+                btn.className = `group flex items-center px-3 py-2 text-lg font-bold tracking-tight font-fm-header transition-all cursor-pointer hover:scale-105`;
+                btn.style.color = item === 'Timeline' ? 'var(--nav-active)' : 'var(--nav-inactive)';
+                btn.addEventListener('click', () => {
+                    currentNav = item;
+                    renderSubheader(item);
+                    navContainer.querySelectorAll('button').forEach(b => {
+                        if(b.innerHTML.includes(item)) {
+                            b.style.color = 'var(--nav-active)';
+                            b.style.textShadow = '0 0 8px rgba(119,192,129,0.2)';
+                        } else {
+                            b.style.color = 'var(--nav-inactive)';
+                            b.style.textShadow = 'none';
+                        }
+                    });
+                });
+                navContainer.appendChild(btn);
+            });
+
+            let currentNav = 'Timeline';
+            renderSubheader(currentNav);
+
+            // Sidebar Toggle
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('sidebar');
+            sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('collapsed'));
+        }
+
+        // --- APP LOGIC ---
+        function initApp() {
+            const PLATFORMS = [
+                { id: '4chan', name: '4chan', group: 'Forums', color: '#4e7b9d' },
+                { id: '8kun', name: '8kun', group: 'Forums', color: '#3a5a78' },
+                { id: 'x', name: 'X (Twitter)', group: 'Social Media', color: '#1da1f2' },
+                { id: 'reddit', name: 'Reddit', group: 'Social Media', color: '#ff4500' },
+                { id: 'bluesky', name: 'Bluesky', group: 'Social Media', color: '#0066cc' },
+                { id: 'truth', name: 'Truth Social', group: 'Social Media', color: '#7b2cbf' },
+                { id: 'telegram', name: 'Telegram', group: 'Messaging', color: '#0088cc' },
+                { id: 'tiktok', name: 'TikTok', group: 'Video', color: '#00f2ea' },
+                { id: 'whatsapp', name: 'WhatsApp', group: 'Messaging', color: '#25d366' },
+                { id: 'instagram', name: 'Instagram', group: 'Social Media', color: '#c32aa3' },
+                { id: 'facebook', name: 'Facebook', group: 'Social Media', color: '#1877f2' },
+                { id: 'snapchat', name: 'Snapchat', group: 'Social Media', color: '#fffc00' },
+                { id: 'discord', name: 'Discord', group: 'Messaging', color: '#5865f2' },
+                { id: 'youtube', name: 'YouTube', group: 'Video', color: '#ff0000' },
+                { id: 'kick', name: 'Kick', group: 'Video', color: '#53fc18' },
+                { id: 'twitch', name: 'Twitch', group: 'Video', color: '#9146ff' },
+                { id: 'rumble', name: 'Rumble', group: 'Video', color: '#8c3a00' }
+            ];
+
+            let selectedPlatforms = ['4chan', 'x', 'tiktok'];
+            let isCrossPlatform = true;
+            let chartInstance = null;
+            const MAX_SELECT = 5;
+
+            function renderPlatforms(filter = '') {
+                const container = document.getElementById('platformSelectorContainer');
+                container.innerHTML = '';
+                const groups = {};
+                
+                PLATFORMS.forEach(p => {
+                    if (filter && !p.name.toLowerCase().includes(filter.toLowerCase())) return;
+                    if (!groups[p.group]) groups[p.group] = [];
+                    groups[p.group].push(p);
+                });
+
+                Object.keys(groups).forEach(group => {
+                    const title = document.createElement('div');
+                    title.className = 'platform-group-title';
+                    title.textContent = group;
+                    container.appendChild(title);
+
+                    groups[group].forEach(p => {
+                        const el = document.createElement('div');
+                        el.className = `platform-item ${selectedPlatforms.includes(p.id) ? 'selected' : ''}`;
+                        if (selectedPlatforms.length >= MAX_SELECT && !selectedPlatforms.includes(p.id)) el.classList.add('disabled');
+                        el.dataset.id = p.id;
+                        el.innerHTML = `
+                            <div class="platform-info">
+                                <div class="platform-icon" style="background:${p.color}">${p.name.charAt(0)}</div>
+                                <span class="platform-name">${p.name}</span>
+                            </div>
+                            <div class="platform-check"></div>
+                        `;
+                        el.addEventListener('click', () => togglePlatform(p.id));
+                        container.appendChild(el);
+                    });
+                });
+
+                document.getElementById('platformLimitMsg').textContent = selectedPlatforms.length >= MAX_SELECT ? `Max ${MAX_SELECT} selected.` : '';
+            }
+
+            window.togglePlatform = function(id) {
+                if (selectedPlatforms.includes(id)) selectedPlatforms = selectedPlatforms.filter(p => p !== id);
+                else if (selectedPlatforms.length < MAX_SELECT) selectedPlatforms.push(id);
+                renderPlatforms(document.getElementById('platformSearch').value);
+                updateAnalysis();
+            };
+            window.selectAllPlatforms = () => { selectedPlatforms = PLATFORMS.slice(0, MAX_SELECT).map(p => p.id); renderPlatforms(); updateAnalysis(); };
+            window.clearPlatforms = () => { selectedPlatforms = []; renderPlatforms(); updateAnalysis(); };
+            document.getElementById('platformSearch').addEventListener('input', (e) => renderPlatforms(e.target.value));
+
+            window.toggleComparison = () => {
+                const el = document.getElementById('comparisonToggle');
+                isCrossPlatform = !el.classList.contains('active');
+                el.classList.toggle('active');
+                updateAnalysis();
+            };
+            window.toggleCollapsible = (id) => document.getElementById(id).classList.toggle('open');
+
+            function updateAnalysis() { renderChart(); renderTable(); }
+
+            function renderChart() {
+                const ctx = document.getElementById('timelineChart').getContext('2d');
+                const labels = Array.from({length: 20}, (_, i) => `W${i+1}`);
+                const datasets = selectedPlatforms.map(id => {
+                    const p = PLATFORMS.find(pl => pl.id === id);
+                    return {
+                        label: p.name,
+                        data: Array.from({length: 20}, () => Math.floor(Math.random() * 3000)),
+                        borderColor: p.color,
+                        backgroundColor: p.color + '20',
+                        tension: 0.3,
+                        pointRadius: 3,
+                        pointHoverRadius: 5
+                    };
+                });
+
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                const gridColor = isDark ? '#333' : '#eee';
+                const textColor = isDark ? '#a0a0a0' : '#666';
+
+                if (chartInstance) chartInstance.destroy();
+
+                chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels, datasets },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: gridColor }, ticks: { color: textColor } },
+                            x: { grid: { display: false }, ticks: { color: textColor } }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: isDark ? '#2a2a2a' : '#fff',
+                                titleColor: isDark ? '#e6e6e6' : '#1a1a1a',
+                                bodyColor: isDark ? '#a0a0a0' : '#555',
+                                borderColor: isDark ? '#444' : '#ddd', borderWidth: 1
+                            }
+                        }
+                    }
+                });
+
+                document.getElementById('chartLegend').innerHTML = selectedPlatforms.map(id => {
+                    const p = PLATFORMS.find(pl => pl.id === id);
+                    return `<div style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:50%;background:${p.color}"></span>${p.name}</div>`;
+                }).join('');
+                document.getElementById('chartTitle').textContent = isCrossPlatform ? 'Cross-Platform Comparison' : 'Single Platform View';
+            }
+
+            function renderTable() {
+                const headRow = document.getElementById('tableHeadRow');
+                const body = document.getElementById('tableBody');
+                headRow.innerHTML = '<th>Date</th>' + selectedPlatforms.map(id => `<th>${PLATFORMS.find(p=>p.id===id).name}</th>`).join('');
+                let html = '';
+                for(let i=0; i<20; i++) html += `<tr><td>2023-W${i+1}</td>` + selectedPlatforms.map(() => `<td>${Math.floor(Math.random()*1500)}</td>`).join('') + '</tr>';
+                body.innerHTML = html;
+                document.getElementById('tableTitle').textContent = 'Data Table View';
+            }
+
+            window.runAnalysis = updateAnalysis;
+            window.updateChartTheme = () => { if(chartInstance) renderChart(); };
+            
+            window.downloadChart = () => {
+                const link = document.createElement('a'); link.download = 'timeline.png'; link.href = document.getElementById('timelineChart').toDataURL(); link.click();
+            };
+            window.downloadCSV = () => {
+                let csv = 'Date,' + selectedPlatforms.map(id => PLATFORMS.find(p=>p.id===id).name).join(',') + '\n';
+                for(let i=0; i<20; i++) csv += `2023-W${i+1},${selectedPlatforms.map(() => Math.floor(Math.random()*1500)).join(',')}\n`;
+                const blob = new Blob([csv], {type: 'text/csv'});
+                const link = document.createElement('a'); link.download = 'timeline.csv'; link.href = URL.createObjectURL(blob); link.click();
+            };
+            window.calculateEchoChamber = () => {
+                const res = document.getElementById('influencerResults');
+                res.style.display = 'block';
+                const score = Math.floor(Math.random() * 40) + 60;
+                document.getElementById('echoScore').textContent = score;
+                document.querySelector('.score-circle').style.setProperty('--score', score);
+                document.getElementById('matrixShared').textContent = Math.floor(Math.random() * 5) + 2;
+                document.getElementById('matrixExclusive').textContent = Math.floor(Math.random() * 3) + 1;
+            };
+
+            renderPlatforms();
+            updateAnalysis();
+        }
+    </script>
+</body>
+</html>
+
