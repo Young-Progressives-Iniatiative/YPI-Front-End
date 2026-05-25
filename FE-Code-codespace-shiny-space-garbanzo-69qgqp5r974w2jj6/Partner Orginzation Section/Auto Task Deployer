@@ -1,0 +1,175 @@
+h2 class="sr-only">Daily Dispatch — interactive mockup of the manager delegation modal in MissionOS</h2>
+<style>
+  .overlay { background: rgba(0,0,0,0.42); border-radius: var(--border-radius-lg); padding: 32px 20px; display: flex; align-items: flex-start; justify-content: center; min-height: 560px; }
+  .modal { background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-lg); width: 100%; max-width: 520px; overflow: hidden; }
+  .modal-header { padding: 20px 24px 16px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .modal-eyebrow { font-size: 11px; font-weight: 500; letter-spacing: 0.05em; color: var(--color-text-tertiary); text-transform: uppercase; margin: 0 0 4px; }
+  .modal-title { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 2px; }
+  .modal-sub { font-size: 13px; color: var(--color-text-secondary); margin: 0; }
+  .progress-bar-wrap { margin: 12px 0 0; }
+  .progress-track { height: 4px; background: var(--color-border-tertiary); border-radius: 2px; }
+  .progress-fill { height: 4px; background: #1D9E75; border-radius: 2px; transition: width 0.35s; }
+  .progress-label { font-size: 11px; color: var(--color-text-tertiary); margin: 4px 0 0; }
+  .task-list { padding: 0; }
+  .task-row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 12px; padding: 14px 24px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .task-row:last-child { border-bottom: none; }
+  .task-row.assigned { opacity: 0.45; }
+  .task-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 3px; }
+  .task-meta { font-size: 12px; color: var(--color-text-secondary); margin: 0; display: flex; gap: 8px; align-items: center; }
+  .badge { display: inline-block; font-size: 10px; font-weight: 500; padding: 1px 7px; border-radius: 4px; }
+  .badge-urgent { background: #FCEBEB; color: #A32D2D; }
+  .badge-grant { background: #EEEDFE; color: #534AB7; }
+  .badge-ops { background: #FAEEDA; color: #854F0B; }
+  .badge-vol { background: #E1F5EE; color: #0F6E56; }
+  @media (prefers-color-scheme: dark) {
+    .badge-urgent { background: #501313; color: #F7C1C1; }
+    .badge-grant { background: #26215C; color: #CECBF6; }
+    .badge-ops { background: #412402; color: #FAC775; }
+    .badge-vol { background: #04342C; color: #9FE1CB; }
+  }
+  .assign-select { font-size: 13px; padding: 6px 10px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); color: var(--color-text-primary); cursor: pointer; min-width: 140px; }
+  .assign-select.done { border-color: #1D9E75; color: #0F6E56; background: #E1F5EE; }
+  @media (prefers-color-scheme: dark) {
+    .assign-select.done { background: #04342C; color: #9FE1CB; border-color: #1D9E75; }
+  }
+  .modal-footer { padding: 16px 24px; border-top: 0.5px solid var(--color-border-tertiary); display: flex; align-items: center; justify-content: space-between; }
+  .footer-note { font-size: 12px; color: var(--color-text-tertiary); }
+  .btn-primary { background: var(--color-text-primary); color: var(--color-background-primary); border: none; border-radius: var(--border-radius-md); padding: 9px 20px; font-size: 14px; font-weight: 500; cursor: pointer; opacity: 0.4; transition: opacity 0.2s; }
+  .btn-primary.ready { opacity: 1; }
+  .btn-primary.ready:hover { opacity: 0.85; }
+  .done-state { display: none; flex-direction: column; align-items: center; padding: 40px 24px; text-align: center; gap: 10px; }
+  .done-check { width: 44px; height: 44px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; }
+  .done-check svg { width: 22px; height: 22px; }
+  .done-title { font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin: 0; }
+  .done-sub { font-size: 13px; color: var(--color-text-secondary); margin: 0; }
+</style>
+
+<div class="overlay">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <p class="modal-eyebrow">Tuesday, April 15</p>
+      <p class="modal-title">Daily Dispatch</p>
+      <p class="modal-sub">5 tasks need assignment before you can access your dashboard.</p>
+      <div class="progress-bar-wrap">
+        <div class="progress-track"><div class="progress-fill" id="pbar" style="width:0%"></div></div>
+        <p class="progress-label" id="plabel">0 of 5 assigned</p>
+      </div>
+    </div>
+
+    <div class="task-list" id="task-list">
+
+      <div class="task-row" id="row-0">
+        <div>
+          <p class="task-name">Submit Q2 impact data to Ford Foundation</p>
+          <p class="task-meta"><span class="badge badge-urgent">Due today</span><span class="badge badge-grant">Grant reporting</span></p>
+        </div>
+        <select class="assign-select" onchange="assign(0, this)">
+          <option value="">Assign to…</option>
+          <option>Dani Reyes</option>
+          <option>Marcus Webb</option>
+          <option>Priya Okonkwo</option>
+          <option>Volunteer: Sam T.</option>
+        </select>
+      </div>
+
+      <div class="task-row" id="row-1">
+        <div>
+          <p class="task-name">Follow up with City Council re: facility permit</p>
+          <p class="task-meta"><span class="badge badge-ops">Operations</span></p>
+        </div>
+        <select class="assign-select" onchange="assign(1, this)">
+          <option value="">Assign to…</option>
+          <option>Dani Reyes</option>
+          <option>Marcus Webb</option>
+          <option>Priya Okonkwo</option>
+          <option>Volunteer: Sam T.</option>
+        </select>
+      </div>
+
+      <div class="task-row" id="row-2">
+        <div>
+          <p class="task-name">Onboard 3 new spring volunteers</p>
+          <p class="task-meta"><span class="badge badge-vol">Volunteers</span></p>
+        </div>
+        <select class="assign-select" onchange="assign(2, this)">
+          <option value="">Assign to…</option>
+          <option>Dani Reyes</option>
+          <option>Marcus Webb</option>
+          <option>Priya Okonkwo</option>
+          <option>Volunteer: Sam T.</option>
+        </select>
+      </div>
+
+      <div class="task-row" id="row-3">
+        <div>
+          <p class="task-name">Review draft for NEA grant narrative</p>
+          <p class="task-meta"><span class="badge badge-grant">Grant writing</span></p>
+        </div>
+        <select class="assign-select" onchange="assign(3, this)">
+          <option value="">Assign to…</option>
+          <option>Dani Reyes</option>
+          <option>Marcus Webb</option>
+          <option>Priya Okonkwo</option>
+          <option>Volunteer: Sam T.</option>
+        </select>
+      </div>
+
+      <div class="task-row" id="row-4">
+        <div>
+          <p class="task-name">Update event logistics checklist for May gala</p>
+          <p class="task-meta"><span class="badge badge-ops">Operations</span></p>
+        </div>
+        <select class="assign-select" onchange="assign(4, this)">
+          <option value="">Assign to…</option>
+          <option>Dani Reyes</option>
+          <option>Marcus Webb</option>
+          <option>Priya Okonkwo</option>
+          <option>Volunteer: Sam T.</option>
+        </select>
+      </div>
+
+    </div>
+
+    <div class="modal-footer">
+      <span class="footer-note">You cannot dismiss this view until all tasks are assigned.</span>
+      <button class="btn-primary" id="start-btn" onclick="finishDispatch()">Start my day</button>
+    </div>
+
+    <div class="done-state" id="done-state">
+      <div class="done-check">
+        <svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 11.5L9 15.5L17 7" stroke="#1D9E75" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <p class="done-title">All tasks dispatched</p>
+      <p class="done-sub">Dashboard unlocking… have a productive day.</p>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap;">
+  <button onclick="sendPrompt('What rules should determine which tasks surface in the Daily Dispatch — priority, deadline, task type?')">What surfaces in the Dispatch? ↗</button>
+  <button onclick="sendPrompt('How should the Daily Dispatch handle tasks that a manager keeps skipping or deferring day after day?')">Handling repeat deferrals ↗</button>
+  <button onclick="sendPrompt('Should volunteers have their own version of Daily Dispatch, or is it managers only?')">Volunteer version? ↗</button>
+</div>
+
+<script>
+  var assigned = [false,false,false,false,false];
+  function assign(i, sel) {
+    if (!sel.value) { assigned[i]=false; sel.classList.remove('done'); document.getElementById('row-'+i).classList.remove('assigned'); }
+    else { assigned[i]=true; sel.classList.add('done'); document.getElementById('row-'+i).classList.add('assigned'); }
+    var count = assigned.filter(Boolean).length;
+    var pct = Math.round(count/5*100);
+    document.getElementById('pbar').style.width = pct+'%';
+    document.getElementById('plabel').textContent = count+' of 5 assigned';
+    var btn = document.getElementById('start-btn');
+    if (count===5) btn.classList.add('ready'); else btn.classList.remove('ready');
+  }
+  function finishDispatch() {
+    if (!assigned.every(Boolean)) return;
+    document.getElementById('task-list').style.display='none';
+    document.getElementById('modal').querySelector('.modal-footer').style.display='none';
+    var done = document.getElementById('done-state');
+    done.style.display='flex';
+  }
+</script>
