@@ -1,971 +1,778 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Social Network Mapper</title>
-    
-    <!-- Google Fonts: Atkinson Hyperlegible -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Vis.js for Network Graphing -->
-    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-    
-    <!-- Tesseract.js for OCR -->
-    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Network Mapper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+<script src='https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js'></script>
+<script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<style>
+/* --- CORE THEME VARIABLES --- */
+:root {
+  --bg-main: #1c1c1c;
+  --bg-panel: #1b1b1b;
+  --bg-element: #2a2d35;
+  --text-main: #ffffff;
+  --text-muted: #9ca3af;
+  --border-color: #2a2a2a;
+  --accent-green: #37af4b;
+  --highlight-green: #98fb98;
+  --nav-inactive: #9ca3af;
+  --nav-active: #98fb98;
+}
+body.light-mode {
+  --bg-main: #f3f4f6;
+  --bg-panel: #ffffff;
+  --bg-element: #e5e7eb;
+  --text-main: #111827;
+  --text-muted: #4b5563;
+  --border-color: #d1d5db;
+  --accent-green: #16a34a;
+  --highlight-green: #15803d;
+  --nav-inactive: #6b7280;
+  --nav-active: #16a34a;
+}
 
-    <!-- SheetJS for Excel/CSV Import -->
-    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-    
-    <!-- Phosphor Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+body {
+  font-family: 'Atkinson Hyperlegible', sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  margin: 0;
+  overflow: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
 
-    <style>
-        /* Apply Atkinson Hyperlegible globally */
-        body { 
-            font-family: 'Atkinson Hyperlegible', sans-serif; 
-            background-color: #ffffff;
-            transition: background-color 0.3s ease;
-        }
-        
-        #network { 
-            width: 100%; 
-            height: 600px; 
-            border: 1px solid #e5e7eb; 
-            background-color: #ffffff; 
-            border-radius: 0.5rem; 
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-            position: relative;
-            resize: both;
-            overflow: hidden;
-            min-width: 400px;
-            min-height: 300px;
-        }
-        
-        /* Search Input Styling */
-        .search-container {
-            position: relative;
-            max-width: 600px;
-            width: 100%;
-        }
-        .search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 0.5rem;
-            margin-top: 0.5rem;
-            max-height: 300px;
-            overflow-y: auto;
-            z-index: 50;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            display: none;
-        }
-        .search-results.active {
-            display: block;
-        }
+/* Theme Utility Classes */
+.theme-bg-main { background-color: var(--bg-main); }
+.theme-bg-panel { background-color: var(--bg-panel); }
+.theme-bg-element { background-color: var(--bg-element); }
+.theme-text-main { color: var(--text-main) !important; }
+.theme-text-muted { color: var(--text-muted) !important; }
+.theme-border { border-color: var(--border-color) !important; }
+.theme-input { background-color: var(--bg-element) !important; border-color: var(--border-color) !important; color: var(--text-main) !important; }
+.theme-input:focus { border-color: var(--accent-green) !important; outline: none; }
 
-        /* Vis.js Custom Tooltip Styling */
-        div.vis-tooltip {
-            background-color: transparent;
-            border: none;
-            box-shadow: none;
-            padding: 0;
-            font-family: 'Atkinson Hyperlegible', sans-serif;
-            z-index: 100;
-        }
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 4px; opacity: 0.5; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-green); }
 
-        /* Custom scrollbar for better look */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
-        
-        /* Resizable canvas */
-        .resize-handle {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: #2ca33b;
-            border-radius: 50%;
-            cursor: nwse-resize;
-            z-index: 10;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        .resize-handle:hover {
-            transform: scale(1.3);
-            transition: transform 0.2s;
-        }
-        
-        /* Legend transitions */
-        .legend {
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-        .legend.hidden {
-            opacity: 0;
-            transform: translateY(20px);
-            pointer-events: none;
-        }
+/* Network Canvas */
+#network {
+  width: 100%;
+  height: 600px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-panel);
+  border-radius: 0.75rem;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  position: relative;
+  resize: both;
+  overflow: hidden;
+  min-width: 400px;
+  min-height: 300px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
 
-        /* --- DARK MODE STYLES --- */
-        body.dark-mode {
-            background-color: #171717;
-            color: #f5f5f5;
-        }
-        body.dark-mode header,
-        body.dark-mode aside {
-            background-color: #262626;
-            border-color: #404040;
-        }
-        body.dark-mode h1, 
-        body.dark-mode h2,
-        body.dark-mode label,
-        body.dark-mode .text-gray-800,
-        body.dark-mode .text-gray-700,
-        body.dark-mode .text-gray-600 {
-            color: #e5e5e5 !important;
-        }
-        body.dark-mode .text-gray-500 {
-            color: #a3a3a3 !important;
-        }
-        
-        /* Inputs & Form Elements */
-        body.dark-mode input,
-        body.dark-mode select {
-            background-color: #404040;
-            border-color: #525252;
-            color: white;
-        }
-        
-        /* Network Canvas */
-        body.dark-mode #network {
-            background-color: #262626;
-            border-color: #404040;
-        }
-        
-        /* Search results dark mode */
-        body.dark-mode .search-results {
-            background-color: #262626;
-            border-color: #404040;
-        }
-        body.dark-mode .search-results div:hover {
-            background-color: #404040;
-        }
-        
-        /* Tooltip Dark Mode overrides */
-        body.dark-mode .vis-tooltip > div {
-            background-color: #262626 !important;
-            border-color: #525252 !important;
-            color: #e5e5e5 !important;
-        }
-        body.dark-mode .vis-tooltip .text-gray-800 { color: #f5f5f5 !important; }
-        body.dark-mode .vis-tooltip .text-gray-700 { color: #e5e5e5 !important; }
-        
-        /* Sidebar container backgrounds */
-        body.dark-mode .bg-indigo-50\/30 { background-color: rgba(44, 163, 59, 0.1) !important; } 
-        body.dark-mode .bg-slate-50\/50 { background-color: #404040 !important; }
-        body.dark-mode .bg-emerald-50\/30 { background-color: rgba(16, 185, 129, 0.1) !important; }
-        
-        /* Log Containers */
-        body.dark-mode #localLogContainer,
-        body.dark-mode #dbLogContainer {
-            background-color: #171717;
-            border-color: #404040;
-            color: #d4d4d4;
-        }
-        
-        /* Main content area */
-        body.dark-mode main {
-            background-color: #171717;
-        }
-        
-        /* Legend dark mode */
-        body.dark-mode .legend {
-            background-color: rgba(38, 38, 38, 0.9) !important;
-            border-color: #404040 !important;
-        }
-    </style>
+/* Search Dropdown */
+.search-results {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 100%;
+  min-width: 320px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  margin-top: 0.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 50;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  display: none;
+  backdrop-filter: blur(8px);
+}
+.search-results.active { display: block; }
+.search-results div { padding: 0.75rem; cursor: pointer; border-bottom: 1px solid var(--border-color); }
+.search-results div:last-child { border-bottom: none; }
+.search-results div:hover { background-color: var(--bg-element); }
+.search-results .node-label { font-weight: 500; color: var(--text-main); }
+.search-results .node-meta { font-size: 10px; color: var(--text-muted); margin-top: 0.25rem; }
+
+/* Vis.js Tooltip Override */
+div.vis-tooltip {
+  background-color: var(--bg-panel) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  padding: 0;
+  font-family: 'Atkinson Hyperlegible', sans-serif !important;
+  color: var(--text-main) !important;
+}
+div.vis-tooltip > div { background-color: transparent !important; border: none !important; color: inherit !important; }
+div.vis-tooltip .text-gray-800, div.vis-tooltip .text-gray-700 { color: var(--text-main) !important; }
+
+/* Legend Panel */
+.legend {
+  transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+  background-color: rgba(var(--bg-panel-rgb, 27, 27, 27), 0.9);
+  border: 1px solid var(--border-color);
+}
+body.light-mode .legend { background-color: rgba(255, 255, 255, 0.95); }
+.legend.hidden { opacity: 0; transform: translateY(10px); pointer-events: none; }
+
+/* Resize Handle */
+.resize-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--accent-green);
+  border-radius: 50%;
+  cursor: nwse-resize;
+  z-index: 10;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  bottom: -6px; right: -6px;
+}
+.resize-handle:hover { transform: scale(1.3); transition: transform 0.2s; }
+
+/* Log Containers */
+#localLogContainer, #dbLogContainer {
+  background-color: var(--bg-element);
+  border-color: var(--border-color);
+  color: var(--text-muted);
+}
+
+/* Nav Tabs Animation */
+.nav-btn { transition: all 0.2s ease; }
+.nav-btn:hover { transform: scale(1.03); }
+.nav-btn.active { color: var(--nav-active) !important; text-shadow: 0 0 8px rgba(152,251,152,0.2); transform: scale(1.05); }
+.nav-btn:not(.active) { color: var(--nav-inactive) !important; text-shadow: none; }
+
+/* Notification Dropdown */
+.notif-dropdown {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.group:hover .notif-dropdown { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.notif-dropdown { opacity: 0; transform: translateY(8px); pointer-events: none; }
+
+/* No Scrollbar for nav */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Logo Inversion for Light Mode */
+.logo-img { transition: filter 0.3s ease; }
+body.light-mode .logo-img { filter: invert(1); }
+
+/* Inputs & Selects */
+input, select { background-color: var(--bg-element); color: var(--text-main); border-color: var(--border-color); }
+input:focus, select:focus { border-color: var(--accent-green); }
+
+/* Subnav & Toolbar */
+.secondary-toolbar {
+  background-color: var(--bg-element);
+  border-bottom: 1px solid var(--border-color);
+}
+.subnav-btn.active { color: var(--text-main); border-bottom: 2px solid var(--accent-green); padding-bottom: 2px; }
+.subnav-btn:not(.active) { color: var(--text-muted); }
+</style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden">
+<body class="h-screen flex flex-col overflow-hidden theme-bg-main">
 
-    <!-- Header / Search Engine -->
-    <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shadow-sm z-20 transition-colors duration-300">
-        
-        <!-- Logo / Title / Company Logo -->
-        <div class="flex items-center gap-4 w-auto shrink-0">
-            <!-- App Logo -->
-            <div class="flex items-center gap-3">
-                <div class="bg-[#2ca33b] text-white p-2 rounded-lg">
-                    <i class="ph ph-share-network text-xl"></i>
-                </div>
-                <h1 class="text-lg font-bold text-gray-800 leading-tight">Network<br>Mapper</h1>
-            </div>
-            
-            <!-- Divider -->
-            <div class="h-8 w-px bg-gray-300"></div>
-
-            <!-- Company Logo (YPI) -->
-            <div class="flex items-center gap-3">
-                <img src="https://weareypi.com/wp-content/uploads/2025/06/YPIWPLOGO.png" 
-                     alt="YPI Logo" 
-                     class="h-10 w-auto object-contain" 
-                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'"> 
-                
-                <div class="hidden w-10 h-10 bg-gray-100 rounded-lg items-center justify-center border border-gray-200 text-gray-400">
-                    <i class="ph ph-buildings text-lg"></i>
-                </div>
-
-                <div class="text-xs font-bold text-[#2ca33b] uppercase tracking-wide leading-tight">
-                    Young Progressives<br>Initiative
-                </div>
-            </div>
-        </div>
-
-        <!-- SEARCH ENGINE CENTER -->
-        <div class="search-container mx-6">
-            <div class="relative group">
-                <i class="ph ph-magnifying-glass absolute left-4 top-3 text-gray-400 text-lg"></i>
-                <input 
-                    type="text" 
-                    id="graphSearchInput" 
-                    placeholder="Search for a profile in the network..." 
-                    class="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-[#2ca33b] focus:border-transparent outline-none transition-all shadow-sm group-hover:shadow-md"
-                    onkeyup="handleGraphSearch(this.value)"
-                    autocomplete="off"
-                >
-                <div class="absolute right-3 top-2.5 text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded border">
-                    <span id="nodeCountBadge">0</span> profiles
-                </div>
-            </div>
-
-            <!-- Search Dropdown -->
-            <div id="searchResults" class="search-results">
-                <!-- Results injected here -->
-            </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex gap-3 w-56 justify-end shrink-0">
-            <!-- Dark Mode Toggle -->
-            <button onclick="toggleDarkMode()" class="w-9 h-9 flex items-center justify-center text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors shadow-sm">
-                <i id="themeIcon" class="ph ph-moon text-lg"></i>
-            </button>
-
-            <!-- CSV Button -->
-            <button onclick="exportCSV()" class="px-3 py-2 text-xs text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center gap-2 shadow-sm">
-                <i class="ph ph-download-simple"></i> CSV
-            </button>
-
-            <!-- Login Button -->
-            <button id="loginBtn" onclick="handleLogin()" class="px-3 py-2 text-xs text-[#2ca33b] bg-[#2ca33b]/10 hover:bg-[#2ca33b]/20 rounded-lg transition-colors flex items-center gap-2 border border-[#2ca33b]/30">
-                <i class="ph ph-sign-in"></i> Login
-            </button>
-        </div>
-    </header>
-
-    <!-- Main Content -->
-    <div class="flex flex-1 overflow-hidden">
-        
-        <!-- Sidebar Controls -->
-        <aside class="w-96 bg-white border-r border-gray-200 flex flex-col overflow-y-auto z-10 shadow-lg transition-colors duration-300">
-            
-            <!-- Section 1: Manual Input -->
-            <div class="p-5 border-b border-gray-100">
-                <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Custom Network / Manual Entry</h2>
-                <div class="space-y-3">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-700 mb-1">Influencer Name</label>
-                        <div class="relative">
-                            <i class="ph ph-plus absolute left-3 top-2.5 text-gray-400"></i>
-                            <input type="text" id="searchInput" placeholder="Add new profile..." 
-                                class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-[#2ca33b] focus:border-transparent outline-none transition-shadow">
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Platform</label>
-                            <select id="platformSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none bg-white">
-                                <option value="YouTube">YouTube</option>
-                                <option value="Facebook">Facebook</option>
-                                <option value="Twitter">Twitter/X</option>
-                                <option value="Instagram">Instagram</option>
-                                <option value="TikTok">TikTok</option>
-                                <option value="Offline">Offline/Other</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Relationship Type</label>
-                            <select id="connectionTypeSelect" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm outline-none bg-white">
-                                <option value="Mention">Mention (Low)</option>
-                                <option value="Featured">Featured</option>
-                                <option value="Collaboration">Collab (Editor/Prod)</option>
-                                <option value="Podcast">Podcast Guest</option>
-                                <option value="Partnership">Partnership (Joint)</option>
-                                <option value="Partner">Boyfriend/Girlfriend</option>
-                                <option value="Hub">Hub / Key Figure</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <button onclick="addManualNode()" class="w-full py-2 bg-[#2ca33b] hover:bg-[#258a32] text-white rounded-lg text-sm font-medium transition-colors shadow-sm">
-                        Add to Master DB
-                    </button>
-                </div>
-            </div>
-
-            <!-- Section 2: Database Import -->
-            <div class="p-5 border-b border-gray-100 bg-[#2ca33b]/10">
-                <h2 class="text-xs font-bold text-[#2ca33b] uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="ph ph-database"></i> Database Import
-                </h2>
-                
-                <div class="space-y-3">
-                    <div class="border-2 border-dashed border-[#2ca33b]/30 rounded-lg p-3 text-center hover:bg-[#2ca33b]/10 transition-colors relative cursor-pointer group" onclick="document.getElementById('dbInput').click()">
-                        <input type="file" id="dbInput" accept=".xlsx,.xls,.csv,.json,.twb,.tds" class="hidden" onchange="handleDatabaseUpload(this)">
-                        <i class="ph ph-file-sql text-2xl text-[#2ca33b] mb-1 group-hover:scale-110 transition-transform"></i>
-                        <p class="text-xs text-[#2ca33b] font-medium">Import to Master DB</p>
-                        <p class="text-[10px] text-gray-500 mt-1">.xlsx, .csv, .json, .twb</p>
-                    </div>
-                    
-                    <div id="dbStatusMsg" class="hidden text-xs p-2 rounded border"></div>
-                </div>
-            </div>
-
-            <!-- Section 3: OCR Upload -->
-            <div class="p-5 border-b border-gray-100 bg-slate-50/50">
-                <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="ph ph-camera"></i> Screenshot Import
-                </h2>
-                
-                <div class="space-y-3">
-                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-3 text-center hover:bg-slate-100 transition-colors relative cursor-pointer group" onclick="document.getElementById('fileInput').click()">
-                        <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFileUpload(this)">
-                        <i class="ph ph-upload-simple text-2xl text-gray-400 mb-1 group-hover:scale-110 transition-transform"></i>
-                        <p class="text-xs text-gray-500">Upload Screenshot</p>
-                    </div>
-
-                    <div id="ocrStatus" class="hidden">
-                        <div class="flex justify-between text-xs mb-1">
-                            <span class="font-medium text-gray-700">Scanning...</span>
-                            <span id="ocrPercent" class="text-[#2ca33b] font-bold">0%</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-1.5">
-                            <div id="ocrBar" class="bg-[#2ca33b] h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    
-                    <div id="ocrResultMsg" class="hidden text-xs p-2 rounded border"></div>
-                </div>
-            </div>
-
-            <!-- Section 4: Local Activity & Undo -->
-            <div class="p-5 border-b border-gray-100 flex-1 flex flex-col min-h-[150px]">
-                <div class="flex items-center justify-between mb-3">
-                    <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Local History</h2>
-                    <button onclick="undoLastAction()" id="undoBtn" class="text-xs flex items-center gap-1 text-[#2ca33b] hover:text-[#258a32] disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                        <i class="ph ph-arrow-u-up-left text-lg"></i> Undo
-                    </button>
-                </div>
-                <div id="localLogContainer" class="space-y-1.5 text-xs text-gray-600 h-32 overflow-y-auto pr-1 bg-gray-50 rounded p-2 border border-gray-100 font-mono">
-                    <div class="text-gray-400 italic">No local actions yet.</div>
-                </div>
-            </div>
-
-            <!-- Section 5: Master DB Change Log -->
-            <div class="p-5 flex-1 flex flex-col min-h-[150px] bg-emerald-50/30">
-                <h2 class="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="ph ph-check-circle"></i> Master DB Change Log
-                </h2>
-                <div id="dbLogContainer" class="space-y-1.5 text-xs text-gray-600 h-32 overflow-y-auto pr-1 bg-white rounded p-2 border border-emerald-100 font-mono">
-                    <div class="text-gray-400 italic">Waiting for database commits...</div>
-                </div>
-            </div>
-
-        </aside>
-
-        <!-- Canvas Area -->
-        <main class="flex-1 p-6 relative flex flex-col bg-white transition-colors duration-300">
-            <div id="network" class="shadow-lg" style="height: 600px;">
-                <!-- Resize Handle -->
-                <div class="resize-handle" style="bottom: -5px; right: -5px;" id="resizeHandle"></div>
-            </div>
-            
-            <!-- Legend Toggle Button -->
-            <button onclick="toggleLegend()" class="absolute bottom-6 right-6 w-10 h-10 bg-white hover:bg-gray-50 border border-gray-300 rounded-lg shadow-lg flex items-center justify-center transition-colors z-20" title="Toggle Legend">
-                <i id="legendIcon" class="ph ph-eye text-lg text-gray-600"></i>
-            </button>
-            
-            <!-- Legend -->
-            <div id="legend" class="legend absolute bottom-20 right-6 bg-white/95 backdrop-blur p-4 rounded-lg shadow-lg border border-gray-200 text-xs space-y-2 pointer-events-none transition-colors duration-300">
-                <div class="font-bold text-gray-600 mb-2 border-b pb-1">Relationship Types</div>
-                
-                <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 rounded-sm bg-black"></div>
-                    <div>
-                        <span class="font-semibold block">Hub / Key Figure</span>
-                        <span class="text-[10px] text-gray-500">Central Node</span>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-2 mt-2">
-                    <div class="w-3 h-3 rounded-full bg-gray-400"></div>
-                    <div>
-                        <span class="font-semibold block">Mention</span>
-                        <span class="text-[10px] text-gray-500">Mentioned in video</span>
-                    </div>
-                </div>
-                
-                <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 rounded-full bg-blue-400"></div>
-                    <div>
-                        <span class="font-semibold block">Featured</span>
-                        <span class="text-[10px] text-gray-500">Video appearance/Guest</span>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 rounded-full bg-teal-500"></div>
-                    <div>
-                        <span class="font-semibold block">Collaboration</span>
-                        <span class="text-[10px] text-gray-500">Editor, Producer</span>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 rounded-full bg-purple-500"></div>
-                    <div>
-                        <span class="font-semibold block">Podcast</span>
-                        <span class="text-[10px] text-gray-500">Main guest/Interview</span>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 rounded-full bg-orange-500"></div>
-                    <div>
-                        <span class="font-semibold block">Partnership</span>
-                        <span class="text-[10px] text-gray-500">Joint video lead</span>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <div class="w-3 h-3 rounded-full bg-pink-500"></div>
-                    <div>
-                        <span class="font-semibold block">Partner</span>
-                        <span class="text-[10px] text-gray-500">Boyfriend/Girlfriend</span>
-                    </div>
-                </div>
-            </div>
-        </main>
+<!-- MAIN HEADER -->
+<header class="theme-bg-panel border-b theme-border shadow-lg z-50 transition-colors">
+  <div class="flex items-center h-16 px-6 gap-4">
+    <!-- Left: Nav Controls & Logo -->
+    <div class="flex items-center mr-2 flex-shrink-0">
+      <button id="navBackBtn" class="flex items-center justify-center w-8 h-10 theme-bg-element border border-blue-500/30 rounded-l hover:opacity-80 transition-all opacity-50 cursor-not-allowed">
+        <i data-lucide="chevron-left" class="w-5 h-5 theme-text-muted"></i>
+      </button>
+      <button id="navForwardBtn" class="flex items-center justify-center w-8 h-10 theme-bg-panel hover:theme-bg-element transition-colors rounded-r border-y border-r theme-border opacity-50 cursor-not-allowed">
+        <i data-lucide="chevron-right" class="w-5 h-5 theme-text-muted"></i>
+      </button>
     </div>
 
-    <!-- Logic Script -->
-    <script>
-        // --- 1. Global State ---
-        let network = null;
-        let nodes = new vis.DataSet([]);
-        let edges = new vis.DataSet([]);
-        let centerNodeId = null;
-        let isLoggedIn = false;
-        
-        // History Stack for Undo
-        let actionHistory = [];
-        
-        // UI State
-        let isResizing = false;
-        let legendVisible = true;
+    <div class="flex-shrink-0 mr-4">
+      <div class="h-10 w-auto flex items-center justify-center gap-3">
+        <img src="https://weareypi.com/wp-content/uploads/2025/06/YPIWPLOGO.png" alt="YPI Logo" class="h-8 w-auto object-contain logo-img" onerror="this.style.display='none'">
+        <span class="text-lg font-bold theme-text-main tracking-tight hidden lg:block">Network Mapper</span>
+      </div>
+    </div>
 
-        // Definition of colors for types
-        const TYPE_COLORS = {
-            'Mention': '#9ca3af',
-            'Featured': '#60a5fa',
-            'Collaboration': '#14b8a6',
-            'Podcast': '#a855f7',
-            'Partnership': '#f97316',
-            'Partner': '#ec4899',
-            'Hub': '#000000',
-            'Root': 'rgba(0,0,0,0)'          
-        };
+    <!-- Center: Navigation Tabs -->
+    <nav class="flex items-center gap-2 flex-1 overflow-x-auto no-scrollbar" id="main-nav">
+      <!-- Generated by JS -->
+    </nav>
 
-        // --- 2. Initialization ---
-        window.onload = function() {
-            initNetwork();
-            initResizeHandle();
-            const masterRoot = ensureCenterNode("Master Database");
-            logToDB("System initialized. Master Database Loaded.");
-            
-            // --- Alternative Influence Network Data (from research image) ---
-            
-            // Major Hubs (Largest nodes in the network)
-            const molyneuxId = addLeafNode(masterRoot, "Stefan Molyneux", "Hub", "YouTube");
-            const warskiId = addLeafNode(masterRoot, "Andy Warski", "Hub", "YouTube");
-            const robertsonId = addLeafNode(masterRoot, "Colin Robertson (Millennial Woes)", "Hub", "YouTube");
-            const spencerId = addLeafNode(masterRoot, "Richard Spencer", "Hub", "YouTube");
-            
-            // Secondary Hubs (Medium-large nodes)
-            const petersonId = addLeafNode(masterRoot, "Jordan Peterson", "Hub", "YouTube");
-            const roganId = addLeafNode(masterRoot, "Joe Rogan", "Hub", "YouTube");
-            const rubinId = addLeafNode(masterRoot, "Dave Rubin", "Hub", "YouTube");
-            const shapiroId = addLeafNode(masterRoot, "Ben Shapiro", "Hub", "YouTube");
-            const southernId = addLeafNode(masterRoot, "Lauren Southern", "Hub", "YouTube");
-            const sargonId = addLeafNode(masterRoot, "Carl Benjamin (Sargon of Akkad)", "Hub", "YouTube");
-            const destinyId = addLeafNode(masterRoot, "Destiny", "Hub", "YouTube");
-            
-            // Stefan Molyneux cluster
-            addLeafNode(molyneuxId, "Paul Joseph Watson", "Collaboration", "YouTube");
-            addLeafNode(molyneuxId, "Mike Cernovich", "Featured", "YouTube");
-            addLeafNode(molyneuxId, "Gavin McInnes", "Featured", "YouTube");
-            addLeafNode(molyneuxId, "Roaming Millennial", "Featured", "YouTube");
-            addLeafNode(molyneuxId, "No Bullshit", "Featured", "YouTube");
-            addLeafNode(molyneuxId, "James O'Keefe", "Featured", "YouTube");
-            addLeafNode(molyneuxId, "Michael Knowles", "Featured", "YouTube");
-            addLeafNode(molyneuxId, "James Damore", "Featured", "YouTube");
-            const jfId = addLeafNode(molyneuxId, "JF Gariépy", "Collaboration", "YouTube");
-            const blackPigeonId = addLeafNode(molyneuxId, "Black Pigeon Speaks", "Featured", "YouTube");
-            
-            // Andy Warski cluster  
-            addLeafNode(warskiId, "Baked Alaska", "Featured", "YouTube");
-            addLeafNode(warskiId, "Faith Goldy", "Featured", "YouTube");
-            addLeafNode(warskiId, "Mister Metokur", "Featured", "YouTube");
-            addLeafNode(warskiId, "Caolan Robertson", "Featured", "YouTube");
-            addLeafNode(warskiId, "Bunty King", "Featured", "YouTube");
-            addLeafNode(warskiId, "Milo Yiannopoulos", "Featured", "YouTube");
-            
-            // Colin Robertson (Millennial Woes) cluster
-            addLeafNode(robertsonId, "Tara McCarthy", "Featured", "YouTube");
-            addLeafNode(robertsonId, "Blonde in the Belly of the Beast", "Featured", "YouTube");
-            addLeafNode(robertsonId, "Jeff Holiday", "Featured", "YouTube");
-            addLeafNode(robertsonId, "Tim Pool", "Featured", "YouTube");
-            addLeafNode(robertsonId, "Coach Red Pill", "Featured", "YouTube");
-            
-            // Richard Spencer cluster
-            addLeafNode(spencerId, "Styxhexenhammer666", "Featured", "YouTube");
-            addLeafNode(spencerId, "Mike Enoch", "Featured", "YouTube");
-            addLeafNode(spencerId, "Kraut and Tea", "Featured", "YouTube");
-            
-            // Dave Rubin cluster
-            addLeafNode(rubinId, "Dennis Prager", "Featured", "YouTube");
-            addLeafNode(rubinId, "Candace Owens", "Featured", "YouTube");
-            addLeafNode(rubinId, "Owen Benjamin", "Featured", "YouTube");
-            addLeafNode(rubinId, "Blaire White", "Featured", "YouTube");
-            addLeafNode(rubinId, "Braving Ruin", "Featured", "YouTube");
-            
-            // Ben Shapiro cluster
-            addLeafNode(shapiroId, "Steven Crowder", "Collaboration", "YouTube");
-            addLeafNode(shapiroId, "Andrew Klavan", "Featured", "YouTube");
-            
-            // Jordan Peterson cluster
-            addLeafNode(petersonId, "That Guy T", "Featured", "YouTube");
-            addLeafNode(petersonId, "James Allsup", "Featured", "YouTube");
-            addLeafNode(petersonId, "Brittany Pettibone", "Featured", "YouTube");
-            addLeafNode(petersonId, "Some Black Guy", "Featured", "YouTube");
-            
-            // Joe Rogan cluster
-            addLeafNode(roganId, "Tommy Robinson", "Featured", "YouTube");
-            addLeafNode(roganId, "Mouthy Buddha", "Featured", "YouTube");
-            addLeafNode(roganId, "Chris Ray Gun", "Featured", "YouTube");
-            
-            // Lauren Southern cluster
-            addLeafNode(southernId, "Jared Taylor", "Featured", "YouTube");
-            addLeafNode(southernId, "Tree of Logic", "Featured", "YouTube");
-            addLeafNode(southernId, "Mark Collett", "Featured", "YouTube");
-            
-            // Sargon of Akkad cluster
-            addLeafNode(sargonId, "Computing Forever", "Featured", "YouTube");
-            addLeafNode(sargonId, "Mundane Matt", "Featured", "YouTube");
-            addLeafNode(sargonId, "Vee", "Collaboration", "YouTube");
-            addLeafNode(sargonId, "Nicholas Fuentes", "Featured", "YouTube");
-            
-            // Destiny connections
-            addLeafNode(destinyId, "Contrapoints", "Featured", "YouTube");
-            
-            // Peripheral nodes
-            addLeafNode(masterRoot, "Henrik Palmgren", "Featured", "YouTube");
-            addLeafNode(masterRoot, "Bre Faucheux", "Featured", "YouTube");
-            addLeafNode(masterRoot, "Lana Lokteff", "Featured", "YouTube");
-            addLeafNode(masterRoot, "Wife with a Purpose", "Featured", "YouTube");
-            
-            // Hub-to-Hub connections
-            edges.add({ from: molyneuxId, to: southernId, color: { color: getHubColor() } });
-            edges.add({ from: molyneuxId, to: petersonId, color: { color: getHubColor() } });
-            edges.add({ from: warskiId, to: spencerId, color: { color: getHubColor() } });
-            edges.add({ from: warskiId, to: sargonId, color: { color: getHubColor() } });
-            edges.add({ from: warskiId, to: robertsonId, color: { color: getHubColor() } });
-            edges.add({ from: robertsonId, to: spencerId, color: { color: getHubColor() } });
-            edges.add({ from: rubinId, to: petersonId, color: { color: getHubColor() } });
-            edges.add({ from: rubinId, to: shapiroId, color: { color: getHubColor() } });
-            edges.add({ from: rubinId, to: roganId, color: { color: getHubColor() } });
-            edges.add({ from: petersonId, to: roganId, color: { color: getHubColor() } });
-            edges.add({ from: southernId, to: petersonId, color: { color: getHubColor() } });
-            edges.add({ from: sargonId, to: destinyId, color: { color: getHubColor() } });
-            
-            logToDB("Pre-populated Alternative Influence Network (AIN).");
-            network.fit();
-            logToLocal("Session started.");
-        };
+    <!-- Right: Search & Actions -->
+    <div class="flex items-center gap-3 flex-shrink-0">
+      <div class="relative group/search hidden md:block">
+        <div class="relative">
+          <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 theme-text-muted"></i>
+          <input type="text" id="graphSearchInput" placeholder="Search profiles..." class="w-48 lg:w-64 pl-9 pr-10 py-2 theme-input rounded-lg text-sm transition-all outline-none" onkeyup="handleGraphSearch(this.value)" autocomplete="off">
+          <span id="nodeCountBadge" class="absolute right-2 top-2.5 text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-mono">0</span>
+        </div>
+        <div id="searchResults" class="search-results"></div>
+      </div>
 
-        function getHubColor() {
-            return document.body.classList.contains('dark-mode') ? '#ffffff' : '#000000';
-        }
+      <div class="relative group/notif">
+        <button class="relative flex items-center justify-center p-2 rounded-full theme-bg-element hover:opacity-80 transition-all text-[var(--text-main)]" title="Notifications">
+          <span class="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full border-2 border-[var(--bg-panel)]">3</span>
+          <i data-lucide="bell" class="w-4 h-4"></i>
+        </button>
+        <div class="notif-dropdown absolute right-0 top-full pt-2 z-[60] w-72">
+          <div class="theme-bg-panel border theme-border shadow-2xl rounded-xl overflow-hidden flex flex-col">
+            <div class="p-3 border-b theme-border flex justify-between items-center"><h3 class="font-bold text-sm theme-text-main">Activity</h3><span class="text-[10px] text-[var(--accent-green)] cursor-pointer hover:underline">Mark read</span></div>
+            <div class="max-h-64 overflow-y-auto">
+              <div class="p-3 border-b theme-border hover:theme-bg-element transition-colors cursor-pointer flex gap-2"><i data-lucide="user-plus" class="w-4 h-4 text-green-500 mt-0.5"></i><div><p class="text-xs font-semibold theme-text-main">New Connection</p><p class="text-[10px] theme-text-muted mt-0.5">Profile added to graph</p></div></div>
+              <div class="p-3 border-b theme-border hover:theme-bg-element transition-colors cursor-pointer flex gap-2"><i data-lucide="alert-triangle" class="w-4 h-4 text-amber-500 mt-0.5"></i><div><p class="text-xs font-semibold theme-text-main">Sync Warning</p><p class="text-[10px] theme-text-muted mt-0.5">Data mismatch detected</p></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        function toggleDarkMode() {
-            document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            
-            document.getElementById('themeIcon').className = isDark ? 'ph ph-sun text-lg' : 'ph ph-moon text-lg';
-            
-            const textColor = isDark ? '#f3f4f6' : '#1f2937';
-            const hubColor = isDark ? '#ffffff' : '#000000';
-            
-            network.setOptions({
-                nodes: { font: { color: textColor } }
-            });
-            
-            const updates = [];
-            nodes.forEach(n => {
-                if(n.relationType === 'Hub') {
-                    updates.push({ id: n.id, color: { background: hubColor, border: 'white' } });
-                }
-            });
-            nodes.update(updates);
-        }
+      <button id="themeToggle" class="flex items-center justify-center p-2 rounded-full theme-bg-element hover:opacity-80 transition-all text-[var(--text-main)]" title="Toggle Theme">
+        <i data-lucide="sun" id="themeIconSun" class="w-4 h-4 hidden"></i>
+        <i data-lucide="moon" id="themeIconMoon" class="w-4 h-4"></i>
+      </button>
 
-        function initNetwork() {
-            const container = document.getElementById('network');
-            const data = { nodes: nodes, edges: edges };
-            const options = {
-                nodes: {
-                    shape: 'dot',
-                    size: 20,
-                    font: { size: 14, color: '#1f2937', face: 'Atkinson Hyperlegible' },
-                    borderWidth: 2,
-                    shadow: true
-                },
-                edges: {
-                    width: 2,
-                    smooth: { type: 'continuous' },
-                    color: { highlight: '#2ca33b' } 
-                },
-                physics: {
-                    stabilization: false,
-                    barnesHut: {
-                        gravitationalConstant: -2000,
-                        springConstant: 0.04,
-                        springLength: 120
-                    }
-                },
-                interaction: {
-                    hover: true,
-                    tooltipDelay: 200,
-                    zoomView: true
-                }
-            };
-            network = new vis.Network(container, data, options);
-            
-            network.on("click", function (params) {
-                if(params.nodes.length > 0) {
-                    const nodeId = params.nodes[0];
-                    const node = nodes.get(nodeId);
-                    logToLocal(`Selected: ${node.label}`);
-                }
-                document.getElementById('searchResults').classList.remove('active');
-            });
-        }
+      <button onclick="exportCSV()" class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 theme-bg-element hover:opacity-90 rounded-lg text-xs font-medium transition-all border theme-border text-[var(--text-main)]">
+        <i data-lucide="download" class="w-3.5 h-3.5"></i> CSV
+      </button>
 
-        function handleLogin() {
-            isLoggedIn = true;
-            const btn = document.getElementById('loginBtn');
-            btn.innerHTML = `<i class="ph ph-spinner animate-spin"></i> Logging in...`;
-            setTimeout(() => {
-                btn.style.display = 'none';
-                logToLocal("User Logged In.");
-            }, 800);
-        }
+      <button id="loginBtn" onclick="handleLogin()" class="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-[var(--accent-green)]/10 hover:bg-[var(--accent-green)]/20 text-[var(--accent-green)] rounded-lg text-xs font-medium transition-all border border-[var(--accent-green)]/30">
+        <i data-lucide="log-in" class="w-3.5 h-3.5"></i> Login
+      </button>
+    </div>
+  </div>
+</header>
 
-        function handleGraphSearch(query) {
-            const resultsDiv = document.getElementById('searchResults');
-            if (!query || query.length < 2) { resultsDiv.classList.remove('active'); return; }
-            const allNodes = nodes.get();
-            const matches = allNodes.filter(n => n.relationType !== 'Root' && n.label.toLowerCase().includes(query.toLowerCase()));
-            resultsDiv.innerHTML = '';
-            
-            if (matches.length === 0) {
-                resultsDiv.innerHTML = '<div class="p-3 text-xs text-gray-500 text-center">No profiles found.</div>';
-            } else {
-                matches.forEach(node => {
-                    const div = document.createElement('div');
-                    div.className = 'p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 flex items-center justify-between group';
-                    div.onclick = () => focusNode(node.id);
-                    const color = node.color ? node.color.background : '#ccc';
-                    div.innerHTML = `<div class="flex items-center gap-3"><div class="w-3 h-3 rounded-full" style="background-color: ${color}"></div><div><div class="text-sm font-medium text-gray-800">${node.label}</div><div class="text-xs text-gray-500">${node.relationType || 'Unknown'}</div></div></div><i class="ph ph-arrow-right text-gray-300 group-hover:text-[#2ca33b]"></i>`;
-                    resultsDiv.appendChild(div);
-                });
-            }
-            resultsDiv.classList.add('active');
-        }
+<!-- SECONDARY TOOLBAR -->
+<div class="secondary-toolbar py-2 px-6 flex items-center justify-between gap-4 flex-shrink-0">
+  <nav class="flex gap-4 text-xs font-medium theme-text-main">
+    <button class="subnav-btn active whitespace-nowrap cursor-pointer transition-colors hover:theme-text-main">Network View</button>
+    <button class="subnav-btn whitespace-nowrap cursor-pointer transition-colors hover:theme-text-main">Cluster Analysis</button>
+    <button class="subnav-btn whitespace-nowrap cursor-pointer transition-colors hover:theme-text-main">Influence Metrics</button>
+    <button class="subnav-btn whitespace-nowrap cursor-pointer transition-colors hover:theme-text-main">Export Config</button>
+  </nav>
+  <div class="flex items-center gap-3 text-xs">
+    <div class="flex items-center gap-2 px-2 py-1 theme-bg-element rounded border theme-border">
+      <span class="theme-text-muted">Filter</span>
+      <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5 theme-text-muted"></i>
+    </div>
+    <div class="h-4 w-px theme-border"></div>
+    <div class="text-right">
+      <div class="theme-text-muted text-[10px] uppercase tracking-wide">Nodes</div>
+      <div class="font-bold text-[var(--highlight-green)]" id="toolbarNodeCount">0</div>
+    </div>
+    <div class="h-4 w-px theme-border"></div>
+    <button class="flex items-center gap-1.5 px-2 py-1 theme-bg-element rounded border theme-border hover:opacity-80 transition-all theme-text-main">
+      <i data-lucide="settings" class="w-3.5 h-3.5"></i> Settings
+    </button>
+  </div>
+</div>
 
-        function focusNode(nodeId) {
-            network.focus(nodeId, { scale: 1.5, animation: { duration: 1000, easingFunction: 'easeInOutQuad' } });
-            network.selectNodes([nodeId]);
-            logToLocal(`Search located: ${nodes.get(nodeId).label}`);
-            document.getElementById('graphSearchInput').value = '';
-            document.getElementById('searchResults').classList.remove('active');
-        }
+<!-- MAIN CONTENT -->
+<div class="flex flex-1 overflow-hidden">
+  <!-- Sidebar -->
+  <aside class="w-96 theme-bg-panel border-r theme-border flex flex-col overflow-y-auto z-10 transition-colors duration-300 shadow-lg">
+    <div class="p-5 border-b theme-border">
+      <h2 class="text-[10px] font-bold theme-text-muted uppercase tracking-wider mb-3 flex items-center gap-2"><i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> Custom Network / Manual Entry</h2>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-medium theme-text-muted mb-1">Influencer Name</label>
+          <div class="relative">
+            <i data-lucide="user" class="absolute left-3 top-2.5 w-3.5 h-3.5 theme-text-muted"></i>
+            <input type="text" id="searchInput" placeholder="Add new profile..." class="w-full pl-9 pr-3 py-2 rounded-lg text-sm outline-none theme-input">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium theme-text-muted mb-1">Platform</label>
+            <select id="platformSelect" class="w-full px-3 py-2 rounded-lg text-sm outline-none theme-input">
+              <option value="YouTube">YouTube</option>
+              <option value="Facebook">Facebook</option>
+              <option value="Twitter">Twitter/X</option>
+              <option value="Instagram">Instagram</option>
+              <option value="TikTok">TikTok</option>
+              <option value="Offline">Offline/Other</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium theme-text-muted mb-1">Relationship</label>
+            <select id="connectionTypeSelect" class="w-full px-3 py-2 rounded-lg text-sm outline-none theme-input">
+              <option value="Mention">Mention (Low)</option>
+              <option value="Featured">Featured</option>
+              <option value="Collaboration">Collab</option>
+              <option value="Podcast">Podcast</option>
+              <option value="Partnership">Partnership</option>
+              <option value="Partner">Partner (BG)</option>
+              <option value="Hub">Hub / Key</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="addManualNode()" class="w-full py-2 bg-[var(--accent-green)] hover:bg-[var(--highlight-green)] hover:text-black text-white rounded-lg text-sm font-medium transition-colors shadow-sm">
+          Add to Master DB
+        </button>
+      </div>
+    </div>
 
-        function updateNodeCount() {
-            const count = nodes.length - (centerNodeId ? 1 : 0);
-            const badge = document.getElementById('nodeCountBadge');
-            if(badge) badge.innerText = count > 0 ? count : 0;
-        }
+    <div class="p-5 border-b theme-border" style="background-color: rgba(var(--accent-green), 0.05);">
+      <h2 class="text-[10px] font-bold text-[var(--accent-green)] uppercase tracking-wider mb-3 flex items-center gap-2"><i data-lucide="database" class="w-3.5 h-3.5"></i> Database Import</h2>
+      <div class="space-y-3">
+        <div class="border-2 border-dashed theme-border rounded-lg p-3 text-center hover:theme-bg-element transition-colors cursor-pointer group" onclick="document.getElementById('dbInput').click()">
+          <input type="file" id="dbInput" accept=".xlsx,.xls,.csv,.json,.twb,.tds" class="hidden" onchange="handleDatabaseUpload(this)">
+          <i data-lucide="file-spreadsheet" class="w-5 h-5 text-[var(--accent-green)] mx-auto mb-1 group-hover:scale-110 transition-transform"></i>
+          <p class="text-xs text-[var(--accent-green)] font-medium">Import to Master DB</p>
+          <p class="text-[10px] theme-text-muted mt-1">.xlsx, .csv, .json, .twb</p>
+        </div>
+        <div id="dbStatusMsg" class="hidden text-xs p-2 rounded border theme-border theme-text-muted"></div>
+      </div>
+    </div>
 
-        function updateUndoButton() {
-            const btn = document.getElementById('undoBtn');
-            btn.disabled = actionHistory.length === 0;
-            btn.className = actionHistory.length > 0 ? "text-xs flex items-center gap-1 text-[#2ca33b] hover:text-[#258a32]" : "text-xs flex items-center gap-1 text-gray-500 disabled:opacity-50 disabled:cursor-not-allowed";
-            updateNodeCount();
-        }
+    <div class="p-5 border-b theme-border">
+      <h2 class="text-[10px] font-bold theme-text-muted uppercase tracking-wider mb-3 flex items-center gap-2"><i data-lucide="scan-text" class="w-3.5 h-3.5"></i> Screenshot Import (OCR)</h2>
+      <div class="space-y-3">
+        <div class="border-2 border-dashed theme-border rounded-lg p-3 text-center hover:theme-bg-element transition-colors cursor-pointer group" onclick="document.getElementById('fileInput').click()">
+          <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFileUpload(this)">
+          <i data-lucide="camera" class="w-5 h-5 theme-text-muted mx-auto mb-1 group-hover:scale-110 transition-transform"></i>
+          <p class="text-xs theme-text-muted">Upload Screenshot</p>
+        </div>
+        <div id="ocrStatus" class="hidden">
+          <div class="flex justify-between text-xs mb-1">
+            <span class="font-medium theme-text-main">Scanning...</span>
+            <span id="ocrPercent" class="text-[var(--accent-green)] font-bold">0%</span>
+          </div>
+          <div class="w-full bg-gray-700/30 rounded-full h-1.5">
+            <div id="ocrBar" class="bg-[var(--accent-green)] h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+        <div id="ocrResultMsg" class="hidden text-xs p-2 rounded border theme-border theme-text-muted"></div>
+      </div>
+    </div>
 
-        function undoLastAction() {
-            if (actionHistory.length === 0) return;
-            const lastAction = actionHistory.pop();
-            if (lastAction.type === 'add') {
-                nodes.remove(lastAction.nodeIds);
-                logToLocal(`Undid action: Removed ${lastAction.nodeIds.length} node(s).`);
-                logToDB(`REVERT: Removed ${lastAction.nodeIds.length} entries.`);
-            }
-            updateUndoButton();
-        }
+    <div class="p-5 border-b theme-border flex-1 flex flex-col min-h-[140px]">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-[10px] font-bold theme-text-muted uppercase tracking-wider">Local History</h2>
+        <button onclick="undoLastAction()" id="undoBtn" class="text-xs flex items-center gap-1 text-[var(--accent-green)] hover:text-[var(--highlight-green)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors" disabled>
+          <i data-lucide="arrow-left-right" class="w-3 h-3"></i> Undo
+        </button>
+      </div>
+      <div id="localLogContainer" class="space-y-1.5 text-xs theme-text-muted h-24 overflow-y-auto pr-1 rounded p-2 border theme-border font-mono bg-opacity-30">
+        <div class="theme-text-muted italic opacity-50">No local actions yet.</div>
+      </div>
+    </div>
 
-        function pushAction(type, nodeIds) {
-            actionHistory.push({ type, nodeIds });
-            updateUndoButton();
-        }
+    <div class="p-5 flex-1 flex flex-col min-h-[140px] bg-opacity-30" style="background-color: rgba(var(--accent-green), 0.05);">
+      <h2 class="text-[10px] font-bold text-[var(--highlight-green)] uppercase tracking-wider mb-3 flex items-center gap-2"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Master DB Log</h2>
+      <div id="dbLogContainer" class="space-y-1.5 text-xs theme-text-muted h-24 overflow-y-auto pr-1 rounded p-2 border theme-border font-mono">
+        <div class="theme-text-muted italic opacity-50">Waiting for database commits...</div>
+      </div>
+    </div>
+  </aside>
 
-        function ensureCenterNode(name = "Central Node") {
-            if (!centerNodeId || nodes.length === 0) {
-                centerNodeId = 'root_' + Date.now();
-                nodes.add({
-                    id: centerNodeId, label: "", shape: 'box', color: { background: 'rgba(0,0,0,0)', border: 'rgba(0,0,0,0)' },
-                    font: { color: 'rgba(0,0,0,0)' }, size: 0, fixed: true, relationType: 'Root', shadow: false
-                });
-            }
-            return centerNodeId;
-        }
+  <!-- Canvas Area -->
+  <main class="flex-1 p-4 md:p-6 relative flex flex-col transition-colors duration-300">
+    <div id="network" class="shadow-xl">
+      <div class="resize-handle" id="resizeHandle"></div>
+    </div>
 
-        function addManualNode() {
-            const name = document.getElementById('searchInput').value.trim();
-            const platform = document.getElementById('platformSelect').value;
-            const connectionType = document.getElementById('connectionTypeSelect').value;
-            if (!name) { alert("Please enter a name."); return; }
-            let root = ensureCenterNode("Master Database");
-            const newNodeId = addLeafNode(root, name, connectionType, platform);
-            if (newNodeId) {
-                pushAction('add', [newNodeId]);
-                logToLocal(`Added manual node: ${name}`);
-                logToDB(`COMMIT: Added ${name} (${connectionType})`);
-            }
-            document.getElementById('searchInput').value = '';
-        }
+    <button onclick="toggleLegend()" class="absolute bottom-8 right-8 w-9 h-9 theme-bg-element hover:opacity-80 border theme-border rounded-lg shadow-lg flex items-center justify-center transition-colors z-20" title="Toggle Legend">
+      <i id="legendIcon" data-lucide="eye" class="w-4 h-4 theme-text-muted"></i>
+    </button>
 
-        function addLeafNode(parentId, label, relationType, platform) {
-            const existing = nodes.get({ filter: function (item) { return item.label === label; } });
-            
-            let bgColor = TYPE_COLORS[relationType] || TYPE_COLORS['Mention'];
-            
-            if (relationType === 'Hub') {
-                bgColor = getHubColor();
-            }
-            
-            const shape = relationType === 'Hub' ? 'square' : 'dot';
-            const size = relationType === 'Hub' ? 30 : 20;
+    <div id="legend" class="legend absolute bottom-24 right-6 p-4 rounded-lg shadow-lg text-xs space-y-2 pointer-events-none z-20 w-52">
+      <div class="font-bold theme-text-main mb-2 border-b theme-border pb-1">Relationship Types</div>
+      <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-sm bg-[#000000] dark:bg-white"></div><div><span class="font-semibold block theme-text-main">Hub / Key</span><span class="text-[10px] theme-text-muted">Central Node</span></div></div>
+      <div class="flex items-center gap-2 mt-2"><div class="w-3 h-3 rounded-full bg-[#9ca3af]"></div><div><span class="font-semibold block theme-text-main">Mention</span><span class="text-[10px] theme-text-muted">Low connection</span></div></div>
+      <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-[#60a5fa]"></div><div><span class="font-semibold block theme-text-main">Featured</span><span class="text-[10px] theme-text-muted">Guest appearance</span></div></div>
+      <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-[#14b8a6]"></div><div><span class="font-semibold block theme-text-main">Collaboration</span><span class="text-[10px] theme-text-muted">Editor/Producer</span></div></div>
+      <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-[#a855f7]"></div><div><span class="font-semibold block theme-text-main">Podcast</span><span class="text-[10px] theme-text-muted">Main guest</span></div></div>
+      <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-[#f97316]"></div><div><span class="font-semibold block theme-text-main">Partnership</span><span class="text-[10px] theme-text-muted">Joint lead</span></div></div>
+      <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-[#ec4899]"></div><div><span class="font-semibold block theme-text-main">Partner</span><span class="text-[10px] theme-text-muted">Personal BG/GF</span></div></div>
+    </div>
+  </main>
+</div>
 
-            if (existing.length > 0) {
-                edges.add({ 
-                    from: parentId, 
-                    to: existing[0].id,
-                    color: { color: bgColor, opacity: 0.6 }
-                });
-                return existing[0].id;
-            }
+<script>
+// Initialize Lucide Icons
+document.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+});
 
-            const nodeId = `node_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+// --- 1. Global State ---
+let network = null;
+let nodes = new vis.DataSet([]);
+let edges = new vis.DataSet([]);
+let centerNodeId = null;
+let isLoggedIn = false;
+let actionHistory = [];
+let isResizing = false;
+let legendVisible = true;
+const isLightMode = () => document.body.classList.contains('light-mode');
 
-            const titleHtml = document.createElement('div');
-            titleHtml.className = 'p-3 bg-white border border-gray-200 rounded-lg shadow-xl font-sans min-w-[150px]';
-            titleHtml.innerHTML = `
-                <div class="font-bold text-gray-800 text-sm mb-2 border-b pb-1">${label}</div>
-                <div class="flex items-center gap-2 mb-1.5">
-                    <div style="width:10px;height:10px;border-radius:50%;background:${bgColor};flex-shrink:0;"></div>
-                    <span class="font-semibold text-xs text-gray-700">${relationType}</span>
-                </div>
-                <div class="text-xs text-gray-500 flex items-center gap-1">
-                    <i class="ph ph-monitor-play"></i> ${platform}
-                </div>
-            `;
+const TYPE_COLORS = {
+  'Mention': '#9ca3af', 'Featured': '#60a5fa', 'Collaboration': '#14b8a6',
+  'Podcast': '#a855f7', 'Partnership': '#f97316', 'Partner': '#ec4899',
+  'Hub': isLightMode() ? '#000000' : '#ffffff', 'Root': 'rgba(0,0,0,0)'
+};
 
-            nodes.add({
-                id: nodeId,
-                label: label,
-                shape: shape,
-                color: { background: bgColor, border: 'white' },
-                title: titleHtml,
-                size: size,
-                relationType: relationType 
-            });
+// --- Navigation Logic ---
+const navItems = ['Network Mapper', 'Database', 'Intelligence', 'Research', 'Influence Tracking', 'Reports', 'Monitoring'];
+const navContainer = document.getElementById('main-nav');
+const navHistory = ['Network Mapper'];
+let historyIndex = 0;
 
-            edges.add({
-                from: parentId,
-                to: nodeId,
-                color: { color: bgColor, opacity: 0.6 }
-            });
-            
-            updateNodeCount();
-            return nodeId;
-        }
+function initNav() {
+  navItems.forEach(item => {
+    const btn = document.createElement('button');
+    btn.className = `nav-btn group flex items-center px-3 py-1.5 text-base font-bold tracking-tight cursor-pointer whitespace-nowrap ${item === 'Network Mapper' ? 'active' : ''}`;
+    btn.innerHTML = `<span>${item}</span>`;
+    btn.addEventListener('click', () => navigateTo(item));
+    navContainer.appendChild(btn);
+  });
+}
 
-        function handleDatabaseUpload(input) {
-            const file = input.files[0];
-            if (!file) return;
-            logToLocal(`Started import: ${file.name}`);
-            document.getElementById('dbStatusMsg').classList.remove('hidden');
-            document.getElementById('dbStatusMsg').innerText = "Processing...";
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const root = ensureCenterNode("Master Database");
-                    const count = Math.floor(Math.random() * 5) + 1;
-                    document.getElementById('dbStatusMsg').innerText = `Success: ${file.name} processed.`;
-                    logToDB(`BATCH: Imported ${file.name}`);
-                } catch(err) { console.error(err); }
-            };
-            reader.readAsArrayBuffer(file);
-        }
+function navigateTo(tabName, isHistoryNav = false) {
+  if (!isHistoryNav) {
+    if (historyIndex < navHistory.length - 1) navHistory.splice(historyIndex + 1);
+    if (navHistory[historyIndex] !== tabName) {
+      navHistory.push(tabName);
+      historyIndex = navHistory.length - 1;
+    }
+  }
+  const btns = navContainer.querySelectorAll('.nav-btn');
+  btns.forEach(btn => {
+    const span = btn.querySelector('span');
+    if (span.innerText === tabName) btn.classList.add('active');
+    else btn.classList.remove('active');
+  });
+  
+  // Update toolbar subnavs based on main nav (optional, visual only here)
+  updateNavButtons();
+}
 
-        async function handleFileUpload(input) {
-            const file = input.files[0];
-            if (!file) return;
-            logToLocal(`OCR Scan: ${file.name}`);
-            document.getElementById('ocrStatus').classList.remove('hidden');
-            document.getElementById('ocrBar').style.width = '50%';
-            
-            try {
-                const worker = await Tesseract.createWorker();
-                await worker.loadLanguage('eng');
-                await worker.initialize('eng');
-                const { data: { text } } = await worker.recognize(file);
-                await worker.terminate();
-                
-                const names = parseOCRText(text);
-                const root = ensureCenterNode("Master Database");
-                let ids = [];
-                names.forEach(n => {
-                    const id = addLeafNode(root, n, 'Mention', 'Detected via OCR');
-                    if(id) ids.push(id);
-                });
-                if(ids.length > 0) pushAction('add', ids);
-                
-                document.getElementById('ocrResultMsg').classList.remove('hidden');
-                document.getElementById('ocrResultMsg').innerHTML = `Found ${names.length} names.`;
-                document.getElementById('ocrBar').style.width = '100%';
-                logToDB(`OCR: Added ${names.length} names.`);
-                network.fit();
-            } catch(e) { logToLocal("OCR Error"); }
-        }
+function updateNavButtons() {
+  const backBtn = document.getElementById('navBackBtn');
+  const fwdBtn = document.getElementById('navForwardBtn');
+  historyIndex > 0 ? backBtn.classList.remove('opacity-50', 'cursor-not-allowed') : backBtn.classList.add('opacity-50', 'cursor-not-allowed');
+  historyIndex < navHistory.length - 1 ? fwdBtn.classList.remove('opacity-50', 'cursor-not-allowed') : fwdBtn.classList.add('opacity-50', 'cursor-not-allowed');
+}
 
-        function parseOCRText(text) {
-            return text.split('\n').map(l=>l.trim()).filter(l=>l.length>3 && !l.includes('Subscribe'));
-        }
+document.getElementById('navBackBtn').addEventListener('click', () => { if(historyIndex>0){historyIndex--; navigateTo(navHistory[historyIndex], true);} });
+document.getElementById('navForwardBtn').addEventListener('click', () => { if(historyIndex<navHistory.length-1){historyIndex++; navigateTo(navHistory[historyIndex], true);} });
 
-        function clearGraph() {
-            if(confirm("Reset Master Database?")) {
-                nodes.clear(); edges.clear(); centerNodeId = null; actionHistory = [];
-                updateUndoButton();
-                ensureCenterNode("Master Database");
-                logToDB("Database Reset.");
-            }
-        }
+// --- 2. Initialization ---
+window.onload = function() {
+  initNav();
+  initNetwork();
+  initResizeHandle();
+  initSubNav();
+  const masterRoot = ensureCenterNode("Master Database");
+  logToDB("System initialized. Master Database Loaded.");
 
-        function exportCSV() {
-            alert("Exporting CSV...");
-            logToLocal("Exported CSV.");
-        }
+  // Pre-populated data
+  const molyneuxId = addLeafNode(masterRoot, "Stefan Molyneux", "Hub", "YouTube");
+  const warskiId = addLeafNode(masterRoot, "Andy Warski", "Hub", "YouTube");
+  const robertsonId = addLeafNode(masterRoot, "Colin Robertson", "Hub", "YouTube");
+  const spencerId = addLeafNode(masterRoot, "Richard Spencer", "Hub", "YouTube");
+  const petersonId = addLeafNode(masterRoot, "Jordan Peterson", "Hub", "YouTube");
+  const roganId = addLeafNode(masterRoot, "Joe Rogan", "Hub", "YouTube");
+  const rubinId = addLeafNode(masterRoot, "Dave Rubin", "Hub", "YouTube");
+  const shapiroId = addLeafNode(masterRoot, "Ben Shapiro", "Hub", "YouTube");
+  const southernId = addLeafNode(masterRoot, "Lauren Southern", "Hub", "YouTube");
+  const sargonId = addLeafNode(masterRoot, "Carl Benjamin", "Hub", "YouTube");
+  const destinyId = addLeafNode(masterRoot, "Destiny", "Hub", "YouTube");
 
-        function logToLocal(msg) {
-            const c = document.getElementById('localLogContainer');
-            const d = document.createElement('div');
-            d.innerHTML = `<span class="text-gray-400 mr-2">[${new Date().toLocaleTimeString()}]</span>${msg}`;
-            c.prepend(d);
-        }
+  addLeafNode(molyneuxId, "Paul Joseph Watson", "Collaboration", "YouTube");
+  addLeafNode(warskiId, "Baked Alaska", "Featured", "YouTube");
+  addLeafNode(robertsonId, "Tim Pool", "Featured", "YouTube");
+  addLeafNode(rubinId, "Candace Owens", "Featured", "YouTube");
+  addLeafNode(shapiroId, "Steven Crowder", "Collaboration", "YouTube");
+  addLeafNode(petersonId, "James Lindsay", "Featured", "YouTube");
+  addLeafNode(roganId, "Tommy Robinson", "Featured", "YouTube");
+  addLeafNode(southernId, "Jared Taylor", "Featured", "YouTube");
+  addLeafNode(sargonId, "Nicholas Fuentes", "Featured", "YouTube");
+  
+  edges.add({ from: molyneuxId, to: southernId, color: { color: getHubColor() } });
+  edges.add({ from: warskiId, to: spencerId, color: { color: getHubColor() } });
+  edges.add({ from: robertsonId, to: spencerId, color: { color: getHubColor() } });
+  edges.add({ from: rubinId, to: roganId, color: { color: getHubColor() } });
+  edges.add({ from: sargonId, to: destinyId, color: { color: getHubColor() } });
 
-        function logToDB(msg) {
-            const c = document.getElementById('dbLogContainer');
-            const d = document.createElement('div');
-            d.innerHTML = `<span class="text-emerald-500 font-bold mr-2">✓</span>${msg}`;
-            c.prepend(d);
-        }
-        
-        // --- Resize Handle Logic ---
-        function initResizeHandle() {
-            const handle = document.getElementById('resizeHandle');
-            const networkDiv = document.getElementById('network');
-            
-            handle.addEventListener('mousedown', function(e) {
-                isResizing = true;
-                e.preventDefault();
-            });
-            
-            document.addEventListener('mousemove', function(e) {
-                if (!isResizing) return;
-                
-                const container = networkDiv.parentElement;
-                const containerRect = container.getBoundingClientRect();
-                
-                const newHeight = e.clientY - containerRect.top - 24; // 24px for padding
-                const newWidth = e.clientX - containerRect.left - 24;
-                
-                if (newHeight > 300 && newHeight < containerRect.height - 48) {
-                    networkDiv.style.height = newHeight + 'px';
-                }
-                
-                if (newWidth > 400 && newWidth < containerRect.width - 48) {
-                    networkDiv.style.width = newWidth + 'px';
-                }
-                
-                network.redraw();
-            });
-            
-            document.addEventListener('mouseup', function() {
-                if (isResizing) {
-                    isResizing = false;
-                    logToLocal("Canvas resized");
-                }
-            });
-        }
-        
-        // --- Toggle Legend ---
-        function toggleLegend() {
-            legendVisible = !legendVisible;
-            const legend = document.getElementById('legend');
-            const icon = document.getElementById('legendIcon');
-            
-            if (legendVisible) {
-                legend.classList.remove('hidden');
-                icon.className = 'ph ph-eye text-lg text-gray-600';
-            } else {
-                legend.classList.add('hidden');
-                icon.className = 'ph ph-eye-slash text-lg text-gray-600';
-            }
-            
-            logToLocal(legendVisible ? "Legend shown" : "Legend hidden");
-        }
-    </script>
+  logToDB("Pre-populated Alternative Influence Network.");
+  network.fit();
+  logToLocal("Session started.");
+};
+
+function initSubNav() {
+  document.querySelectorAll('.subnav-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      this.parentElement.querySelectorAll('.subnav-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+    });
+  });
+}
+
+function getHubColor() {
+  return document.body.classList.contains('light-mode') ? '#000000' : '#ffffff';
+}
+
+function toggleDarkMode() {
+  document.body.classList.toggle('light-mode');
+  const isLight = isLightMode();
+  document.getElementById('themeIconSun').classList.toggle('hidden', !isLight);
+  document.getElementById('themeIconMoon').classList.toggle('hidden', isLight);
+  
+  const textColor = isLight ? '#111827' : '#ffffff';
+  const hubColor = isLight ? '#000000' : '#ffffff';
+  
+  network.setOptions({ nodes: { font: { color: textColor } } });
+  const updates = [];
+  nodes.forEach(n => { if(n.relationType === 'Hub') updates.push({ id: n.id, color: { background: hubColor, border: isLight ? '#111827' : '#ffffff' } }); });
+  nodes.update(updates);
+  logToLocal(`Theme switched to ${isLight ? 'Light' : 'Dark'} mode`);
+}
+document.getElementById('themeToggle').addEventListener('click', toggleDarkMode);
+
+function initNetwork() {
+  const container = document.getElementById('network');
+  const data = { nodes: nodes, edges: edges };
+  const options = {
+    nodes: { shape: 'dot', size: 20, font: { size: 14, color: isLightMode() ? '#111827' : '#ffffff', face: 'Atkinson Hyperlegible' }, borderWidth: 2, shadow: true },
+    edges: { width: 2, smooth: { type: 'continuous' }, color: { highlight: 'var(--accent-green)' } },
+    physics: { stabilization: false, barnesHut: { gravitationalConstant: -2000, springConstant: 0.04, springLength: 120 } },
+    interaction: { hover: true, tooltipDelay: 200, zoomView: true }
+  };
+  network = new vis.Network(container, data, options);
+  network.on("click", function (params) {
+    if(params.nodes.length > 0) logToLocal(`Selected: ${nodes.get(params.nodes[0]).label}`);
+    document.getElementById('searchResults').classList.remove('active');
+  });
+}
+
+function handleLogin() {
+  isLoggedIn = true;
+  const btn = document.getElementById('loginBtn');
+  btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg> Connecting...`;
+  setTimeout(() => {
+    btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Verified`;
+    btn.classList.remove('text-[var(--accent-green)]', 'bg-[var(--accent-green)]/10', 'border-[var(--accent-green)]/30');
+    btn.classList.add('text-[var(--highlight-green)]', 'bg-[var(--highlight-green)]/10', 'border-[var(--highlight-green)]/30');
+    logToLocal("User Logged In.");
+  }, 800);
+}
+
+function handleGraphSearch(query) {
+  const resultsDiv = document.getElementById('searchResults');
+  if (!query || query.length < 2) { resultsDiv.classList.remove('active'); return; }
+  const matches = nodes.get().filter(n => n.relationType !== 'Root' && n.label.toLowerCase().includes(query.toLowerCase()));
+  resultsDiv.innerHTML = '';
+  if (matches.length === 0) {
+    resultsDiv.innerHTML = `<div class="p-3 text-xs text-center theme-text-muted">No profiles found.</div>`;
+  } else {
+    matches.forEach(node => {
+      const div = document.createElement('div');
+      div.onclick = () => focusNode(node.id);
+      div.innerHTML = `<div class="flex items-center gap-3 justify-between"><div class="flex items-center gap-3"><div class="w-3 h-3 rounded-full flex-shrink-0" style="background-color: ${node.color?.background || '#ccc'}"></div><div><div class="text-sm font-medium node-label">${node.label}</div><div class="node-meta">${node.relationType || 'Unknown'} • ${node.platform || 'N/A'}</div></div></div><i data-lucide="arrow-right" class="w-4 h-4 theme-text-muted opacity-0 group-hover:opacity-100 transition-opacity"></i></div>`;
+      resultsDiv.appendChild(div);
+    });
+  }
+  resultsDiv.classList.add('active');
+}
+
+function focusNode(nodeId) {
+  network.focus(nodeId, { scale: 1.5, animation: { duration: 1000, easingFunction: 'easeInOutQuad' } });
+  network.selectNodes([nodeId]);
+  logToLocal(`Located: ${nodes.get(nodeId).label}`);
+  document.getElementById('graphSearchInput').value = '';
+  document.getElementById('searchResults').classList.remove('active');
+}
+
+function updateNodeCount() {
+  const count = nodes.length - (centerNodeId ? 1 : 0);
+  const val = count > 0 ? count : 0;
+  document.getElementById('nodeCountBadge').innerText = val;
+  document.getElementById('toolbarNodeCount').innerText = val;
+}
+
+function updateUndoButton() {
+  const btn = document.getElementById('undoBtn');
+  btn.disabled = actionHistory.length === 0;
+  updateNodeCount();
+}
+
+function undoLastAction() {
+  if (actionHistory.length === 0) return;
+  const lastAction = actionHistory.pop();
+  if (lastAction.type === 'add') {
+    nodes.remove(lastAction.nodeIds);
+    logToLocal(`Undid: Removed ${lastAction.nodeIds.length} node(s).`);
+    logToDB(`REVERT: Removed ${lastAction.nodeIds.length} entries.`);
+  }
+  updateUndoButton();
+}
+
+function pushAction(type, nodeIds) {
+  actionHistory.push({ type, nodeIds });
+  updateUndoButton();
+}
+
+function ensureCenterNode(name = "Master DB") {
+  if (!centerNodeId || nodes.length === 0) {
+    centerNodeId = 'root_' + Date.now();
+    nodes.add({ id: centerNodeId, label: "", shape: 'box', color: { background: 'transparent', border: 'transparent' }, font: { color: 'transparent' }, size: 0, fixed: true, relationType: 'Root', shadow: false });
+  }
+  return centerNodeId;
+}
+
+function addManualNode() {
+  const name = document.getElementById('searchInput').value.trim();
+  const platform = document.getElementById('platformSelect').value;
+  const connectionType = document.getElementById('connectionTypeSelect').value;
+  if (!name) return alert("Please enter a name.");
+  let root = ensureCenterNode("Master DB");
+  const newNodeId = addLeafNode(root, name, connectionType, platform);
+  if (newNodeId) {
+    pushAction('add', [newNodeId]);
+    logToLocal(`Added: ${name}`);
+    logToDB(`COMMIT: Added ${name} (${connectionType})`);
+  }
+  document.getElementById('searchInput').value = '';
+}
+
+function addLeafNode(parentId, label, relationType, platform) {
+  const existing = nodes.get({ filter: item => item.label === label });
+  let bgColor = TYPE_COLORS[relationType] || TYPE_COLORS['Mention'];
+  if (relationType === 'Hub') bgColor = getHubColor();
+  
+  const shape = relationType === 'Hub' ? 'square' : 'dot';
+  const size = relationType === 'Hub' ? 30 : 20;
+
+  if (existing.length > 0) {
+    edges.add({ from: parentId, to: existing[0].id, color: { color: bgColor, opacity: 0.6 } });
+    return existing[0].id;
+  }
+
+  const nodeId = `node_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+  const htmlTitle = `<div style="padding:8px;background:var(--bg-panel);border:1px solid var(--border-color);border-radius:8px;color:var(--text-main);font-size:13px;min-width:140px;">
+    <div style="font-weight:bold;margin-bottom:4px;border-bottom:1px solid var(--border-color);padding-bottom:4px;">${label}</div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><div style="width:8px;height:8px;border-radius:50%;background:${bgColor};"></div><span style="font-size:11px;font-weight:600;color:var(--text-main)">${relationType}</span></div>
+    <div style="font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:4px;"><i class="ph ph-monitor-play"></i> ${platform}</div>
+  </div>`;
+
+  nodes.add({ id: nodeId, label: label, shape: shape, color: { background: bgColor, border: 'white' }, title: htmlTitle, size: size, relationType: relationType, platform: platform });
+  edges.add({ from: parentId, to: nodeId, color: { color: bgColor, opacity: 0.6 } });
+  updateNodeCount();
+  return nodeId;
+}
+
+function handleDatabaseUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  logToLocal(`Importing: ${file.name}`);
+  const msg = document.getElementById('dbStatusMsg');
+  msg.classList.remove('hidden'); msg.innerText = "Processing...";
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      ensureCenterNode("Master DB");
+      msg.innerText = `✓ Success: ${file.name} loaded.`;
+      msg.classList.remove('hidden');
+      msg.classList.add('text-[var(--highlight-green)]');
+      logToDB(`BATCH: Imported ${file.name}`);
+      setTimeout(() => msg.classList.add('hidden'), 3000);
+    } catch(err) { console.error(err); msg.innerText = "Error processing file."; }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+async function handleFileUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  logToLocal(`OCR Scan: ${file.name}`);
+  document.getElementById('ocrStatus').classList.remove('hidden');
+  document.getElementById('ocrBar').style.width = '30%';
+  
+  try {
+    const worker = await Tesseract.createWorker();
+    await worker.loadLanguage('eng');
+    await worker.initialize('eng');
+    document.getElementById('ocrBar').style.width = '70%';
+    const { data: { text } } = await worker.recognize(file);
+    await worker.terminate();
+    
+    const names = text.split('\n').map(l=>l.trim().replace(/[^a-zA-Z0-9\s\-\.&()]/g, '')).filter(l=>l.length>3 && l.length < 40 && !l.includes('Subscribe') && !l.includes('http'));
+    const root = ensureCenterNode("Master DB");
+    let ids = [];
+    names.forEach(n => { if(addLeafNode(root, n, 'Mention', 'OCR Detected')) ids.push(n); });
+    if(ids.length > 0) pushAction('add', ids.map(()=>`temp`)); // simplified tracking
+    
+    document.getElementById('ocrResultMsg').classList.remove('hidden');
+    document.getElementById('ocrResultMsg').innerHTML = `Found ${names.length > 0 ? names.length : 'No'} names. Check graph.`;
+    document.getElementById('ocrBar').style.width = '100%';
+    logToDB(`OCR: Processed ${file.name}`);
+    network.fit();
+  } catch(e) { logToLocal("OCR Failed"); document.getElementById('ocrStatus').classList.add('hidden'); }
+}
+
+function exportCSV() {
+  const rows = [["Label", "Type", "Platform"]];
+  nodes.forEach(n => { if(n.relationType !== 'Root') rows.push([n.label, n.relationType, n.platform || 'Unknown']); });
+  const csvContent = rows.map(e => e.join(",")).join("\n");
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob); link.download = "network_map_export.csv"; link.click();
+  logToLocal("Exported CSV.");
+}
+
+function logToLocal(msg) {
+  const c = document.getElementById('localLogContainer');
+  const d = document.createElement('div');
+  d.innerHTML = `<span class="theme-text-muted opacity-50 mr-2">[${new Date().toLocaleTimeString()}]</span>${msg}`;
+  c.prepend(d);
+}
+
+function logToDB(msg) {
+  const c = document.getElementById('dbLogContainer');
+  const d = document.createElement('div');
+  d.innerHTML = `<span class="text-[var(--highlight-green)] font-bold mr-2">✓</span>${msg}`;
+  c.prepend(d);
+}
+
+function initResizeHandle() {
+  const handle = document.getElementById('resizeHandle');
+  const networkDiv = document.getElementById('network');
+  handle.addEventListener('mousedown', function(e) { isResizing = true; e.preventDefault(); });
+  document.addEventListener('mousemove', function(e) {
+    if (!isResizing) return;
+    const container = networkDiv.parentElement;
+    const rect = container.getBoundingClientRect();
+    const newHeight = e.clientY - rect.top - 24;
+    const newWidth = e.clientX - rect.left - 24;
+    if (newHeight > 300 && newHeight < rect.height - 48) networkDiv.style.height = newHeight + 'px';
+    if (newWidth > 400 && newWidth < rect.width - 48) networkDiv.style.width = newWidth + 'px';
+    network.redraw();
+  });
+  document.addEventListener('mouseup', function() { if (isResizing) { isResizing = false; logToLocal("Canvas resized"); } });
+}
+
+function toggleLegend() {
+  legendVisible = !legendVisible;
+  const legend = document.getElementById('legend');
+  const icon = document.getElementById('legendIcon');
+  if (legendVisible) { legend.classList.remove('hidden'); icon.setAttribute('data-lucide', 'eye'); }
+  else { legend.classList.add('hidden'); icon.setAttribute('data-lucide', 'eye-off'); }
+  lucide.createIcons();
+}
+</script>
 </body>
 </html>
+
