@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ricky Castro - Performance Dashboard</title>
+<link href="https://cdn.fontsource.org/atkinson-hyperlegible@latest/index.css" rel="stylesheet">
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: #1c1c1c;
+    color: #ffffff;
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dashboard-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    width: 100%;
+  }
+
+  .header {
+    background-color: #1c1c1c;
+    border-bottom: 2px solid #77C081;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    width: 120px;
+    height: 120px;
+    border: 1px solid rgba(255, 165, 0, 0.15);
+    transform: rotate(45deg);
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .player-info h1 {
+    font-size: 36px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 1px;
+  }
+
+  .close-btn {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 20px;
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+
+  .close-btn:hover {
+    color: #77C081;
+  }
+
+  .tabs-container {
+    display: flex;
+    gap: 0;
+    padding: 12px 24px;
+    border-bottom: 1px solid #333;
+    background-color: #1c1c1c;
+  }
+
+  .tab {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #888;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.3s;
+    background: none;
+    border: none;
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+  }
+
+  .tab:hover {
+    color: #ffffff;
+  }
+
+  .tab.active {
+    color: #77C081;
+  }
+
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -13px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #77C081;
+    border-radius: 2px;
+  }
+
+  .chart-section {
+    padding: 20px 24px;
+  }
+
+  .chart-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #77C081;
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+
+  .chart-wrapper {
+    background-color: #1c1c1c;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .chart-canvas-container {
+    width: 100%;
+    position: relative;
+  }
+
+  canvas {
+    width: 100%;
+    height: auto;
+  }
+
+  .legend {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #aaa;
+  }
+
+  .legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .legend-bar {
+    width: 20px;
+    height: 4px;
+    border-radius: 2px;
+  }
+
+  @media (max-width: 768px) {
+    .header {
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .player-info h1 {
+      font-size: 28px;
+    }
+
+    .tabs-container {
+      overflow-x: auto;
+    }
+
+    .tab {
+      font-size: 14px;
+      padding: 8px 14px;
+      white-space: nowrap;
+    }
+
+    .chart-title {
+      font-size: 16px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="dashboard-container">
+  <div class="header">
+    <div class="header-left">
+      <div class="player-info">
+        <h1>Ricky Castro</h1>
+      </div>
+    </div>
+    <button class="close-btn"></button>
+  </div>
+
+  <div class="tabs-container">
+    <button class="tab active" data-tab="academics">Academics</button>
+    <button class="tab" data-tab="volunteerism">Volunteerism</button>
+    <button class="tab" data-tab="social">Social Media</button>
+  </div>
+
+  <div class="chart-section">
+    <div class="chart-title">Performance Reputation Factor Development</div>
+    <div class="chart-wrapper">
+      <div class="chart-canvas-container">
+        <canvas id="chartCanvas" width="1060" height="500"></canvas>
+      </div>
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background: #77C081;"></div>
+          <span>Academics Score</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-bar" style="background: linear-gradient(to bottom, #77C081, #3a6b3f);"></div>
+          <span>Performance Bars</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background: #5BC0DE;"></div>
+          <span>Reputation Trend</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('chartCanvas');
+  const ctx = canvas.getContext('2d');
+
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+
+  const W = rect.width;
+  const H = rect.height;
+
+  const dataPoints = [
+    { date: '5/1', barTop: 12, barBottom: 16.5, dot: 12, dotColor: '#77C081' },
+    { date: '5/8', barTop: 11.8, barBottom: 17, dot: 11.5, dotColor: '#77C081' },
+    { date: '5/15', barTop: 11.5, barBottom: 16, dot: 13, dotColor: '#FFB347' },
+    { date: '5/22', barTop: 11.2, barBottom: 16, dot: 14, dotColor: '#FF8C00' },
+    { date: '5/31', barTop: 11.2, barBottom: 16, dot: 14, dotColor: '#FF8C00' },
+    { date: '6/5', barTop: 11.2, barBottom: 16, dot: 14, dotColor: '#FF8C00' },
+    { date: '6/10', barTop: 11.5, barBottom: 16, dot: 13, dotColor: '#FF8C00' },
+    { date: '6/15', barTop: 11.2, barBottom: 15, dot: 14.5, dotColor: '#E05050' },
+    { date: '6/20', barTop: 11, barBottom: 15, dot: 14, dotColor: '#E05050' },
+    { date: '7/12', barTop: 11.2, barBottom: 15.5, dot: 12.8, dotColor: '#77C081' },
+    { date: '7/20', barTop: 11.2, barBottom: 15.8, dot: 12.8, dotColor: '#77C081' },
+    { date: '7/28', barTop: 11.5, barBottom: 15.5, dot: 12.8, dotColor: '#77C081' },
+    { date: '8/5', barTop: 11, barBottom: 15, dot: 12, dotColor: '#77C081' },
+    { date: '8/12', barTop: 10, barBottom: 15, dot: 12.2, dotColor: '#77C081' },
+    { date: '8/23', barTop: 10, barBottom: 15, dot: 11.8, dotColor: '#77C081' },
+    { date: '8/30', barTop: 10, barBottom: 15, dot: 11.8, dotColor: '#77C081' },
+    { date: '9/6', barTop: 9, barBottom: 14, dot: 11, dotColor: '#77C081' },
+    { date: '9/13', barTop: 8.5, barBottom: 12, dot: 11, dotColor: '#77C081' },
+    { date: '9/20', barTop: 7, barBottom: 12, dot: 11, dotColor: '#77C081' },
+    { date: '9/28', barTop: 6, barBottom: 10, dot: 11, dotColor: '#77C081' },
+    { date: '10/4', barTop: 5, barBottom: 13, dot: 8, dotColor: '#5BC0DE' },
+    { date: '10/10', barTop: 5, barBottom: 10, dot: 6, dotColor: '#5BC0DE' },
+    { date: '10/17', barTop: 5, barBottom: 8, dot: 5.8, dotColor: '#5BC0DE' },
+    { date: '10/24', barTop: 5, barBottom: 8, dot: 5.8, dotColor: '#5BC0DE' },
+    { date: '10/31', barTop: 5, barBottom: 7, dot: 5, dotColor: '#5BC0DE' },
+    { date: '11/7', barTop: 5, barBottom: 6, dot: 5, dotColor: '#5BC0DE' },
+    { date: '11/15', barTop: 5, barBottom: 7.5, dot: 5, dotColor: '#5BC0DE' },
+    { date: '11/22', barTop: 5, barBottom: 8, dot: 6, dotColor: '#5BC0DE' },
+    { date: '11/29', barTop: 5, barBottom: 7, dot: 4.8, dotColor: '#5BC0DE' },
+    { date: '12/5', barTop: 5, barBottom: 6, dot: 5.8, dotColor: '#5BC0DE' },
+    { date: '12/12', barTop: 5, barBottom: 6, dot: 5, dotColor: '#5BC0DE' },
+    { date: '12/19', barTop: 5, barBottom: 6, dot: 5, dotColor: '#5BC0DE' },
+    { date: '12/27', barTop: 5, barBottom: 6, dot: 5, dotColor: '#5BC0DE' },
+  ];
+
+  const padding = { top: 40, right: 40, bottom: 60, left: 70 };
+  const chartW = W - padding.left - padding.right;
+  const chartH = H - padding.top - padding.bottom;
+
+  const yMin = 3;
+  const yMax = 18;
+  const xSteps = 33;
+
+  function mapY(val) {
+    return padding.top + ((val - yMin) / (yMax - yMin)) * chartH;
+  }
+
+  function mapX(index) {
+    return padding.left + (index / (xSteps - 1)) * chartW;
+  }
+
+  // Draw background
+  ctx.fillStyle = '#1c1c1c';
+  ctx.fillRect(0, 0, W, H);
+
+  // Draw grid
+  ctx.strokeStyle = '#333333';
+  ctx.lineWidth = 1;
+
+  const yTicks = [5, 10, 15];
+  yTicks.forEach(val => {
+    const y = mapY(val);
+    ctx.beginPath();
+    ctx.moveTo(padding.left, y);
+    ctx.lineTo(W - padding.right, y);
+    ctx.stroke();
+
+    ctx.fillStyle = '#888';
+    ctx.font = '13px Atkinson Hyperlegible';
+    ctx.textAlign = 'right';
+    ctx.fillText(val.toString(), padding.left - 10, y + 4);
+  });
+
+  const xLabels = [
+    { idx: 5, label: '5/31' },
+    { idx: 10, label: '7/12' },
+    { idx: 15, label: '8/23' },
+    { idx: 20, label: '10/4' },
+    { idx: 26, label: '11/15' },
+    { idx: 32, label: '12/27' },
+  ];
+
+  xLabels.forEach(({ idx, label }) => {
+    const x = mapX(idx);
+    ctx.beginPath();
+    ctx.moveTo(x, padding.top);
+    ctx.lineTo(x, H - padding.bottom);
+    ctx.stroke();
+
+    ctx.fillStyle = '#888';
+    ctx.font = '13px Atkinson Hyperlegible';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, x, H - padding.bottom + 25);
+  });
+
+  // Draw bars
+  dataPoints.forEach((pt, i) => {
+    const x = mapX(i);
+    const yTop = mapY(pt.barTop);
+    const yBottom = mapY(pt.barBottom);
+    const barWidth = chartW / xSteps * 0.5;
+
+    const gradient = ctx.createLinearGradient(x - barWidth / 2, yTop, x - barWidth / 2, yBottom);
+
+    if (i < 10) {
+      gradient.addColorStop(0, '#8B6914');
+      gradient.addColorStop(1, '#3a2a08');
+    } else if (i < 20) {
+      gradient.addColorStop(0, '#6B7A14');
+      gradient.addColorStop(1, '#2a3a08');
+    } else {
+      gradient.addColorStop(0, '#1a4a5a');
+      gradient.addColorStop(1, '#0a2a3a');
+    }
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(x - barWidth / 2, yTop, barWidth, yBottom - yTop);
+  });
+
+  // Draw line
+  ctx.beginPath();
+  ctx.strokeStyle = '#555';
+  ctx.lineWidth = 2;
+
+  dataPoints.forEach((pt, i) => {
+    const x = mapX(i);
+    const y = mapY(pt.dot);
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  // Draw dots
+  dataPoints.forEach((pt, i) => {
+    const x = mapX(i);
+    const y = mapY(pt.dot);
+
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = pt.dotColor;
+    ctx.fill();
+    ctx.strokeStyle = '#1c1c1c';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  });
+
+  // Tab interactions
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', function() {
+      tabs.forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+
+      const activeTab = this.dataset.tab;
+      ctx.fillStyle = '#1c1c1c';
+      ctx.fillRect(0, 0, W, H);
+      drawChart(activeTab);
+    });
+  });
+
+  function drawChart(activeTab) {
+    let lineDotColor = '#77C081';
+    if (activeTab === 'volunteerism') lineDotColor = '#4A90D9';
+    else if (activeTab === 'social') lineDotColor = '#E07A5F';
+
+    ctx.strokeStyle = '#333333';
+    ctx.lineWidth = 1;
+    yTicks.forEach(val => {
+      const y = mapY(val);
+      ctx.beginPath();
+      ctx.moveTo(padding.left, y);
+      ctx.lineTo(W - padding.right, y);
+      ctx.stroke();
+      ctx.fillStyle = '#888';
+      ctx.font = '13px Atkinson Hyperlegible';
+      ctx.textAlign = 'right';
+      ctx.fillText(val.toString(), padding.left - 10, y + 4);
+    });
+    xLabels.forEach(({ idx, label }) => {
+      const x = mapX(idx);
+      ctx.beginPath();
+      ctx.moveTo(x, padding.top);
+      ctx.lineTo(x, H - padding.bottom);
+      ctx.stroke();
+      ctx.fillStyle = '#888';
+      ctx.font = '13px Atkinson Hyperlegible';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, x, H - padding.bottom + 25);
+    });
+
+    dataPoints.forEach((pt, i) => {
+      const x = mapX(i);
+      const yTop = mapY(pt.barTop);
+      const yBottom = mapY(pt.barBottom);
+      const barWidth = chartW / xSteps * 0.5;
+      const gradient = ctx.createLinearGradient(x - barWidth / 2, yTop, x - barWidth / 2, yBottom);
+      if (i < 10) {
+        gradient.addColorStop(0, '#8B6914');
+        gradient.addColorStop(1, '#3a2a08');
+      } else if (i < 20) {
+        gradient.addColorStop(0, '#6B7A14');
+        gradient.addColorStop(1, '#2a3a08');
+      } else {
+        gradient.addColorStop(0, '#1a4a5a');
+        gradient.addColorStop(1, '#0a2a3a');
+      }
+      ctx.fillStyle = gradient;
+      ctx.fillRect(x - barWidth / 2, yTop, barWidth, yBottom - yTop);
+    });
+
+    ctx.beginPath();
+    ctx.strokeStyle = '#555';
+    ctx.lineWidth = 2;
+    dataPoints.forEach((pt, i) => {
+      const x = mapX(i);
+      const y = mapY(pt.dot);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    dataPoints.forEach((pt, i) => {
+      const x = mapX(i);
+      const y = mapY(pt.dot);
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = i >= 20 ? lineDotColor : pt.dotColor;
+      ctx.fill();
+      ctx.strokeStyle = '#1c1c1c';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    });
+  }
+
+  window.addEventListener('resize', () => {
+    const newRect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = newRect.width * dpr;
+    canvas.height = 500 * dpr;
+    ctx.scale(dpr, dpr);
+
+    const newW = newRect.width;
+    const newH = 500;
+    const newPadding = { top: 40, right: 40, bottom: 60, left: 70 };
+    const newChartW = newW - newPadding.left - newPadding.right;
+    const newChartH = newH - newPadding.top - newPadding.bottom;
+
+    function newMapY(val) {
+      return newPadding.top + ((val - yMin) / (yMax - yMin)) * newChartH;
+    }
+    function newMapX(index) {
+      return newPadding.left + (index / (xSteps - 1)) * newChartW;
+    }
+
+    ctx.fillStyle = '#1c1c1c';
+    ctx.fillRect(0, 0, newW, newH);
+
+    ctx.strokeStyle = '#333333';
+    ctx.lineWidth = 1;
+    yTicks.forEach(val => {
+      const y = newMapY(val);
+      ctx.beginPath();
+      ctx.moveTo(newPadding.left, y);
+      ctx.lineTo(newW - newPadding.right, y);
+      ctx.stroke();
+      ctx.fillStyle = '#888';
+      ctx.font = '13px Atkinson Hyperlegible';
+      ctx.textAlign = 'right';
+      ctx.fillText(val.toString(), newPadding.left - 10, y + 4);
+    });
+    xLabels.forEach(({ idx, label }) => {
+      const x = newMapX(idx);
+      ctx.beginPath();
+      ctx.moveTo(x, newPadding.top);
+      ctx.lineTo(x, newH - newPadding.bottom);
+      ctx.stroke();
+      ctx.fillStyle = '#888';
+      ctx.font = '13px Atkinson Hyperlegible';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, x, newH - newPadding.bottom + 25);
+    });
+
+    dataPoints.forEach((pt, i) => {
+      const x = newMapX(i);
+      const yTop = newMapY(pt.barTop);
+      const yBottom = newMapY(pt.barBottom);
+      const barWidth = newChartW / xSteps * 0.5;
+      const gradient = ctx.createLinearGradient(x - barWidth / 2, yTop, x - barWidth / 2, yBottom);
+      if (i < 10) {
+        gradient.addColorStop(0, '#8B6914');
+        gradient.addColorStop(1, '#3a2a08');
+      } else if (i < 20) {
+        gradient.addColorStop(0, '#6B7A14');
+        gradient.addColorStop(1, '#2a3a08');
+      } else {
+        gradient.addColorStop(0, '#1a4a5a');
+        gradient.addColorStop(1, '#0a2a3a');
+      }
+      ctx.fillStyle = gradient;
+      ctx.fillRect(x - barWidth / 2, yTop, barWidth, yBottom - yTop);
+    });
+
+    ctx.beginPath();
+    ctx.strokeStyle = '#555';
+    ctx.lineWidth = 2;
+    dataPoints.forEach((pt, i) => {
+      const x = newMapX(i);
+      const y = newMapY(pt.dot);
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+
+    dataPoints.forEach((pt, i) => {
+      const x = newMapX(i);
+      const y = newMapY(pt.dot);
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = pt.dotColor;
+      ctx.fill();
+      ctx.strokeStyle = '#1c1c1c';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    });
+  });
+</script>
+</body>
+</html>
+
