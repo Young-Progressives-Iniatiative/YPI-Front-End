@@ -381,72 +381,534 @@
     font-style: italic;
   }
 
-  /* ===== CARD: School Datahub (Treemap) ===== */
-  .datahub-treemap {
+  /* ===== CARD: School Datahub (Talent & Service Ecosystem) ===== */
+  .ecosystem {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 2.2fr 1fr;
-    gap: 4px;
-    min-height: 200px;
+    grid-template-columns: minmax(220px, 1.05fr) 1.25fr;
+    gap: 12px;
     height: 100%;
-    border: 2px solid #1a3050;
-    padding: 4px;
-    background: #0a1628;
-    border-radius: 4px;
+    min-height: 230px;
   }
 
-  .treemap-cell {
-    border-radius: 3px;
-    padding: 6px 8px;
+  /* --- LEFT: Radial service-sector chart --- */
+  .ecosystem-radial {
+    background: radial-gradient(circle at 50% 45%, rgba(244,180,0,0.06), rgba(10,22,40,0.9) 70%);
+    border: 1px solid rgba(244, 180, 0, 0.18);
+    border-radius: 6px;
+    padding: 6px;
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
-    font-weight: 700;
     overflow: hidden;
   }
 
-  .treemap-cell .cell-label {
-    position: absolute;
-    top: 4px;
-    left: 6px;
-    font-size: 0.72rem;
-    font-style: italic;
-    font-weight: 700;
-    color: #fff;
-    opacity: 0.95;
+  .ecosystem-radial svg {
+    width: 100%;
+    height: auto;
+    max-height: 250px;
+    overflow: visible;
   }
 
-  .treemap-cell .cell-value {
-    font-size: 2rem;
+  .radial-bar {
+    transition: opacity 0.2s;
+    cursor: pointer;
+    transform-origin: center;
+  }
+  .radial-bar:hover { opacity: 0.85; }
+  .radial-bar.dim { opacity: 0.25; }
+
+  .radial-center-num {
+    font-size: 1.5rem;
     font-weight: 700;
-    color: #fff;
+    fill: #F4B400;
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    font-style: italic;
+  }
+  .radial-center-label {
+    font-size: 0.42rem;
+    fill: #8899b0;
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .radial-cat-label {
+    font-size: 0.34rem;
+    fill: #c0c8d8;
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    font-weight: 700;
+  }
+
+  /* Activity pulse dot */
+  .pulse-dot {
+    animation: pulseGlow 2s ease-in-out infinite;
+    transform-origin: center;
+  }
+  @keyframes pulseGlow {
+    0%, 100% { opacity: 0.4; r: 2; }
+    50% { opacity: 1; r: 3.2; }
+  }
+
+  /* Radial tooltip */
+  .radial-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: linear-gradient(160deg, #0d2347, #091830);
+    border: 1px solid #F4B400;
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 0.66rem;
+    color: #c0c8d8;
+    min-width: 150px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.6), 0 0 14px rgba(244,180,0,0.2);
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.18s, transform 0.18s;
+    z-index: 20;
+  }
+  .radial-tooltip.show { opacity: 1; transform: translateY(0); }
+  .radial-tooltip .tt-title {
+    color: #F4B400;
+    font-weight: 700;
+    font-style: italic;
+    font-size: 0.74rem;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .radial-tooltip .tt-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    line-height: 1.5;
+  }
+  .radial-tooltip .tt-row strong { color: #F4B400; font-style: normal; }
+  .radial-tooltip .tt-row .up { color: #4ade80; }
+
+  /* --- RIGHT: KPI strip + flow + CTA --- */
+  .ecosystem-right {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .kpi-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  .kpi-tile {
+    background: linear-gradient(150deg, rgba(244,180,0,0.07), rgba(10,31,68,0.55));
+    border: 1px solid rgba(244, 180, 0, 0.18);
+    border-radius: 5px;
+    padding: 6px 7px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+  .kpi-tile:hover {
+    border-color: #F4B400;
+    box-shadow: 0 0 14px rgba(244, 180, 0, 0.18);
+    transform: translateY(-1px);
+  }
+  .kpi-tile .kpi-label {
+    font-size: 0.54rem;
+    color: #8899b0;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-style: italic;
+    line-height: 1.25;
+    display: block;
+    margin-bottom: 2px;
+    min-height: 1.3em;
+  }
+  .kpi-tile .kpi-value {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #F4B400;
+    font-style: italic;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi-tile .kpi-spark {
+    margin-top: 3px;
+    height: 12px;
+    width: 100%;
+    display: block;
+  }
+  .kpi-tile .kpi-trend {
+    font-size: 0.52rem;
+    font-weight: 700;
+    margin-left: 3px;
+  }
+  .kpi-trend.up { color: #4ade80; }
+  .kpi-trend.down { color: #f87171; }
+
+  /* Flow / pipeline preview */
+  .pipeline-preview {
+    background: rgba(10, 22, 40, 0.6);
+    border: 1px solid rgba(244, 180, 0, 0.15);
+    border-radius: 5px;
+    padding: 7px 8px;
+  }
+  .pipeline-title {
+    font-size: 0.55rem;
+    color: #8899b0;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-style: italic;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .pipeline-title .live-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 6px #4ade80;
+    animation: livePulse 1.8s ease-in-out infinite;
+  }
+  @keyframes livePulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+  .pipeline-flow {
+    display: flex;
+    align-items: stretch;
+    gap: 2px;
+    width: 100%;
+  }
+  .flow-node {
+    flex: 1;
+    text-align: center;
+    background: linear-gradient(160deg, rgba(244,180,0,0.12), rgba(244,180,0,0.03));
+    border: 1px solid rgba(244, 180, 0, 0.25);
+    border-radius: 4px;
+    padding: 4px 2px;
+    position: relative;
+    transition: all 0.2s;
+    cursor: default;
+  }
+  .flow-node:hover {
+    background: linear-gradient(160deg, rgba(244,180,0,0.22), rgba(244,180,0,0.06));
+    border-color: #F4B400;
+  }
+  .flow-node .fn-val {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #F4B400;
+    font-style: italic;
+    display: block;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .flow-node .fn-label {
+    font-size: 0.43rem;
+    color: #8899b0;
+    text-transform: uppercase;
+    letter-spacing: 0.2px;
+    display: block;
+    margin-top: 2px;
+    line-height: 1.15;
+  }
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    color: #F4B400;
+    font-size: 0.7rem;
+    opacity: 0.6;
+    flex-shrink: 0;
+  }
+
+  /* CTA */
+  .datahub-cta {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .cta-button {
+    position: relative;
+    width: 100%;
+    background: linear-gradient(135deg, #F4B400, #d49800);
+    color: #0a1f44;
+    border: none;
+    border-radius: 6px;
+    padding: 9px 14px;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+    font-style: italic;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.22s ease;
+    box-shadow: 0 2px 10px rgba(244, 180, 0, 0.25);
+  }
+  .cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 22px rgba(244, 180, 0, 0.45), 0 0 18px rgba(244, 180, 0, 0.3);
+  }
+  .cta-button .cta-arrow {
+    font-style: normal;
+    transition: transform 0.22s;
+  }
+  .cta-button:hover .cta-arrow { transform: translateX(4px); }
+  /* Scan-line sweep */
+  .cta-button::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -60%;
+    width: 40%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+    transform: skewX(-20deg);
+    animation: scanSweep 3.5s ease-in-out infinite;
+  }
+  @keyframes scanSweep {
+    0% { left: -60%; }
+    55%, 100% { left: 140%; }
+  }
+  .cta-microtext {
+    font-size: 0.56rem;
+    color: #8899b0;
+    font-style: italic;
+    text-align: center;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 1.2em;
+    transition: opacity 0.4s;
+  }
+  .cta-microtext .live-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: #4ade80; box-shadow: 0 0 5px #4ade80;
+    animation: livePulse 1.8s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  /* ===== DATAHUB MODAL — full ecosystem ===== */
+  .eco-modal-section-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    font-style: italic;
+    color: #F4B400;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0 12px;
+  }
+  .eco-modal-section-title::before {
+    content: '';
+    width: 4px; height: 14px;
+    background: #F4B400; border-radius: 2px;
+  }
+  .eco-modal-section-title:not(:first-child) { margin-top: 24px; }
+
+  .eco-cat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
+    gap: 9px;
+  }
+  .eco-cat-card {
+    background: linear-gradient(150deg, rgba(244,180,0,0.05), rgba(10,31,68,0.6));
+    border: 1px solid rgba(244, 180, 0, 0.2);
+    border-left-width: 3px;
+    border-radius: 6px;
+    padding: 9px 11px;
+    transition: all 0.2s;
+    cursor: default;
+  }
+  .eco-cat-card:hover {
+    background: linear-gradient(150deg, rgba(244,180,0,0.12), rgba(10,31,68,0.72));
+    box-shadow: 0 0 18px rgba(244, 180, 0, 0.18);
+    transform: translateY(-2px);
+  }
+  .eco-cat-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 7px;
+  }
+  .eco-cat-name {
+    font-size: 0.82rem;
+    font-weight: 700;
+    font-style: italic;
+    color: #F4B400;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .eco-cat-pct {
+    font-size: 1.15rem;
+    font-weight: 700;
+    font-style: italic;
     line-height: 1;
   }
+  .eco-cat-bar {
+    height: 5px;
+    background: rgba(244, 180, 0, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .eco-cat-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.8s cubic-bezier(0.4,0,0.2,1);
+  }
+  .eco-cat-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3px 10px;
+    font-size: 0.64rem;
+  }
+  .eco-cat-stat {
+    display: flex;
+    justify-content: space-between;
+    color: #8899b0;
+    font-style: italic;
+  }
+  .eco-cat-stat strong {
+    color: #c0c8d8;
+    font-style: normal;
+    font-weight: 700;
+  }
+  .eco-cat-stat .up { color: #4ade80; }
+  .demand-pill {
+    font-size: 0.52rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 1px 5px;
+    border-radius: 3px;
+    letter-spacing: 0.3px;
+  }
+  .demand-pill.vhigh { background: #22c55e; color: #fff; }
+  .demand-pill.high  { background: rgba(34,197,94,0.2); color: #4ade80; border: 1px solid rgba(34,197,94,0.4); }
+  .demand-pill.med   { background: rgba(244,180,0,0.18); color: #F4B400; border: 1px solid rgba(244,180,0,0.4); }
+  .demand-pill.low   { background: rgba(136,153,176,0.18); color: #8899b0; border: 1px solid rgba(136,153,176,0.4); }
 
-  .treemap-cell.liberal {
-    grid-column: 1 / 4;
-    grid-row: 1;
-    background: linear-gradient(135deg, #3b5998, #4a6db5);
+  /* Full KPI grid in modal */
+  .eco-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 9px;
+  }
+  .eco-kpi-card {
+    background: linear-gradient(150deg, rgba(244,180,0,0.06), rgba(10,31,68,0.55));
+    border: 1px solid rgba(244, 180, 0, 0.18);
+    border-radius: 6px;
+    padding: 10px 12px;
+    transition: all 0.2s;
+  }
+  .eco-kpi-card:hover {
+    border-color: #F4B400;
+    box-shadow: 0 0 16px rgba(244, 180, 0, 0.18);
+    transform: translateY(-2px);
+  }
+  .eco-kpi-card .ek-label {
+    font-size: 0.62rem;
+    color: #8899b0;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-style: italic;
+    display: block;
+    margin-bottom: 4px;
+    min-height: 2.2em;
+    line-height: 1.25;
+  }
+  .eco-kpi-card .ek-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #F4B400;
+    font-style: italic;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .eco-kpi-card .ek-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 6px;
+  }
+  .eco-kpi-card .ek-trend {
+    font-size: 0.6rem;
+    font-weight: 700;
+  }
+  .ek-trend.up { color: #4ade80; }
+  .ek-trend.down { color: #f87171; }
+  .ek-bench {
+    font-size: 0.54rem;
+    color: #8899b0;
+    font-style: italic;
+  }
+  .ek-microbar {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 1.5px;
+    height: 14px;
+  }
+  .ek-microbar span {
+    width: 3px;
+    background: linear-gradient(180deg, #F4B400, rgba(244,180,0,0.3));
+    border-radius: 1px;
   }
 
-  .treemap-cell.moderate {
-    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+  /* Sankey-style pipeline in modal */
+  .sankey-wrap {
+    background: rgba(10, 22, 40, 0.5);
+    border: 1px solid rgba(244, 180, 0, 0.15);
+    border-radius: 8px;
+    padding: 14px;
+    overflow-x: auto;
+  }
+  .sankey-wrap svg { width: 100%; min-width: 560px; height: auto; }
+  .sankey-node-label { font-size: 9px; fill: #F4B400; font-weight: 700; font-family: 'Atkinson Hyperlegible', sans-serif; font-style: italic; }
+  .sankey-node-sub { font-size: 7.5px; fill: #8899b0; font-family: 'Atkinson Hyperlegible', sans-serif; }
+  .sankey-flow { transition: opacity 0.2s; }
+  .sankey-flow:hover { opacity: 0.85; }
+
+  .eco-summary-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(244, 180, 0, 0.18);
+  }
+  .eco-summary-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.66rem;
+    color: #8899b0;
+    font-style: italic;
+    background: rgba(244, 180, 0, 0.05);
+    border: 1px solid rgba(244, 180, 0, 0.15);
+    border-radius: 20px;
+    padding: 4px 12px;
+  }
+  .eco-summary-chip strong { color: #F4B400; font-style: normal; }
+  .eco-summary-chip .live-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #4ade80; box-shadow: 0 0 6px #4ade80;
+    animation: livePulse 1.8s ease-in-out infinite;
   }
 
-  .treemap-cell.other {
-    background: linear-gradient(135deg, #22c55e, #4ade80);
-  }
-
-  .treemap-cell.cons {
-    background: linear-gradient(135deg, #ef4444, #f87171);
-  }
-
-  .treemap-cell.moderate .cell-value,
-  .treemap-cell.other .cell-value,
-  .treemap-cell.cons .cell-value {
-    font-size: 1.3rem;
+  @media (max-width: 760px) {
+    .ecosystem {
+      grid-template-columns: 1fr;
+    }
+    .kpi-strip { grid-template-columns: repeat(2, 1fr); }
   }
 
   /* ===== CARD: School Metrics ===== */
@@ -1617,26 +2079,47 @@
     </div>
   </div>
 
-  <!-- CARD 4: School Datahub -->
+  <!-- CARD 4: School Datahub — Talent & Service Ecosystem -->
   <div class="card card-datahub">
-    <div class="card-heading">School Datahub</div>
-    <div class="datahub-treemap">
-      <div class="treemap-cell liberal">
-        <span class="cell-label">Liberal</span>
-        <span class="cell-value">65</span>
+    <div class="card-heading-row">
+      <div class="card-heading">Talent &amp; Service Ecosystem</div>
+      <button class="view-more" data-modal-open="datahubModal">Open Datahub</button>
+    </div>
+    <div class="ecosystem">
+
+      <!-- LEFT: radial service-sector chart (rendered by JS) -->
+      <div class="ecosystem-radial" id="radialChart">
+        <div class="radial-tooltip" id="radialTooltip"></div>
       </div>
-      <div class="treemap-cell moderate">
-        <span class="cell-label">Moderate</span>
-        <span class="cell-value">15</span>
+
+      <!-- RIGHT: KPI strip + pipeline + CTA -->
+      <div class="ecosystem-right">
+        <div class="kpi-strip" id="kpiStripCard"></div>
+
+        <div class="pipeline-preview">
+          <div class="pipeline-title"><span class="live-dot"></span> Volunteer → Career Pipeline</div>
+          <div class="pipeline-flow">
+            <div class="flow-node"><span class="fn-val" data-count="2148">0</span><span class="fn-label">Students</span></div>
+            <div class="flow-arrow">›</div>
+            <div class="flow-node"><span class="fn-val" data-count="8640" data-suffix="">0</span><span class="fn-label">Svc Hrs/mo</span></div>
+            <div class="flow-arrow">›</div>
+            <div class="flow-node"><span class="fn-val" data-count="387">0</span><span class="fn-label">Leadership</span></div>
+            <div class="flow-arrow">›</div>
+            <div class="flow-node"><span class="fn-val" data-count="164">0</span><span class="fn-label">Internships</span></div>
+            <div class="flow-arrow">›</div>
+            <div class="flow-node"><span class="fn-val" data-count="84" data-suffix="%">0</span><span class="fn-label">Career Ready</span></div>
+          </div>
+        </div>
+
+        <div class="datahub-cta">
+          <button class="cta-button" data-modal-open="datahubModal">
+            <span>Launch Workforce Analytics</span>
+            <span class="cta-arrow">→</span>
+          </button>
+          <div class="cta-microtext" id="ctaMicrotext"><span class="live-dot"></span> 2,148 active volunteer relationships tracked</div>
+        </div>
       </div>
-      <div class="treemap-cell other">
-        <span class="cell-label">Other</span>
-        <span class="cell-value">11</span>
-      </div>
-      <div class="treemap-cell cons">
-        <span class="cell-label">Cons.</span>
-        <span class="cell-value">10</span>
-      </div>
+
     </div>
   </div>
 
@@ -2343,6 +2826,44 @@
   </div>
 </div>
 
+<!-- ===== MODAL: DATAHUB — TALENT & SERVICE ECOSYSTEM ===== -->
+<div class="modal-overlay" id="datahubModal" data-modal>
+  <div class="modal" role="dialog" aria-labelledby="datahubModalTitle">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="datahubModalTitle">Talent &amp; Service Ecosystem</div>
+        <div class="modal-subtitle">Volunteer Workforce Intelligence &middot; Live Community Engagement Analytics</div>
+      </div>
+      <button class="modal-close" data-modal-close aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- SECTION 1: Service distribution -->
+      <div class="eco-modal-section-title">Where Volunteer &amp; Leadership Talent Exists</div>
+      <div class="eco-cat-grid" id="ecoCatGrid"></div>
+
+      <!-- SECTION 2: Service pipeline signals -->
+      <div class="eco-modal-section-title">Service Pipeline Signals</div>
+      <div class="eco-kpi-grid" id="ecoKpiGrid"></div>
+
+      <!-- SECTION 3: Volunteer & career pipeline -->
+      <div class="eco-modal-section-title">Volunteer → Career Pipeline</div>
+      <div class="sankey-wrap">
+        <svg viewBox="0 0 600 220" id="sankeySvg" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+
+      <!-- SECTION 4: live summary chips -->
+      <div class="eco-summary-row">
+        <div class="eco-summary-chip"><span class="live-dot"></span> <strong>2,148</strong>&nbsp;active volunteer relationships tracked</div>
+        <div class="eco-summary-chip"><span class="live-dot"></span> <strong>387</strong>&nbsp;leadership pathway connections detected</div>
+        <div class="eco-summary-chip"><span class="live-dot"></span> Live nonprofit engagement analytics</div>
+        <div class="eco-summary-chip"><span class="live-dot"></span> Student engagement forecasting enabled</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <!-- ===== JAVASCRIPT: CAROUSELS + MODALS ===== -->
 <script>
 (function() {
@@ -2418,6 +2939,10 @@
         bar.style.width = '0%';
         requestAnimationFrame(() => { setTimeout(() => bar.style.width = w, 50); });
       });
+      /* Datahub modal: animate ecosystem content */
+      if (id === 'datahubModal' && typeof window.__animateEcoModal === 'function') {
+        requestAnimationFrame(() => setTimeout(window.__animateEcoModal, 60));
+      }
     }
 
     function closeModal(modal) {
