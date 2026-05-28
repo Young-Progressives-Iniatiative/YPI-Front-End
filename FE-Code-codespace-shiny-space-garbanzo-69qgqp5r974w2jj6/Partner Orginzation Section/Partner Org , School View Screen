@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bethesda-Chevy Chase High School - School Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 14px;
+  }
+
+  body {
+    font-family: 'Atkinson Hyperlegible', sans-serif;
+    background: linear-gradient(145deg, #050d1a 0%, #0a1f44 40%, #0d1f3c 70%, #060e1f 100%);
+    color: #ffffff;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    display: flex;
+    align-items: center;
+    padding: 18px 30px;
+    min-height: 130px;
+    background: linear-gradient(180deg, #0d1a33 0%, #0a1628 100%);
+    border-bottom: 4px solid #F4B400;
+    gap: 20px;
+  }
+
+  .header-logo {
+    width: 110px;
+    height: 110px;
+    flex-shrink: 0;
+  }
+
+  .header-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .header-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    font-style: italic;
+    color: #F4B400;
+    line-height: 1.2;
+    text-shadow: 0 0 20px rgba(244, 180, 0, 0.3);
+  }
+
+  .header-mascot {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #F4B400;
+    letter-spacing: 2px;
+  }
+
+  .header-subtitle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+    color: #c0c8d8;
+    margin-top: 2px;
+  }
+
+  .header-subtitle .mcps-badge {
+    background: #F4B400;
+    color: #0a1f44;
+    font-weight: 700;
+    padding: 2px 8px;
+    font-size: 0.85rem;
+    border-radius: 2px;
+  }
+
+  /* ===== DASHBOARD GRID ===== */
+  .dashboard {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-auto-rows: 1fr;
+    gap: 12px;
+    padding: 16px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  /* Datahub spans 2 columns to be wider */
+  .card-datahub {
+    grid-column: span 2;
+  }
+
+  /* ===== CARD BASE ===== */
+  .card {
+    background: linear-gradient(160deg, #0b1d3d 0%, #091830 50%, #0a1a35 100%);
+    border: 3px solid #F4B400;
+    border-radius: 6px;
+    padding: 12px 14px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.4), inset 0 1px 0 rgba(244,180,0,0.08);
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(244,180,0,0.5), transparent);
+  }
+
+  .card:hover {
+    transform: scale(1.012);
+    box-shadow: 0 0 20px rgba(244, 180, 0, 0.25), 0 4px 15px rgba(0,0,0,0.5), inset 0 1px 0 rgba(244,180,0,0.15);
+    border-color: #ffc940;
+    z-index: 2;
+  }
+
+  .card-heading {
+    font-size: 0.9rem;
+    font-weight: 700;
+    font-style: italic;
+    color: #F4B400;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(244, 180, 0, 0.25);
+    line-height: 1.3;
+    text-shadow: 0 0 8px rgba(244, 180, 0, 0.15);
+  }
+
+  /* ===== CARD: US News Ranking ===== */
+  .ranking-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .ranking-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 4px;
+    font-size: 0.72rem;
+    border-radius: 3px;
+    transition: background 0.2s;
+  }
+
+  .ranking-item:hover {
+    background: rgba(244, 180, 0, 0.07);
+  }
+
+  .ranking-num {
+    color: #F4B400;
+    font-weight: 700;
+    min-width: 28px;
+    font-size: 0.75rem;
+  }
+
+  .ranking-logo-placeholder {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #F4B400, #d49800);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.5rem;
+    color: #0a1f44;
+    font-weight: 700;
+  }
+
+  .ranking-school {
+    color: #c0c8d8;
+    line-height: 1.15;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 0.72rem;
+  }
+
+  /* ===== CARD: Student Lists ===== */
+  .student-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    text-align: center;
+  }
+
+  .student-list li {
+    color: #F4B400;
+    font-size: 0.78rem;
+    font-weight: 700;
+    font-style: italic;
+    padding: 1px 4px;
+    line-height: 1.3;
+    border-radius: 2px;
+    transition: background 0.2s;
+  }
+
+  .student-list li:hover {
+    background: rgba(244, 180, 0, 0.08);
+  }
+
+  /* ===== CARD: Valedictorian ===== */
+  .valedictorian-card {
+    text-align: center;
+  }
+
+  .valedictorian-card .card-heading {
+    text-align: left;
+  }
+
+  .val-photo-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 10px;
+    margin: 6px 0;
+  }
+
+  .val-photo {
+    width: 95px;
+    height: 110px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #6b89ad 0%, #2a4060 60%, #1a2a40 100%);
+    border: 1px solid rgba(244, 180, 0, 0.2);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .val-photo svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .val-college-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .val-college-logo .shield {
+    width: 70px;
+    height: 75px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .val-college-logo .college-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #F4B400;
+    letter-spacing: 2px;
+    font-style: italic;
+    font-family: 'Atkinson Hyperlegible', serif;
+  }
+
+  .val-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #F4B400;
+    font-style: italic;
+    margin-bottom: 2px;
+    margin-top: 4px;
+  }
+
+  .val-commit {
+    font-size: 0.85rem;
+    color: #F4B400;
+    font-style: italic;
+    margin-bottom: 10px;
+  }
+
+  .val-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.82rem;
+    text-align: left;
+    padding: 0 4px;
+  }
+
+  .val-stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 4px;
+  }
+
+  .val-stat-label {
+    color: #F4B400;
+    font-weight: 700;
+    font-style: italic;
+  }
+
+  .val-stat-value {
+    color: #F4B400;
+    font-weight: 700;
+    font-style: italic;
+  }
+
+  /* ===== CARD: School Datahub (Treemap) ===== */
+  .datahub-treemap {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: 2.2fr 1fr;
+    gap: 4px;
+    min-height: 200px;
+    height: 100%;
+    border: 2px solid #1a3050;
+    padding: 4px;
+    background: #0a1628;
+    border-radius: 4px;
+  }
+
+  .treemap-cell {
+    border-radius: 3px;
+    padding: 6px 8px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    overflow: hidden;
+  }
+
+  .treemap-cell .cell-label {
+    position: absolute;
+    top: 4px;
+    left: 6px;
+    font-size: 0.72rem;
+    font-style: italic;
+    font-weight: 700;
+    color: #fff;
+    opacity: 0.95;
+  }
+
+  .treemap-cell .cell-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .treemap-cell.liberal {
+    grid-column: 1 / 4;
+    grid-row: 1;
+    background: linear-gradient(135deg, #3b5998, #4a6db5);
+  }
+
+  .treemap-cell.moderate {
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+  }
+
+  .treemap-cell.other {
+    background: linear-gradient(135deg, #22c55e, #4ade80);
+  }
+
+  .treemap-cell.cons {
+    background: linear-gradient(135deg, #ef4444, #f87171);
+  }
+
+  .treemap-cell.moderate .cell-value,
+  .treemap-cell.other .cell-value,
+  .treemap-cell.cons .cell-value {
+    font-size: 1.3rem;
+  }
+
+  /* ===== CARD: School Metrics ===== */
+  .metrics-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .metric-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 4px;
+    font-size: 0.78rem;
+    border-radius: 2px;
+    transition: background 0.2s;
+  }
+
+  .metric-row:hover {
+    background: rgba(244, 180, 0, 0.06);
+  }
+
+  /* Rows with rank on left (top Maryland Ranking section) */
+  .metric-row.rank-left {
+    justify-content: flex-start;
+    gap: 12px;
+  }
+
+  .metric-row.rank-left .metric-rank {
+    min-width: 26px;
+  }
+
+  .metric-name {
+    color: #F4B400;
+    font-style: italic;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .metric-icon {
+    font-size: 0.7rem;
+    width: 14px;
+    display: inline-flex;
+    justify-content: center;
+  }
+
+  .metric-rank {
+    color: #F4B400;
+    font-weight: 700;
+    font-style: italic;
+    font-size: 0.82rem;
+  }
+
+  /* ===== CARD: Supported Orgs ===== */
+  .orgs-placeholder {
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #556680;
+    font-style: italic;
+    font-size: 0.82rem;
+    padding: 20px;
+    text-align: center;
+  }
+
+  /* ===== CARD: Notable Alumni ===== */
+  .alumni-card {
+    text-align: center;
+  }
+
+  .alumni-card .card-heading {
+    text-align: center;
+  }
+
+  .alumni-photo {
+    width: 110px;
+    height: 125px;
+    border-radius: 4px;
+    margin: 6px auto 4px;
+    background: linear-gradient(180deg, #4a6080 0%, #2a3850 50%, #1a2030 100%);
+    border: 1px solid rgba(244, 180, 0, 0.25);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .alumni-photo svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .alumni-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-style: italic;
+    color: #F4B400;
+    margin: 4px 0;
+    text-shadow: 0 0 10px rgba(244, 180, 0, 0.2);
+  }
+
+  .alumni-stats-text {
+    font-size: 0.88rem;
+    color: #F4B400;
+    font-weight: 700;
+    font-style: italic;
+    margin-top: 4px;
+    line-height: 1.3;
+  }
+
+  .alumni-awards {
+    font-size: 0.72rem;
+    color: #F4B400;
+    margin-top: 6px;
+    font-style: italic;
+    font-weight: 700;
+    line-height: 1.35;
+    padding: 4px 6px;
+  }
+
+  /* ===== CARD: Navigation Dots ===== */
+  .card-nav-dots {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 5px;
+  }
+
+  .card-nav-dots .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    border: 1.5px solid #F4B400;
+    background: transparent;
+    transition: all 0.2s;
+  }
+
+  .card-nav-dots .dot.active {
+    background: #F4B400;
+    border-color: #F4B400;
+  }
+
+  .card-nav-dots .dot:hover {
+    border-color: #F4B400;
+    background: rgba(244, 180, 0, 0.3);
+  }
+
+  /* Alumni card dots are at bottom right */
+  .alumni-card .card-nav-dots {
+    top: auto;
+    bottom: 10px;
+    right: 12px;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 1200px) {
+    .dashboard {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .card-datahub {
+      grid-column: span 2;
+    }
+  }
+
+  @media (max-width: 900px) {
+    html {
+      font-size: 13px;
+    }
+    .dashboard {
+      grid-template-columns: 1fr 1fr;
+      padding: 10px;
+      gap: 10px;
+    }
+    .card-datahub {
+      grid-column: span 2;
+    }
+    .header {
+      padding: 12px 16px;
+      min-height: 100px;
+    }
+    .header-logo {
+      width: 80px;
+      height: 80px;
+    }
+    .header-title {
+      font-size: 1.4rem;
+    }
+  }
+
+  @media (max-width: 600px) {
+    html {
+      font-size: 12px;
+    }
+    .dashboard {
+      grid-template-columns: 1fr;
+      padding: 8px;
+      gap: 8px;
+    }
+    .card-datahub {
+      grid-column: span 1;
+    }
+    .header {
+      padding: 10px 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      text-align: center;
+    }
+    .header-content {
+      align-items: center;
+    }
+    .header-title {
+      font-size: 1.2rem;
+    }
+    .header-logo {
+      width: 65px;
+      height: 65px;
+    }
+  }
+
+  /* ===== SCROLLBAR ===== */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0a1628;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(244, 180, 0, 0.3);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(244, 180, 0, 0.5);
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="header">
+  <div class="header-logo">
+    <svg viewBox="0 0 110 110" xmlns="http://www.w3.org/2000/svg">
+      <!-- Outer ring with text -->
+      <circle cx="55" cy="55" r="52" fill="#0d1a33" stroke="#F4B400" stroke-width="3"/>
+      <circle cx="55" cy="55" r="49" fill="none" stroke="#F4B400" stroke-width="0.8"/>
+      <circle cx="55" cy="55" r="38" fill="#fbf3e0" stroke="#F4B400" stroke-width="1.2"/>
+
+      <!-- Curved text top -->
+      <defs>
+        <path id="topArc" d="M 17 55 A 38 38 0 0 1 93 55" fill="none"/>
+        <path id="bottomArc" d="M 20 60 A 35 35 0 0 0 90 60" fill="none"/>
+      </defs>
+      <text font-family="'Atkinson Hyperlegible', sans-serif" font-size="7" font-weight="700" fill="#F4B400" letter-spacing="1.2">
+        <textPath href="#topArc" startOffset="50%" text-anchor="middle">BETHESDA-CHEVY CHASE</textPath>
+      </text>
+      <text font-family="'Atkinson Hyperlegible', sans-serif" font-size="6" font-weight="700" fill="#F4B400" letter-spacing="1">
+        <textPath href="#bottomArc" startOffset="50%" text-anchor="middle">HIGH SCHOOL</textPath>
+      </text>
+
+      <!-- Baron mascot figure -->
+      <g transform="translate(55, 56)">
+        <!-- Top hat -->
+        <rect x="-7" y="-22" width="14" height="10" rx="0.5" fill="#1a1a1a"/>
+        <rect x="-9" y="-13" width="18" height="2" rx="0.5" fill="#1a1a1a"/>
+        <rect x="-7" y="-19" width="14" height="2" fill="#F4B400" opacity="0.7"/>
+        <!-- Head -->
+        <circle cx="0" cy="-7" r="5" fill="#f0d4a8"/>
+        <!-- Beard -->
+        <path d="M -4 -5 Q -5 -1 -3 1 Q 0 2 3 1 Q 5 -1 4 -5 Z" fill="#ffffff"/>
+        <!-- Face -->
+        <circle cx="-1.8" cy="-7.5" r="0.6" fill="#1a1a1a"/>
+        <circle cx="1.8" cy="-7.5" r="0.6" fill="#1a1a1a"/>
+        <!-- Body / Suit -->
+        <path d="M -8 -2 L -10 14 L 10 14 L 8 -2 Q 4 0 0 0 Q -4 0 -8 -2 Z" fill="#1a3050"/>
+        <!-- Tie -->
+        <path d="M -1.2 -1 L 1.2 -1 L 1.5 8 L 0 11 L -1.5 8 Z" fill="#8B0000"/>
+        <!-- Arms -->
+        <path d="M -8 -1 L -12 8 L -10 9 L -7 2 Z" fill="#1a3050"/>
+        <path d="M 8 -1 L 12 8 L 10 9 L 7 2 Z" fill="#1a3050"/>
+        <!-- Cane -->
+        <line x1="12" y1="3" x2="14" y2="14" stroke="#F4B400" stroke-width="1.2"/>
+        <circle cx="14" cy="2.5" r="1.2" fill="#F4B400"/>
+      </g>
+
+      <!-- EST. 1926 small text -->
+      <text x="55" y="100" text-anchor="middle" fill="#F4B400" font-size="5" font-family="'Atkinson Hyperlegible', sans-serif" font-weight="700">EST. 1926</text>
+    </svg>
+  </div>
+  <div class="header-content">
+    <h1 class="header-title">Bethesda&ndash;Chevy Chase High School</h1>
+    <span class="header-mascot">Barons</span>
+    <div class="header-subtitle">
+      <span class="mcps-badge">MCPS</span>
+      <span>Montgomery County Public Schools (MD)</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== DASHBOARD GRID ===== -->
+<main class="dashboard">
+
+  <!-- CARD 1: US News Ranking -->
+  <div class="card card-ranking">
+    <div class="card-heading">US News Ranking</div>
+    <ul class="ranking-list">
+      <li class="ranking-item">
+        <span class="ranking-num">#917</span>
+        <div class="ranking-logo-placeholder"></div>
+        <span class="ranking-school">Bethesda-Chevy Chase High School</span>
+      </li>
+      <li class="ranking-item">
+        <span class="ranking-num">#917</span>
+        <div class="ranking-logo-placeholder">🏆</div>
+        <span class="ranking-school">Bethesda-Chevy Chase High School</span>
+      </li>
+      <li class="ranking-item">
+        <span class="ranking-num">#917</span>
+        <div class="ranking-logo-placeholder">🏆</div>
+        <span class="ranking-school">Bethesda-Chevy Chase High School</span>
+      </li>
+      <li class="ranking-item">
+        <span class="ranking-num">#917</span>
+        <div class="ranking-logo-placeholder">🏆</div>
+        <span class="ranking-school">Bethesda-Chevy Chase High School</span>
+      </li>
+      <li class="ranking-item">
+        <span class="ranking-num">#917</span>
+        <div class="ranking-logo-placeholder">🏆</div>
+        <span class="ranking-school">Bethesda-Chevy Chase High School</span>
+      </li>
+      <li class="ranking-item">
+        <span class="ranking-num">#917</span>
+        <div class="ranking-logo-placeholder">🏆</div>
+        <span class="ranking-school">Bethesda-Chevy Chase High School</span>
+      </li>
+      <li class="ranking-item">
+        <span class="ranking-num">#917</span>
+        <div class="ranking-logo-placeholder"></div>
+        <span class="ranking-school">Bethesda-Chevy Chase High School</span>
+      </li>
+      <li class="ranking-item">
+        <span class="ranking-num">#917</span>
+        <div class="ranking-logo-placeholder">🏆</div>
+        <span class="ranking-school">Bethesda-Chevy Chase High School</span>
+      </li>
+    </ul>
+    <div class="card-nav-dots">
+      <span class="dot active"></span>
+      <span class="dot"></span>
+    </div>
+  </div>
+
+  <!-- CARD 2: YPI Students Attending BCC -->
+  <div class="card card-students-bcc">
+    <div class="card-heading">YPI Students Attending BCC</div>
+    <ul class="student-list">
+      <li>Natalie K. Bitman</li>
+      <li>Lydia L. Frohart</li>
+      <li>Simone S. McCaulif</li>
+      <li>Jamie H. Kirsh</li>
+      <li>Sydney M. Donavan Jenkins</li>
+      <li>John F. Hamilton</li>
+      <li>Nico K. Liam</li>
+      <li>Jackson R. Holland</li>
+      <li>Caroline M. Ford</li>
+      <li>Tyler B. Koamoa</li>
+      <li>Gus Lewis</li>
+    </ul>
+  </div>
+
+  <!-- CARD 3: Current YPI Valedictorian -->
+  <div class="card valedictorian-card">
+    <div class="card-heading">Current YPI Valedictorian</div>
+    <div class="val-photo-row">
+      <div class="val-photo">
+        <!-- Stylized portrait of young woman -->
+        <svg viewBox="0 0 95 110" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+          <!-- Background gradient is on container -->
+          <!-- Hair back -->
+          <path d="M 22 38 Q 18 28 28 18 Q 40 8 50 10 Q 65 12 72 22 Q 78 32 74 42 L 74 60 L 22 60 Z" fill="#3a2820"/>
+          <!-- Neck -->
+          <rect x="40" y="50" width="15" height="14" rx="2" fill="#c89a7a"/>
+          <!-- Face -->
+          <ellipse cx="47.5" cy="40" rx="14" ry="17" fill="#d4a888"/>
+          <!-- Hair front / side -->
+          <path d="M 32 30 Q 30 22 38 18 Q 45 14 52 16 Q 58 14 64 20 Q 66 28 62 32 Q 58 26 50 25 Q 42 25 38 30 Q 35 33 32 32 Z" fill="#3a2820"/>
+          <!-- Eyebrows -->
+          <path d="M 40 36 Q 43 35 46 36" stroke="#2a1810" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+          <path d="M 49 36 Q 52 35 55 36" stroke="#2a1810" stroke-width="0.8" fill="none" stroke-linecap="round"/>
+          <!-- Eyes -->
+          <ellipse cx="43" cy="39.5" rx="1.5" ry="1" fill="#2a1810"/>
+          <ellipse cx="52" cy="39.5" rx="1.5" ry="1" fill="#2a1810"/>
+          <!-- Nose -->
+          <path d="M 47 41 L 46 46 L 48 46" stroke="#a8806a" stroke-width="0.6" fill="none"/>
+          <!-- Lips -->
+          <path d="M 44 49 Q 47.5 50.5 51 49" stroke="#a55050" stroke-width="0.8" fill="#c66060"/>
+          <!-- Suit/blazer -->
+          <path d="M 15 75 L 20 64 Q 35 60 47.5 64 Q 60 60 75 64 L 80 75 L 80 110 L 15 110 Z" fill="#1a2540"/>
+          <!-- White shirt collar -->
+          <path d="M 40 62 L 47.5 70 L 55 62 L 55 75 L 40 75 Z" fill="#f5f5f5"/>
+          <!-- Blazer lapels -->
+          <path d="M 35 65 L 47.5 72 L 40 78 L 30 75 Z" fill="#0d1730"/>
+          <path d="M 60 65 L 47.5 72 L 55 78 L 65 75 Z" fill="#0d1730"/>
+        </svg>
+      </div>
+      <div class="val-college-logo">
+        <div class="shield">
+          <svg viewBox="0 0 60 65" xmlns="http://www.w3.org/2000/svg">
+            <path d="M 30 2 L 56 10 L 56 38 Q 56 54 30 62 Q 4 54 4 38 L 4 10 Z" fill="#7B1818" stroke="#F4B400" stroke-width="1.2"/>
+            <path d="M 30 5 L 53 12 L 53 37 Q 53 51 30 58 Q 7 51 7 37 L 7 12 Z" fill="none" stroke="#F4B400" stroke-width="0.5" opacity="0.6"/>
+            <!-- Building shape -->
+            <rect x="16" y="22" width="28" height="20" fill="#F4B400"/>
+            <rect x="14" y="20" width="32" height="3" fill="#F4B400"/>
+            <polygon points="14,20 30,12 46,20" fill="#F4B400"/>
+            <!-- Pillars -->
+            <rect x="18" y="25" width="2" height="17" fill="#7B1818"/>
+            <rect x="22" y="25" width="2" height="17" fill="#7B1818"/>
+            <rect x="26" y="25" width="2" height="17" fill="#7B1818"/>
+            <rect x="32" y="25" width="2" height="17" fill="#7B1818"/>
+            <rect x="36" y="25" width="2" height="17" fill="#7B1818"/>
+            <rect x="40" y="25" width="2" height="17" fill="#7B1818"/>
+            <!-- Door -->
+            <rect x="28" y="32" width="4" height="10" fill="#7B1818"/>
+          </svg>
+        </div>
+        <span class="college-name">BROWN</span>
+      </div>
+    </div>
+    <div class="val-name">Natalie K. Bitman</div>
+    <div class="val-commit">Commit</div>
+    <div class="val-stats">
+      <div class="val-stat">
+        <span class="val-stat-label">Weighted GPA:</span>
+        <span class="val-stat-value">4.02</span>
+      </div>
+      <div class="val-stat">
+        <span class="val-stat-label">Unweighted GPA:</span>
+        <span class="val-stat-value">3.98</span>
+      </div>
+      <div class="val-stat">
+        <span class="val-stat-label">Volunteer Hours:</span>
+        <span class="val-stat-value">500</span>
+      </div>
+      <div class="val-stat">
+        <span class="val-stat-label">Student-Athlete:</span>
+        <span class="val-stat-value">Yes</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD 4: School Datahub -->
+  <div class="card card-datahub">
+    <div class="card-heading">School Datahub</div>
+    <div class="datahub-treemap">
+      <div class="treemap-cell liberal">
+        <span class="cell-label">Liberal</span>
+        <span class="cell-value">65</span>
+      </div>
+      <div class="treemap-cell moderate">
+        <span class="cell-label">Moderate</span>
+        <span class="cell-value">15</span>
+      </div>
+      <div class="treemap-cell other">
+        <span class="cell-label">Other</span>
+        <span class="cell-value">11</span>
+      </div>
+      <div class="treemap-cell cons">
+        <span class="cell-label">Cons.</span>
+        <span class="cell-value">10</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD 5: YPI Students Attending BCC Class of 2027 -->
+  <div class="card">
+    <div class="card-heading">YPI Students Attending BCC in the Class of 2027</div>
+    <ul class="student-list">
+      <li>Natalie K. Bitman</li>
+      <li>Lydia L. Frohart</li>
+      <li>Simone S. McCaulif</li>
+      <li>Jamie H. Kirsh</li>
+      <li>Sydney M. Donavan Jenkins</li>
+      <li>John F. Hamilton</li>
+      <li>Nico K. Liam</li>
+      <li>Jackson R. Holland</li>
+      <li>Caroline M. Ford</li>
+      <li>Tyler B. Koamoa</li>
+    </ul>
+  </div>
+
+  <!-- CARD 6: School Metrics / Rankings -->
+  <div class="card">
+    <div class="card-heading">School Metrics/Rankings</div>
+    <div class="metrics-list">
+      <div class="metric-row rank-left">
+        <span class="metric-rank">1st</span>
+        <span class="metric-name"><span class="metric-icon">🏅</span> Maryland Ranking</span>
+      </div>
+      <div class="metric-row rank-left">
+        <span class="metric-rank">1st</span>
+        <span class="metric-name"><span class="metric-icon">🏅</span> Maryland Ranking</span>
+      </div>
+      <div class="metric-row rank-left">
+        <span class="metric-rank">1st</span>
+        <span class="metric-name"><span class="metric-icon">🏅</span> Maryland Ranking</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-name"><span class="metric-icon">📊</span> Average ACT</span>
+        <span class="metric-rank">1st</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-name"><span class="metric-icon">📊</span> Average SAT</span>
+        <span class="metric-rank">1st</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-name"><span class="metric-icon">📝</span> Took at Least One AP/IB Exam</span>
+        <span class="metric-rank">1st</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-name"><span class="metric-icon">🎓</span> Passed at Least One AP Exam</span>
+        <span class="metric-rank">1st</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-name"><span class="metric-icon">🔬</span> Mathematics Proficiency</span>
+        <span class="metric-rank">1st</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-name"><span class="metric-icon">📖</span> Reading Proficiency</span>
+        <span class="metric-rank">1st</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-name"><span class="metric-icon">🧪</span> Science Proficiency</span>
+        <span class="metric-rank">1st</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-name"><span class="metric-icon">🎓</span> Graduation Rate</span>
+        <span class="metric-rank">1st</span>
+      </div>
+      <div class="metric-row">
+        <span class="metric-name"><span class="metric-icon">🎓</span> College Readiness Index</span>
+        <span class="metric-rank">1st</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD 7: YPI Athletes Attending BCC -->
+  <div class="card">
+    <div class="card-heading">YPI Athletes Attending BCC</div>
+    <ul class="student-list">
+      <li>Natalie K. Bitman</li>
+      <li>Lydia L. Frohart</li>
+      <li>Simone S. McCaulif</li>
+      <li>Jamie H. Kirsh</li>
+      <li>Sydney M. Donavan Jenkins</li>
+      <li>John F. Hamilton</li>
+      <li>Nico K. Liam</li>
+      <li>Jackson R. Holland</li>
+      <li>Caroline M. Ford</li>
+      <li>Tyler B. Koamoa</li>
+      <li>Gus Lewis</li>
+    </ul>
+  </div>
+
+  <!-- CARD 8: YPI Supported Student Orgs -->
+  <div class="card">
+    <div class="card-heading">YPI Supported Student Orgs</div>
+    <div class="orgs-placeholder"></div>
+  </div>
+
+  <!-- CARD 9: All Time Most Notable Alumni -->
+  <div class="card alumni-card">
+    <div class="card-heading">All Time Most Notable Alumni of BCC</div>
+    <div class="alumni-photo">
+      <!-- Stylized portrait of Daniel Stern (older man with white beard) -->
+      <svg viewBox="0 0 110 125" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+        <!-- Hair (white/gray, balding pattern) -->
+        <path d="M 30 36 Q 28 28 35 22 Q 45 18 55 20 Q 70 22 78 32 Q 80 40 76 46 L 75 56 L 32 56 Z" fill="#d4d4d4"/>
+        <!-- Bald spot on top -->
+        <ellipse cx="55" cy="28" rx="14" ry="9" fill="#d4a888"/>
+        <!-- Head/Face -->
+        <ellipse cx="55" cy="48" rx="20" ry="22" fill="#d4a888"/>
+        <!-- White beard -->
+        <path d="M 35 52 Q 32 60 35 70 Q 40 78 55 80 Q 70 78 75 70 Q 78 60 75 52 Q 70 58 55 60 Q 40 58 35 52 Z" fill="#e8e8e8"/>
+        <!-- Mustache -->
+        <path d="M 42 56 Q 48 58 55 58 Q 62 58 68 56 Q 65 60 55 60 Q 45 60 42 56 Z" fill="#d8d8d8"/>
+        <!-- Glasses frames -->
+        <circle cx="46" cy="46" r="5" fill="none" stroke="#1a1a1a" stroke-width="1"/>
+        <circle cx="64" cy="46" r="5" fill="none" stroke="#1a1a1a" stroke-width="1"/>
+        <line x1="51" y1="46" x2="59" y2="46" stroke="#1a1a1a" stroke-width="1"/>
+        <!-- Eyes behind glasses -->
+        <circle cx="46" cy="46" r="1.2" fill="#2a1810"/>
+        <circle cx="64" cy="46" r="1.2" fill="#2a1810"/>
+        <!-- Nose -->
+        <path d="M 55 48 Q 53 52 55 55 Q 57 52 55 48" stroke="#a8806a" stroke-width="0.6" fill="none"/>
+        <!-- Eyebrows (white) -->
+        <path d="M 41 41 Q 46 39 51 41" stroke="#d4d4d4" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <path d="M 59 41 Q 64 39 69 41" stroke="#d4d4d4" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+        <!-- Neck -->
+        <rect x="48" y="78" width="14" height="10" fill="#c89a7a"/>
+        <!-- Dark suit -->
+        <path d="M 20 90 L 30 80 Q 42 78 55 82 Q 68 78 80 80 L 90 90 L 90 125 L 20 125 Z" fill="#1a1a1a"/>
+        <!-- White shirt -->
+        <path d="M 48 82 L 55 90 L 62 82 L 62 100 L 48 100 Z" fill="#f5f5f5"/>
+        <!-- Tie -->
+        <path d="M 53 90 L 57 90 L 58 105 L 55 110 L 52 105 Z" fill="#3a4a6a"/>
+        <!-- Suit lapels -->
+        <path d="M 35 85 L 55 92 L 48 102 L 28 95 Z" fill="#0a0a0a"/>
+        <path d="M 75 85 L 55 92 L 62 102 L 82 95 Z" fill="#0a0a0a"/>
+      </svg>
+    </div>
+    <div class="alumni-name">Daniel Stern</div>
+    <div class="alumni-stats-text">Starred in Over 30+ Movies<br>From 1979&ndash;2019</div>
+    <div class="alumni-awards">
+      Nominated for Funniest Supporting Actor in a Motion Picture by the American Comedy Awards 1992
+    </div>
+    <div class="card-nav-dots">
+      <span class="dot active"></span>
+      <span class="dot"></span>
+    </div>
+  </div>
+
+</main>
+
+</body>
+</html>
