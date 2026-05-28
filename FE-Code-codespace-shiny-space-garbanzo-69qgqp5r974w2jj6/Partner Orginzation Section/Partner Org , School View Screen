@@ -147,50 +147,69 @@
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 1px;
+    gap: 0;
   }
 
   .ranking-item {
-    display: flex;
+    display: grid;
+    grid-template-columns: 36px 22px 1fr auto;
     align-items: center;
-    gap: 6px;
-    padding: 2px 4px;
-    font-size: 0.72rem;
+    gap: 8px;
+    padding: 3px 6px;
+    font-size: 0.78rem;
     border-radius: 3px;
-    transition: background 0.2s;
+    border-bottom: 1px solid rgba(244, 180, 0, 0.06);
+    transition: background 0.15s, transform 0.15s;
+    position: relative;
+  }
+
+  .ranking-item:nth-child(even) {
+    background: rgba(244, 180, 0, 0.025);
   }
 
   .ranking-item:hover {
-    background: rgba(244, 180, 0, 0.07);
+    background: rgba(244, 180, 0, 0.1);
+    transform: translateX(2px);
+    cursor: pointer;
+  }
+
+  .ranking-item.bcc-highlight {
+    background: rgba(244, 180, 0, 0.12);
+    border-left: 2px solid #F4B400;
   }
 
   .ranking-num {
     color: #F4B400;
     font-weight: 700;
-    min-width: 28px;
-    font-size: 0.75rem;
+    font-style: italic;
+    font-size: 0.82rem;
+    text-align: right;
   }
 
   .ranking-logo-placeholder {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     background: linear-gradient(135deg, #F4B400, #d49800);
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.5rem;
+    font-size: 0.55rem;
     color: #0a1f44;
     font-weight: 700;
+    border: 1px solid rgba(244, 180, 0, 0.5);
   }
 
   .ranking-school {
     color: #c0c8d8;
-    line-height: 1.15;
+    line-height: 1.2;
     font-style: italic;
     font-weight: 700;
-    font-size: 0.72rem;
+    font-size: 0.76rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   /* ===== CARD: Student Lists ===== */
@@ -199,22 +218,64 @@
     display: flex;
     flex-direction: column;
     gap: 0;
-    text-align: center;
   }
 
   .student-list li {
+    display: grid;
+    grid-template-columns: 18px 1fr auto;
+    align-items: center;
+    gap: 8px;
     color: #F4B400;
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     font-weight: 700;
     font-style: italic;
-    padding: 1px 4px;
+    padding: 3px 6px;
     line-height: 1.3;
     border-radius: 2px;
-    transition: background 0.2s;
+    border-bottom: 1px solid rgba(244, 180, 0, 0.06);
+    transition: background 0.15s, transform 0.15s;
+    cursor: pointer;
+  }
+
+  .student-list li:nth-child(even) {
+    background: rgba(244, 180, 0, 0.025);
   }
 
   .student-list li:hover {
-    background: rgba(244, 180, 0, 0.08);
+    background: rgba(244, 180, 0, 0.1);
+    transform: translateX(2px);
+  }
+
+  .student-list .row-avatar {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1a3050, #0d1f3c);
+    border: 1px solid rgba(244, 180, 0, 0.4);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.55rem;
+    font-weight: 700;
+    color: #F4B400;
+    font-style: normal;
+    flex-shrink: 0;
+  }
+
+  .student-list .row-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .student-list .row-tag {
+    font-size: 0.6rem;
+    font-style: normal;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    text-transform: uppercase;
   }
 
   /* ===== CARD: Valedictorian ===== */
@@ -611,7 +672,591 @@
     }
   }
 
-  /* ===== SCROLLBAR ===== */
+  /* ===== BADGE SYSTEM (Team Screen inspired) ===== */
+  .bcc-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-style: normal;
+    font-family: inherit;
+    line-height: 1.4;
+  }
+  .bcc-badge.elite     { background: #F4B400; color: #0a1f44; }
+  .bcc-badge.honors    { background: #22c55e; color: #fff; }
+  .bcc-badge.stem      { background: #3b5998; color: #fff; }
+  .bcc-badge.varsity   { background: #ef4444; color: #fff; }
+  .bcc-badge.commit    { background: #8b5cf6; color: #fff; }
+  .bcc-badge.club      { background: #f97316; color: #fff; }
+  .bcc-badge.captain   { background: #facc15; color: #0a1f44; }
+  .bcc-badge.ipl       { background: rgba(244,180,0,0.15); color: #F4B400; border: 1px solid rgba(244,180,0,0.4); }
+  .bcc-badge.mcps      { background: rgba(34,197,94,0.18); color: #4ade80; border: 1px solid rgba(34,197,94,0.4); }
+  .bcc-badge.us        { background: rgba(59,89,152,0.25); color: #93b3ff; border: 1px solid rgba(59,89,152,0.5); }
+
+  /* ===== VIEW MORE BUTTON ===== */
+  .view-more {
+    background: rgba(244, 180, 0, 0.08);
+    border: 1px solid rgba(244, 180, 0, 0.5);
+    color: #F4B400;
+    font-size: 0.66rem;
+    font-weight: 700;
+    font-style: italic;
+    letter-spacing: 0.6px;
+    padding: 3px 9px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.18s ease;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .view-more:hover {
+    background: #F4B400;
+    color: #0a1f44;
+    border-color: #F4B400;
+    box-shadow: 0 0 12px rgba(244, 180, 0, 0.45);
+    transform: translateY(-1px);
+  }
+  .view-more::after {
+    content: '→';
+    font-style: normal;
+    transition: transform 0.18s;
+  }
+  .view-more:hover::after { transform: translateX(2px); }
+
+  .card-heading-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(244, 180, 0, 0.25);
+  }
+  .card-heading-row .card-heading {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  /* ===== CAROUSEL SYSTEM ===== */
+  .carousel {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .carousel-track {
+    display: flex;
+    transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+  }
+
+  .carousel-slide {
+    min-width: 100%;
+    flex: 0 0 100%;
+    box-sizing: border-box;
+  }
+
+  .carousel-slide-label {
+    font-size: 0.66rem;
+    color: #F4B400;
+    font-style: italic;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    text-align: center;
+    text-transform: uppercase;
+    opacity: 0.85;
+    padding: 2px 0;
+    border-bottom: 1px dashed rgba(244, 180, 0, 0.2);
+  }
+
+  .carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    background: rgba(10, 22, 40, 0.9);
+    border: 1.5px solid #F4B400;
+    color: #F4B400;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    z-index: 5;
+    transition: all 0.2s ease;
+    opacity: 0;
+    font-family: inherit;
+    line-height: 1;
+  }
+  .card:hover .carousel-arrow,
+  .alumni-card:hover .carousel-arrow {
+    opacity: 0.75;
+  }
+  .carousel-arrow:hover {
+    opacity: 1 !important;
+    background: #F4B400;
+    color: #0a1f44;
+    box-shadow: 0 0 14px rgba(244, 180, 0, 0.55);
+    transform: translateY(-50%) scale(1.08);
+  }
+  .carousel-arrow.prev { left: 2px; }
+  .carousel-arrow.next { right: 2px; }
+  .carousel-arrow:disabled {
+    opacity: 0.25 !important;
+    cursor: not-allowed;
+  }
+
+  /* ===== MODAL SYSTEM ===== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+    padding: 16px;
+  }
+  .modal-overlay.open {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, visibility 0s linear 0s;
+  }
+
+  .modal {
+    background: linear-gradient(160deg, #0b1d3d 0%, #091830 50%, #0a1a35 100%);
+    border: 2px solid #F4B400;
+    border-radius: 10px;
+    max-width: min(1100px, 95vw);
+    max-height: 88vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    box-shadow:
+      0 0 50px rgba(244, 180, 0, 0.3),
+      0 25px 60px rgba(0, 0, 0, 0.7),
+      inset 0 1px 0 rgba(244, 180, 0, 0.18);
+    transform: scale(0.9) translateY(20px);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.34, 1.4, 0.6, 1), opacity 0.3s ease;
+    overflow: hidden;
+    position: relative;
+  }
+  .modal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(244,180,0,0.7), transparent);
+    z-index: 10;
+  }
+  .modal-overlay.open .modal {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 22px;
+    background: linear-gradient(180deg, #0d1a33 0%, #0a1628 100%);
+    border-bottom: 2px solid #F4B400;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    flex-shrink: 0;
+  }
+
+  .modal-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    font-style: italic;
+    color: #F4B400;
+    text-shadow: 0 0 14px rgba(244, 180, 0, 0.3);
+    letter-spacing: 0.3px;
+  }
+
+  .modal-subtitle {
+    font-size: 0.78rem;
+    color: #8899b0;
+    font-style: italic;
+    margin-top: 2px;
+  }
+
+  .modal-close {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1.5px solid #F4B400;
+    color: #F4B400;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s ease;
+    font-family: inherit;
+    flex-shrink: 0;
+  }
+  .modal-close:hover {
+    background: #F4B400;
+    color: #0a1f44;
+    transform: rotate(90deg);
+    box-shadow: 0 0 14px rgba(244, 180, 0, 0.5);
+  }
+
+  .modal-body {
+    padding: 18px 22px;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .modal-body::-webkit-scrollbar { width: 8px; }
+  .modal-body::-webkit-scrollbar-track { background: rgba(10, 22, 40, 0.5); border-radius: 4px; }
+  .modal-body::-webkit-scrollbar-thumb { background: rgba(244, 180, 0, 0.4); border-radius: 4px; }
+  .modal-body::-webkit-scrollbar-thumb:hover { background: rgba(244, 180, 0, 0.6); }
+
+  /* Metrics modal split layout */
+  .metrics-modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 18px;
+    align-items: start;
+  }
+  .metrics-side {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .metrics-section-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    font-style: italic;
+    color: #F4B400;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(244, 180, 0, 0.3);
+    margin-bottom: 6px;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .metrics-section-title::before {
+    content: '';
+    width: 4px;
+    height: 12px;
+    background: #F4B400;
+    border-radius: 2px;
+  }
+
+  .highlight-card {
+    background: linear-gradient(135deg, rgba(244,180,0,0.12), rgba(244,180,0,0.04));
+    border: 1px solid rgba(244,180,0,0.35);
+    border-radius: 6px;
+    padding: 10px 14px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.22s ease;
+    cursor: default;
+  }
+  .highlight-card:hover {
+    background: linear-gradient(135deg, rgba(244,180,0,0.22), rgba(244,180,0,0.06));
+    border-color: #F4B400;
+    box-shadow: 0 0 18px rgba(244, 180, 0, 0.22);
+    transform: translateX(3px);
+  }
+  .highlight-label {
+    font-size: 0.78rem;
+    color: #c0c8d8;
+    font-style: italic;
+    font-weight: 700;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .highlight-label small {
+    font-size: 0.62rem;
+    color: #8899b0;
+    font-weight: 400;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+  }
+  .highlight-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #F4B400;
+    font-style: italic;
+    line-height: 1;
+    text-shadow: 0 0 10px rgba(244, 180, 0, 0.25);
+  }
+  .highlight-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 0.62rem;
+    margin-left: 6px;
+    font-style: normal;
+    font-weight: 700;
+  }
+  .highlight-trend.up { color: #4ade80; }
+  .highlight-trend.down { color: #f87171; }
+  .highlight-trend.flat { color: #8899b0; }
+
+  /* Detailed metrics rows in modal */
+  .metric-detail-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    font-size: 0.78rem;
+    border-bottom: 1px solid rgba(244, 180, 0, 0.08);
+    transition: background 0.15s;
+    position: relative;
+  }
+  .metric-detail-row:nth-child(even) {
+    background: rgba(244, 180, 0, 0.025);
+  }
+  .metric-detail-row:hover {
+    background: rgba(244, 180, 0, 0.1);
+  }
+  .metric-detail-row .m-label {
+    color: #c0c8d8;
+    font-style: italic;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .metric-detail-row .m-value {
+    color: #F4B400;
+    font-weight: 700;
+    font-style: italic;
+    font-variant-numeric: tabular-nums;
+    min-width: 50px;
+    text-align: right;
+  }
+  .metric-detail-row .m-trend {
+    font-size: 0.65rem;
+    min-width: 40px;
+    text-align: right;
+    font-weight: 700;
+  }
+  .metric-detail-row .m-trend.up { color: #4ade80; }
+  .metric-detail-row .m-trend.down { color: #f87171; }
+
+  .progress-bar {
+    grid-column: 1 / -1;
+    height: 3px;
+    background: rgba(244, 180, 0, 0.1);
+    border-radius: 2px;
+    margin-top: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #F4B400, #ffd966);
+    border-radius: 2px;
+    transition: width 0.6s ease;
+    box-shadow: 0 0 8px rgba(244, 180, 0, 0.4);
+  }
+
+  /* Orgs modal grid */
+  .org-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+    gap: 10px;
+  }
+  .org-card {
+    background: linear-gradient(135deg, rgba(244,180,0,0.05), rgba(10,31,68,0.6));
+    border: 1px solid rgba(244, 180, 0, 0.22);
+    border-radius: 6px;
+    padding: 11px 13px;
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 11px;
+    transition: all 0.22s ease;
+    cursor: pointer;
+    position: relative;
+  }
+  .org-card:hover {
+    background: linear-gradient(135deg, rgba(244,180,0,0.14), rgba(10,31,68,0.75));
+    border-color: #F4B400;
+    box-shadow: 0 0 20px rgba(244, 180, 0, 0.22);
+    transform: translateY(-2px);
+  }
+  .org-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #F4B400, #d49800);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    color: #0a1f44;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .org-info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .org-name-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+  .org-name {
+    font-size: 0.88rem;
+    font-weight: 700;
+    font-style: italic;
+    color: #F4B400;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .org-category {
+    font-size: 0.68rem;
+    color: #8899b0;
+    font-style: italic;
+    letter-spacing: 0.3px;
+  }
+  .org-leadership {
+    font-size: 0.7rem;
+    color: #c0c8d8;
+    font-style: italic;
+    margin-top: 2px;
+  }
+  .org-meta {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+    flex-wrap: wrap;
+    font-size: 0.66rem;
+  }
+  .org-stat {
+    color: #8899b0;
+    font-style: italic;
+  }
+  .org-stat strong {
+    color: #F4B400;
+    font-weight: 700;
+    font-style: normal;
+  }
+
+  /* ===== ALUMNI CAROUSEL POLISH ===== */
+  .alumni-card .carousel-slide {
+    padding: 0 4px;
+  }
+
+  /* ===== METRICS CARD CAROUSEL ===== */
+  .metric-slide {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .metric-slide .metric-row {
+    border-bottom: 1px solid rgba(244, 180, 0, 0.06);
+  }
+  .metric-slide .metric-row:nth-child(even) {
+    background: rgba(244, 180, 0, 0.025);
+  }
+  .metric-slide .metric-row:hover {
+    background: rgba(244, 180, 0, 0.1);
+    transform: translateX(2px);
+  }
+
+  /* ===== ORGS PREVIEW LIST ===== */
+  .orgs-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin-top: 2px;
+  }
+  .orgs-preview-row {
+    display: grid;
+    grid-template-columns: 22px 1fr auto;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 6px;
+    font-size: 0.78rem;
+    border-bottom: 1px solid rgba(244, 180, 0, 0.06);
+    transition: background 0.15s, transform 0.15s;
+    cursor: pointer;
+  }
+  .orgs-preview-row:nth-child(even) {
+    background: rgba(244, 180, 0, 0.025);
+  }
+  .orgs-preview-row:hover {
+    background: rgba(244, 180, 0, 0.1);
+    transform: translateX(2px);
+  }
+  .orgs-preview-icon {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    background: linear-gradient(135deg, #F4B400, #d49800);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #0a1f44;
+    font-weight: 700;
+  }
+  .orgs-preview-name {
+    color: #F4B400;
+    font-style: italic;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ===== CARD CLICKABILITY ===== */
+  .card.clickable {
+    cursor: pointer;
+  }
+  .card.clickable:active {
+    transform: scale(0.998);
+  }
+
+  /* ===== RESPONSIVE - MODALS ===== */
+  @media (max-width: 800px) {
+    .metrics-modal-grid {
+      grid-template-columns: 1fr;
+    }
+    .org-grid {
+      grid-template-columns: 1fr;
+    }
+    .modal-title {
+      font-size: 1rem;
+    }
+  }
+
+  /* ===== GLOBAL SCROLLBAR ===== */
   ::-webkit-scrollbar {
     width: 6px;
   }
@@ -692,54 +1337,185 @@
 <!-- ===== DASHBOARD GRID ===== -->
 <main class="dashboard">
 
-  <!-- CARD 1: US News Ranking -->
+  <!-- CARD 1: US News Ranking (CAROUSEL) -->
   <div class="card card-ranking">
     <div class="card-heading">US News Ranking</div>
-    <ul class="ranking-list">
-      <li class="ranking-item">
-        <span class="ranking-num">#917</span>
-        <div class="ranking-logo-placeholder"></div>
-        <span class="ranking-school">Bethesda-Chevy Chase High School</span>
-      </li>
-      <li class="ranking-item">
-        <span class="ranking-num">#917</span>
-        <div class="ranking-logo-placeholder">🏆</div>
-        <span class="ranking-school">Bethesda-Chevy Chase High School</span>
-      </li>
-      <li class="ranking-item">
-        <span class="ranking-num">#917</span>
-        <div class="ranking-logo-placeholder">🏆</div>
-        <span class="ranking-school">Bethesda-Chevy Chase High School</span>
-      </li>
-      <li class="ranking-item">
-        <span class="ranking-num">#917</span>
-        <div class="ranking-logo-placeholder">🏆</div>
-        <span class="ranking-school">Bethesda-Chevy Chase High School</span>
-      </li>
-      <li class="ranking-item">
-        <span class="ranking-num">#917</span>
-        <div class="ranking-logo-placeholder">🏆</div>
-        <span class="ranking-school">Bethesda-Chevy Chase High School</span>
-      </li>
-      <li class="ranking-item">
-        <span class="ranking-num">#917</span>
-        <div class="ranking-logo-placeholder">🏆</div>
-        <span class="ranking-school">Bethesda-Chevy Chase High School</span>
-      </li>
-      <li class="ranking-item">
-        <span class="ranking-num">#917</span>
-        <div class="ranking-logo-placeholder"></div>
-        <span class="ranking-school">Bethesda-Chevy Chase High School</span>
-      </li>
-      <li class="ranking-item">
-        <span class="ranking-num">#917</span>
-        <div class="ranking-logo-placeholder">🏆</div>
-        <span class="ranking-school">Bethesda-Chevy Chase High School</span>
-      </li>
-    </ul>
-    <div class="card-nav-dots">
-      <span class="dot active"></span>
-      <span class="dot"></span>
+    <div class="carousel" data-carousel data-slides="3">
+      <button class="carousel-arrow prev" aria-label="Previous">‹</button>
+      <button class="carousel-arrow next" aria-label="Next">›</button>
+      <div class="carousel-track">
+
+        <!-- Slide 1: National -->
+        <div class="carousel-slide">
+          <div class="carousel-slide-label">National Top 10</div>
+          <ul class="ranking-list">
+            <li class="ranking-item">
+              <span class="ranking-num">#915</span>
+              <div class="ranking-logo-placeholder">🏆</div>
+              <span class="ranking-school">Thomas Jefferson HS for Science &amp; Tech</span>
+              <span class="bcc-badge us">VA</span>
+            </li>
+            <li class="ranking-item">
+              <span class="ranking-num">#916</span>
+              <div class="ranking-logo-placeholder">🏆</div>
+              <span class="ranking-school">Stuyvesant High School</span>
+              <span class="bcc-badge us">NY</span>
+            </li>
+            <li class="ranking-item bcc-highlight">
+              <span class="ranking-num">#917</span>
+              <div class="ranking-logo-placeholder">🏆</div>
+              <span class="ranking-school">Bethesda-Chevy Chase High School</span>
+              <span class="bcc-badge elite">BCC</span>
+            </li>
+            <li class="ranking-item">
+              <span class="ranking-num">#918</span>
+              <div class="ranking-logo-placeholder">🏆</div>
+              <span class="ranking-school">Walt Whitman High School</span>
+              <span class="bcc-badge mcps">MCPS</span>
+            </li>
+            <li class="ranking-item">
+              <span class="ranking-num">#919</span>
+              <div class="ranking-logo-placeholder">🏆</div>
+              <span class="ranking-school">Winston Churchill High School</span>
+              <span class="bcc-badge mcps">MCPS</span>
+            </li>
+            <li class="ranking-item">
+              <span class="ranking-num">#920</span>
+              <div class="ranking-logo-placeholder">🏆</div>
+              <span class="ranking-school">Walter Johnson High School</span>
+              <span class="bcc-badge mcps">MCPS</span>
+            </li>
+            <li class="ranking-item">
+              <span class="ranking-num">#921</span>
+              <div class="ranking-logo-placeholder">🏆</div>
+              <span class="ranking-school">Richard Montgomery High School</span>
+              <span class="bcc-badge mcps">MCPS</span>
+            </li>
+            <li class="ranking-item">
+              <span class="ranking-num">#922</span>
+              <div class="ranking-logo-placeholder">🏆</div>
+              <span class="ranking-school">Wootton High School</span>
+              <span class="bcc-badge mcps">MCPS</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Slide 2: Maryland -->
+        <div class="carousel-slide">
+          <div class="carousel-slide-label">Maryland Top 8</div>
+          <ul class="ranking-list">
+            <li class="ranking-item bcc-highlight">
+              <span class="ranking-num">#1</span>
+              <div class="ranking-logo-placeholder">🥇</div>
+              <span class="ranking-school">Bethesda-Chevy Chase High School</span>
+              <span class="bcc-badge elite">BCC</span>
+            </li>
+            <li class="ranking-item">
+              <span class="ranking-num">#2</span>
+              <div class="ranking-logo-placeholder">🥈</div>
+              <span class="ranking-school">Walt Whitman High School</span>
+              <span class="bcc-badge mcps">MCPS</span>
+            </li>
+            <li class="ranking-item">
+              <span class="ranking-num">#3</span>
+              <div class="ranking-logo-placeholder">🥉</div>
+              <span class="ranking-school">Winston Churchill High School</span>
+              <span class="bcc-badge mcps">MCPS</span>
+            </li>
+            <li class="ranking-item">
+              <span class="ranking-num">#4</span>
+              <div class="ranking-logo-placeholder">🏆</div>
+              <span class="ranking-school">Walter Johnson High School</span>
+              <span class="bcc-badge mcps">MCPS</span>
+            </li>
+            <li class="ranking-item">
+              <span class="ranking-num">#5</span>
+              <div class="ranking-logo-placeholder">🏆</div>
+              <span class="ranking-school">Richard Montgomery HS</span>
+              <span class="bcc-badge mcps">MCPS</span>
+            </li>
+            <li class="ranking-item">
+              <span class="ranking-num">#6</span>
+              <div class="ranking-logo-placeholder">🏆</div>
+              <span class="ranking-school">Wootton High School</span>
+              <span class="bcc-badge mcps">MCPS</span>
+            </li>
+            <li class="ranking-item">
+              <span class="ranking-num">#7</span>
+              <div class="ranking-logo-placeholder">🏆</div>
+              <span class="ranking-school">Poolesville High School</span>
+              <span class="bcc-badge mcps">MCPS</span>
+            </li>
+            <li class="ranking-item">
+              <span class="ranking-num">#8</span>
+              <div class="ranking-logo-placeholder">🏆</div>
+              <span class="ranking-school">Centennial High School</span>
+              <span class="bcc-badge us">HCPSS</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Slide 3: MCPS -->
+        <div class="carousel-slide">
+          <div class="carousel-slide-label">MCPS Top 8</div>
+          <ul class="ranking-list">
+            <li class="ranking-item bcc-highlight">
+              <span class="ranking-num">#1</span>
+              <div class="ranking-logo-placeholder">🥇</div>
+              <span class="ranking-school">Bethesda-Chevy Chase HS</span>
+              <span class="bcc-badge elite">BCC</span>
+            </li>
+            <li class="ranking-item">
+              <span class="ranking-num">#2</span>
+              <div class="ranking-logo-placeholder">🥈</div>
+              <span class="ranking-school">Walt Whitman HS</span>
+              <span class="bcc-badge mcps">MCPS</span>
+            </li>
+            <li class="ranking-item">
+              <span class="ranking-num">#3</span>
+              <div class="ranking-logo-placeholder">🥉</div>
+              <span class="ranking-school">Winston Churchill HS</span>
+              <span class="bcc-badge mcps">MCPS</span>
+            </li>
+            <li class="ranking-item">
+              <span class="ranking-num">#4</span>
+              <div class="ranking-logo-placeholder">🏆</div>
+              <span class="ranking-school">Walter Johnson HS</span>
+              <span class="bcc-badge mcps">MCPS</span>
+            </li>
+            <li class="ranking-item">
+              <span class="ranking-num">#5</span>
+              <div class="ranking-logo-placeholder">🏆</div>
+              <span class="ranking-school">Richard Montgomery HS</span>
+              <span class="bcc-badge mcps">MCPS</span>
+            </li>
+            <li class="ranking-item">
+              <span class="ranking-num">#6</span>
+              <div class="ranking-logo-placeholder">🏆</div>
+              <span class="ranking-school">Thomas S. Wootton HS</span>
+              <span class="bcc-badge mcps">MCPS</span>
+            </li>
+            <li class="ranking-item">
+              <span class="ranking-num">#7</span>
+              <div class="ranking-logo-placeholder">🏆</div>
+              <span class="ranking-school">Poolesville HS</span>
+              <span class="bcc-badge mcps">MCPS</span>
+            </li>
+            <li class="ranking-item">
+              <span class="ranking-num">#8</span>
+              <div class="ranking-logo-placeholder">🏆</div>
+              <span class="ranking-school">Northwest HS</span>
+              <span class="bcc-badge mcps">MCPS</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+    <div class="card-nav-dots" data-dots>
+      <span class="dot active" data-dot="0"></span>
+      <span class="dot" data-dot="1"></span>
+      <span class="dot" data-dot="2"></span>
     </div>
   </div>
 
@@ -747,17 +1523,17 @@
   <div class="card card-students-bcc">
     <div class="card-heading">YPI Students Attending BCC</div>
     <ul class="student-list">
-      <li>Natalie K. Bitman</li>
-      <li>Lydia L. Frohart</li>
-      <li>Simone S. McCaulif</li>
-      <li>Jamie H. Kirsh</li>
-      <li>Sydney M. Donavan Jenkins</li>
-      <li>John F. Hamilton</li>
-      <li>Nico K. Liam</li>
-      <li>Jackson R. Holland</li>
-      <li>Caroline M. Ford</li>
-      <li>Tyler B. Koamoa</li>
-      <li>Gus Lewis</li>
+      <li><span class="row-avatar">NB</span><span class="row-name">Natalie K. Bitman</span><span class="bcc-badge elite">'27</span></li>
+      <li><span class="row-avatar">LF</span><span class="row-name">Lydia L. Frohart</span><span class="bcc-badge honors">'27</span></li>
+      <li><span class="row-avatar">SM</span><span class="row-name">Simone S. McCaulif</span><span class="bcc-badge stem">'27</span></li>
+      <li><span class="row-avatar">JK</span><span class="row-name">Jamie H. Kirsh</span><span class="bcc-badge honors">'27</span></li>
+      <li><span class="row-avatar">SJ</span><span class="row-name">Sydney M. Donavan Jenkins</span><span class="bcc-badge stem">'27</span></li>
+      <li><span class="row-avatar">JH</span><span class="row-name">John F. Hamilton</span><span class="bcc-badge ipl">'28</span></li>
+      <li><span class="row-avatar">NL</span><span class="row-name">Nico K. Liam</span><span class="bcc-badge ipl">'28</span></li>
+      <li><span class="row-avatar">JH</span><span class="row-name">Jackson R. Holland</span><span class="bcc-badge ipl">'28</span></li>
+      <li><span class="row-avatar">CF</span><span class="row-name">Caroline M. Ford</span><span class="bcc-badge ipl">'28</span></li>
+      <li><span class="row-avatar">TK</span><span class="row-name">Tyler B. Koamoa</span><span class="bcc-badge varsity">'29</span></li>
+      <li><span class="row-avatar">GL</span><span class="row-name">Gus Lewis</span><span class="bcc-badge varsity">'29</span></li>
     </ul>
   </div>
 
@@ -868,71 +1644,129 @@
   <div class="card">
     <div class="card-heading">YPI Students Attending BCC in the Class of 2027</div>
     <ul class="student-list">
-      <li>Natalie K. Bitman</li>
-      <li>Lydia L. Frohart</li>
-      <li>Simone S. McCaulif</li>
-      <li>Jamie H. Kirsh</li>
-      <li>Sydney M. Donavan Jenkins</li>
-      <li>John F. Hamilton</li>
-      <li>Nico K. Liam</li>
-      <li>Jackson R. Holland</li>
-      <li>Caroline M. Ford</li>
-      <li>Tyler B. Koamoa</li>
+      <li><span class="row-avatar">NB</span><span class="row-name">Natalie K. Bitman</span><span class="bcc-badge commit">Brown</span></li>
+      <li><span class="row-avatar">LF</span><span class="row-name">Lydia L. Frohart</span><span class="bcc-badge commit">Yale</span></li>
+      <li><span class="row-avatar">SM</span><span class="row-name">Simone S. McCaulif</span><span class="bcc-badge commit">MIT</span></li>
+      <li><span class="row-avatar">JK</span><span class="row-name">Jamie H. Kirsh</span><span class="bcc-badge commit">Stanford</span></li>
+      <li><span class="row-avatar">SJ</span><span class="row-name">Sydney M. Donavan Jenkins</span><span class="bcc-badge commit">UPenn</span></li>
+      <li><span class="row-avatar">JH</span><span class="row-name">John F. Hamilton</span><span class="bcc-badge commit">Cornell</span></li>
+      <li><span class="row-avatar">NL</span><span class="row-name">Nico K. Liam</span><span class="bcc-badge commit">UMD</span></li>
+      <li><span class="row-avatar">JH</span><span class="row-name">Jackson R. Holland</span><span class="bcc-badge commit">UVA</span></li>
+      <li><span class="row-avatar">CF</span><span class="row-name">Caroline M. Ford</span><span class="bcc-badge commit">Duke</span></li>
+      <li><span class="row-avatar">TK</span><span class="row-name">Tyler B. Koamoa</span><span class="bcc-badge commit">Harvard</span></li>
     </ul>
   </div>
 
-  <!-- CARD 6: School Metrics / Rankings -->
-  <div class="card">
-    <div class="card-heading">School Metrics/Rankings</div>
-    <div class="metrics-list">
-      <div class="metric-row rank-left">
-        <span class="metric-rank">1st</span>
-        <span class="metric-name"><span class="metric-icon">🏅</span> Maryland Ranking</span>
+  <!-- CARD 6: School Metrics / Rankings (CAROUSEL + MODAL TRIGGER) -->
+  <div class="card" id="metricsCard">
+    <div class="card-heading-row">
+      <div class="card-heading">School Metrics/Rankings</div>
+      <button class="view-more" data-modal-open="metricsModal">View All</button>
+    </div>
+    <div class="carousel" data-carousel data-slides="3">
+      <button class="carousel-arrow prev" aria-label="Previous">‹</button>
+      <button class="carousel-arrow next" aria-label="Next">›</button>
+      <div class="carousel-track">
+
+        <!-- Slide 1: Academic Standing -->
+        <div class="carousel-slide">
+          <div class="carousel-slide-label">Academic Standing</div>
+          <div class="metric-slide">
+            <div class="metric-row rank-left">
+              <span class="metric-rank">1st</span>
+              <span class="metric-name"><span class="metric-icon">🏅</span> Maryland Ranking</span>
+            </div>
+            <div class="metric-row rank-left">
+              <span class="metric-rank">1st</span>
+              <span class="metric-name"><span class="metric-icon">🏅</span> MCPS Ranking</span>
+            </div>
+            <div class="metric-row rank-left">
+              <span class="metric-rank">#917</span>
+              <span class="metric-name"><span class="metric-icon">🏅</span> National Ranking</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-name"><span class="metric-icon">📊</span> Average ACT</span>
+              <span class="metric-rank">30</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-name"><span class="metric-icon">📊</span> Average SAT</span>
+              <span class="metric-rank">1,310</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-name"><span class="metric-icon">🎓</span> College Readiness Index</span>
+              <span class="metric-rank">1st</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 2: AP / STEM -->
+        <div class="carousel-slide">
+          <div class="carousel-slide-label">AP &amp; STEM Performance</div>
+          <div class="metric-slide">
+            <div class="metric-row">
+              <span class="metric-name"><span class="metric-icon">📝</span> Took at Least One AP/IB Exam</span>
+              <span class="metric-rank">1st</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-name"><span class="metric-icon">🎓</span> Passed at Least One AP Exam</span>
+              <span class="metric-rank">1st</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-name"><span class="metric-icon">🔬</span> Mathematics Proficiency</span>
+              <span class="metric-rank">1st</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-name"><span class="metric-icon">🧪</span> Science Proficiency</span>
+              <span class="metric-rank">1st</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-name"><span class="metric-icon">💻</span> CS/Engineering Enrollment</span>
+              <span class="metric-rank">2nd</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-name"><span class="metric-icon">🏆</span> Math Competition Wins</span>
+              <span class="metric-rank">3rd</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 3: Outcomes -->
+        <div class="carousel-slide">
+          <div class="carousel-slide-label">Graduation Outcomes</div>
+          <div class="metric-slide">
+            <div class="metric-row">
+              <span class="metric-name"><span class="metric-icon">📖</span> Reading Proficiency</span>
+              <span class="metric-rank">1st</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-name"><span class="metric-icon">🎓</span> Graduation Rate</span>
+              <span class="metric-rank">98%</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-name"><span class="metric-icon">🏛️</span> 4-Year College Bound</span>
+              <span class="metric-rank">94%</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-name"><span class="metric-icon">⭐</span> Ivy League Acceptances</span>
+              <span class="metric-rank">11</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-name"><span class="metric-icon">💰</span> Avg Scholarship Awarded</span>
+              <span class="metric-rank">$42K</span>
+            </div>
+            <div class="metric-row">
+              <span class="metric-name"><span class="metric-icon">🎯</span> First-Choice Match Rate</span>
+              <span class="metric-rank">72%</span>
+            </div>
+          </div>
+        </div>
+
       </div>
-      <div class="metric-row rank-left">
-        <span class="metric-rank">1st</span>
-        <span class="metric-name"><span class="metric-icon">🏅</span> Maryland Ranking</span>
-      </div>
-      <div class="metric-row rank-left">
-        <span class="metric-rank">1st</span>
-        <span class="metric-name"><span class="metric-icon">🏅</span> Maryland Ranking</span>
-      </div>
-      <div class="metric-row">
-        <span class="metric-name"><span class="metric-icon">📊</span> Average ACT</span>
-        <span class="metric-rank">1st</span>
-      </div>
-      <div class="metric-row">
-        <span class="metric-name"><span class="metric-icon">📊</span> Average SAT</span>
-        <span class="metric-rank">1st</span>
-      </div>
-      <div class="metric-row">
-        <span class="metric-name"><span class="metric-icon">📝</span> Took at Least One AP/IB Exam</span>
-        <span class="metric-rank">1st</span>
-      </div>
-      <div class="metric-row">
-        <span class="metric-name"><span class="metric-icon">🎓</span> Passed at Least One AP Exam</span>
-        <span class="metric-rank">1st</span>
-      </div>
-      <div class="metric-row">
-        <span class="metric-name"><span class="metric-icon">🔬</span> Mathematics Proficiency</span>
-        <span class="metric-rank">1st</span>
-      </div>
-      <div class="metric-row">
-        <span class="metric-name"><span class="metric-icon">📖</span> Reading Proficiency</span>
-        <span class="metric-rank">1st</span>
-      </div>
-      <div class="metric-row">
-        <span class="metric-name"><span class="metric-icon">🧪</span> Science Proficiency</span>
-        <span class="metric-rank">1st</span>
-      </div>
-      <div class="metric-row">
-        <span class="metric-name"><span class="metric-icon">🎓</span> Graduation Rate</span>
-        <span class="metric-rank">1st</span>
-      </div>
-      <div class="metric-row">
-        <span class="metric-name"><span class="metric-icon">🎓</span> College Readiness Index</span>
-        <span class="metric-rank">1st</span>
-      </div>
+    </div>
+    <div class="card-nav-dots" data-dots>
+      <span class="dot active" data-dot="0"></span>
+      <span class="dot" data-dot="1"></span>
+      <span class="dot" data-dot="2"></span>
     </div>
   </div>
 
@@ -940,79 +1774,702 @@
   <div class="card">
     <div class="card-heading">YPI Athletes Attending BCC</div>
     <ul class="student-list">
-      <li>Natalie K. Bitman</li>
-      <li>Lydia L. Frohart</li>
-      <li>Simone S. McCaulif</li>
-      <li>Jamie H. Kirsh</li>
-      <li>Sydney M. Donavan Jenkins</li>
-      <li>John F. Hamilton</li>
-      <li>Nico K. Liam</li>
-      <li>Jackson R. Holland</li>
-      <li>Caroline M. Ford</li>
-      <li>Tyler B. Koamoa</li>
-      <li>Gus Lewis</li>
+      <li><span class="row-avatar">NB</span><span class="row-name">Natalie K. Bitman</span><span class="bcc-badge captain">CAPT</span></li>
+      <li><span class="row-avatar">LF</span><span class="row-name">Lydia L. Frohart</span><span class="bcc-badge varsity">VAR</span></li>
+      <li><span class="row-avatar">SM</span><span class="row-name">Simone S. McCaulif</span><span class="bcc-badge varsity">VAR</span></li>
+      <li><span class="row-avatar">JK</span><span class="row-name">Jamie H. Kirsh</span><span class="bcc-badge captain">CAPT</span></li>
+      <li><span class="row-avatar">SJ</span><span class="row-name">Sydney M. Donavan Jenkins</span><span class="bcc-badge varsity">VAR</span></li>
+      <li><span class="row-avatar">JH</span><span class="row-name">John F. Hamilton</span><span class="bcc-badge varsity">VAR</span></li>
+      <li><span class="row-avatar">NL</span><span class="row-name">Nico K. Liam</span><span class="bcc-badge ipl">JV</span></li>
+      <li><span class="row-avatar">JH</span><span class="row-name">Jackson R. Holland</span><span class="bcc-badge varsity">VAR</span></li>
+      <li><span class="row-avatar">CF</span><span class="row-name">Caroline M. Ford</span><span class="bcc-badge captain">CAPT</span></li>
+      <li><span class="row-avatar">TK</span><span class="row-name">Tyler B. Koamoa</span><span class="bcc-badge ipl">JV</span></li>
+      <li><span class="row-avatar">GL</span><span class="row-name">Gus Lewis</span><span class="bcc-badge ipl">JV</span></li>
     </ul>
   </div>
 
-  <!-- CARD 8: YPI Supported Student Orgs -->
-  <div class="card">
-    <div class="card-heading">YPI Supported Student Orgs</div>
-    <div class="orgs-placeholder"></div>
+  <!-- CARD 8: YPI Supported Student Orgs (MODAL TRIGGER) -->
+  <div class="card clickable" id="orgsCard" data-modal-open="orgsModal">
+    <div class="card-heading-row">
+      <div class="card-heading">YPI Supported Student Orgs</div>
+      <button class="view-more" data-modal-open="orgsModal">View All</button>
+    </div>
+    <div class="orgs-preview">
+      <div class="orgs-preview-row">
+        <span class="orgs-preview-icon">⚖️</span>
+        <span class="orgs-preview-name">Mock Trial Team</span>
+        <span class="bcc-badge elite">ELITE</span>
+      </div>
+      <div class="orgs-preview-row">
+        <span class="orgs-preview-icon">🤖</span>
+        <span class="orgs-preview-name">Robotics Club</span>
+        <span class="bcc-badge stem">STEM</span>
+      </div>
+      <div class="orgs-preview-row">
+        <span class="orgs-preview-icon">🎭</span>
+        <span class="orgs-preview-name">B-CC Players (Theater)</span>
+        <span class="bcc-badge club">ARTS</span>
+      </div>
+      <div class="orgs-preview-row">
+        <span class="orgs-preview-icon">📰</span>
+        <span class="orgs-preview-name">The Tattler (Newspaper)</span>
+        <span class="bcc-badge honors">MEDIA</span>
+      </div>
+      <div class="orgs-preview-row">
+        <span class="orgs-preview-icon">🗣️</span>
+        <span class="orgs-preview-name">Debate &amp; Forensics</span>
+        <span class="bcc-badge elite">ELITE</span>
+      </div>
+      <div class="orgs-preview-row">
+        <span class="orgs-preview-icon">🌍</span>
+        <span class="orgs-preview-name">Model UN</span>
+        <span class="bcc-badge honors">HONOR</span>
+      </div>
+      <div class="orgs-preview-row">
+        <span class="orgs-preview-icon">🎼</span>
+        <span class="orgs-preview-name">Symphony Orchestra</span>
+        <span class="bcc-badge club">ARTS</span>
+      </div>
+      <div class="orgs-preview-row">
+        <span class="orgs-preview-icon">📐</span>
+        <span class="orgs-preview-name">Math Honor Society</span>
+        <span class="bcc-badge stem">STEM</span>
+      </div>
+    </div>
   </div>
 
-  <!-- CARD 9: All Time Most Notable Alumni -->
+  <!-- CARD 9: All Time Most Notable Alumni (CAROUSEL) -->
   <div class="card alumni-card">
     <div class="card-heading">All Time Most Notable Alumni of BCC</div>
-    <div class="alumni-photo">
-      <!-- Stylized portrait of Daniel Stern (older man with white beard) -->
-      <svg viewBox="0 0 110 125" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-        <!-- Hair (white/gray, balding pattern) -->
-        <path d="M 30 36 Q 28 28 35 22 Q 45 18 55 20 Q 70 22 78 32 Q 80 40 76 46 L 75 56 L 32 56 Z" fill="#d4d4d4"/>
-        <!-- Bald spot on top -->
-        <ellipse cx="55" cy="28" rx="14" ry="9" fill="#d4a888"/>
-        <!-- Head/Face -->
-        <ellipse cx="55" cy="48" rx="20" ry="22" fill="#d4a888"/>
-        <!-- White beard -->
-        <path d="M 35 52 Q 32 60 35 70 Q 40 78 55 80 Q 70 78 75 70 Q 78 60 75 52 Q 70 58 55 60 Q 40 58 35 52 Z" fill="#e8e8e8"/>
-        <!-- Mustache -->
-        <path d="M 42 56 Q 48 58 55 58 Q 62 58 68 56 Q 65 60 55 60 Q 45 60 42 56 Z" fill="#d8d8d8"/>
-        <!-- Glasses frames -->
-        <circle cx="46" cy="46" r="5" fill="none" stroke="#1a1a1a" stroke-width="1"/>
-        <circle cx="64" cy="46" r="5" fill="none" stroke="#1a1a1a" stroke-width="1"/>
-        <line x1="51" y1="46" x2="59" y2="46" stroke="#1a1a1a" stroke-width="1"/>
-        <!-- Eyes behind glasses -->
-        <circle cx="46" cy="46" r="1.2" fill="#2a1810"/>
-        <circle cx="64" cy="46" r="1.2" fill="#2a1810"/>
-        <!-- Nose -->
-        <path d="M 55 48 Q 53 52 55 55 Q 57 52 55 48" stroke="#a8806a" stroke-width="0.6" fill="none"/>
-        <!-- Eyebrows (white) -->
-        <path d="M 41 41 Q 46 39 51 41" stroke="#d4d4d4" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-        <path d="M 59 41 Q 64 39 69 41" stroke="#d4d4d4" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-        <!-- Neck -->
-        <rect x="48" y="78" width="14" height="10" fill="#c89a7a"/>
-        <!-- Dark suit -->
-        <path d="M 20 90 L 30 80 Q 42 78 55 82 Q 68 78 80 80 L 90 90 L 90 125 L 20 125 Z" fill="#1a1a1a"/>
-        <!-- White shirt -->
-        <path d="M 48 82 L 55 90 L 62 82 L 62 100 L 48 100 Z" fill="#f5f5f5"/>
-        <!-- Tie -->
-        <path d="M 53 90 L 57 90 L 58 105 L 55 110 L 52 105 Z" fill="#3a4a6a"/>
-        <!-- Suit lapels -->
-        <path d="M 35 85 L 55 92 L 48 102 L 28 95 Z" fill="#0a0a0a"/>
-        <path d="M 75 85 L 55 92 L 62 102 L 82 95 Z" fill="#0a0a0a"/>
-      </svg>
+    <div class="carousel" data-carousel data-slides="3">
+      <button class="carousel-arrow prev" aria-label="Previous">‹</button>
+      <button class="carousel-arrow next" aria-label="Next">›</button>
+      <div class="carousel-track">
+
+        <!-- Slide 1: Daniel Stern overview -->
+        <div class="carousel-slide">
+          <div class="alumni-photo">
+            <svg viewBox="0 0 110 125" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+              <path d="M 30 36 Q 28 28 35 22 Q 45 18 55 20 Q 70 22 78 32 Q 80 40 76 46 L 75 56 L 32 56 Z" fill="#d4d4d4"/>
+              <ellipse cx="55" cy="28" rx="14" ry="9" fill="#d4a888"/>
+              <ellipse cx="55" cy="48" rx="20" ry="22" fill="#d4a888"/>
+              <path d="M 35 52 Q 32 60 35 70 Q 40 78 55 80 Q 70 78 75 70 Q 78 60 75 52 Q 70 58 55 60 Q 40 58 35 52 Z" fill="#e8e8e8"/>
+              <path d="M 42 56 Q 48 58 55 58 Q 62 58 68 56 Q 65 60 55 60 Q 45 60 42 56 Z" fill="#d8d8d8"/>
+              <circle cx="46" cy="46" r="5" fill="none" stroke="#1a1a1a" stroke-width="1"/>
+              <circle cx="64" cy="46" r="5" fill="none" stroke="#1a1a1a" stroke-width="1"/>
+              <line x1="51" y1="46" x2="59" y2="46" stroke="#1a1a1a" stroke-width="1"/>
+              <circle cx="46" cy="46" r="1.2" fill="#2a1810"/>
+              <circle cx="64" cy="46" r="1.2" fill="#2a1810"/>
+              <path d="M 41 41 Q 46 39 51 41" stroke="#d4d4d4" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+              <path d="M 59 41 Q 64 39 69 41" stroke="#d4d4d4" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+              <rect x="48" y="78" width="14" height="10" fill="#c89a7a"/>
+              <path d="M 20 90 L 30 80 Q 42 78 55 82 Q 68 78 80 80 L 90 90 L 90 125 L 20 125 Z" fill="#1a1a1a"/>
+              <path d="M 48 82 L 55 90 L 62 82 L 62 100 L 48 100 Z" fill="#f5f5f5"/>
+              <path d="M 53 90 L 57 90 L 58 105 L 55 110 L 52 105 Z" fill="#3a4a6a"/>
+              <path d="M 35 85 L 55 92 L 48 102 L 28 95 Z" fill="#0a0a0a"/>
+              <path d="M 75 85 L 55 92 L 62 102 L 82 95 Z" fill="#0a0a0a"/>
+            </svg>
+          </div>
+          <div class="alumni-name">Daniel Stern</div>
+          <div class="alumni-stats-text">Starred in Over 30+ Movies<br>From 1979&ndash;2019</div>
+          <div class="alumni-awards">
+            Class of 1975 &middot; Actor, Director, Producer<br>
+            Best known for <em>Home Alone</em>, <em>City Slickers</em>, and <em>The Wonder Years</em>
+          </div>
+        </div>
+
+        <!-- Slide 2: Notable Roles -->
+        <div class="carousel-slide">
+          <div class="alumni-photo" style="background: linear-gradient(135deg, #2a1810, #1a0d08);">
+            <div style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column; gap: 6px; padding: 8px;">
+              <div style="font-size: 2rem;">🎬</div>
+              <div style="color: #F4B400; font-style: italic; font-weight: 700; font-size: 0.75rem; text-align: center; letter-spacing: 0.5px;">FILMOGRAPHY</div>
+            </div>
+          </div>
+          <div class="alumni-name">Daniel Stern</div>
+          <div class="alumni-stats-text">Career Highlights</div>
+          <div class="alumni-awards" style="text-align: left; line-height: 1.6;">
+            🏠 <strong>Home Alone</strong> (1990) &middot; Marv<br>
+            🤠 <strong>City Slickers</strong> (1991) &middot; Phil<br>
+            ⚾ <strong>Rookie of the Year</strong> (1993) &middot; Director<br>
+            📺 <strong>The Wonder Years</strong> &middot; Narrator<br>
+            🏘️ <strong>Diner</strong> (1982) &middot; Laurence "Shrevie"
+          </div>
+        </div>
+
+        <!-- Slide 3: Awards & Recognition -->
+        <div class="carousel-slide">
+          <div class="alumni-photo" style="background: linear-gradient(135deg, #2a2010, #1a1408);">
+            <div style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column; gap: 6px; padding: 8px;">
+              <div style="font-size: 2rem;">🏆</div>
+              <div style="color: #F4B400; font-style: italic; font-weight: 700; font-size: 0.75rem; text-align: center; letter-spacing: 0.5px;">RECOGNITION</div>
+            </div>
+          </div>
+          <div class="alumni-name">Daniel Stern</div>
+          <div class="alumni-stats-text">Awards &amp; Nominations</div>
+          <div class="alumni-awards" style="text-align: left; line-height: 1.5;">
+            🏅 Nominated &mdash; Funniest Supporting Actor in a Motion Picture, American Comedy Awards (1992)<br><br>
+            ⭐ Hollywood Walk of Fame &mdash; Recognition<br><br>
+            🎭 Featured in over 30 major film and TV productions across four decades
+          </div>
+        </div>
+
+      </div>
     </div>
-    <div class="alumni-name">Daniel Stern</div>
-    <div class="alumni-stats-text">Starred in Over 30+ Movies<br>From 1979&ndash;2019</div>
-    <div class="alumni-awards">
-      Nominated for Funniest Supporting Actor in a Motion Picture by the American Comedy Awards 1992
-    </div>
-    <div class="card-nav-dots">
-      <span class="dot active"></span>
-      <span class="dot"></span>
+    <div class="card-nav-dots" data-dots>
+      <span class="dot active" data-dot="0"></span>
+      <span class="dot" data-dot="1"></span>
+      <span class="dot" data-dot="2"></span>
     </div>
   </div>
 
 </main>
+
+<!-- ===== MODAL: SCHOOL METRICS/RANKINGS ===== -->
+<div class="modal-overlay" id="metricsModal" data-modal>
+  <div class="modal" role="dialog" aria-labelledby="metricsModalTitle">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="metricsModalTitle">School Metrics &amp; Rankings</div>
+        <div class="modal-subtitle">Bethesda-Chevy Chase HS &middot; Comprehensive Academic Intelligence</div>
+      </div>
+      <button class="modal-close" data-modal-close aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="metrics-modal-grid">
+
+        <!-- LEFT: Ranking Highlights -->
+        <div class="metrics-side">
+          <div class="metrics-section-title">Ranking Highlights</div>
+
+          <div class="highlight-card">
+            <div class="highlight-label">
+              <small>National</small>
+              US News Ranking
+            </div>
+            <div>
+              <span class="highlight-value">#917</span>
+              <span class="highlight-trend up">▲ 12</span>
+            </div>
+          </div>
+
+          <div class="highlight-card">
+            <div class="highlight-label">
+              <small>State</small>
+              Maryland Ranking
+            </div>
+            <div>
+              <span class="highlight-value">#1</span>
+              <span class="highlight-trend flat">— 0</span>
+            </div>
+          </div>
+
+          <div class="highlight-card">
+            <div class="highlight-label">
+              <small>District</small>
+              MCPS Ranking
+            </div>
+            <div>
+              <span class="highlight-value">#1</span>
+              <span class="highlight-trend up">▲ 1</span>
+            </div>
+          </div>
+
+          <div class="metrics-section-title" style="margin-top: 10px;">Testing Averages</div>
+
+          <div class="highlight-card">
+            <div class="highlight-label">
+              <small>SAT</small>
+              Average Composite
+            </div>
+            <div>
+              <span class="highlight-value">1,310</span>
+              <span class="highlight-trend up">▲ 24</span>
+            </div>
+          </div>
+
+          <div class="highlight-card">
+            <div class="highlight-label">
+              <small>ACT</small>
+              Average Composite
+            </div>
+            <div>
+              <span class="highlight-value">30</span>
+              <span class="highlight-trend up">▲ 1</span>
+            </div>
+          </div>
+
+          <div class="highlight-card">
+            <div class="highlight-label">
+              <small>AP</small>
+              Participation Rate
+            </div>
+            <div>
+              <span class="highlight-value">95%</span>
+              <span class="highlight-trend up">▲ 3%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Advanced Metrics -->
+        <div class="metrics-side">
+          <div class="metrics-section-title">Academic Performance Indicators</div>
+
+          <div>
+            <div class="metric-detail-row">
+              <span class="m-label">🎓 College Readiness Index</span>
+              <span class="m-value">99.2</span>
+              <span class="m-trend up">▲ 1.4</span>
+              <div class="progress-bar"><div class="progress-fill" style="width: 99%;"></div></div>
+            </div>
+
+            <div class="metric-detail-row">
+              <span class="m-label">📊 Graduation Rate</span>
+              <span class="m-value">98%</span>
+              <span class="m-trend up">▲ 0.5%</span>
+              <div class="progress-bar"><div class="progress-fill" style="width: 98%;"></div></div>
+            </div>
+
+            <div class="metric-detail-row">
+              <span class="m-label">🔬 Mathematics Proficiency</span>
+              <span class="m-value">94%</span>
+              <span class="m-trend up">▲ 2%</span>
+              <div class="progress-bar"><div class="progress-fill" style="width: 94%;"></div></div>
+            </div>
+
+            <div class="metric-detail-row">
+              <span class="m-label">📖 Reading Proficiency</span>
+              <span class="m-value">96%</span>
+              <span class="m-trend up">▲ 1%</span>
+              <div class="progress-bar"><div class="progress-fill" style="width: 96%;"></div></div>
+            </div>
+
+            <div class="metric-detail-row">
+              <span class="m-label">🧪 Science Proficiency</span>
+              <span class="m-value">92%</span>
+              <span class="m-trend up">▲ 3%</span>
+              <div class="progress-bar"><div class="progress-fill" style="width: 92%;"></div></div>
+            </div>
+
+            <div class="metric-detail-row">
+              <span class="m-label">📝 AP Exam Pass Rate (3+)</span>
+              <span class="m-value">88%</span>
+              <span class="m-trend up">▲ 4%</span>
+              <div class="progress-bar"><div class="progress-fill" style="width: 88%;"></div></div>
+            </div>
+
+            <div class="metric-detail-row">
+              <span class="m-label">🏛️ 4-Year College Enrollment</span>
+              <span class="m-value">94%</span>
+              <span class="m-trend up">▲ 1%</span>
+              <div class="progress-bar"><div class="progress-fill" style="width: 94%;"></div></div>
+            </div>
+
+            <div class="metric-detail-row">
+              <span class="m-label">⭐ Ivy+ Acceptances</span>
+              <span class="m-value">11</span>
+              <span class="m-trend up">▲ 2</span>
+              <div class="progress-bar"><div class="progress-fill" style="width: 75%;"></div></div>
+            </div>
+
+            <div class="metric-detail-row">
+              <span class="m-label">💻 STEM Track Enrollment</span>
+              <span class="m-value">61%</span>
+              <span class="m-trend up">▲ 5%</span>
+              <div class="progress-bar"><div class="progress-fill" style="width: 61%;"></div></div>
+            </div>
+
+            <div class="metric-detail-row">
+              <span class="m-label">🌐 World Language Proficiency</span>
+              <span class="m-value">87%</span>
+              <span class="m-trend up">▲ 2%</span>
+              <div class="progress-bar"><div class="progress-fill" style="width: 87%;"></div></div>
+            </div>
+
+            <div class="metric-detail-row">
+              <span class="m-label">🎨 Arts Participation</span>
+              <span class="m-value">54%</span>
+              <span class="m-trend up">▲ 3%</span>
+              <div class="progress-bar"><div class="progress-fill" style="width: 54%;"></div></div>
+            </div>
+
+            <div class="metric-detail-row">
+              <span class="m-label">⚽ Athletics Participation</span>
+              <span class="m-value">68%</span>
+              <span class="m-trend down">▼ 1%</span>
+              <div class="progress-bar"><div class="progress-fill" style="width: 68%;"></div></div>
+            </div>
+
+            <div class="metric-detail-row">
+              <span class="m-label">💰 Avg Scholarship Awarded</span>
+              <span class="m-value">$42K</span>
+              <span class="m-trend up">▲ $4K</span>
+              <div class="progress-bar"><div class="progress-fill" style="width: 70%;"></div></div>
+            </div>
+
+            <div class="metric-detail-row">
+              <span class="m-label">🎯 First-Choice Match Rate</span>
+              <span class="m-value">72%</span>
+              <span class="m-trend up">▲ 3%</span>
+              <div class="progress-bar"><div class="progress-fill" style="width: 72%;"></div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: YPI SUPPORTED STUDENT ORGS ===== -->
+<div class="modal-overlay" id="orgsModal" data-modal>
+  <div class="modal" role="dialog" aria-labelledby="orgsModalTitle">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="orgsModalTitle">YPI Supported Student Organizations</div>
+        <div class="modal-subtitle">22 Active Clubs &middot; 1,400+ Student Participants &middot; 38 Faculty Advisors</div>
+      </div>
+      <button class="modal-close" data-modal-close aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="org-grid">
+
+        <div class="org-card">
+          <div class="org-icon">⚖️</div>
+          <div class="org-info">
+            <div class="org-name-row">
+              <span class="org-name">Mock Trial Team</span>
+              <span class="bcc-badge elite">ELITE</span>
+            </div>
+            <div class="org-category">Competitive Academics</div>
+            <div class="org-leadership">Advisor: Ms. Patricia Hennessey</div>
+            <div class="org-meta">
+              <span class="org-stat"><strong>32</strong> members</span>
+              <span class="org-stat"><strong>Weekly</strong> meetings</span>
+              <span class="org-stat"><strong>Full</strong> funding</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="org-card">
+          <div class="org-icon">🤖</div>
+          <div class="org-info">
+            <div class="org-name-row">
+              <span class="org-name">Robotics Club</span>
+              <span class="bcc-badge stem">STEM</span>
+            </div>
+            <div class="org-category">Engineering &amp; Innovation</div>
+            <div class="org-leadership">Advisor: Mr. Eric Park</div>
+            <div class="org-meta">
+              <span class="org-stat"><strong>48</strong> members</span>
+              <span class="org-stat"><strong>Bi-weekly</strong></span>
+              <span class="org-stat"><strong>$8K</strong> budget</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="org-card">
+          <div class="org-icon">🎭</div>
+          <div class="org-info">
+            <div class="org-name-row">
+              <span class="org-name">B-CC Players</span>
+              <span class="bcc-badge club">ARTS</span>
+            </div>
+            <div class="org-category">Performing Arts</div>
+            <div class="org-leadership">Advisor: Ms. Diane Krause</div>
+            <div class="org-meta">
+              <span class="org-stat"><strong>74</strong> members</span>
+              <span class="org-stat"><strong>3</strong> productions/yr</span>
+              <span class="org-stat"><strong>Full</strong> funding</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="org-card">
+          <div class="org-icon">📰</div>
+          <div class="org-info">
+            <div class="org-name-row">
+              <span class="org-name">The Tattler</span>
+              <span class="bcc-badge honors">MEDIA</span>
+            </div>
+            <div class="org-category">School Newspaper</div>
+            <div class="org-leadership">Advisor: Mr. Thomas Reilly</div>
+            <div class="org-meta">
+              <span class="org-stat"><strong>28</strong> staff</span>
+              <span class="org-stat"><strong>Monthly</strong> issue</span>
+              <span class="org-stat"><strong>Partial</strong> funding</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="org-card">
+          <div class="org-icon">🗣️</div>
+          <div class="org-info">
+            <div class="org-name-row">
+              <span class="org-name">Debate &amp; Forensics</span>
+              <span class="bcc-badge elite">ELITE</span>
+            </div>
+            <div class="org-category">Competitive Academics</div>
+            <div class="org-leadership">Advisor: Dr. Marcus Whelan</div>
+            <div class="org-meta">
+              <span class="org-stat"><strong>41</strong> members</span>
+              <span class="org-stat"><strong>Weekly</strong></span>
+              <span class="org-stat"><strong>Full</strong> funding</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="org-card">
+          <div class="org-icon">🌍</div>
+          <div class="org-info">
+            <div class="org-name-row">
+              <span class="org-name">Model UN</span>
+              <span class="bcc-badge honors">HONOR</span>
+            </div>
+            <div class="org-category">Global Affairs</div>
+            <div class="org-leadership">Advisor: Ms. Lila Okonkwo</div>
+            <div class="org-meta">
+              <span class="org-stat"><strong>56</strong> members</span>
+              <span class="org-stat"><strong>Weekly</strong></span>
+              <span class="org-stat"><strong>$3K</strong> budget</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="org-card">
+          <div class="org-icon">🎼</div>
+          <div class="org-info">
+            <div class="org-name-row">
+              <span class="org-name">Symphony Orchestra</span>
+              <span class="bcc-badge club">ARTS</span>
+            </div>
+            <div class="org-category">Performing Arts</div>
+            <div class="org-leadership">Advisor: Mr. Daniel Cho</div>
+            <div class="org-meta">
+              <span class="org-stat"><strong>62</strong> members</span>
+              <span class="org-stat"><strong>Daily</strong></span>
+              <span class="org-stat"><strong>Full</strong> funding</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="org-card">
+          <div class="org-icon">📐</div>
+          <div class="org-info">
+            <div class="org-name-row">
+              <span class="org-name">Math Honor Society</span>
+              <span class="bcc-badge stem">STEM</span>
+            </div>
+            <div class="org-category">Academic Honor Society</div>
+            <div class="org-leadership">Advisor: Ms. Karen Vasquez</div>
+            <div class="org-meta">
+              <span class="org-stat"><strong>38</strong> members</span>
+              <span class="org-stat"><strong>Bi-weekly</strong></span>
+              <span class="org-stat"><strong>$1K</strong> budget</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="org-card">
+          <div class="org-icon">🌱</div>
+          <div class="org-info">
+            <div class="org-name-row">
+              <span class="org-name">Environmental Club</span>
+              <span class="bcc-badge honors">SERVICE</span>
+            </div>
+            <div class="org-category">Service &amp; Advocacy</div>
+            <div class="org-leadership">Advisor: Mr. Alan Greenfield</div>
+            <div class="org-meta">
+              <span class="org-stat"><strong>45</strong> members</span>
+              <span class="org-stat"><strong>Weekly</strong></span>
+              <span class="org-stat"><strong>Partial</strong> funding</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="org-card">
+          <div class="org-icon">💻</div>
+          <div class="org-info">
+            <div class="org-name-row">
+              <span class="org-name">Computer Science Club</span>
+              <span class="bcc-badge stem">STEM</span>
+            </div>
+            <div class="org-category">Engineering &amp; Innovation</div>
+            <div class="org-leadership">Advisor: Mr. James Nakamura</div>
+            <div class="org-meta">
+              <span class="org-stat"><strong>52</strong> members</span>
+              <span class="org-stat"><strong>Weekly</strong></span>
+              <span class="org-stat"><strong>$2K</strong> budget</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="org-card">
+          <div class="org-icon">🎨</div>
+          <div class="org-info">
+            <div class="org-name-row">
+              <span class="org-name">Visual Arts Society</span>
+              <span class="bcc-badge club">ARTS</span>
+            </div>
+            <div class="org-category">Visual &amp; Studio Arts</div>
+            <div class="org-leadership">Advisor: Ms. Sophia Lin</div>
+            <div class="org-meta">
+              <span class="org-stat"><strong>34</strong> members</span>
+              <span class="org-stat"><strong>Weekly</strong></span>
+              <span class="org-stat"><strong>Partial</strong> funding</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="org-card">
+          <div class="org-icon">📚</div>
+          <div class="org-info">
+            <div class="org-name-row">
+              <span class="org-name">National Honor Society</span>
+              <span class="bcc-badge honors">HONOR</span>
+            </div>
+            <div class="org-category">Academic Honor Society</div>
+            <div class="org-leadership">Advisor: Dr. Rebecca Sandberg</div>
+            <div class="org-meta">
+              <span class="org-stat"><strong>112</strong> members</span>
+              <span class="org-stat"><strong>Monthly</strong></span>
+              <span class="org-stat"><strong>Full</strong> funding</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== JAVASCRIPT: CAROUSELS + MODALS ===== -->
+<script>
+(function() {
+  'use strict';
+
+  /* ====== CAROUSEL SYSTEM ====== */
+  function initCarousels() {
+    document.querySelectorAll('[data-carousel]').forEach(carousel => {
+      const track = carousel.querySelector('.carousel-track');
+      const slides = carousel.querySelectorAll('.carousel-slide');
+      const prevBtn = carousel.querySelector('.carousel-arrow.prev');
+      const nextBtn = carousel.querySelector('.carousel-arrow.next');
+      const card = carousel.closest('.card');
+      const dotsContainer = card ? card.querySelector('[data-dots]') : null;
+      const dots = dotsContainer ? dotsContainer.querySelectorAll('.dot') : [];
+
+      let current = 0;
+      const total = slides.length;
+
+      function update(idx) {
+        current = (idx + total) % total;
+        track.style.transform = 'translateX(-' + (current * 100) + '%)';
+        dots.forEach((d, i) => d.classList.toggle('active', i === current));
+        if (prevBtn) prevBtn.disabled = false;
+        if (nextBtn) nextBtn.disabled = false;
+      }
+
+      if (prevBtn) prevBtn.addEventListener('click', e => { e.stopPropagation(); update(current - 1); });
+      if (nextBtn) nextBtn.addEventListener('click', e => { e.stopPropagation(); update(current + 1); });
+
+      dots.forEach((dot, i) => {
+        dot.addEventListener('click', e => { e.stopPropagation(); update(i); });
+      });
+
+      /* Touch / swipe support */
+      let touchStartX = 0;
+      let touchEndX = 0;
+      track.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+      track.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        const diff = touchStartX - touchEndX;
+        if (Math.abs(diff) > 40) {
+          if (diff > 0) update(current + 1);
+          else update(current - 1);
+        }
+      }, { passive: true });
+
+      /* Keyboard support when card has focus */
+      if (card) {
+        card.setAttribute('tabindex', '0');
+        card.addEventListener('keydown', e => {
+          if (e.key === 'ArrowLeft') { e.preventDefault(); update(current - 1); }
+          if (e.key === 'ArrowRight') { e.preventDefault(); update(current + 1); }
+        });
+      }
+    });
+  }
+
+  /* ====== MODAL SYSTEM ====== */
+  function initModals() {
+    const openTriggers = document.querySelectorAll('[data-modal-open]');
+    const closeTriggers = document.querySelectorAll('[data-modal-close]');
+    const overlays = document.querySelectorAll('[data-modal]');
+
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      if (!modal) return;
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      /* Re-trigger progress bar animations */
+      modal.querySelectorAll('.progress-fill').forEach(bar => {
+        const w = bar.style.width;
+        bar.style.width = '0%';
+        requestAnimationFrame(() => { setTimeout(() => bar.style.width = w, 50); });
+      });
+    }
+
+    function closeModal(modal) {
+      modal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function closeAllModals() {
+      overlays.forEach(o => closeModal(o));
+    }
+
+    openTriggers.forEach(trigger => {
+      trigger.addEventListener('click', e => {
+        e.stopPropagation();
+        const id = trigger.getAttribute('data-modal-open');
+        openModal(id);
+      });
+    });
+
+    closeTriggers.forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const modal = btn.closest('[data-modal]');
+        if (modal) closeModal(modal);
+      });
+    });
+
+    /* Click backdrop to close */
+    overlays.forEach(overlay => {
+      overlay.addEventListener('click', e => {
+        if (e.target === overlay) closeModal(overlay);
+      });
+    });
+
+    /* ESC to close */
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeAllModals();
+    });
+  }
+
+  /* ====== INIT ====== */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      initCarousels();
+      initModals();
+    });
+  } else {
+    initCarousels();
+    initModals();
+  }
+})();
+</script>
 
 </body>
 </html>
