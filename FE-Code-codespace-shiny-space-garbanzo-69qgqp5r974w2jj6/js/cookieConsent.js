@@ -1,0 +1,5 @@
+const cookieConsent = (() => {
+    
+    
+    return {};
+})();
