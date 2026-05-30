@@ -1,0 +1,32 @@
+:root {
+    /* Dark mode color pallete */
+  --bg-main: #121212;
+  --bg-panel: #1c1c1c;
+  --bg-element: #252525;
+  --bg-input: #1f1f1f;
+  --text-main: #f8fafc;
+  --text-muted: #9ca3af;
+  --text-secondary: #d1d5db;
+  --border-color: #333333;
+  --accent-green: #37af4b;
+  --highlight-green: #98fb98;
+  --danger-red: #ef4444;
+  --nav-inactive: #9ca3af;
+  --nav-active: #98fb98;
+}
+
+body.light-mode {
+  --bg-main: #f3f4f6;
+  --bg-panel: #ffffff;
+  --bg-element: #e5e7eb;
+  --bg-input: #f8fafc;
+  --text-main: #111827;
+  --text-muted: #4b5563;
+  --text-secondary: #6b7280;
+  --border-color: #d1d5db;
+  --accent-green: #16a34a;
+  --highlight-green: #15803d;
+  --danger-red: #ef4444;
+  --nav-inactive: #6b7280;
+  --nav-active: #16a34a;
+}
