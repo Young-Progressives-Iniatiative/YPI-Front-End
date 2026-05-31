@@ -1,0 +1,134 @@
+{
+  "page": {
+    "home": "Home",
+    "about": {
+      "about-us": "About Us",
+      "mission": "Our Mission",
+      "faq": "FAQ",
+      "team": "Meet the YPI Team"
+    },
+    "user": {
+      "get-involved": "Get Involved",
+      "donate": "Donate",
+      "info-guide": "Info Guide for Parents"
+    },
+    "org": {
+      "volunteer": "Need Volunteers?"
+    },
+    "contact": "Contact Us",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy"
+  },
+  "home": {
+    "title": "Young Progressives Initiative",
+    "subtitle": "Empowering youth through opportunity and innovation",
+    "cta": "Explore YPI",
+    "loading": "Loading article..."
+  },
+  "mission": {
+    "title": "Our Mission",
+    "description": "The mission of the Young Progressives Initiative is to empower high schoolers to engage in meaningful volunteering opportunities with non-profits and political campaigns aligned with progressive values. We strive to foster a sense of social responsibility and activism among youth, cultivating future leaders committed to advancing equity, justice, and positive social change.",
+    "vision": "Our vision is to create a generation of young progressives who are actively involved in addressing societal issues, particularly those related to racial justice, environmental sustainability, human rights, and healthcare. By providing access to diverse volunteering opportunities and educational resources, we aim to inspire and equip young people to make a tangible difference in their communities and beyond.",
+    "values": {
+      "impact": "Impact",
+      "integrity": "Integrity",
+      "innovation": "Innovation",
+      "equity": "Equity",
+      "hope": "Hope"
+    },
+    "values-description": {
+      "impact": "We believe in the power of collective action to effect positive change, no matter how small the contribution may seem. We encourage our participants to make waves and be catalysts for progress.",
+      "integrity": "We uphold honesty, transparency, and accountability in all aspects of our work. By maintaining integrity in our actions and relationships, we build trust and credibility within our community.",
+      "innovation": "We embrace creativity and innovation as drivers of progress. We continuously seek new approaches and solutions to address pressing social challenges, adapting to evolving needs and circumstances.",
+      "equity": "We are committed to promoting equity and inclusivity in all our endeavors. We recognize and address systemic barriers that disproportionately affect marginalized communities, striving for fairness and justice for all.",
+      "hope": "We maintain a sense of optimism and resilience in the face of adversity. By fostering hope and inspiration, we empower young progressives to envision and work towards a better, more equitable future for everyone."
+    },
+    "bottom": "Through our mission, vision, and core values, the Young Progressives Initiative aims to cultivate a generation of compassionate, informed, and engaged citizens who are dedicated to building a more just and equitable society."
+  },
+  "team": {
+    "title": "Meet Our Team",
+    "description": "The dedicated people behind YPI"
+  },
+  "info-guide": {
+    "title": "Information Guide for Parents",
+    "summary": "Volunteering provides valuable experience, strengthens college applications, and helps young people discover career interests.",
+    "ssl-description": "First I will explain the different rules and regulations for Student Service Learning Hours in Maryland.",
+    "faq-heading": "Information Guide for Parents"
+  },
+  "donate": {
+    "title": "Thank You for Your Contribution!Support YPI",
+    "subtitle": "Defending Democracy depends on donations from people like you",
+    "description": "A donation to the Young Progressives Initiative invests in MoCo & the DMV's next generation of progressive leaders. Our mission is to mobilize youth beyond the ballot box, translating their passion into lasting impact. We connect high school students to meaningful internships in the non-profit world and provide mentorship for their creative passions, for whatever post education carrer they seek.",
+    "donation-provider": {
+      "square": "Donate with Square →",
+      "fundable": "Donate with Fundable →",
+      "freeFunder": "Donate with FreeFunder →",
+      "goFundMe": "Donate with GoFundMe →",
+      "patreon": "Support on Patreon →"
+    },
+    "review-dialog": {
+      "name": "name",
+      "rating": "Rating",
+      "review": "Review",
+      "submit-review": "Submit Review"
+    }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "description": "Have a question? Send us a message and we will respond as soon as possible.",
+    "name": "Full Name",
+    "email": "Email Address",
+    "message": "Your Message",
+    "submit": "Send Message"
+  },
+  "cookie": {
+    "title": "This website uses cookies",
+    "description": "We use cookies to enhance your browsing experience and analyze our traffic.",
+    "accept": "Accept all cookies",
+    "essential-accept": "Accept essential cookies",
+    "decline": "Decline cookies"
+  },
+  "bioTemplate": {
+    "bio": "Bio",
+    "education": "Education",
+    "pro-exp": "Professional Experience",
+    "projects": "Projects",
+    "skills": "Skills",
+    "certifications": "Certifications",
+    "interest": "Interests"
+  },
+  "articleTemplate": {
+    "writtenBy": "By",
+    "readTime": "min read",
+    "hashtags": {
+      "company": "#ACompanyToChangeAmerica",
+      "hour": "#OneHourAtATime",
+      "change": "#WeAreChange"
+    }
+  },
+  "footer": {
+    "tagline": "A Company to Change America One Hour At a Time",
+    "llc": "Young Progressives Initiative L.L.C",
+    "address": "Chevy Chase, MD 20815"
+  },
+  "social": {
+    "instagram": "Instagram",
+    "reddit": "Reddit",
+    "tiktok": "TikTok",
+    "linkedin": "LinkedIn",
+    "youtube": "YouTube",
+    "facebook": "Facebook",
+    "bluesky": "Bluesky"
+  },
+  "modal": {
+    "message-title": "Message",
+    "close": "Close",
+    "welcome": "Welcome to YPI",
+    "signIn": "Sign In Anonymously"
+  },
+  "theme": {
+    "toggle": "Toggle color theme",
+    "light": "Light Mode",
+    "dark": "Dark Mode"
+  }
+}
