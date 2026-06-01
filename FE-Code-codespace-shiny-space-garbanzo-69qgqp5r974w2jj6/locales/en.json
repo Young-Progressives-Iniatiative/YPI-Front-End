@@ -20,10 +20,17 @@
     "privacy": "Privacy Policy"
   },
   "home": {
-    "title": "Young Progressives Initiative",
-    "subtitle": "Empowering youth through opportunity and innovation",
-    "cta": "Explore YPI",
-    "loading": "Loading article..."
+    "carousel": {
+      "title-1": "A Company to Change America One Hour at a Time",
+      "subtitle-1": "Empowering our youth to do more than just vote and helping to spread the progressive message",
+      "title-2": "Building Communities Through Action",
+      "subtitle-2": "Connecting passionate individuals with meaningful opportunities to create lasting impact",
+      "title-3": "We Are Change",
+      "subtitle-3": "Join the movement to shape tomorrow through grassroots organizing and community engagement"
+    },
+    "article": "Featured Article",
+    "volunteer": "Recent Volunteers of this Month",
+    "news": "In Other YPI News"
   },
   "mission": {
     "title": "Our Mission",
